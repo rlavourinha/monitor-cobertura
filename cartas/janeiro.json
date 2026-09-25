@@ -1,0 +1,442 @@
+{
+  "fundo": "Itaú Janeiro Multimercado",
+  "gestora": "Itaú Asset Management (gestor: Bruno Serra, ex-diretor do BCB)",
+  "tipo": "Multimercado macro, Brasil e internacional (juros, moedas, bolsa, inflação, commodities)",
+  "inicio": "2023-09-29",
+  "cnpj": "52.116.227/0001-09",
+  "fontes": [
+    {
+      "nome": "Cartas trimestrais no LinkedIn do gestor (1T26, 4T25, 3T25, 2T25)",
+      "url": "https://www.linkedin.com/in/bruno-serra-fernandes-9a73b870/recent-activity/documents/"
+    },
+    {
+      "nome": "Relatório mensal, 31/08/2026",
+      "url": "https://assetfront.arquivosparceiros.cloud.itau.com.br/FND/FICFI56757_Itau_Janeiro_MM_FICFI.pdf"
+    },
+    {
+      "nome": "Relatório mensal, 31/07/2026 (Wayback)",
+      "url": "http://web.archive.org/web/20260819025638/https://assetfront.arquivosparceiros.cloud.itau.com.br/FND/FICFI56757_Itau_Janeiro_MM_FICFI.pdf"
+    },
+    {
+      "nome": "Carta do Gestor, 30/09/2025",
+      "url": "https://assetfront.arquivosparceiros.cloud.itau.com.br/FND/carta-do-gestor-itau-janeiro.pdf"
+    },
+    {
+      "nome": "InfoMoney, 08/07/2026",
+      "url": "https://www.infomoney.com.br/onde-investir/ex-diretor-do-bc-vai-contra-o-consenso-e-aposta-em-continuidade-dos-cortes-da-selic/"
+    },
+    {
+      "nome": "Money Times, 02/07/2026",
+      "url": "https://www.moneytimes.com.br/selic-divide-gigantes-do-mercado-bruno-serra-ve-cortes-mansueto-aposta-em-juros-travados/"
+    },
+    {
+      "nome": "Bloomberg Línea, 08/05/2026",
+      "url": "https://www.bloomberglinea.com.br/mercados/ex-diretor-do-bc-ve-maior-parte-dos-cortes-da-selic-pos-eleicao-e-taxa-a-11-em-2027/"
+    },
+    {
+      "nome": "Perspectivas 2026 (Itaú Asset), 15/12/2025",
+      "url": "https://blog.itau.com.br/itauasset/perspectivas-2026-o-impacto-do-cenario-local-e-global-nos-fundos-multimercado"
+    },
+    {
+      "nome": "Seu Dinheiro, 11/12/2025",
+      "url": "https://www.seudinheiro.com/2025/economia/bruno-serra-da-itau-asset-diz-que-selic-cai-em-janeiro-e-conta-o-que-precisa-acontecer-para-os-juros-chegarem-a-um-digito-lvgb/"
+    }
+  ],
+  "data": "2026-08-31",
+  "nota_fontes": "As cartas trimestrais (mar/26, dez/25, set/25, jun/25) são publicadas pelo gestor no LinkedIn como documento nativo e foram lidas na íntegra; os relatórios mensais anteriores a julho de 2026 são sobrescritos no site da Itaú Asset. Entrevistas à imprensa preenchem os meses sem carta e estão marcadas como tal.",
+  "periodos_cartas": [
+    {
+      "ini": "2023-09-29",
+      "fim": "2024-03-31",
+      "rotulo": "4T23–1T24",
+      "cor": "#2457c5",
+      "carta": "Carta de 1 ano (out/24), retrospectiva",
+      "tipo": "primária",
+      "cenario": "Janela positiva: desinflação, Focus 2024 caindo, BCB cortando 50 p.b.; Fed esperado cortando no 1S24.",
+      "resultado": "Vendido em implícitas e juros táticos renderam (4T23); comprado em real não funcionou e perdeu no 1T24."
+    },
+    {
+      "ini": "2024-04-01",
+      "fim": "2024-06-30",
+      "rotulo": "2T24",
+      "cor": "#7b4fb8",
+      "carta": "Carta de 1 ano (out/24), retrospectiva",
+      "tipo": "primária",
+      "cenario": "BCB teria de parar perto de 10%; dissenso do Copom de maio eleva prêmios e as expectativas 2025-26 sobem.",
+      "resultado": "Tomado em juros curtos; após o dissenso, aplicado na ponta longa e ações locais táticas. Abril negativo, recupera em mai-jun."
+    },
+    {
+      "ini": "2024-07-01",
+      "fim": "2024-09-30",
+      "rotulo": "3T24",
+      "cor": "#1a8fa8",
+      "carta": "Carta de 1 ano, 30/09/2024",
+      "tipo": "primária",
+      "cenario": "Alta da Selic vira cenário-base (25 p.b. em setembro); Fed corta 50 p.b.; estímulos na China; eleição americana.",
+      "resultado": "Tomado em juros curtos e comprado em real, 'resultados bastante positivos'; aplicado Europa, México e Colômbia."
+    },
+    {
+      "ini": "2024-10-01",
+      "fim": "2025-03-31",
+      "rotulo": "4T24–1T25",
+      "cor": "#8a8d92",
+      "carta": "Sem carta no LinkedIn",
+      "tipo": "lacuna",
+      "cenario": "Ciclo de alta até 15%; a carta de março/25 (citada em junho) antecipava o fim do ciclo em 15%.",
+      "resultado": "Dezembro e março negativos, janeiro forte. Sem carta no LinkedIn, sem atribuição publicada."
+    },
+    {
+      "ini": "2025-04-01",
+      "fim": "2025-06-30",
+      "rotulo": "2T25",
+      "cor": "#1baf7a",
+      "carta": "Carta 2T25, 30/06/2025",
+      "tipo": "primária",
+      "cenario": "'Liberation Day' derruba o S&P 10% em dois pregões e a pausa de 90 dias devolve tudo; Selic chega a 15% e para.",
+      "resultado": "Aplicado UK e Colômbia; vendido implícitas; tomado nominais curtos; vendido dólar; TSMC, Amazon, opções de EWZ. Melhor trimestre."
+    },
+    {
+      "ini": "2025-07-01",
+      "fim": "2025-09-30",
+      "rotulo": "3T25",
+      "cor": "#c98500",
+      "carta": "Carta 3T25, 30/09/2025",
+      "tipo": "primária",
+      "cenario": "Global benigno: bolsas em alta, dólar fraco, Fed volta a cortar; Brasil sem cortes em 2025, ciclo a partir do 1T26.",
+      "resultado": "Aplicado na barriga, vendido implícitas, NTN-B longa, vendido USDBRL; aplicado UK, CO, MX; IA via semicondutores."
+    },
+    {
+      "ini": "2025-10-01",
+      "fim": "2025-12-31",
+      "rotulo": "4T25",
+      "cor": "#e0662b",
+      "carta": "Carta 4T25, 31/12/2025",
+      "tipo": "primária",
+      "cenario": "Tarifas ficaram para trás; Fed corta mais uma vez; ruído eleitoral derruba o real 4,5% contra pares em dezembro.",
+      "resultado": "Otimista em renda fixa Brasil e vendido USDBRL: dezembro de +0,04%. Ano fecha em 145% do CDI, Sharpe 1,36."
+    },
+    {
+      "ini": "2026-01-01",
+      "fim": "2026-03-31",
+      "rotulo": "1T26",
+      "cor": "#bf3a2f",
+      "carta": "Carta 1T26, 31/03/2026",
+      "tipo": "primária",
+      "cenario": "Guerra no Irã e Hormuz fechado: maior choque no petróleo desde 1990; curvas globais tiram cortes e põem altas.",
+      "resultado": "Março −4,03%: juros BR −2,62 p.p., DM −1,45, EM −0,93. Diversificação por região não protegeu; risco 85% → 30% → 60%."
+    },
+    {
+      "ini": "2026-04-01",
+      "fim": "2026-06-30",
+      "rotulo": "2T26",
+      "cor": "#a9acb2",
+      "carta": "Bloomberg Línea (08/05) e Money Times (02/07)",
+      "tipo": "imprensa",
+      "cenario": "Petróleo posterga o ciclo; 'maior parte dos cortes pós-eleição'; IPCA 2026 revisado para 4,6%.",
+      "resultado": "Risco em juros reduzido a um terço; segue vendido em dólar. Três meses positivos recuperam a perda de março."
+    },
+    {
+      "ini": "2026-07-01",
+      "fim": "2026-12-31",
+      "rotulo": "3T26",
+      "cor": "#8a5a2b",
+      "carta": "Relatórios mensais de julho e agosto",
+      "tipo": "primária",
+      "cenario": "Copom corta a 14,00% sem guidance; IPCA benigno; reescalada no Oriente Médio; Warsh duro em Jackson Hole.",
+      "resultado": "Risco reduzido; aplicado BR, UK, ZA, CO; comprado real vs euro; bolsa EUA e Ibov tático; ouro. Jul −0,09%, ago +0,78%."
+    }
+  ],
+  "cartas_trimestrais": [
+    {
+      "ref": "1T26",
+      "data": "2026-03-31",
+      "publicada": "2026-04",
+      "titulo": "Cenário internacional: choque geopolítico · Brasil: correção dos juros, moeda resiliente",
+      "pontos": [
+        "Guerra no Irã e fechamento de Hormuz: maior choque no petróleo desde a Guerra do Golfo; curvas globais tiraram cortes e puseram altas.",
+        "Perdas nas posições aplicadas em Brasil, México, Reino Unido e África do Sul: a diversificação por região não funcionou, o petróleo bateu igual em todas as curvas.",
+        "Uso de risco em março: ~85% no início, ~30% no meio do mês, ~60% na virada do trimestre.",
+        "IPCA 2026 'mais para 4% do que para 5%' (consenso ~4,5%); Copom 25 p.b. em abril, 50 p.b. em junho, Selic ~12% em dezembro; terminal 11% adiada um ou dois trimestres.",
+        "Brasil exportador líquido de petróleo (US$ 30 bi em 12 meses): o choque melhora termos de troca e sustenta o real; fluxo estrangeiro > R$ 50 bi na bolsa.",
+        "Bolsa: reduziu Ásia (maior posição ainda TSM), aumentou Brasil; tema IA/Mag7 segue; vendido USDBRL, comprado ouro."
+      ]
+    },
+    {
+      "ref": "4T25",
+      "data": "2025-12-31",
+      "publicada": "2026-01",
+      "titulo": "Internacional benigno (bolsas em alta, juros contidos, dólar fraco) · Brasil: cortes começam no 1T26",
+      "pontos": [
+        "Inflação atinge a meta no 1S26: IPCA 3,2% em março, ~3,6% no fim de 2026; PIB de 3,4% (2024) para ~2,2% (2025), consumo das famílias < 0,5% a/a.",
+        "Primeiro corte no 1T26, mais provável 50 p.b. em março; ciclo de ~400 p.b.; Selic 11% e juro real 7,5% no fim de 2026 ainda seria cauteloso (neutro 5–6%).",
+        "Underperformance de 4,5% do real contra a cesta emergente em dezembro é exagerada; real volta a apreciar no 1T26.",
+        "Fed corta mais uma vez no 1S26; risco de um Chairman 'irresponsavelmente dovish'. Não vê bolha em IA: concentração acompanhou lucros.",
+        "Posições: otimista em renda fixa Brasil (nominais, venda de implícitas, NTN-B longa); vendido USDBRL; CDS Brasil como hedge; aplicado UK, México, Colômbia; tomado Chile e África do Sul.",
+        "2025: +20,78% (145% do CDI), Sharpe 1,36."
+      ]
+    },
+    {
+      "ref": "3T25",
+      "data": "2025-09-30",
+      "publicada": "2025-10",
+      "titulo": "Internacional positivo mas vigilante · Brasil: queda de juros em 2026",
+      "pontos": [
+        "Sem cortes em 2025; ciclo de 300–350 p.b. começando em janeiro ou março de 2026, com assimetria para mais; nominais abaixo de 10% com menor crescimento de gastos.",
+        "IPCA ~4,5% em 2025 e 3–3,5% no 1S26: inflação brasileira converge para o range internacional.",
+        "Riscos: tarifas na inflação americana, geopolítica, 'pockets' de exuberância (meme stocks).",
+        "Posições Brasil: aplicado na barriga da curva, vendido em implícitas de 3–5 anos, NTN-B longa, vendido USDBRL, CDS Brasil como hedge; bolsa local reduzida a favor de long-short."
+      ]
+    }
+  ],
+  "desempenho": {
+    "mes": {
+      "fundo": 0.78,
+      "cdi": 1.09,
+      "pct_cdi": 71.7
+    },
+    "ano": {
+      "fundo": 5.45,
+      "cdi": 9.33,
+      "pct_cdi": 58.5
+    },
+    "12m": {
+      "fundo": 10.05,
+      "pct_cdi": 68.7
+    },
+    "inicio": {
+      "fundo": 48.99,
+      "pct_cdi": 115.3,
+      "excesso_aa": 1.74
+    },
+    "sharpe": 0.44,
+    "vol": 4.01,
+    "pl_medio_12m_mi": 411,
+    "familia_bi": 25,
+    "anos": {
+      "2024": {
+        "fundo": 11.19,
+        "cdi": 10.87
+      },
+      "2025": {
+        "fundo": 20.78,
+        "cdi": 14.31
+      },
+      "2026 (jan-ago)": {
+        "fundo": 5.45,
+        "cdi": 9.33
+      }
+    },
+    "mensal_2026": [
+      [
+        "jan",
+        2.58
+      ],
+      [
+        "fev",
+        0.45
+      ],
+      [
+        "mar",
+        -4.03
+      ],
+      [
+        "abr",
+        1.79
+      ],
+      [
+        "mai",
+        1.52
+      ],
+      [
+        "jun",
+        2.49
+      ],
+      [
+        "jul",
+        -0.09
+      ],
+      [
+        "ago",
+        0.78
+      ]
+    ],
+    "atribuicao_ano": [
+      [
+        "CDI",
+        9.33
+      ],
+      [
+        "Bolsa internacional",
+        0.69
+      ],
+      [
+        "Moedas",
+        0.65
+      ],
+      [
+        "Juros emergentes",
+        0.46
+      ],
+      [
+        "Bolsa local",
+        -0.02
+      ],
+      [
+        "Commodities + CDS",
+        -0.16
+      ],
+      [
+        "Valor relativo",
+        -0.22
+      ],
+      [
+        "Juros desenvolvidos",
+        -1.24
+      ],
+      [
+        "Juros Brasil",
+        -1.94
+      ],
+      [
+        "Caixa e custos",
+        -2.09
+      ]
+    ]
+  },
+  "linha_do_tempo": [
+    {
+      "data": "2025-09-30",
+      "fonte": "Carta do gestor",
+      "tipo": "primária",
+      "selic_fim_2026": null,
+      "ipca_2026": null,
+      "juros": "Sem corte em 2025; ciclo de 300–350 p.b. a partir do 1T26; nominais podem ir abaixo de 10%.",
+      "inflacao": "IPCA ~4,5% em 2025; 3–3,5% no 1S26.",
+      "cambio": "BRL segue bem enquanto o ciclo de cortes não começa; vendido em USDBRL.",
+      "posicoes": "Aplicado na barriga; vendido em implícita 3–5a; NTN-B longa; vendido USDBRL; CDS Brasil como hedge."
+    },
+    {
+      "data": "2025-12-15",
+      "fonte": "Perspectivas 2026, Itaú Asset",
+      "tipo": "primária (evento)",
+      "selic_fim_2026": 11.0,
+      "ipca_2026": null,
+      "juros": "Cortes entre jan e mar; ~11% conservador, 8,5–9% com melhora fiscal.",
+      "inflacao": "—",
+      "cambio": "Câmbio é o maior desafio de 2026: menor diferencial de juros reduz o suporte ao real.",
+      "posicoes": "Aplicado em juros Brasil e Reino Unido; ações americanas; vendido Treasury 10a."
+    },
+    {
+      "data": "2025-12-31",
+      "fonte": "Carta 4T25 (LinkedIn)",
+      "tipo": "primária",
+      "selic_fim_2026": 11.0,
+      "ipca_2026": 3.6,
+      "juros": "1º corte no 1T26, provável 50 p.b. em março; ~400 p.b. no ano; Selic 11% e juro real 7,5% no fim de 2026.",
+      "inflacao": "IPCA 3,2% em mar/26, ~3,6% no fim de 2026; meta atingida no 1S26.",
+      "cambio": "Underperformance de 4,5% vs cesta EM em dezembro é exagerada; real aprecia no 1T26.",
+      "posicoes": "Nominais, venda de implícitas, NTN-B longa; vendido USDBRL; CDS Brasil; aplicado UK/MX/CO; Mag7 e cadeia de IA."
+    },
+    {
+      "data": "2026-03-31",
+      "fonte": "Carta 1T26 (LinkedIn)",
+      "tipo": "primária",
+      "selic_fim_2026": 12.0,
+      "ipca_2026": 4.0,
+      "juros": "Copom 25 p.b. em abril, 50 p.b. em junho, Selic ~12% em dezembro; terminal 11% adiada 1–2 trimestres.",
+      "inflacao": "IPCA 2026 'mais para 4% do que para 5%' se a guerra acabar em abril e o Brent ficar abaixo de 75 em dez/26.",
+      "cambio": "Petróleo alto favorece o real (exportador líquido, US$ 30 bi/12m); vendido USDBRL, comprado ouro.",
+      "posicoes": "Risco 85% → 30% → 60% em março; segue aplicado em nominais BR; aplicado ZA/MX/CO/EU/UK; reduziu Ásia (TSM), aumentou Brasil."
+    },
+    {
+      "data": "2026-05-08",
+      "fonte": "Bloomberg Línea (entrevista)",
+      "tipo": "imprensa",
+      "selic_fim_2026": null,
+      "ipca_2026": null,
+      "juros": "Petróleo posterga o ciclo; mais 2 cortes de 25 p.b.; maior parte pós-eleição, 11% em meados de 2027; pode pausar em 14–14,5%.",
+      "inflacao": "Petróleo > US$ 100 esfria atividade; 2028 desancorando.",
+      "cambio": "Segue vendido em dólar contra real, mas com espaço limitado de apreciação após o rali.",
+      "posicoes": "Risco em juros reduzido a 1/3; segue vendido em dólar; família ~R$ 25 bi."
+    },
+    {
+      "data": "2026-07-02",
+      "fonte": "Money Times",
+      "tipo": "imprensa",
+      "selic_fim_2026": 13.5,
+      "ipca_2026": 4.6,
+      "juros": "Retoma cortes; Selic 13–14% no fim de 2026, '14% é o teto'.",
+      "inflacao": "IPCA 4,6% em 2026; choque do petróleo revertido.",
+      "cambio": "Cenário-base com real perto de R$ 5,10.",
+      "posicoes": "Câmbio-base R$ 5,10."
+    },
+    {
+      "data": "2026-07-08",
+      "fonte": "InfoMoney",
+      "tipo": "imprensa",
+      "selic_fim_2026": null,
+      "ipca_2026": 4.6,
+      "juros": "Cortes de 25 p.b. em ago e set; se a atividade cair, ciclo acelera.",
+      "inflacao": "IPCA 4,6% vs 5,3% do Focus: diferença em bens e alimentos.",
+      "cambio": "Dólar mais fraco adiante, revertendo parte da alta recente.",
+      "posicoes": "Aplicado em nominais; vendido implícita; comprado CDS Brasil (proteção eleitoral)."
+    },
+    {
+      "data": "2026-07-31",
+      "fonte": "Relatório mensal",
+      "tipo": "primária",
+      "selic_fim_2026": null,
+      "ipca_2026": null,
+      "juros": "Ponta curta fechou com IPCA-15 benigno; longos com prêmio fiscal e eleitoral.",
+      "inflacao": "Surpresa benigna; Focus revisado para baixo.",
+      "cambio": "Favorável, sustentado pelo diferencial de juros e fluxo estrangeiro.",
+      "posicoes": "Risco reduzido e readicionado; aplicado BR, UK, ZA, CO; vendido dólar vs euro e rand; + tech e Ibov."
+    },
+    {
+      "data": "2026-08-31",
+      "fonte": "Relatório mensal",
+      "tipo": "primária",
+      "selic_fim_2026": null,
+      "ipca_2026": null,
+      "juros": "Copom a 14,00%, cauteloso e sem guidance; barriga da curva abriu.",
+      "inflacao": "IPCA jul 0,07%, IPCA-15 ago −0,40%; riscos: grãos, 6x1, reforma.",
+      "cambio": "Dólar recuperou a R$ 5,18 apesar do carry.",
+      "posicoes": "Risco reduzido; aplicado BR, UK, ZA, CO; comprado real vs euro; bolsa EUA e Ibov tático; ouro."
+    }
+  ],
+  "cenario": {
+    "global": [
+      "Agosto de duas metades, organizado pelo conflito EUA-Irã: trégua, reescalada no fim do mês, Brent de volta acima de US$ 90.",
+      "Fed manteve 3,50-3,75%; Warsh em Jackson Hole foi o mais duro do mandato ('o foco agora deve ser os preços'); 60% de chance de alta em setembro.",
+      "Treasury de 30 anos tocou 5,34%, máxima em 19 anos, até o Tesouro dobrar a recompra de longos; dívida ~US$ 40 tri, 125% do PIB.",
+      "Ouro +10% no mês num reflation trade; energia foi o melhor setor global pelo segundo mês."
+    ],
+    "brasil": [
+      "Copom cortou a Selic para 14,00% (quarto corte, 1 p.p. desde o pico de 15%) com comunicação cautelosa: sem guidance, assimetria altista, 'serenidade e cautela'.",
+      "Desinflação avança: IPCA de julho 0,07%, núcleos cedendo, 4,44% em 12 meses; IPCA-15 de agosto com deflação de 0,40%.",
+      "Atividade mais fraca na margem (PIM −1,8%, IBC-Br −0,6%). Curva DI: ponta curta fechou, barriga abriu com ruído fiscal e eleitoral.",
+      "Riscos novos de inflação: preço dos grãos, escala 6x1 e reforma tributária."
+    ],
+    "tese_longa": [
+      "Inflação brasileira converge para o padrão internacional; juros nominais podem ir abaixo de 10% com menor crescimento de gastos (carta de set/2025).",
+      "Eleição de 2026: assimetria aponta para mudança positiva na direção da política econômica; com fiscal, Selic terminal de 8% a 9%.",
+      "Dólar estruturalmente fraco (incertezas institucionais nos EUA); BRL sustentado pelo diferencial de juros.",
+      "Choque do petróleo (carta de mar/2026): adia a terminal de 11% em um ou dois trimestres, mas não a muda; como exportador líquido, o Brasil ganha termos de troca e o real resiste."
+    ]
+  },
+  "posicoes": {
+    "juros_brasil": "Aplicado em prefixados de prazo intermediário (barriga da curva) e vendido em inflação implícita de 3 a 5 anos. Principal detrator de agosto e do ano (−1,94 p.p.).",
+    "juros_global": "Aplicado no Reino Unido, África do Sul e Colômbia (ganhos na África do Sul em agosto). Tomado em inclinação da curva americana (carta de set/2025).",
+    "moedas": "Direcional neutro em dólar; comprado em real contra euro (aumentou em agosto).",
+    "bolsa": "Bolsa americana direcional e relativa (tecnologia contra outros setores); comprado no Ibovespa de forma tática.",
+    "commodities": "Comprado em ouro (ganhou em agosto). Hedge: comprado em CDS Brasil contra cesta de emergentes.",
+    "risco": "Risco reduzido marginalmente pela reescalada no Oriente Médio e pelos vetores inflacionários domésticos."
+  },
+  "leitura": [
+    "A tese de juros para baixo é a mesma desde 2025, mas o número migrou em três degraus documentados nas cartas: Selic 11% no fim de 2026 (carta de dez/25), 12% (carta de mar/26, após o choque do petróleo) e 13% a 14% (jul/26), com a maior parte dos cortes empurrada para depois da eleição. O IPCA 2026 fez o mesmo caminho: 3,6% → 4,0% → 4,6%.",
+    "Março de 2026 é o mês que define o ano: −4,03%, com juros Brasil −2,62 p.p., desenvolvidos −1,45 e emergentes −0,93. A carta admite que a diversificação por região não protegeu, porque o petróleo deslocou todas as curvas juntas; o risco foi de 85% para 30% e voltou a 60%.",
+    "Onde ele diverge hoje: IPCA 2026 em 4,6% contra 4,9% do Focus e 5,2% do BCB. Se estiver certo, a curva que não precifica corte nenhum (FRAs do painel) está errada; se o BCB estiver certo, a posição aplicada segue sofrendo.",
+    "A posição vendida em implícita de 3 a 5 anos conversa com a inflação implícita da ANBIMA (5,9% a 6,1%) contra o Focus (3,5% em 2029-30): a aposta é que esse prêmio cai.",
+    "Desempenho: 115% do CDI desde o início, mas 58% do CDI em 2026, com março de −4,03%. A perda do ano está toda em juros (Brasil −1,9 p.p., desenvolvidos −1,2)."
+  ]
+}

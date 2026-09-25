@@ -1,0 +1,52 @@
+{
+  "fonte_nome": "BCB, Relatório de Política Monetária de setembro de 2026 (data de corte 11/09/2026)",
+  "fonte_url": "https://www.bcb.gov.br/content/ri/relatorioinflacao/202609/rpm202609p.pdf",
+  "data": "set/2026",
+  "lede": "Cenário de referência do Copom (Selic do Focus, câmbio pela PPC) contra a mediana do mercado. Diferença em pontos.",
+  "trajetoria_ipca": [["3T25", 5.2], ["4T25", 4.3], ["1T26", 4.1], ["2T26", 4.6], ["3T26", 4.4], ["4T26", 5.2], ["1T27", 4.9], ["2T27", 4.5], ["3T27", 4.5], ["4T27", 3.9], ["1T28", 3.2], ["2T28", 3.1], ["3T28", 3.1], ["4T28", 3.1], ["1T29", 3.1]],
+  "trajetoria_ipca_efetivo_ate": "1T26",
+  "comparaveis": [
+    {"indicador": "IPCA", "horizonte": "2026 (4T26, acum. 4 tri)", "bcb": 5.2, "dec": 1, "unidade": "%", "focus_ind": "IPCA", "focus_ref": 2026, "nota": "Recua a 4,4% no 3T26 e volta a 5,2% por clima e petróleo; dois trimestres acima do teto de 4,5%."},
+    {"indicador": "IPCA", "horizonte": "2027 (4T27)", "bcb": 3.9, "dec": 1, "unidade": "%", "focus_ind": "IPCA", "focus_ref": 2027, "nota": "BCB abaixo do mercado: espera devolução dos choques. Livres 4,1% vs Focus 4,48%; administrados 3,5% vs 3,85%."},
+    {"indicador": "IPCA", "horizonte": "1T28, horizonte relevante", "bcb": 3.2, "dec": 1, "unidade": "%", "focus_ind": "IPCA", "focus_ref": 2028, "nota": "Estável vs junho. Focus é o ano-calendário 2028."},
+    {"indicador": "IPCA", "horizonte": "2028 (4T28)", "bcb": 3.1, "dec": 1, "unidade": "%", "focus_ind": "IPCA", "focus_ref": 2028, "nota": "Prob. de estourar o teto: 90% em 2026 (era 79%), 33% em 2027, 16% em 2028."},
+    {"indicador": "Selic (premissa)", "horizonte": "fim de 2026", "bcb": 13.75, "dec": 2, "unidade": "%", "focus_ind": "Selic", "focus_ref": 2026, "nota": "Trajetória do Focus na data de corte; o Focus de 18/09 já antecipou um corte para dezembro."},
+    {"indicador": "Selic (premissa)", "horizonte": "fim de 2027 · 2028 · 2029", "bcb": 12.0, "dec": 2, "unidade": "%", "focus_ind": "Selic", "focus_ref": 2027, "nota": "12,00% · 10,50% · 10,00%. Neutro real 5,0%; Selic real ex-ante de 9,6% (3T25) para 6,5%."},
+    {"indicador": "Câmbio (premissa)", "horizonte": "ponto de partida, PPC", "bcb": 5.15, "dec": 2, "unidade": "", "focus_ind": "Câmbio", "focus_ref": 2026, "nota": "R$ 5,15/US$ (junho: 5,10), depois paridade do poder de compra (+1 p.p. a.a.)."},
+    {"indicador": "PIB", "horizonte": "2026", "bcb": 1.8, "dec": 1, "unidade": "%", "focus_ind": "PIB Total", "focus_ref": 2026, "nota": "De 2,0%. Consumo das famílias 1,2% (era 2,1%), FBCF 2,0%, transformação −0,5%, agro 2,8%."},
+    {"indicador": "PIB", "horizonte": "2027", "bcb": 1.4, "dec": 1, "unidade": "%", "focus_ind": "PIB Total", "focus_ref": 2027, "nota": "Primeira projeção: consumo 1,4%, FBCF 1,5%, agro 0,5% (El Niño), indústria 1,3%, serviços 1,5%."},
+    {"indicador": "Conta corrente", "horizonte": "2026 · 2027", "bcb": -60, "dec": 0, "unidade": " US$ bi", "focus_ind": "Conta corrente", "focus_ref": 2026, "nota": "−US$ 60 bi (2,3% do PIB) em 2026 e −US$ 55 bi (2,0%) em 2027."},
+    {"indicador": "Balança comercial", "horizonte": "2026 · 2027", "bcb": 75, "dec": 0, "unidade": " US$ bi", "focus_ind": "Balança comercial · Saldo", "focus_ref": 2026, "nota": "US$ 75 bi (era 78) e US$ 77 bi; exportações 384 → 395, importações 308 → 319."},
+    {"indicador": "IDP", "horizonte": "2026 · 2027", "bcb": 75, "dec": 0, "unidade": " US$ bi", "focus_ind": "Investimento direto no país", "focus_ref": 2026, "nota": "US$ 75 bi nos dois anos (2,7% do PIB)."}
+  ],
+  "credito": [
+    ["Total", 10.4, 9.5, 9.1, 8.8],
+    ["Livres", 8.7, 7.0, 7.2, 7.8],
+    ["Livres PF", 13.5, 10.8, 9.0, 9.0],
+    ["Livres PJ", 2.2, 1.4, 4.5, 6.0],
+    ["Direcionados", 12.8, 12.8, 11.7, 10.0],
+    ["Total PF", 11.9, 10.8, 9.7, 9.4],
+    ["Total PJ", 8.1, 7.4, 8.2, 7.7]
+  ],
+  "credito_cab": ["2025", "jul/26 (12m)", "2026 proj.", "2027 proj."],
+  "riscos_alta": [
+    "Desancoragem prolongada das expectativas (2028 de 3,69% para 3,80%; 2029 em 3,5%).",
+    "Serviços resilientes por hiato mais positivo do que o estimado.",
+    "Câmbio persistentemente depreciado por tarifas dos EUA, Fed e fiscal doméstico.",
+    "Estímulos à demanda com atividade acima do potencial, enfraquecendo a transmissão."
+  ],
+  "riscos_baixa": [
+    "Desaceleração doméstica mais forte que a projetada.",
+    "Desaceleração global por choque de comércio, com cortes do Fed e real mais forte.",
+    "Queda dos preços de commodities."
+  ],
+  "sinalizacao": "Ciclo de calibração: −0,25 p.p. em junho, agosto e setembro, Selic em 13,75%. Riscos 'mais elevados que o usual, com assimetria altista'; a magnitude total do ciclo 'será estabelecida à luz de novas informações'; cenário 'demanda serenidade e cautela'. Sem sinal de pausa nem de aceleração.",
+  "pontos": [
+    "Horizonte relevante (1T28) projetado em 3,2%, estável contra junho; trajetória até lá mais alta.",
+    "Expectativas desancoradas: Focus 2027 subiu de 4,10% para 4,30% e 2028 de 3,68% para 3,80%; 2029 e 2030 em 3,50%, acima da meta de 3%.",
+    "Hiato positivo (+0,4% no 3T26) caindo a −0,4% no 1T28. Desocupação em 5,4% dessazonalizada, Nuci 82,9%.",
+    "Selic real ex-ante cai do pico de 9,6% (3T25) para 6,5% no fim do horizonte, sempre acima do neutro de 5,0%.",
+    "El Niño mais forte e longo (RONI 2,7 °C no 4T26): pressiona 2026-27, devolve em 2028. Bandeira amarela até dezembro. Brent US$ 90 no 3T26, ~84 no 2T27.",
+    "Surpresa baixista de −0,90 p.p. no IPCA de junho a agosto (Itaipu −0,34 p.p., bandeira −0,32 p.p.); curto prazo: 5,21% em 12 meses em dezembro."
+  ]
+}

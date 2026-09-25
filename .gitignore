@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+data/cda/*.zip
+data/inf_diario/*.zip
+.playwright/
+*.log
