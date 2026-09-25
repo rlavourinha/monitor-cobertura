@@ -63,6 +63,13 @@ def tickers_alvo() -> set[str]:
     except Exception as e:
         print(f"  carteira Ibovespa indisponível ({e}); COTAHIST só do universo", file=sys.stderr)
     t |= {v for k, v in getattr(config, "ALIAS_TICKER", {}).items() if k in t}   # códigos antigos dos papéis renomeados
+    fdir = config.DATA / "ibov_carteira"                                          # papéis de fotografias antigas que já saíram do índice
+    if fdir.exists():
+        for f in fdir.glob("*.json"):
+            try:
+                t |= set(json.loads(f.read_text(encoding="utf-8")).get("q", {}))
+            except Exception:
+                pass
     return t
 
 

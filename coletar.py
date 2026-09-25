@@ -173,13 +173,18 @@ def diario_ibov_comp():
     c = b3.carteira_ibov()
     antigo = _le_json(config.DATA / "ibov_comp.json", {})
     _grava_json(config.DATA / "ibov_comp.json", {"data": c["data"], "itens": c["itens"], "redutor": c.get("redutor"),
-                                                 "intraday": antigo.get("intraday", {}), "proventos": antigo.get("proventos", {})})
+                                                 "intraday": antigo.get("intraday", {}), "proventos": antigo.get("proventos", {}),
+                                                 "prov_yahoo": antigo.get("prov_yahoo", {})})   # histórico do Yahoo vem do passo semanal
     # fotografia diária (quantidades teóricas + redutor): base da decomposição exata entre duas datas
+    fdir = config.DATA / "ibov_carteira"; fdir.mkdir(exist_ok=True)
     if c.get("data"):
-        fdir = config.DATA / "ibov_carteira"; fdir.mkdir(exist_ok=True)
-        _grava_json(fdir / f"{c['data']}.json", {"data": c["data"], "redutor": c.get("redutor"), "q": {it["cod"]: it["q"] for it in c["itens"]}})
+        _grava_json(fdir / f"{c['data']}.json", {"data": c["data"], "redutor": c.get("redutor"), "q": {it["cod"]: it["q"] for it in c["itens"]},
+                                                 "peso": {it["cod"]: it["peso"] for it in c["itens"]}, "fonte": "B3 GetPortfolioDay"})
     b3.atualiza_cotahist_diario()          # garante que o cache cobre a carteira (rebaixa o anual uma vez se preciso)
-    hist = {it["cod"]: [[d, v] for d, v in b3.serie(it["cod"])][-1300:] for it in c["itens"]}   # ~5 anos: base do clique no gráfico do Painel
+    cods = {it["cod"] for it in c["itens"]}
+    for f in fdir.glob("*.json"):                               # papéis de fotografias antigas (já saíram do índice): preço na data inicial
+        cods |= set(_le_json(f, {}).get("q", {}))
+    hist = {cod: [[d, v] for d, v in b3.serie(cod)][-1300:] for cod in sorted(cods)}   # ~5 anos: base do clique no gráfico do Painel
     hist = {k: v for k, v in hist.items() if v}
     # proventos com data-com nos últimos 13 meses: reconstrução da quantidade teórica (janelas curtas) e dividend yield 12 m
     desde = (date.today() - timedelta(days=400)).isoformat()
@@ -241,6 +246,11 @@ def semanal_ibov_dy_hist():
         sym = it["cod"] + ".SA"
         divs[it["cod"]] = yahoo.dividendos(sym)
         closes[it["cod"]] = yahoo.historico(sym, "max")
+    # guarda os dividendos históricos (data ex, valor) em ibov_comp.json: a decomposição usa-os para reconstruir a
+    # quantidade teórica em datas anteriores à cobertura do canal da B3 (~13 meses)
+    obj = _le_json(config.DATA / "ibov_comp.json", {})
+    obj["prov_yahoo"] = {k: [[d, v] for d, v in vs if d >= "2019-01-01"] for k, vs in divs.items() if vs}
+    _grava_json(config.DATA / "ibov_comp.json", obj)
     ini = date(2010, 1, 31)
     meses = []
     m = ini

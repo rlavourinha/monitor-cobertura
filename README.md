@@ -30,6 +30,26 @@ emendada em `b3.serie`; os que não existiam na data (ex.: AZZA3, BRAV3, ISAE4) 
 Antes de jul/2021 não há fechamentos dos papéis e o clique avisa. Os demais slides são o detalhe; a decomposição
 completa (12 maiores e 12 menores contribuições) está no slide "Ibovespa · decomposição".
 
+**Como o erro é zerado.** A identidade só fecha quando se conhece a quantidade teórica de cada papel na data
+inicial. Fontes, em ordem de qualidade:
+1. **Fotografia diária da carteira** (`data/ibov_carteira/AAAA-MM-DD.json`: quantidade, peso e redutor; a B3 só
+   publica a do dia, então a coleta diária acumula desde 25/09/2026). Com fotografia no dia, erro de ~0,01 p.p.
+   Fotografia de outro dia do mesmo quadrimestre também serve: a quantidade é levada até a data pelo ajuste de
+   proventos (dividendos e JCP mudam a quantidade teórica na data ex; bonificação e desdobramento também).
+2. **Reconstrução por proventos** dentro do quadrimestre corrente, a partir da carteira de hoje (sem fotografia).
+3. **Peso atual × retorno** quando a janela cruza um rebalanceamento sem fotografia: aproximado, erro declarado.
+Com fotografia, papéis que saíram do índice entram com valor inicial e valor final zero, e os que entraram, com
+valor inicial zero, então a soma fecha mesmo cruzando rebalanceamento. Proventos: canal da B3 nos últimos 13 meses
+(com bonificações); antes disso, dividendos do Yahoo (`prov_yahoo` em `ibov_comp.json`, gravado pelo passo semanal
+do DY), marcados como aproximados. Uma fotografia histórica veio do Wayback Machine (carteira de 31/03/2025, única
+captura completa da API da B3); as demais capturas arquivadas só têm a primeira página (20 papéis) e não servem.
+Carteiras históricas completas só na B3 (produto pago) ou num terminal, e aí ficariam fora do repositório.
+
+**Quem puxou, quem segurou.** Classes da mesma empresa somadas (PETR3+4, BBDC3+4); pelo menos quatro nomes de cada
+lado, mais todo nome com contribuição acima de 0,5 p.p., até oito. A linha acima das tabelas diz quanto do movimento
+bruto os nomes mostrados explicam. Layout: os slides usam até 1760 px de largura; acima de 1700 px as fontes do
+Painel aumentam.
+
 ## Atualização automática (GitHub Actions)
 
 Repositório público `rlavourinha/monitor-cobertura` (só dados públicos e produção própria; nada da Bloomberg entra

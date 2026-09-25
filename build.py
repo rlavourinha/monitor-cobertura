@@ -324,10 +324,13 @@ def _q_inicio(cod: str, q_atual: float, proventos: list[dict], calend: list[str]
     bonificação/desdobramento: q(t0) = q(t) / (1 + fator/100). Units usam a composição ON+PN (aproximação se faltar PN)."""
     q, exato = q_atual, True
     for p in proventos or []:
-        com = p.get("com")
-        if not com:
-            continue
-        ex = next((d for d in calend if d > com), None)
+        com, ex = p.get("com"), p.get("ex")                      # B3: data-com (ex = pregão seguinte); Yahoo: data ex direta
+        if ex is None:
+            if not com:
+                continue
+            ex = next((d for d in calend if d > com), None)
+        elif com is None:
+            com = next((d for d in reversed(calend) if d < ex), None)
         if not ex or not (t0 < ex <= t):
             continue
         if p.get("fator") is not None:
@@ -339,7 +342,7 @@ def _q_inicio(cod: str, q_atual: float, proventos: list[dict], calend: list[str]
             # outros eventos (resgate, subscrição) não alteram a quantidade teórica aqui
             continue
         D = p.get("valor") or 0
-        pcum = preco_em(cod, com) if preco_em else None
+        pcum = preco_em(cod, com) if (preco_em and com) else None
         if pcum and pcum > D > 0:
             q = q / (pcum / (pcum - D))
         elif D > 0:
@@ -347,6 +350,63 @@ def _q_inicio(cod: str, q_atual: float, proventos: list[dict], calend: list[str]
     if classe == "UNT" and cod not in UNIT_COMP:
         exato = False
     return q, exato
+
+
+def _q_avanca(cod: str, q_s: float, proventos: list[dict], calend: list[str], s: str, t0: str, classe: str, preco_em=None) -> tuple[float, bool]:
+    """Inverso de _q_inicio: leva a quantidade teórica de uma fotografia em s para t0 > s (eventos com data ex em (s, t0])."""
+    q, exato = q_s, True
+    for p in proventos or []:
+        com, ex = p.get("com"), p.get("ex")
+        if ex is None:
+            if not com:
+                continue
+            ex = next((d for d in calend if d > com), None)
+        elif com is None:
+            com = next((d for d in reversed(calend) if d < ex), None)
+        if not ex or not (s < ex <= t0):
+            continue
+        if p.get("fator") is not None:
+            acao = (p.get("acao") or "").upper()
+            if "BONIFIC" in acao or "DESDOBR" in acao:
+                q = q * (1 + p["fator"] / 100)
+            elif "GRUPAM" in acao and p["fator"]:
+                q = q / p["fator"] if p["fator"] < 1 else q * p["fator"]
+            continue
+        D = p.get("valor") or 0
+        pcum = preco_em(cod, com) if (preco_em and com) else None
+        if pcum and pcum > D > 0:
+            q = q * (pcum / (pcum - D))
+        elif D > 0:
+            exato = False
+    if classe == "UNT" and cod not in UNIT_COMP:
+        exato = False
+    return q, exato
+
+
+def proventos_completos(C: dict) -> dict:
+    """Proventos por papel: B3 (data-com, ~13 meses, inclui bonificações) e, antes da cobertura da B3, os dividendos do
+    Yahoo (data ex, valores na base de ações de hoje). Os do Yahoo levam 'fonte': 'yahoo' e são tratados como aproximados."""
+    b3 = C.get("proventos", {}) or {}
+    ini = min((p["com"] for ps in b3.values() for p in ps if p.get("com")), default="9999")
+    out = {}
+    for cod in set(b3) | set(C.get("prov_yahoo", {}) or {}):
+        lst = list(b3.get(cod, []))
+        lst += [{"ex": d, "valor": v, "acao": "DIVIDENDO (Yahoo)", "fonte": "yahoo"} for d, v in (C.get("prov_yahoo", {}) or {}).get(cod, []) if d <= ini]
+        out[cod] = lst
+    return out
+
+
+def _foto_quadri(fotos: dict, t0: str, rebal: list[str]) -> tuple[str | None, dict | None]:
+    """Fotografia mais próxima de t0 dentro do mesmo quadrimestre (nenhum rebalanceamento entre as duas datas)."""
+    melhor = None
+    for s, f in fotos.items():
+        a, b = min(s, t0), max(s, t0)
+        if any(a < r <= b for r in rebal):
+            continue
+        dist = abs(date.fromisoformat(s).toordinal() - date.fromisoformat(t0).toordinal())
+        if melhor is None or dist < melhor[0]:
+            melhor = (dist, s, f)
+    return (melhor[1], melhor[2]) if melhor else (None, None)
 
 
 def decomp_ibov(M: dict) -> dict | None:
@@ -364,7 +424,7 @@ def decomp_ibov(M: dict) -> dict | None:
         h = hist.get(cod)
         if h and q.get("data") and q["data"] > h[-1][0]:
             hist[cod] = h + [[q["data"], q["preco"]]]
-    prov = C.get("proventos", {})
+    prov = proventos_completos(C)
     fotos_dir = config.DATA / "ibov_carteira"
     fotos = {f.stem: json.loads(f.read_text(encoding="utf-8")) for f in sorted(fotos_dir.glob("*.json"))} if fotos_dir.exists() else {}
     calend = sorted({d for h in hist.values() for d, _ in h})
@@ -391,30 +451,55 @@ def decomp_ibov(M: dict) -> dict | None:
             t0 = next((d for d in reversed(calend) if d < f"{ano}-01-01"), None)
             if not t0:
                 continue
-        foto0 = fotos.get(t0)
+        s0, foto0 = _foto_quadri(fotos, t0, rebal)          # fotografia do mesmo quadrimestre (exata no dia, ajustada por proventos se em outro dia)
         cruza = any(t0 < r <= t for r in rebal) and not foto0
         exato_janela = bool(foto0) or (not cruza and n is not None)   # com fotografia, exato mesmo cruzando rebalanceamento (redutor incluído)
         red_t = float(C.get("redutor") or 0) or 1.0
         red_0 = float((foto0 or {}).get("redutor") or 0) or red_t
+        prov_ini = min((p["com"] for ps in prov.values() for p in ps if p.get("com")), default="9999")
         papeis, v0_tot, vt_tot, exato_all = [], 0.0, 0.0, exato_janela
+        if foto0 and s0 != t0 and min(s0, t0) < prov_ini:
+            exato_all = False                                  # entre a fotografia e t0 os proventos vêm do Yahoo (aproximados)
         for it in itens:
             cod, w, classe = it["cod"], it["peso"] / 100, it.get("classe", "ON")
             pt, p0 = preco_em(cod, t), preco_em(cod, t0)
-            if not pt or not p0:
+            if not pt or (not p0 and not foto0):
                 continue
             qt = float(it.get("q") or 0)
             if exato_janela and qt:
-                if foto0 and cod in foto0.get("q", {}):
-                    q0, ex = foto0["q"][cod], True
+                if foto0:
+                    qs = foto0.get("q", {}).get(cod)
+                    if qs is None or not p0:                    # entrou no índice depois de t0: valor inicial zero
+                        q0, ex, p0 = 0.0, True, (p0 or 0.0)
+                    elif s0 == t0:
+                        q0, ex = qs, True
+                    elif s0 > t0:
+                        q0, ex = _q_inicio(cod, qs, prov.get(cod, []), calend, t0, s0, classe, preco_em)
+                    else:
+                        q0, ex = _q_avanca(cod, qs, prov.get(cod, []), calend, s0, t0, classe, preco_em)
                 else:
                     q0, ex = _q_inicio(cod, qt, prov.get(cod, []), calend, t0, t, classe, preco_em)
                 exato_all = exato_all and ex
                 v0, vt = q0 * p0 / red_0, qt * pt / red_t
                 v0_tot += v0; vt_tot += vt
-                papeis.append([cod, it["setor"], it["peso"], pt / p0 - 1, v0, vt])
+                papeis.append([cod, it["setor"], it["peso"], (pt / p0 - 1) if p0 else 0.0, v0, vt])
             else:
                 r = pt / p0 - 1
                 papeis.append([cod, it["setor"], it["peso"], r, None, w * r * 100])
+        if foto0:                                              # papéis que saíram do índice: valor inicial, valor final zero
+            atuais = {it["cod"] for it in itens}
+            for cod, qs in foto0.get("q", {}).items():
+                if cod in atuais:
+                    continue
+                p0 = preco_em(cod, t0)
+                if p0:
+                    v0 = qs * p0 / red_0
+                elif foto0.get("peso", {}).get(cod) is not None and s0 in ib_map:
+                    v0 = foto0["peso"][cod] / 100 * ib_map[s0]; exato_all = False
+                else:
+                    continue
+                v0_tot += v0
+                papeis.append([cod, "Saíram do índice", 0.0, -1.0, v0, 0.0])
         if exato_janela and v0_tot > 0:
             papeis = [(c, s, w, r, (vt - v0) / v0_tot * 100) for c, s, w, r, v0, vt in papeis]
             replica = (vt_tot / v0_tot - 1) * 100
@@ -429,7 +514,7 @@ def decomp_ibov(M: dict) -> dict | None:
         indice = (ib_map[t] / ib_map[t0] - 1) * 100 if (t in ib_map and t0 in ib_map) else None
         out["jan"][chave] = {"rotulo": rotulo, "t0": t0, "t": t, "setores": lst, "papeis": sorted(papeis, key=lambda x: -x[4]),
                              "soma": soma, "indice": indice, "replica": replica,
-                             "metodo": (("exato" if exato_all else "exato (units aprox.)") + (" · fotografia" if foto0 else "")) if exato_janela else "aprox. (cruza rebalanceamento sem fotografia)",
+                             "metodo": (("exato" if exato_all else "quase exato (units/proventos aprox.)") + (f" · fotografia {s0[8:]}/{s0[5:7]}/{s0[2:4]}" if foto0 else "")) if exato_janela else "aprox. (cruza rebalanceamento sem fotografia)",
                              "erro": (soma - indice) if indice is not None else None}
     return out
 
@@ -478,6 +563,38 @@ def bloco_ibov_painel(D: dict) -> str:
             f'<div style="margin-top:4px">{"".join(vs)}</div><div style="margin-top:4px">{"".join(vp)}</div></div>')
 
 
+def agrupa_empresa(papeis: list) -> list:
+    """Soma as classes da mesma empresa (PETR3+PETR4, ELET3+ELET6...) pelo radical de 4 letras: [rótulo, setor, peso, retorno ponderado, contribuição]."""
+    g: dict[str, list] = {}
+    for cod, setor, peso, r, x in papeis:
+        e = g.setdefault(cod[:4], [set(), setor, 0.0, 0.0, 0.0])
+        e[0].add(cod[4:]); e[2] += peso; e[3] += peso * r; e[4] += x
+    out = []
+    for raiz, (cls, setor, peso, wr, x) in g.items():
+        rot = raiz + ("+".join(sorted(cls)) if len(cls) > 1 else next(iter(cls)))
+        out.append([rot, setor, peso, (wr / peso) if peso else 0.0, x])
+    return sorted(out, key=lambda e: -e[4])
+
+
+LIMIAR_NOME = 0.5      # p.p.: todo nome com contribuição ≥ 0,5 p.p. aparece, mesmo além do mínimo de linhas
+
+
+def seleciona_nomes(emp: list, minimo: int = 4, maximo: int = 8) -> tuple[list, list, str]:
+    """Quem puxou (positivos) e quem segurou (negativos): pelo menos `minimo` linhas, mais todo nome acima do limiar, até `maximo`.
+    Devolve também a frase de cobertura: quanto do movimento os nomes mostrados explicam."""
+    pos = [e for e in emp if e[4] > 0]
+    neg = [e for e in emp if e[4] < 0][::-1]
+    def corta(lst):
+        n = max(minimo, sum(1 for e in lst if abs(e[4]) >= LIMIAR_NOME))
+        return lst[:min(n, maximo)]
+    top, bot = corta(pos), corta(neg)
+    tp, tn = sum(e[4] for e in pos), sum(e[4] for e in neg)
+    sp, sn = sum(e[4] for e in top), sum(e[4] for e in bot)
+    cab = (f'Mostrados explicam {num(sp, 2, "+")} de {num(tp, 2, "+")} p.p. que puxaram e {num(sn, 2)} de {num(tn, 2)} p.p. que seguraram'
+           f' ({num((abs(sp) + abs(sn)) / (abs(tp) + abs(tn)) * 100, 0) if (tp or tn) else "—"}% do movimento bruto). Classes da mesma empresa somadas.')
+    return top, bot, cab
+
+
 def linha_ibov_painel(D: dict, M: dict) -> str:
     """Linha de baixo do Painel: gráfico do Ibovespa (clicável) + decomposição em dois blocos (setores; puxaram/seguraram).
     O clique num ponto do gráfico dispara, no navegador, a decomposição daquela data até hoje (dados embutidos em #ibov-dados)."""
@@ -497,11 +614,12 @@ def linha_ibov_painel(D: dict, M: dict) -> str:
         cab = (f'<div class="mut" style="font-size:11px;margin:0 0 4px">De {j["t0"][8:]}/{j["t0"][5:7]}/{j["t0"][2:4]} a {j["t"][8:]}/{j["t"][5:7]}/{j["t"][2:4]}: Ibovespa {num(j["indice"], 2, "+" if j["indice"] and j["indice"] > 0 else "", "%") if j["indice"] is not None else "—"} · soma {num(j["soma"], 2, "+" if j["soma"] > 0 else "", " p.p.")}'
                f' · erro {num(j["erro"], 2, "+" if j["erro"] and j["erro"] > 0 else "", " p.p.") if j["erro"] is not None else "—"} · {j["metodo"]}</div>')
         vs.append(f'<div data-j="{k}"{"" if k == "dia" else " style=display:none"}>{cab}{svg_hbar([(ABREV.get(s, s), c) for s, _, c, _ in j["setores"]], W=430, RH=13, ML=104, MR=44)}</div>')
-        top, bot = j["papeis"][:4], j["papeis"][-4:][::-1]
+        emp = agrupa_empresa(j["papeis"])
+        top, bot, cab_e = seleciona_nomes(emp)
         tr = "".join(f'<tr><td class="tk">{c}</td><td class="{dlt_cls(r)}">{pct(r)}</td><td class="{dlt_cls(x)}">{num(x, 2, "+" if x > 0 else "")}</td></tr>' for c, _, _, r, x in top)
         tr2 = "".join(f'<tr><td class="tk">{c}</td><td class="{dlt_cls(r)}">{pct(r)}</td><td class="{dlt_cls(x)}">{num(x, 2, "+" if x > 0 else "")}</td></tr>' for c, _, _, r, x in bot)
-        vp.append(f'<div data-j="{k}" style="display:{"grid" if k == "dia" else "none"};grid-template-columns:1fr 1fr;gap:8px"><table class="mini"><thead><tr><th>Puxaram</th><th>Var.</th><th>p.p.</th></tr></thead><tbody>{tr}</tbody></table>'
-                  f'<table class="mini"><thead><tr><th>Seguraram</th><th>Var.</th><th>p.p.</th></tr></thead><tbody>{tr2}</tbody></table></div>')
+        vp.append(f'<div data-j="{k}"{"" if k == "dia" else " style=display:none"}><div class="mut" style="font-size:11px;margin:0 0 4px">{cab_e}</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><table class="mini"><thead><tr><th>Puxaram</th><th>Var.</th><th>p.p.</th></tr></thead><tbody>{tr}</tbody></table>'
+                  f'<table class="mini"><thead><tr><th>Seguraram</th><th>Var.</th><th>p.p.</th></tr></thead><tbody>{tr2}</tbody></table></div></div>')
     # dados para o clique: carteira, histórico (com o último ponto intraday), proventos, fotografias, índice, calendário, rebalanceamentos
     C = json.loads((config.DATA / "ibov_comp.json").read_text(encoding="utf-8"))
     hist = C.get("hist", {})
@@ -514,8 +632,9 @@ def linha_ibov_painel(D: dict, M: dict) -> str:
     fotos = {f.stem: json.loads(f.read_text(encoding="utf-8")) for f in sorted(fdir.glob("*.json"))} if fdir.exists() else {}
     rebal = [d for d in calend if d[5:7] in ("01", "05", "09") and d[8:10] <= "03" and d[5:7] != calend[0][5:7]] if calend else []
     ini_h = calend[0] if calend else "9999"
+    prov_ini = min((p["com"] for ps in C.get("proventos", {}).values() for p in ps if p.get("com")), default="9999")
     dados = {"itens": [{"cod": i["cod"], "setor": i["setor"], "peso": i["peso"], "q": i.get("q"), "classe": i.get("classe", "ON")} for i in C.get("itens", [])],
-             "hist": hist, "prov": C.get("proventos", {}), "red": C.get("redutor"), "fotos": fotos, "cal": calend, "rebal": rebal,
+             "hist": hist, "prov": proventos_completos(C), "prov_ini": prov_ini, "red": C.get("redutor"), "fotos": fotos, "cal": calend, "rebal": rebal,
              "ib": [[d, v] for d, v in ib if d >= ini_h], "unit": {k: 1 for k in UNIT_COMP}, "abrev": ABREV}
     dados_js = json.dumps(dados, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
     return (f'<div class="pgrid dec" style="grid-template-columns:2fr 1fr 1fr">'
@@ -759,7 +878,7 @@ def slide_painel(M: dict, sgs: dict, mercado_micro: dict, minhas: list[dict], co
         corte = date.fromisoformat(pts[-1][0]).toordinal() - 365
         return [p for p in pts if date.fromisoformat(p[0]).toordinal() >= corte]
     sparks = [svg_spark("Ibovespa, 1 ano", ult_ano(ib), S1, 0), svg_spark("USD/BRL, 1 ano", ult_ano(M.get("hist", {}).get("USD/BRL", [])), S1, 2),
-              svg_spark("NTN-B 2035, 1 ano (% real)", ult_ano(n35), S1, 2, suf="%"),
+              svg_spark("NTN-B 2035, 1 ano (% real)", ult_ano(n35), S1, 2, suf="%", W=480, H=90),
               svg_spark(f"Focus IPCA {a0}, 1 ano (mediana)", ult_ano([[r[0], r[1]] for r in s26]), S2, 2, suf="%")]
 
     # --- carimbos compactos
@@ -1758,7 +1877,11 @@ table.mini{font-size:12.5px}table.mini td,table.mini th{padding:3px 6px}table.mi
 .chip{display:inline-block;font-size:11.5px;padding:2px 9px;border-radius:999px;background:var(--chip);color:var(--ink2);border:1px solid var(--ring)}
 /* slides */
 main{margin-left:232px}
-.slide{min-height:100vh;padding:56px 64px 40px;max-width:1280px;display:flex;flex-direction:column;border-bottom:1px solid var(--ring);scroll-margin-top:0}
+.slide{min-height:100vh;padding:56px 64px 40px;max-width:1760px;display:flex;flex-direction:column;border-bottom:1px solid var(--ring);scroll-margin-top:0}
+@media(min-width:1700px){body{font-size:17px}.slide h1{font-size:44px}.slide .lede{font-size:19px;max-width:960px}.slide.painel h1{font-size:30px}.slide.painel .lede{font-size:15px}
+ table.mini{font-size:14px}table.mini td,table.mini th{padding:4px 7px}table.mini th{font-size:11.5px}table.compact td{font-size:15px}.sinais{font-size:14px;line-height:1.4}.opiniao{font-size:14.2px}
+ .pbox h2{font-size:14px}.strip8 .tile .v{font-size:23px}.strip8 .tile .l,.strip8 .tile .d{font-size:12px}.tile .v{font-size:34px}.tile .l,.tile .d{font-size:13.5px}.note,.legend{font-size:14px}.carimbo{font-size:12.5px}
+ .janela button,.janela-global button{font-size:12.5px}.mut{font-size:inherit}}
 .slide header{margin-bottom:22px}
 .kicker{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--acc);font-weight:600;margin-bottom:8px}
 .slide h1{font-family:var(--f-titulo);font-weight:500;font-size:38px;line-height:1.1;letter-spacing:-.01em;margin:0}
@@ -1902,10 +2025,14 @@ JS = r"""
     var box=document.querySelector('.dec');var svg=document.getElementById('painel-ibov');if(!box||!svg)return;
     var ABREV=D.abrev||{};
     function precoEm(cod,d){var h=D.hist[cod]||[];for(var i=h.length-1;i>=0;i--)if(h[i][0]<=d)return h[i][1];return null;}
-    function qInicio(it,qt,t0,t){var q=qt,ex=true;(D.prov[it.cod]||[]).forEach(function(p){if(!p.com)return;var exd=null;for(var i=0;i<D.cal.length;i++)if(D.cal[i]>p.com){exd=D.cal[i];break;}
-        if(!exd||!(t0<exd&&exd<=t))return;
+    function comEx(p){var com=p.com||null,exd=p.ex||null;   // B3: data-com -> ex = pregão seguinte; Yahoo: data ex -> com = pregão anterior
+      if(!exd){if(!com)return null;for(var i=0;i<D.cal.length;i++)if(D.cal[i]>com){exd=D.cal[i];break;}}
+      else if(!com){for(var i=D.cal.length-1;i>=0;i--)if(D.cal[i]<exd){com=D.cal[i];break;}}
+      return exd?[com,exd]:null;}
+    function qInicio(it,qt,t0,t){var q=qt,ex=true;(D.prov[it.cod]||[]).forEach(function(p){var ce=comEx(p);if(!ce)return;var com=ce[0],exd=ce[1];
+        if(!(t0<exd&&exd<=t))return;
         if(p.fator!=null){var a=(p.acao||'').toUpperCase();if(a.indexOf('BONIFIC')>=0||a.indexOf('DESDOBR')>=0)q=q/(1+p.fator/100);else if(a.indexOf('GRUPAM')>=0&&p.fator)q=p.fator<1?q*p.fator:q/p.fator;return;}
-        var Dv=p.valor||0,pc=precoEm(it.cod,p.com);if(pc&&pc>Dv&&Dv>0)q=q/(pc/(pc-Dv));else if(Dv>0)ex=false;});
+        var Dv=p.valor||0,pc=com?precoEm(it.cod,com):null;if(pc&&pc>Dv&&Dv>0)q=q/(pc/(pc-Dv));else if(Dv>0)ex=false;});
       if(it.classe==='UNT'&&!D.unit[it.cod])ex=false;return [q,ex];}
     function hbar(linhas,W,RH,ML,MR){var H=8+RH*linhas.length+4,vals=linhas.map(function(l){return l[1];});var lo=Math.min.apply(null,vals.concat([0])),hi=Math.max.apply(null,vals.concat([0])),sp=(hi-lo)||1;
       var X=function(v){return ML+(v-lo)/sp*(W-ML-MR);};var h=['<line class="axis" x1="'+X(0).toFixed(1)+'" x2="'+X(0).toFixed(1)+'" y1="4" y2="'+(H-4)+'"/>'];
@@ -1915,28 +2042,50 @@ JS = r"""
       return '<svg class="chart" viewBox="0 0 '+W+' '+H+'">'+h.join('')+'</svg>';}
     function sinal(v,d,suf){return (v>0?'+':'')+num(v,d)+(suf||'');}
     function cls(v){return v>0?'up':(v<0?'dn':'');}
+    function qAvanca(it,qs,s,t0){var q=qs,ex=true;(D.prov[it.cod]||[]).forEach(function(p){var ce=comEx(p);if(!ce)return;var com=ce[0],exd=ce[1];
+        if(!(s<exd&&exd<=t0))return;
+        if(p.fator!=null){var a=(p.acao||'').toUpperCase();if(a.indexOf('BONIFIC')>=0||a.indexOf('DESDOBR')>=0)q=q*(1+p.fator/100);else if(a.indexOf('GRUPAM')>=0&&p.fator)q=p.fator<1?q/p.fator:q*p.fator;return;}
+        var Dv=p.valor||0,pc=com?precoEm(it.cod,com):null;if(pc&&pc>Dv&&Dv>0)q=q*(pc/(pc-Dv));else if(Dv>0)ex=false;});
+      if(it.classe==='UNT'&&!D.unit[it.cod])ex=false;return [q,ex];}
+    function fotoQuadri(t0){var melhor=null;Object.keys(D.fotos).forEach(function(s){var a=s<t0?s:t0,b=s<t0?t0:s;if(D.rebal.some(function(r){return a<r&&r<=b;}))return;
+        var dist=Math.abs(ord(s)-ord(t0));if(melhor===null||dist<melhor[0])melhor=[dist,s];});return melhor?[melhor[1],D.fotos[melhor[1]]]:[null,null];}
+    function ibEm(d){for(var i=D.ib.length-1;i>=0;i--)if(D.ib[i][0]<=d)return D.ib[i][1];return null;}
     function decomp(t0c){var cal=D.cal,t=cal[cal.length-1],t0=null;for(var i=cal.length-1;i>=0;i--)if(cal[i]<=t0c){t0=cal[i];break;}
-      if(!t0||t0>=t)return null;var foto0=D.fotos[t0];var cruza=D.rebal.some(function(r){return t0<r&&r<=t;})&&!foto0;var exato=!!foto0||!cruza;
+      if(!t0||t0>=t)return null;var fq=fotoQuadri(t0),s0=fq[0],foto0=fq[1];var cruza=D.rebal.some(function(r){return t0<r&&r<=t;})&&!foto0;var exato=!!foto0||!cruza;
       var redT=D.red||1,red0=(foto0&&foto0.redutor)||redT,pap=[],v0t=0,vtt=0,exAll=exato,faltam=[];
-      D.itens.forEach(function(it){var pt=precoEm(it.cod,t),p0=precoEm(it.cod,t0);if(!pt||!p0){faltam.push(it.cod);return;}var w=it.peso/100,qt=it.q||0;
-        if(exato&&qt){var q0,ex=true;if(foto0&&foto0.q[it.cod]!=null)q0=foto0.q[it.cod];else{var r=qInicio(it,qt,t0,t);q0=r[0];ex=r[1];}exAll=exAll&&ex;
-          var v0=q0*p0/red0,vt=qt*pt/redT;v0t+=v0;vtt+=vt;pap.push([it.cod,it.setor,it.peso,pt/p0-1,v0,vt]);}
+      if(foto0&&s0!==t0&&(s0<t0?s0:t0)<D.prov_ini)exAll=false;
+      var atuais={};D.itens.forEach(function(it){atuais[it.cod]=1;});
+      D.itens.forEach(function(it){var pt=precoEm(it.cod,t),p0=precoEm(it.cod,t0);if(!pt||(!p0&&!foto0)){faltam.push(it.cod);return;}var w=it.peso/100,qt=it.q||0;
+        if(exato&&qt){var q0,ex=true;
+          if(foto0){var qs=foto0.q[it.cod];if(qs==null||!p0){q0=0;p0=p0||0;}else if(s0===t0)q0=qs;else if(s0>t0){var r1=qInicio(it,qs,t0,s0);q0=r1[0];ex=r1[1];}else{var r2=qAvanca(it,qs,s0,t0);q0=r2[0];ex=r2[1];}}
+          else{var r=qInicio(it,qt,t0,t);q0=r[0];ex=r[1];}
+          exAll=exAll&&ex;var v0=q0*p0/red0,vt=qt*pt/redT;v0t+=v0;vtt+=vt;pap.push([it.cod,it.setor,it.peso,p0?pt/p0-1:0,v0,vt]);}
         else{var rr=pt/p0-1;pap.push([it.cod,it.setor,it.peso,rr,null,w*rr*100]);}});
+      if(foto0){Object.keys(foto0.q).forEach(function(cod){if(atuais[cod])return;var p0=precoEm(cod,t0),v0=null;
+        if(p0)v0=foto0.q[cod]*p0/red0;else if(foto0.peso&&foto0.peso[cod]!=null&&ibEm(s0)){v0=foto0.peso[cod]/100*ibEm(s0);exAll=false;}
+        if(v0===null)return;v0t+=v0;pap.push([cod,'Saíram do índice',0,-1,v0,0]);});}
       var replica=null;if(exato&&v0t>0){pap=pap.map(function(p){return [p[0],p[1],p[2],p[3],(p[5]-p[4])/v0t*100];});replica=(vtt/v0t-1)*100;}else pap=pap.map(function(p){return [p[0],p[1],p[2],p[3],p[5]];});
       var set={};pap.forEach(function(p){var s=set[p[1]]||(set[p[1]]=[0,0]);s[0]+=p[2];s[1]+=p[4];});
       var lst=Object.keys(set).map(function(k){return [k,set[k][0],set[k][1]];}).sort(function(a,b){return b[2]-a[2];});
       var soma=pap.reduce(function(a,p){return a+p[4];},0);var ib0=null,ibt=null;for(var i=D.ib.length-1;i>=0;i--){if(ibt===null&&D.ib[i][0]<=t)ibt=D.ib[i][1];if(D.ib[i][0]<=t0){ib0=D.ib[i][1];break;}}
       var indice=(ib0&&ibt)?(ibt/ib0-1)*100:null;pap.sort(function(a,b){return b[4]-a[4];});
       return {t0:t0,t:t,setores:lst,papeis:pap,soma:soma,indice:indice,erro:indice===null?null:soma-indice,faltam:faltam,
-        metodo:exato?((exAll?'exato':'exato (units aprox.)')+(foto0?' · fotografia':'')):'aprox. (cruza rebalanceamento sem fotografia)'};}
+        metodo:exato?((exAll?'exato':'quase exato (units/proventos aprox.)')+(foto0?' · fotografia '+br(s0):'')):'aprox. (cruza rebalanceamento sem fotografia)'};}
     function br(d){return d.slice(8)+'/'+d.slice(5,7)+'/'+d.slice(2,4);}
     function render(j){var cab='<div class="mut" style="font-size:11px;margin:0 0 4px">De '+br(j.t0)+' a '+br(j.t)+': Ibovespa '+(j.indice===null?'—':sinal(j.indice,2,'%'))+' · soma '+sinal(j.soma,2,' p.p.')+' · erro '+(j.erro===null?'—':sinal(j.erro,2,' p.p.'))+' · '+j.metodo+(j.faltam.length?' · sem preço na data: '+j.faltam.join(', '):'')+'</div>';
       var vs=cab+hbar(j.setores.map(function(s){return [ABREV[s[0]]||s[0],s[2]];}),430,13,104,44);
-      var top=j.papeis.slice(0,4),bot=j.papeis.slice(-4).reverse();
+      // agrupa classes da mesma empresa e escolhe os nomes: mínimo 4, todo nome ≥ 0,5 p.p., máximo 8
+      var g={};j.papeis.forEach(function(p){var k=p[0].slice(0,4);var e=g[k]||(g[k]={cls:[],setor:p[1],peso:0,wr:0,x:0});e.cls.push(p[0].slice(4));e.peso+=p[2];e.wr+=p[2]*p[3];e.x+=p[4];});
+      var emp=Object.keys(g).map(function(k){var e=g[k];return [k+(e.cls.length>1?e.cls.sort().join('+'):e.cls[0]),e.setor,e.peso,e.peso?e.wr/e.peso:0,e.x];}).sort(function(a,b){return b[4]-a[4];});
+      var pos=emp.filter(function(e){return e[4]>0;}),neg=emp.filter(function(e){return e[4]<0;}).reverse();
+      function corta(l){var n=Math.max(4,l.filter(function(e){return Math.abs(e[4])>=0.5;}).length);return l.slice(0,Math.min(n,8));}
+      var top=corta(pos),bot=corta(neg);var sum=function(l){return l.reduce(function(a,e){return a+e[4];},0);};
+      var tp=sum(pos),tn=sum(neg),sp=sum(top),sn=sum(bot);
+      var cabE='<div class="mut" style="font-size:11px;margin:0 0 4px">Mostrados explicam '+sinal(sp,2)+' de '+sinal(tp,2)+' p.p. que puxaram e '+num(sn,2)+' de '+num(tn,2)+' p.p. que seguraram ('+((tp||tn)?num((Math.abs(sp)+Math.abs(sn))/(Math.abs(tp)+Math.abs(tn))*100,0):'—')+'% do movimento bruto). Classes da mesma empresa somadas.</div>';
       function tab(l,tit){return '<table class="mini"><thead><tr><th>'+tit+'</th><th>Var.</th><th>p.p.</th></tr></thead><tbody>'+l.map(function(p){return '<tr><td class="tk">'+p[0]+'</td><td class="'+cls(p[3])+'">'+sinal(p[3]*100,1,'%')+'</td><td class="'+cls(p[4])+'">'+sinal(p[4],2)+'</td></tr>';}).join('')+'</tbody></table>';}
-      var vp=tab(top,'Puxaram')+tab(bot,'Seguraram');
+      var vp=cabE+'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'+tab(top,'Puxaram')+tab(bot,'Seguraram')+'</div>';
       var alvos=box.querySelectorAll('[data-slot]');alvos.forEach(function(sl){var k=sl.dataset.slot;var el=sl.querySelector('[data-j="clique"]');
-        if(!el){el=document.createElement('div');el.dataset.j='clique';if(k==='papeis')el.setAttribute('style','display:grid;grid-template-columns:1fr 1fr;gap:8px');sl.appendChild(el);}
+        if(!el){el=document.createElement('div');el.dataset.j='clique';sl.appendChild(el);}
         el.innerHTML=k==='setores'?vs:vp;});
       var ch=box.querySelector('.janela');var b=ch.querySelector('button[data-j="clique"]');
       if(!b){b=document.createElement('button');b.dataset.j='clique';b.addEventListener('click',function(){mostraJ(box,'clique');});ch.appendChild(b);}
