@@ -30,6 +30,18 @@ emendada em `b3.serie`; os que não existiam na data (ex.: AZZA3, BRAV3, ISAE4) 
 Antes de jul/2021 não há fechamentos dos papéis e o clique avisa. Os demais slides são o detalhe; a decomposição
 completa (12 maiores e 12 menores contribuições) está no slide "Ibovespa · decomposição".
 
+## Atualização automática (GitHub Actions)
+
+Repositório público `rlavourinha/monitor-cobertura` (só dados públicos e produção própria; nada da Bloomberg entra
+no repositório: a ponte `fontes/bloomberg.py` é só código e o CSV que ela gera fica fora do git). O workflow
+`.github/workflows/atualizar.yml` roda as quatro janelas na nuvem, sem depender da máquina local: intraday (10h, 12h,
+14h, 16h, 18h BRT em dias úteis), diário (19h45 BRT), semanal (segunda 8h45) e mensal (8h todo dia). Cada execução
+roda `coletar.py --janela X`, gera `output/monitor.html`, faz commit dos caches (`data/`, sem os zips da CVM) e do
+HTML de volta na branch `main` e publica o painel em **https://rlavourinha.github.io/monitor-cobertura/**. Para rodar
+à mão: aba Actions → "atualizar" → Run workflow → janela. O agendamento local (`agendar.ps1`) continua disponível como
+alternativa, mas não é necessário. Enviar o arquivo de workflow exige o escopo `workflow` no token do `gh`
+(`gh auth refresh -h github.com -s workflow`).
+
 ## Dividend yield do Ibovespa
 
 Slide "Ibovespa · dividend yield" (seção Macro) e chip "DY" no tile do Ibovespa no Painel. Duas séries em

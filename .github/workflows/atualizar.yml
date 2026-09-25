@@ -1,0 +1,93 @@
+# Atualização automática do Monitor de Cobertura (GitHub Actions, sem depender da máquina local).
+# Janelas (horários em UTC; Brasília = UTC−3):
+#   intraday  10h, 12h, 14h, 16h, 18h BRT, dias úteis   -> cotações com atraso
+#   diario    19h45 BRT, dias úteis                     -> COTAHIST do dia, Tesouro, SGS, Yahoo, cota do fundo, DY
+#   semanal   segunda 8h45 BRT                          -> Focus completo, histórico do DY
+#   mensal    8h BRT, todo dia                          -> SGS mensais, realizado, carteiras CVM
+# Cada janela roda o coletor, regenera output/monitor.html, grava os caches (data/) e o HTML de volta no repositório
+# e publica o HTML no GitHub Pages (rlavourinha.github.io/monitor-cobertura).
+name: atualizar
+
+on:
+  schedule:
+    - cron: "0 13,15,17,19,21 * * 1-5"   # intraday
+    - cron: "45 22 * * 1-5"              # diario
+    - cron: "45 11 * * 1"                # semanal
+    - cron: "0 11 * * *"                 # mensal
+  workflow_dispatch:
+    inputs:
+      janela:
+        description: "janela (intraday, diario, semanal, mensal, tudo)"
+        default: "diario"
+
+concurrency:
+  group: atualizar
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  atualizar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: Janela
+        id: janela
+        run: |
+          case "${{ github.event.schedule }}" in
+            "0 13,15,17,19,21 * * 1-5") j=intraday ;;
+            "45 22 * * 1-5") j=diario ;;
+            "45 11 * * 1") j=semanal ;;
+            "0 11 * * *") j=mensal ;;
+            *) j="${{ github.event.inputs.janela || 'diario' }}" ;;
+          esac
+          echo "janela=$j" >> "$GITHUB_OUTPUT"
+          echo "janela: $j"
+
+      - name: Coletar
+        env:
+          PYTHONIOENCODING: utf-8
+          TZ: America/Sao_Paulo
+        run: python coletar.py --janela "${{ steps.janela.outputs.janela }}"
+
+      - name: Gerar dashboard
+        env:
+          PYTHONIOENCODING: utf-8
+          TZ: America/Sao_Paulo
+        run: python build.py
+
+      - name: Gravar caches e HTML no repositório
+        run: |
+          git config user.name "monitor-bot"
+          git config user.email "monitor-bot@users.noreply.github.com"
+          git add -A data output consenso
+          if git diff --cached --quiet; then echo "nada mudou"; exit 0; fi
+          git commit -m "atualização ${{ steps.janela.outputs.janela }} $(TZ=America/Sao_Paulo date '+%Y-%m-%d %H:%M')"
+          git pull --rebase --autostash origin "${{ github.ref_name }}"
+          git push origin HEAD:"${{ github.ref_name }}"
+
+      - name: Publicar no GitHub Pages
+        run: mkdir -p site && cp output/monitor.html site/index.html
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deploy
+        uses: actions/deploy-pages@v4
