@@ -144,6 +144,13 @@ capital são filtrados pela classe do ticker (ISIN) e a coleta cobre também os 
 14 meses. A classe nova (CYRE4) entra na carteira do quadrimestre seguinte; sem fechamento no dia anterior ao
 rebalanceamento, usa o 1º fechamento disponível.
 
+**Seleção global de datas (26/09/2026).** Um clique em qualquer gráfico de linha marca o **início**; o segundo marca o
+**fim** (se vier antes, as datas se invertem); o terceiro recomeça. `window.__sel = {t0, t1}` e o evento `selecao`:
+todos os gráficos de linha se redesenham com as duas datas, a faixa sombreada e a variação da 1ª série no intervalo
+(% para preços/índices, p.p. para séries em %). A decomposição do Ibovespa passa a ser início→fim (`decomp(t0, t1)`; sem
+rebalanceamento no intervalo é um trecho só com a fotografia do quadrimestre). "limpar datas" no cabeçalho volta ao
+padrão (início da janela → hoje). Gráficos cujo eixo x não é calendário levam `data-nosel` (curva do Brent).
+
 **Uma janela só.** No Painel, a janela do gráfico do Ibovespa (1 d, 5 d, 21 d, ano, 1a, 2a, 3a, 5a, 10a, máx) é a
 janela da decomposição: a decomposição vai do primeiro pregão dentro da janela até hoje e é recalculada no navegador a
 cada troca. Clicar num ponto do gráfico faz a decomposição começar naquela data (a janela não muda) e desenha um

@@ -759,6 +759,7 @@ def linha_variaveis_painel(M: dict) -> str:
         g_curva = svg_linhas("painel-brent-curva", series, 1, pref="US$ ", W=400, H=170, titulo="Curva futura do Brent (US$/bbl; contratos/dia no tooltip)",
                              refs=[("à vista", spot)] if spot else None, extras=["contratos"])
         g_curva = g_curva.replace('<div class="janela" data-for="painel-brent-curva">', '<div class="janela" data-for="painel-brent-curva" style="display:none">')
+        g_curva = g_curva.replace('id="painel-brent-curva"', 'id="painel-brent-curva" data-nosel="1"')   # eixo x = vencimentos, não entra na seleção de datas
     else:
         g_curva = '<div class="empty small">Curva do Brent: rode a janela diária.</div>'
     return (f'<div class="pgrid" style="grid-template-columns:1fr 1fr 1fr 1fr;margin-top:10px">'
@@ -2316,7 +2317,14 @@ JS = r"""
         h.push('<path d="'+ida+' '+volta+' Z" style="fill:'+s.cor+';opacity:.13;stroke:none"/>');});
       // área sem decomposição (antes dos fechamentos dos papéis) sombreada, e marcador do início da decomposição
       if(svg.dataset.desde){var od=ord(svg.dataset.desde);if(od>d0){var xf=X(Math.min(od,d1));h.push('<rect x="'+ML+'" y="'+MT+'" width="'+(xf-ML).toFixed(1)+'" height="'+(H-MT-MB)+'" style="fill:var(--mut);opacity:.09"/><text class="tick" x="'+(ML+6)+'" y="'+(MT+14)+'" style="fill:var(--mut)">sem decomposição antes de '+svg.dataset.desde.slice(8)+'/'+svg.dataset.desde.slice(5,7)+'/'+svg.dataset.desde.slice(2,4)+'</text>');}}
-      if(svg._t0){var ot=ord(svg._t0);if(ot>=d0&&ot<=d1)h.push('<line x1="'+X(ot).toFixed(1)+'" x2="'+X(ot).toFixed(1)+'" y1="'+MT+'" y2="'+(H-MB)+'" style="stroke:var(--s2);stroke-width:1.2;stroke-dasharray:4 3"/><text class="tick" x="'+(X(ot)+4).toFixed(1)+'" y="'+(H-MB-6)+'" style="fill:var(--s2)">decomposição desde '+svg._t0.slice(8)+'/'+svg._t0.slice(5,7)+'/'+svg._t0.slice(2,4)+'</text>');}
+      // seleção global de datas (1º clique = início, 2º = fim): as mesmas datas em todos os gráficos, com a variação da 1ª série
+      var sel=svg.dataset.nosel?{}:(window.__sel||{});var s1=S[0];function idxAte(o){var i=-1;for(var k=0;k<s1.o.length;k++)if(s1.o[k]<=o)i=k;return i;}
+      var i0=sel.t0?idxAte(ord(sel.t0)):-1,i1=sel.t1?idxAte(ord(sel.t1)):(sel.t0?s1.o.length-1:-1);
+      if(i0>=0&&i1>i0){var xa=X(s1.o[i0]),xb=X(s1.o[i1]);h.push('<rect x="'+xa.toFixed(1)+'" y="'+MT+'" width="'+(xb-xa).toFixed(1)+'" height="'+(H-MT-MB)+'" style="fill:var(--s2);opacity:.07"/>');
+        var v0=s1.pts[i0][1],v1=s1.pts[i1][1],dv=data.suf==='%'?(v1-v0):(v0?(v1/v0-1)*100:0);var txt=(dv>0?'+':'')+num(dv,data.suf==='%'?2:1)+(data.suf==='%'?' p.p.':'%');
+        h.push('<text class="tick" x="'+((xa+xb)/2).toFixed(1)+'" y="'+(MT+12)+'" text-anchor="middle" style="fill:var(--s2);font-weight:600">'+txt+'</text>');}
+      [[sel.t0,'início',i0],[sel.t1,'fim',sel.t1?i1:-1]].forEach(function(m){if(!m[0]||m[2]<0)return;var ot=s1.o[m[2]];if(ot<d0||ot>d1)return;var xm=X(ot);
+        h.push('<line x1="'+xm.toFixed(1)+'" x2="'+xm.toFixed(1)+'" y1="'+MT+'" y2="'+(H-MB)+'" style="stroke:var(--s2);stroke-width:1.2;stroke-dasharray:4 3"/><text class="tick" x="'+(xm+(m[1]==='fim'?-4:4)).toFixed(1)+'" y="'+(H-MB-6)+'" text-anchor="'+(m[1]==='fim'?'end':'start')+'" style="fill:var(--s2)">'+m[1]+' '+m[0].slice(8)+'/'+m[0].slice(5,7)+'/'+m[0].slice(2,4)+'</text>');});
       var labels=[];
       S.forEach(function(s){h.push('<path class="line" style="stroke:'+s.cor+'" d="'+s.pts.map(function(p,i){return ((i&&s.o[i]-s.o[i-1]<=45)?'L':'M')+X(s.o[i]).toFixed(1)+','+Y(p[1]).toFixed(1);}).join(' ')+'"/>');
         var last=s.pts[s.pts.length-1],xl=X(s.o[s.o.length-1]),yl=Y(last[1]);h.push('<circle class="dot" cx="'+xl.toFixed(1)+'" cy="'+yl.toFixed(1)+'" r="4" style="fill:'+s.cor+'"/>');
@@ -2344,7 +2352,7 @@ JS = r"""
       var pr=svg.parentNode.getBoundingClientRect();tip.style.left=(e.clientX-pr.left+12)+'px';tip.style.top=(e.clientY-pr.top-30)+'px';});
     hit.addEventListener('mouseleave',function(){hov.style.display='none';tip.style.display='none';});
     // clique num ponto: avisa quem quiser (o Painel usa para explicar o movimento do Ibovespa daquela data até hoje)
-    hit.addEventListener('click',function(e){if(!G||!G.S.length)return;
+    hit.addEventListener('click',function(e){if(!G||!G.S.length||svg.dataset.nosel)return;   // eixo x que não é o calendário (curva do Brent): não entra na seleção
       var r=svg.getBoundingClientRect();var mx=(e.clientX-r.left)*W/r.width;var o=G.d0+(mx-ML)/(W-ML-MR)*G.span;
       var s=G.S[0],i=0,best=1e18;for(var k=0;k<s.o.length;k++){var dd=Math.abs(s.o[k]-o);if(dd<best){best=dd;i=k;}}
       svg.dispatchEvent(new CustomEvent('pontoclique',{bubbles:true,detail:{data:s.pts[i][0],valor:s.pts[i][1]}}));});
@@ -2357,9 +2365,20 @@ JS = r"""
       if(b.dataset.m)return (+b.dataset.m)/12+1/365.25;
       return +b.dataset.a;}
     var chips=svg.parentNode.querySelector('.janela');
-    if(chips)chips.querySelectorAll('button').forEach(function(b){b.addEventListener('click',function(){chips.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});b.classList.add('on');svg._t0=null;render(anosDoChip(b));});});
+    if(chips)chips.querySelectorAll('button').forEach(function(b){b.addEventListener('click',function(){chips.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});b.classList.add('on');render(anosDoChip(b));});});
+    document.addEventListener('selecao',function(){render(svg._anos||0);});
     render(+(svg.dataset.ini||0));
   }
+  // seleção global de datas: 1º clique em qualquer gráfico de linha = início, 2º = fim (invertidos se vier antes), 3º recomeça
+  window.__sel={t0:null,t1:null};
+  window.__selecionar=function(d){var s=window.__sel;
+    if(!d){s.t0=null;s.t1=null;}
+    else if(!s.t0||s.t1){s.t0=d;s.t1=null;}
+    else if(d===s.t0)return;
+    else if(d<s.t0){s.t1=s.t0;s.t0=d;}
+    else s.t1=d;
+    document.dispatchEvent(new CustomEvent('selecao'));};
+  document.addEventListener('pontoclique',function(e){window.__selecionar(e.detail.data);});
   document.querySelectorAll('svg.chart[data-x0]').forEach(setupLinhas);
   // seletor global (trilho): aplica a janela a todos os gráficos de linha
   document.querySelectorAll('.janela-global button').forEach(function(b){b.addEventListener('click',function(){
@@ -2417,11 +2436,11 @@ JS = r"""
       return {cod:cod,classe:cl,setor:(D.setor_ex&&D.setor_ex[cod])||(irmao&&irmao.setor)||'Ex-constituintes',peso:0};}
     function ultimoPreco(cod,b){var h=D.hist[cod]||[];for(var i=h.length-1;i>=0;i--)if(h[i][0]<=b)return h[i][0];return null;}
     function diaAntes(d){for(var i=D.cal.length-1;i>=0;i--)if(D.cal[i]<d)return D.cal[i];return null;}
-    function decompEncadeada(t0,t){var rs=D.rebal.filter(function(r){return r>t0&&r<=t;});if(!rs.length)return null;
-      var inicios=[t0].concat(rs.map(diaAntes)),fins=rs.map(diaAntes).concat([t]);var delta={},exAll=true,faltam=[],v0t=null,n=0,dbg=[];
+    function decompEncadeada(t0,t){var rs=D.rebal.filter(function(r){return r>t0&&r<=t;});   // sem rebalanceamento: um trecho só
+      var inicios=[t0].concat(rs.map(diaAntes)),fins=rs.map(diaAntes).concat([t]);var delta={},exAll=true,faltam=[],v0t=null,n=0,dbg=[],foto1=null;
       for(var k=0;k<inicios.length;k++){var a=inicios[k],b=fins[k];if(!a||!b||a>=b)continue;
         var ref=k===0?a:rs[k-1];var fq=fotoQuadri(ref);if(!fq[0])return null;   // trecho sem fotografia do quadrimestre: não dá para encadear
-        var s0=fq[0],foto=fq[1],red=foto.redutor||D.red;var soma0=0;n++;
+        var s0=fq[0],foto=fq[1],red=foto.redutor||D.red;var soma0=0;n++;if(!foto1)foto1=s0;
         // saídas no meio do trecho (OPA, incorporação, conversão de classe): o papel contribui até o último fechamento e,
         // dali em diante, o índice redistribui o valor dele nos demais (fator S = valor total / valor dos que ficam)
         var cods=Object.keys(foto.q),ult={},cortes=[];
@@ -2447,8 +2466,9 @@ JS = r"""
       window.__ibovEncDbg=dbg;
       if(!v0t)return null;
       var pap=Object.keys(delta).map(function(cod){var it=itemDe(cod);return [cod,it.setor,it.peso||0,varPreco(cod,t0,t),delta[cod]/v0t*100];});
-      return {pap:pap,exAll:exAll,faltam:faltam,n:n};}
-    function decomp(t0c){var cal=D.cal,t=cal[cal.length-1],t0=null;for(var i=cal.length-1;i>=0;i--)if(cal[i]<=t0c){t0=cal[i];break;}
+      return {pap:pap,exAll:exAll,faltam:faltam,n:n,foto:foto1};}
+    function decomp(t0c,t1c){var cal=D.cal,t=cal[cal.length-1],t0=null;for(var i=cal.length-1;i>=0;i--)if(cal[i]<=t0c){t0=cal[i];break;}
+      if(t1c){for(var i2=cal.length-1;i2>=0;i2--)if(cal[i2]<=t1c){t=cal[i2];break;}}
       if(!t0||t0>=t)return null;
       var enc=decompEncadeada(t0,t);
       if(enc){var pap=enc.pap;var set={};pap.forEach(function(p){var s=set[p[1]]||(set[p[1]]=[0,0]);s[0]+=p[2];s[1]+=p[4];});
@@ -2456,7 +2476,8 @@ JS = r"""
         var soma=pap.reduce(function(a,p){return a+p[4];},0);var ib0=null,ibt=null;for(var i=D.ib.length-1;i>=0;i--){if(ibt===null&&D.ib[i][0]<=t)ibt=D.ib[i][1];if(D.ib[i][0]<=t0){ib0=D.ib[i][1];break;}}
         var indice=(ib0&&ibt)?(ibt/ib0-1)*100:null;pap.sort(function(a,b){return b[4]-a[4];});
         return {t0:t0,t:t,setores:lst,papeis:pap,soma:soma,indice:indice,erro:indice===null?null:soma-indice,faltam:enc.faltam,
-          metodo:(enc.exAll?'exato':'quase exato (units/proventos aprox.)')+' · encadeado em '+enc.n+' trechos de carteira'};}
+          metodo:(enc.exAll?'exato':'quase exato (units/proventos aprox.)')+(enc.n>1?' · encadeado em '+enc.n+' trechos de carteira':' · fotografia '+br(enc.foto))};}
+      if(t!==cal[cal.length-1])return null;   // sem fotografia e fim no passado: a carteira atual não serve
       var fq=fotoQuadri(t0),s0=fq[0],foto0=fq[1];var cruza=D.rebal.some(function(r){return t0<r&&r<=t;})&&!foto0;var exato=!!foto0||!cruza;
       var redT=D.red||1,red0=(foto0&&foto0.redutor)||redT,pap=[],v0t=0,vtt=0,exAll=exato,faltam=[];
       if(foto0&&s0!==t0&&(s0<t0?s0:t0)<D.prov_ini)exAll=false;
@@ -2478,7 +2499,9 @@ JS = r"""
       return {t0:t0,t:t,setores:lst,papeis:pap,soma:soma,indice:indice,erro:indice===null?null:soma-indice,faltam:faltam,
         metodo:exato?((exAll?'exato':'quase exato (units/proventos aprox.)')+(foto0?' · fotografia '+br(s0):'')):'aprox. (cruza rebalanceamento sem fotografia)'};}
     function br(d){return d.slice(8)+'/'+d.slice(5,7)+'/'+d.slice(2,4);}
-    function render(j){var cab='<div class="mut" style="font-size:11px;margin:0 0 4px">De '+br(j.t0)+' a '+br(j.t)+': Ibovespa '+(j.indice===null?'—':sinal(j.indice,2,'%'))+' · soma '+sinal(j.soma,2,' p.p.')+' · erro '+(j.erro===null?'—':sinal(j.erro,2,' p.p.'))+' · '+j.metodo+(j.faltam.length?' · sem preço na data: '+j.faltam.join(', '):'')+(j.nota?' · '+j.nota:'')+'</div>';
+    function render(j){var sel=window.__sel||{};
+      var dica=sel.t0?' · <a href="#" data-limpar="1" style="color:var(--acc)">limpar datas</a>':' · <span style="opacity:.8">clique no gráfico: 1º = início, 2º = fim</span>';
+      var cab='<div class="mut" style="font-size:11px;margin:0 0 4px">De '+br(j.t0)+' a '+br(j.t)+': Ibovespa '+(j.indice===null?'—':sinal(j.indice,2,'%'))+' · soma '+sinal(j.soma,2,' p.p.')+' · erro '+(j.erro===null?'—':sinal(j.erro,2,' p.p.'))+' · '+j.metodo+(j.faltam.length?' · sem preço na data: '+j.faltam.join(', '):'')+(j.nota?' · '+j.nota:'')+dica+'</div>';
       var rhS=11;
       var vs=cab+hbar(j.setores.map(function(s){return [ABREV[s[0]]||s[0],s[2]];}),430,rhS,104,44,j.setores.map(function(s){return s[0];}));
       window.__ibovClique=j;
@@ -2496,15 +2519,20 @@ JS = r"""
     function conteudo(slot,html){var sl=box.querySelector('[data-slot="'+slot+'"]');var h2=sl.querySelector('h2');sl.innerHTML='';if(h2)sl.appendChild(h2);var d=document.createElement('div');d.innerHTML=html;sl.appendChild(d);}
     function aviso(txt){conteudo('setores','<div class="mut" style="font-size:11.5px">'+txt+'</div>');conteudo('papeis','');}
     // a decomposição segue a janela do gráfico: começa no 1º pregão dentro da janela (ou no ponto clicado, se houver)
-    function decompJanela(){var cal=D.cal,t=cal[cal.length-1];var d0=svg._d0;var ini=null;
-      // início = último pregão até o começo da janela (MTD parte do fechamento do mês anterior, YTD do ano anterior);
-      // antes dos fechamentos dos papéis, o primeiro pregão disponível
-      if(svg._t0&&ord(svg._t0)>=d0)ini=svg._t0;else{for(var i=cal.length-1;i>=0;i--)if(ord(cal[i])<=d0){ini=cal[i];break;}if(!ini)ini=cal[0];}
-      if(!ini||ini>=t){aviso('Janela sem pregão anterior ao último.');return;}
-      var j=decomp(ini);if(!j){aviso('Sem decomposição para esta janela.');return;}
-      if(ord(cal[0])>d0&&!svg._t0)j.nota='a janela começa antes dos fechamentos dos papéis; decomposição desde '+br(cal[0]);
+    function decompJanela(){var cal=D.cal,t=cal[cal.length-1];var d0=svg._d0;var ini=null,sel=window.__sel||{},nota=null;
+      // início = data selecionada (1º clique) se estiver dentro da janela; senão o último pregão até o começo da janela
+      // (MTD parte do fechamento do mês anterior, YTD do ano anterior); antes dos fechamentos dos papéis, o 1º disponível.
+      // fim = 2º clique (ou o último pregão)
+      if(sel.t0&&ord(sel.t0)>=d0)ini=sel.t0;else{for(var i=cal.length-1;i>=0;i--)if(ord(cal[i])<=d0){ini=cal[i];break;}if(!ini)ini=cal[0];}
+      if(ini<cal[0]){nota='sem fechamentos dos papéis antes de '+br(cal[0])+'; decomposição desde essa data';ini=cal[0];}
+      var fim=sel.t1&&sel.t1<t?sel.t1:t;
+      if(!ini||ini>=fim){aviso('Escolha um fim depois do início ('+br(ini)+').');return;}
+      var j=decomp(ini,fim);if(!j){aviso('Sem decomposição para este intervalo (sem fotografia da carteira).');return;}
+      if(ord(cal[0])>d0&&!sel.t0)nota='a janela começa antes dos fechamentos dos papéis; decomposição desde '+br(cal[0]);
+      if(nota)j.nota=nota;
       render(j);}
     svg.addEventListener('janela',function(){decompJanela();});
+    box.addEventListener('click',function(e){var el=e.target.closest&&e.target.closest('[data-limpar]');if(!el)return;e.preventDefault();window.__selecionar(null);});
     // clique num setor (barra ou rótulo): desce do setor para as empresas, na janela ativa
     box.addEventListener('click',function(e){var el=e.target.closest&&e.target.closest('[data-setor]');if(!el)return;var setor=el.dataset.setor;
       var j=window.__ibovClique;if(!j)return;
@@ -2519,10 +2547,8 @@ JS = r"""
       conteudo('papeis','<div class="mut" style="font-size:11px;margin:0 0 4px">'+esc(setor)+' · cada papel do setor</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'+tb(rows.slice(0,metade))+(rows.length>metade?tb(rows.slice(metade)):'')+'</div>');
       box.querySelector('[data-volta]').addEventListener('click',function(ev){ev.preventDefault();render(j);});
       e.preventDefault();});
-    // clique num ponto do gráfico: a decomposição passa a começar nessa data (a janela do gráfico não muda); o marcador é redesenhado
-    svg.addEventListener('pontoclique',function(e){var d=e.detail.data;
-      if(d<D.cal[0]){aviso('Sem fechamentos dos papéis antes de '+br(D.cal[0])+': clique num ponto a partir dessa data.');return;}
-      svg._t0=d;if(svg._render)svg._render(svg._anos||0);});
+    // o clique num ponto (deste ou de qualquer gráfico) entra na seleção global; cada gráfico se redesenha e o do Ibovespa
+    // dispara 'janela', que refaz a decomposição para o intervalo selecionado
     if(svg._d0!==undefined)decompJanela();   // o gráfico já foi desenhado antes deste bloco existir
   })();
   // tooltip simples em barras/pontos
