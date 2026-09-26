@@ -95,7 +95,34 @@ def ticks(lo: float, hi: float, n=5, from_zero=False) -> list[float]:
 
 
 # ----------------------------------------------------------------------------- charts
-def svg_preco(cid: str, serie: list[tuple[str, float]], intraday: dict | None, alvos: dict[str, float | None]) -> str:
+def mt5_intraday(ticker: str, dias_1m: int = 5, dias_5m: int = 21) -> dict[str, list[list]] | None:
+    """Séries alternativas de preço a partir das barras de 1 min do MT5 (data/mt5/m1/{T}_{ano}.csv.gz, só neste PC):
+    {"5 min": últimos `dias_5m` pregões reamostrados a 5 min (fechamento), "1 min": últimos `dias_1m` pregões}. None se não há arquivo.
+    Preços de ações no MT5 vêm ajustados por proventos; para índices (IBOV) são os próprios pontos."""
+    import csv, gzip
+    p = config.DATA / "mt5" / "m1" / f"{ticker}_{date.today().year}.csv.gz"
+    if not p.exists():
+        return None
+    with gzip.open(p, "rt", encoding="utf-8", newline="") as fh:
+        rows = [(r["hora"], float(r["fechamento"])) for r in csv.DictReader(fh) if r.get("hora")]
+    if not rows:
+        return None
+    dias = sorted({h[:10] for h, _ in rows})
+    d1, d5 = set(dias[-dias_1m:]), set(dias[-dias_5m:])
+    m1 = [[h, v] for h, v in rows if h[:10] in d1]
+    m5, ult = [], None
+    for h, v in rows:                              # 5 min = fechamento da última barra de cada balde de 5 minutos
+        if h[:10] not in d5:
+            continue
+        chave = h[:14] + str(int(h[14:16]) // 5)
+        if chave == ult:
+            m5[-1] = [h, v]
+        else:
+            m5.append([h, v]); ult = chave
+    return {"5 min": m5, "1 min": m1}
+
+
+def svg_preco(cid: str, serie: list[tuple[str, float]], intraday: dict | None, alvos: dict[str, float | None], resol: dict | None = None) -> str:
     """Linha de preço (série única) + linhas de referência de target coloridas. Caso particular de svg_linhas."""
     if not serie:
         return '<div class="empty">Sem série de preço no cache. Rode <code>python coletar.py</code>.</div>'
@@ -105,7 +132,7 @@ def svg_preco(cid: str, serie: list[tuple[str, float]], intraday: dict | None, a
         if d > pts[-1][0]:
             pts.append([d, float(intraday["preco"])])
     refs = [("alvo meu" if k == "minha" else "alvo consenso", v, COR[k]) for k, v in alvos.items() if v]
-    return svg_linhas(cid, [("Fechamento", "var(--s1)", pts)], 2, pref="R$ ", W=960, H=320, refs=refs)
+    return svg_linhas(cid, [("Fechamento", "var(--s1)", pts)], 2, pref="R$ ", W=960, H=320, refs=refs, resol=resol)
 
 
 def _xticks(d0: int, d1: int, X, y: float, largura: float = 900) -> list[str]:
@@ -211,7 +238,8 @@ def _rotulos_coluna(col: list, base: float) -> tuple[list, list[float]]:
 def svg_linhas(cid: str, series: list[tuple[str, str, list[list]]], dec=1, pref="", suf="", W=470, H=220,
                refs: list[tuple[str, float]] | None = None, titulo: str = "",
                bandas: dict[int, list[list]] | None = None, extras: list[str] | None = None, ini: int = 0,
-               curtas: bool = False, sombra_desde: str | None = None, gap: int = 45, livre: bool = False, coluna: bool = False) -> str:
+               curtas: bool = False, sombra_desde: str | None = None, gap: int = 45, livre: bool = False, coluna: bool = False,
+               nominal: bool = False, resol: dict[str, list[list]] | None = None) -> str:
     """Gráfico de linhas genérico (1 a 4 séries), crosshair via JS. series = [(nome, cor_css, [[data, v, ...extras], ...])].
     bandas = {índice da série: [[data, mínimo, máximo], ...]} desenha a faixa sombreada na cor da série (formato mín–máx + média).
     extras = nomes dos campos adicionais de cada ponto (p[2:]), exibidos no tooltip.
@@ -219,7 +247,11 @@ def svg_linhas(cid: str, series: list[tuple[str, str, list[list]]], dec=1, pref=
     livre = rótulos de fim de linha posicionados um a um (_rotulos_livres) em vez da pilha única à direita: para séries que
     terminam em datas diferentes ou convergem no mesmo valor.
     coluna = margem direita maior e rótulos das séries que terminam na borda em coluna à direita dos pontos (_rotulos_coluna);
-    os demais seguem a regra livre. Para muitas séries que terminam juntas (a pilha acima dos pontos desalinha rótulo e série)."""
+    os demais seguem a regra livre. Para muitas séries que terminam juntas (a pilha acima dos pontos desalinha rótulo e série).
+    nominal = série acumulada (ex.: fluxo): a janela rebaseia cada série em zero no seu início, então o rótulo de fim e a
+    variação da seleção mostram o movimento NOMINAL do período (v1 − v0), não a variação percentual.
+    resol = {"5 min": pts, "1 min": pts, ...}: séries alternativas da 1ª série em outra resolução (datas "AAAA-MM-DD HH:MM");
+    o gráfico ganha o seletor "preço: diário / 5 min / 1 min" (JS troca a série e esconde os chips de janela no intraday)."""
     ML, MR, MT, MB = 56, 16, 22 if titulo else 12, 30
     if coluna:
         MR += 44
@@ -304,13 +336,16 @@ def svg_linhas(cid: str, series: list[tuple[str, str, list[list]]], dec=1, pref=
     # dados completos para o renderizador JS (o seletor de janela redesenha o gráfico no navegador)
     data_js = json.dumps({"series": [{"n": n, "cor": c, "pts": pts} for n, c, pts in series], "bandas": {str(k): v for k, v in bandas.items()},
                           "refs": [[r[0], r[1], r[2]] for r in refs], "pref": pref, "suf": suf, "dec": dec, "extras": extras or [],
-                          "titulo": titulo, "W": W, "H": H, "ML": ML, "MR": MR, "MT": MT, "MB": MB, "gap": gap, "livre": livre, "coluna": coluna})
+                          "titulo": titulo, "W": W, "H": H, "ML": ML, "MR": MR, "MT": MT, "MB": MB, "gap": gap, "livre": livre, "coluna": coluna,
+                          "nominal": nominal, "resol": resol or {}})
     anos_total = (d1 - d0) / 365.25
     ini = ini if (ini and ini < anos_total) else 0        # janela inicial (anos); 0 = máx
     chips = "".join(f'<button data-a="{a}"{" disabled" if a >= anos_total else ""}{" class=on" if a == ini else ""}>{a}a</button>' for a in ((2, 3, 5, 10) if curtas else (1, 2, 3, 5, 10)))
     if curtas:   # pregões (1, 5, 21), mês corrente, ano corrente e 12 meses (o Painel liga a decomposição do Ibovespa a esta mesma janela)
         chips = '<button data-d="1">1 d</button><button data-d="5">5 d</button><button data-d="21">21 d</button><button data-mtd="1">MTD</button><button data-ytd="1">YTD</button><button data-m="12">12 m</button>' + chips
-    return f'''<div class="lin"><div class="janela" data-for="{cid}">{chips}<button data-a="0"{"" if ini else " class=on"}>máx</button></div><svg class="chart" id="{cid}" viewBox="0 0 {W} {H}" data-x0="{d0}" data-span="{span}" data-lo="{lo}" data-hi="{hi}" data-ini="{ini}"{f' data-desde="{sombra_desde}"' if sombra_desde else ""}
+    sel_res = (f'<div class="resol" data-for="{cid}"><span>preço</span><button data-r="" class="on">diário</button>'
+               + "".join(f'<button data-r="{k}">{k}</button>' for k in resol) + "</div>") if resol else ""
+    return f'''<div class="lin">{sel_res}<div class="janela" data-for="{cid}">{chips}<button data-a="0"{"" if ini else " class=on"}>máx</button></div><svg class="chart" id="{cid}" viewBox="0 0 {W} {H}" data-x0="{d0}" data-span="{span}" data-lo="{lo}" data-hi="{hi}" data-ini="{ini}"{f' data-desde="{sombra_desde}"' if sombra_desde else ""}
   data-ml="{ML}" data-mr="{MR}" data-mt="{MT}" data-mb="{MB}" data-w="{W}" data-h="{H}" role="img" aria-label="{titulo}">
   <g class="corpo">{"".join(out)}</g>
   <g class="hover" style="display:none"><line class="xh" y1="{MT}" y2="{H - MB}"/>{hdots}</g>
@@ -899,7 +934,8 @@ def linha_ibov_painel(D: dict, M: dict) -> str:
     dados_js = json.dumps(dados, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
     # a janela do gráfico (1 d … máx) é a janela da decomposição; a área sem fechamentos dos papéis (antes de ini_h) fica sombreada
     g = svg_linhas("painel-ibov", [("Ibovespa", "var(--s1)", [[d, v] for d, v in ib])], 0, W=800, H=232, ini=2, curtas=True, sombra_desde=ini_h,
-                   titulo="Ibovespa · a janela escolhida (ou o ponto clicado) define a decomposição ao lado")
+                   titulo="Ibovespa · a janela escolhida (ou o ponto clicado) define a decomposição ao lado e a janela dos outros gráficos",
+                   resol=mt5_intraday("IBOV"))
     return (f'<div class="pgrid dec" style="grid-template-columns:2fr 1fr 1fr">'
             f'<div class="pbox" style="padding:8px 12px 4px">{g}</div>'
             f'<div class="pbox" data-slot="setores"><h2 style="margin:0 0 4px">Decomposição por setor</h2><div class="empty small">calculando…</div></div>'
@@ -1038,11 +1074,21 @@ def fluxo_tiles(M: dict) -> tuple[str, str] | None:
         return num(v, dec, "+" if v > 0 else "", suf)
     def it(rot, v):
         return f'<span class="it">{rot} {v}</span>'                   # rótulo + valor nunca se separam na quebra de linha
+    # gráfico: saldo acumulado por tipo desde o início da série (R$ mi); modo nominal = a janela mostra o movimento do período
+    series = []
+    for t, lab, cor in tipos:
+        acc, pts = 0.0, []
+        for r in serie:
+            acc += r.get(t) or 0
+            pts.append([r["data"], round(acc, 1)])
+        series.append((lab, cor, pts))
+    grafico = svg_linhas("painel-fluxo", series, 0, suf=" mi", W=1100, H=190, curtas=True, nominal=True, livre=True,
+                         titulo="Saldo por tipo de investidor na janela (R$ mi): a linha parte de zero no início da janela; o fim é o acumulado do período")
     tiles = "".join(f'<div class="tile"><div class="l">{lab} · 1 d / 5 d / 21 d</div><div class="v {dlt_cls(soma_n(t, 1))}">{sfmt(soma_n(t, 1))}</div>'
                     f'<div class="d">{it("5 d", sfmt(soma_n(t, 5)))} · {it("21 d", sfmt(soma_n(t, 21)))} · {it("mês", sfmt(saldo_mes(t) or 0))} · '
                     f'{it("ano", sfmt(soma(t, ano + "-01-01") / 1000, 1, " bi"))} · {it("12 m", sfmt(soma(t, serie[0]["data"]) / 1000, 1, " bi"))}</div></div>'
                     for t, lab, _ in tipos)
-    return tiles, ult
+    return tiles, ult, grafico
 
 
 def slide_fluxo_investidores(M: dict) -> tuple[str, str] | None:
@@ -1067,7 +1113,7 @@ def slide_fluxo_investidores(M: dict) -> tuple[str, str] | None:
         return sum(r.get(t) or 0 for r in serie if r["data"] >= desde)
     def soma_n(t, n):
         return sum(r.get(t) or 0 for r in serie[-n:])
-    tiles, _ = fluxo_tiles(M)
+    tiles, _, _ = fluxo_tiles(M)
     # saldo diário do estrangeiro (colunas, últimos 40 pregões) e acumulado por tipo desde o início da série (linhas)
     dias = serie[-40:]
     g_dia = svg_colunas(f"Estrangeiro · saldo diário no mercado de ações (R$ mi), últimos 40 pregões", [r["data"][8:] + "/" + r["data"][5:7] if i % 4 == 0 else "" for i, r in enumerate(dias)],
@@ -1351,9 +1397,10 @@ def slide_painel(M: dict, sgs: dict, mercado_micro: dict, minhas: list[dict], co
     tab_var = f'<div class="pbox" style="padding:6px 10px"><table class="mini" style="width:100%">{cab_m}<tbody>{"".join(linhas_m)}</tbody></table></div>'
     fl = fluxo_tiles(M)
     if fl:
-        tiles_fl, ult_fl = fl
+        tiles_fl, ult_fl, graf_fl = fl
+        leg_fl = '<div class="legend" style="margin:6px 0 0"><span><i style="background:var(--s1)"></i>Estrangeiro</span><span><i style="background:var(--s2)"></i>Institucional</span><span><i style="background:var(--s3)"></i>Pessoa física</span><span><i style="background:var(--s4)"></i>Inst. financeira</span></div>'
         box_fl = (f'<div class="pbox" style="padding:6px 10px"><h2 style="margin:0 0 4px">Fluxo por tipo de investidor · ações B3, saldo até {ult_fl[8:]}/{ult_fl[5:7]} (R$ mi)</h2>'
-                  f'<div class="tiles fltiles">{tiles_fl}</div></div>')
+                  f'<div class="tiles fltiles">{tiles_fl}</div>{leg_fl}{graf_fl}</div>')
         strip = f'{tab_var}<div style="margin-top:10px">{box_fl}</div>'
     else:
         strip = tab_var
@@ -2529,6 +2576,9 @@ body{margin:0;background:var(--bg);color:var(--ink);font:15.5px/1.5 var(--f-corp
 .rail a{display:block;font-size:13px;color:var(--ink2);text-decoration:none;padding:5px 10px;border-radius:7px;line-height:1.3}
 .rail a:hover{background:var(--chip)}.rail a.on{background:var(--ink);color:var(--bg)}
 .janela,.janela-global{display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin:0 0 6px}.janela{justify-content:flex-end}
+.resol{display:flex;gap:4px;align-items:center;margin:0 0 4px;justify-content:flex-end}.resol span{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--mut);margin-right:2px}
+.resol button{font:inherit;font-size:11px;padding:1px 8px;border-radius:999px;border:1px solid var(--ring);background:var(--sf);color:var(--ink2);cursor:pointer;line-height:1.5}.resol button.on{background:var(--s1);color:#fff;border-color:var(--s1)}
+.lin .resol+.janela{margin-top:-2px}
 .dec .janela{gap:3px}.dec .janela button{font-size:10.5px;padding:1px 6px}
 .dec table.mini td,.dec table.mini th{padding:2px 5px;white-space:nowrap}.dec .mut{font-size:10.5px}
 .janela button,.janela-global button{font:inherit;font-size:11px;padding:1px 8px;border-radius:999px;border:1px solid var(--ring);background:var(--sf);color:var(--ink2);cursor:pointer;line-height:1.5}
@@ -2615,7 +2665,9 @@ JS = r"""
   if(location.hash){var t=document.getElementById(location.hash.slice(1));if(t)setTimeout(function(){t.scrollIntoView();},50);}else ativa(slides[0]&&slides[0].id);
   // gráficos de linha: renderizador no navegador (seletor de janela) + crosshair
   var MESES=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
-  function ord(s){var d=s.split('-');return Math.round(Date.UTC(+d[0],+d[1]-1,+d[2])/86400000)+719163;}
+  function ord(s){var t=String(s).split(' ');var d=t[0].split('-');var o=Math.round(Date.UTC(+d[0],+d[1]-1,+d[2])/86400000)+719163;
+    if(t[1]){var hm=t[1].split(':');o+=((+hm[0])*60+(+hm[1]||0))/1440;}return o;}   // "AAAA-MM-DD HH:MM" (intraday) vira fração do dia
+  function fmtData(s){s=String(s);var t=s.split(' ');var d=t[0].split('-');return t[1]?(d[2]+'/'+d[1]+' '+t[1]):(d[2]+'/'+d[1]+'/'+d[0]);}
   function ordDate(a,m){return Math.round(Date.UTC(a,m-1,1)/86400000)+719163;}
   function ticks(lo,hi,n){if(hi<=lo)hi=lo+1;var raw=(hi-lo)/n,mag=Math.pow(10,Math.floor(Math.log10(raw)));var step=[1,2,2.5,5,10].map(function(s){return s*mag;}).filter(function(s){return s>=raw;})[0];var out=[];for(var t=Math.ceil(lo/step-1e-9)*step;t<=hi+1e-9;t+=step)out.push(Math.round(t*1e6)/1e6);return out;}
   function num(v,d){return v.toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d});}
@@ -2652,10 +2704,14 @@ JS = r"""
     function render(anos){
       var dmax=Math.max.apply(null,data.series.map(function(s){return s.o[s.o.length-1];}));
       var corte=anos>0?dmax-Math.round(anos*365.25):-Infinity;
-      var S=data.series.map(function(s){var pts=[],o=[];for(var i=0;i<s.pts.length;i++){if(s.o[i]>=corte){pts.push(s.pts[i]);o.push(s.o[i]);}}return {n:s.n,cor:s.cor,pts:pts,o:o};}).filter(function(s){return s.pts.length;});
+      var S=data.series.map(function(s){var pts=[],o=[],first=-1;for(var i=0;i<s.pts.length;i++){if(s.o[i]>=corte){if(first<0)first=i;pts.push(s.pts[i]);o.push(s.o[i]);}}
+        // nominal (fluxo acumulado): o 1º ponto da janela é o dia-base (como o fechamento anterior nos gráficos de preço) e vira zero;
+        // o fim da linha = soma dos saldos dos dias seguintes (5 d = 5 saldos, igual aos tiles). Em "máx" a base é zero.
+        if(data.nominal&&pts.length){var base=first>0?s.pts[first][1]:0;pts=pts.map(function(p){var q=p.slice();q[1]=p[1]-base;return q;});}
+        return {n:s.n,cor:s.cor,pts:pts,o:o};}).filter(function(s){return s.pts.length;});
       if(!S.length)return;
       var B={};Object.keys(data.bandas||{}).forEach(function(k){B[k]=(data.bandas[k]||[]).filter(function(b){return ord(b[0])>=corte;});});
-      var d0=Math.min.apply(null,S.map(function(s){return s.o[0];})),d1=Math.max.apply(null,S.map(function(s){return s.o[s.o.length-1];})),span=Math.max(d1-d0,30);
+      var d0=Math.min.apply(null,S.map(function(s){return s.o[0];})),d1=Math.max.apply(null,S.map(function(s){return s.o[s.o.length-1];})),span=Math.max(d1-d0,svg._intraday?0.02:30);   // intraday: eixo cabe em horas
       var ys=[];S.forEach(function(s){s.pts.forEach(function(p){ys.push(p[1]);});});(data.refs||[]).forEach(function(r){ys.push(r[1]);});Object.keys(B).forEach(function(k){B[k].forEach(function(b){ys.push(b[1],b[2]);});});
       var lo=Math.min.apply(null,ys),hi=Math.max.apply(null,ys);var pad=(hi-lo)*0.08||Math.abs(hi)*0.05||1;lo-=pad;hi+=pad;
       var X=function(o){return ML+(o-d0)/span*(W-ML-MR);},Y=function(v){return MT+(hi-v)/(hi-lo)*(H-MT-MB);};
@@ -2663,7 +2719,8 @@ JS = r"""
       ticks(lo,hi,4).forEach(function(t){if(t>=lo&&t<=hi)h.push('<line class="grid" x1="'+ML+'" x2="'+(W-MR)+'" y1="'+Y(t).toFixed(1)+'" y2="'+Y(t).toFixed(1)+'"/><text class="tick" x="'+(ML-6)+'" y="'+(Y(t)+4).toFixed(1)+'" text-anchor="end">'+num(Math.abs(t)>1e-9?t:0,Math.abs(t)>=1000?0:data.dec)+'</text>');});
       var D0=new Date((d0-719163)*86400000),D1=new Date((d1-719163)*86400000),a0=D0.getUTCFullYear(),a1=D1.getUTCFullYear();
       if(a1-a0>=2){var passo=Math.max(1,Math.ceil(38*(a1-a0)/(W-ML-MR)));for(var a=a0;a<=a1;a++){var o=ordDate(a,1);if(o>=d0&&o<=d1&&(a-a0)%passo===0)h.push('<text class="tick" x="'+X(o).toFixed(1)+'" y="'+(H-10)+'" text-anchor="middle">'+a+'</text>');}}
-      else if(d1-d0<=45){var passoD=Math.max(1,Math.ceil((d1-d0)/8));for(var o=d0;o<=d1;o+=passoD){var dt=new Date((o-719163)*86400000);h.push('<text class="tick" x="'+X(o).toFixed(1)+'" y="'+(H-10)+'" text-anchor="middle">'+String(dt.getUTCDate()).padStart(2,'0')+'/'+String(dt.getUTCMonth()+1).padStart(2,'0')+'</text>');}}
+      else if(d1-d0<=1.5){var ph=(d1-d0)>0.5?1:0.5;for(var o=Math.ceil(d0*24/ph)*ph/24;o<=d1;o+=ph/24){var hh=Math.round((o-Math.floor(o))*24*2)/2;h.push('<text class="tick" x="'+X(o).toFixed(1)+'" y="'+(H-10)+'" text-anchor="middle">'+String(Math.floor(hh)).padStart(2,'0')+':'+(hh%1?'30':'00')+'</text>');}}   // intraday de um dia: horas
+      else if(d1-d0<=45){var passoD=Math.max(1,Math.ceil((d1-d0)/8));for(var o=Math.ceil(d0);o<=d1;o+=passoD){var dt=new Date((o-719163)*86400000);h.push('<text class="tick" x="'+X(o).toFixed(1)+'" y="'+(H-10)+'" text-anchor="middle">'+String(dt.getUTCDate()).padStart(2,'0')+'/'+String(dt.getUTCMonth()+1).padStart(2,'0')+'</text>');}}
       else{for(var a=a0;a<=a1;a++)for(var m=1;m<=12;m++){var o=ordDate(a,m);if(o>=d0&&o<=d1)h.push('<text class="tick" x="'+X(o).toFixed(1)+'" y="'+(H-10)+'" text-anchor="middle">'+MESES[m-1]+(m===1?'/'+String(a).slice(2):'')+'</text>');}}
       var refs=(data.refs||[]).slice().sort(function(p,q){return p[1]-q[1];});var obst=data.titulo?[[ML,ML+5.6*data.titulo.length,0,16]]:[];
       refs.forEach(function(r,i){var abaixo=i===0&&refs.length>1&&Math.abs(Y(refs[1][1])-Y(r[1]))<16;var cor=r[2]||'var(--mut)';
@@ -2677,7 +2734,8 @@ JS = r"""
       var sel=svg.dataset.nosel?{}:(window.__sel||{});var s1=S[0];function idxAte(o){var i=-1;for(var k=0;k<s1.o.length;k++)if(s1.o[k]<=o)i=k;return i;}
       var i0=sel.t0?idxAte(ord(sel.t0)):-1,i1=sel.t1?idxAte(ord(sel.t1)):(sel.t0?s1.o.length-1:-1);
       if(i0>=0&&i1>i0){var xa=X(s1.o[i0]),xb=X(s1.o[i1]);h.push('<rect x="'+xa.toFixed(1)+'" y="'+MT+'" width="'+(xb-xa).toFixed(1)+'" height="'+(H-MT-MB)+'" style="fill:var(--s2);opacity:.07"/>');
-        var v0=s1.pts[i0][1],v1=s1.pts[i1][1],dv=data.suf==='%'?(v1-v0):(v0?(v1/v0-1)*100:0);var txt=(dv>0?'+':'')+num(dv,data.suf==='%'?2:1)+(data.suf==='%'?' p.p.':'%');
+        var v0=s1.pts[i0][1],v1=s1.pts[i1][1],dv=data.nominal?(v1-v0):data.suf==='%'?(v1-v0):(v0?(v1/v0-1)*100:0);
+        var txt=data.nominal?((dv>0?'+':'')+num(dv,data.dec)+(data.suf||'')):((dv>0?'+':'')+num(dv,data.suf==='%'?2:1)+(data.suf==='%'?' p.p.':'%'));
         h.push('<text class="tick" x="'+((xa+xb)/2).toFixed(1)+'" y="'+(MT+12)+'" text-anchor="middle" style="fill:var(--s2);font-weight:600">'+txt+'</text>');}
       [[sel.t0,'início',i0],[sel.t1,'fim',sel.t1?i1:-1]].forEach(function(m){if(!m[0]||m[2]<0)return;var ot=s1.o[m[2]];if(ot<d0||ot>d1)return;var xm=X(ot);
         // início embaixo, fim uma linha acima: não se sobrepõem quando o intervalo é curto
@@ -2708,7 +2766,7 @@ JS = r"""
         if(!s.pts.length||best>G.span*0.02){if(hds[si])hds[si].style.display='none';return;}
         var p=s.pts[i];if(ox===null)ox=s.o[i];
         if(hds[si]){hds[si].style.display='';hds[si].setAttribute('cx',G.X(s.o[i]));hds[si].setAttribute('cy',G.Y(p[1]));}
-        txt.push((G.S.length>1?s.n+' ':'')+p[0].split('-').reverse().join('/')+' · '+(data.pref||'')+num(p[1],data.dec)+(data.suf||''));
+        txt.push((G.S.length>1?s.n+' ':'')+fmtData(p[0])+' · '+(data.pref||'')+num(p[1],data.dec)+(data.suf||''));
         (data.extras||[]).forEach(function(nm,k){var ex=p[2+k];if(ex!=null)txt.push('<span style="opacity:.75">'+nm+' '+(typeof ex==='number'?num(ex,nm==='n'?0:data.dec)+(nm==='n'?'':(data.suf||'')):ex)+'</span>');});});
       if(ox===null)return;hov.style.display='';xh.setAttribute('x1',G.X(ox));xh.setAttribute('x2',G.X(ox));
       tip.style.display='block';tip.innerHTML=txt.join('<br>');
@@ -2721,14 +2779,33 @@ JS = r"""
       svg.dispatchEvent(new CustomEvent('pontoclique',{bubbles:true,detail:{data:s.pts[i][0],valor:s.pts[i][1]}}));});
     svg._render=render;
     // chips: data-a = anos (0 = máx); data-d = pregões (1, 5, 21); data-ytd = desde o 1º dia do ano
+    // a janela começa exatamente no ponto-base (fechamento anterior): 1º ponto desenhado = base; N d = N pontos depois da base
     function anosDoChip(b){var s=data.series[0],o1=s.o[s.o.length-1],last=new Date((o1-719163)*86400000);
-      if(b.dataset.d){var n=+b.dataset.d,o0=s.o[Math.max(0,s.o.length-1-n)];return (o1-o0+1)/365.25;}
-      if(b.dataset.ytd){var o0y=ordDate(last.getUTCFullYear(),1)-1;return (o1-o0y+1)/365.25;}          // desde o fechamento do ano anterior
-      if(b.dataset.mtd){var o0m=ordDate(last.getUTCFullYear(),last.getUTCMonth()+1)-1;return (o1-o0m+1)/365.25;}   // desde o fechamento do mês anterior
-      if(b.dataset.m)return (+b.dataset.m)/12+1/365.25;
+      function ate(o){var r=s.o[0];for(var k=0;k<s.o.length;k++){if(s.o[k]<=o)r=s.o[k];else break;}return r;}
+      if(b.dataset.d){var n=+b.dataset.d,o0=s.o[Math.max(0,s.o.length-1-n)];return Math.max(o1-o0,0.5)/365.25;}
+      if(b.dataset.ytd){var o0y=ate(ordDate(last.getUTCFullYear(),1)-1);return Math.max(o1-o0y,0.5)/365.25;}          // último ponto do ano anterior
+      if(b.dataset.mtd){var o0m=ate(ordDate(last.getUTCFullYear(),last.getUTCMonth()+1)-1);return Math.max(o1-o0m,0.5)/365.25;}   // último ponto do mês anterior
+      if(b.dataset.m){var o0mm=ate(o1-Math.round((+b.dataset.m)*365.25/12));return Math.max(o1-o0mm,0.5)/365.25;}
       return +b.dataset.a;}
+    svg._anosDe=function(ds){return anosDoChip({dataset:ds});};
     var chips=svg.parentNode.querySelector('.janela');
-    if(chips)chips.querySelectorAll('button').forEach(function(b){b.addEventListener('click',function(){chips.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});b.classList.add('on');render(anosDoChip(b));});});
+    function marca(b){if(!chips)return;chips.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});if(b)b.classList.add('on');}
+    if(chips)chips.querySelectorAll('button').forEach(function(b){b.addEventListener('click',function(){marca(b);render(anosDoChip(b));
+      // a janela do gráfico do Ibovespa do Painel comanda todos os outros gráficos de linha (mesmo chip; senão o equivalente em anos)
+      if(svg.id==='painel-ibov'){var ds={};['d','mtd','ytd','m','a'].forEach(function(k){if(b.dataset[k]!==undefined)ds[k]=b.dataset[k];});
+        document.querySelectorAll('.lin svg.chart').forEach(function(o){if(o===svg||!o._render||o.dataset.nosel||o._intraday)return;
+          var ch=o.parentNode.querySelector('.janela'),alvo=null;
+          if(ch)ch.querySelectorAll('button').forEach(function(x){x.classList.remove('on');var ok=Object.keys(ds).length>0;Object.keys(ds).forEach(function(k){if(x.dataset[k]!==ds[k])ok=false;});['d','mtd','ytd','m','a'].forEach(function(k){if(ds[k]===undefined&&x.dataset[k]!==undefined)ok=false;});if(ok&&!x.disabled)alvo=x;});
+          if(alvo)alvo.classList.add('on');
+          o._render(o._anosDe(ds));});}});});
+    // seletor de resolução (preço: diário / 5 min / 1 min): troca a 1ª série pela alternativa embutida; no intraday, sem chips de janela
+    var res=svg.parentNode.querySelector('.resol');
+    if(res){data._orig=data.series;res.querySelectorAll('button').forEach(function(b){b.addEventListener('click',function(){res.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});b.classList.add('on');
+      var r=b.dataset.r;
+      if(!r){data.series=data._orig;svg._intraday=false;if(chips)chips.style.display='';render(svg._anosDia||+(svg.dataset.ini||0));return;}
+      var alt=data.resol[r];if(!alt||!alt.length)return;
+      var s0=data._orig[0];data.series=[{n:s0.n+' ('+r+')',cor:s0.cor,pts:alt,o:alt.map(function(p){return ord(p[0]);})}];
+      svg._intraday=true;svg._anosDia=svg._anos;if(chips)chips.style.display='none';render(0);});});}
     document.addEventListener('selecao',function(){render(svg._anos||0);});
     render(+(svg.dataset.ini||0));
   }
@@ -3343,7 +3420,7 @@ def build() -> None:
 <div class="tile"><div class="l">Alvo · minha / consenso</div><div class="v">{num(tgt_m, 2)} <span class="mut">/</span> {num(tgt_c, 2)}</div><div class="d"><span class="{dlt_cls(up_m)}">{pct(up_m)}</span> / <span class="{dlt_cls(up_c)}">{pct(up_c)}</span> de upside</div></div>
 <div class="tile"><div class="l">Consenso</div><div class="v">{n_an if n_an else "—"}</div><div class="d">analistas · fonte {fonte_c} · {(est[a0]["c"] or {}).get("data", "—")}</div></div>
 </div>'''
-        grafico_preco = svg_preco(f"px-{tk}", serie, intr, {"minha": tgt_m, "cons": tgt_c})
+        grafico_preco = svg_preco(f"px-{tk}", serie, intr, {"minha": tgt_m, "cons": tgt_c}, resol=mt5_intraday(tk))
         barras = []
         for campo, lab in (("lucro", "Lucro líquido"), ("ebitda", "EBITDA"), ("receita", "Receita líquida")):
             grupos = []
