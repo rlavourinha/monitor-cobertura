@@ -22,14 +22,24 @@ def _iso(s: str) -> str:
     return f"{s[6:]}-{s[3:5]}-{s[:2]}"
 
 
+EXTRAP_MAX = 1.5   # anos: até onde o vértice pode passar do título mais longo (o Tesouro só lança NTN-F nova a cada 2 anos,
+                   # então o prefixado de 10 anos fica 9,x anos durante ~11 meses; sem isso a série de 10 anos abria um buraco)
+
+
 def _interp(pontos: list[tuple[float, float]], alvo: float) -> float | None:
+    """Interpolação linear entre vértices; além do último título, extrapolação linear pelos dois mais longos até EXTRAP_MAX anos."""
     pts = sorted(pontos)
-    if not pts or alvo < pts[0][0] - 0.15 or alvo > pts[-1][0] + 0.15:
+    if not pts or alvo < pts[0][0] - 0.15 or alvo > pts[-1][0] + EXTRAP_MAX:
         return None
     for (x0, y0), (x1, y1) in zip(pts, pts[1:]):
         if x0 <= alvo <= x1:
             return y0 if x1 == x0 else y0 + (y1 - y0) * (alvo - x0) / (x1 - x0)
-    return pts[0][1] if abs(alvo - pts[0][0]) <= 0.15 else pts[-1][1]
+    if alvo < pts[0][0]:
+        return pts[0][1]
+    if len(pts) >= 2 and pts[-1][0] > pts[-2][0]:
+        (x0, y0), (x1, y1) = pts[-2], pts[-1]
+        return y1 + (y1 - y0) * (alvo - x1) / (x1 - x0)
+    return pts[-1][1]
 
 
 def constroi() -> dict:

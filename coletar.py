@@ -367,7 +367,7 @@ def diario_brent_curva(meses: int = 30):
         sym = f"BZ{MESES_FUT[m - 1]}{str(y)[2:]}.NYM"
         q = yahoo.intraday(sym)
         if q and q.get("preco"):
-            pts.append([f"{y}-{m:02d}", round(float(q["preco"]), 2)])
+            pts.append([f"{y}-{m:02d}", round(float(q["preco"]), 2), int(q.get("volume") or 0)])   # preço e contratos negociados no dia (liquidez)
         m += 1
     obj = _le_json(BRENT_ARQ, {"fotos": {}})
     if pts:

@@ -644,12 +644,14 @@ def linha_variaveis_painel(M: dict) -> str:
     if fotos:
         datas = sorted(fotos)
         hoje, ant = datas[-1], datas[0]
-        series = [(f"curva {hoje[8:]}/{hoje[5:7]}", S1, [[f"{v}-15", p] for v, p in fotos[hoje]])]
+        def pts_de(f):   # [venc, preço(, contratos negociados)] -> ponto com o volume como extra do tooltip
+            return [[f"{r[0]}-15", r[1], (r[2] if len(r) > 2 else None)] for r in f]
+        series = [(f"curva {hoje[8:]}/{hoje[5:7]}", S1, pts_de(fotos[hoje]))]
         if ant != hoje:
-            series.append((f"curva {ant[8:]}/{ant[5:7]}", MUT, [[f"{v}-15", p] for v, p in fotos[ant]]))
+            series.append((f"curva {ant[8:]}/{ant[5:7]}", MUT, pts_de(fotos[ant])))
         spot = br[-1][1] if br else None
-        g_curva = svg_linhas("painel-brent-curva", series, 1, pref="US$ ", W=400, H=170, titulo="Curva futura do Brent (vencimentos mensais, US$/bbl)",
-                             refs=[("à vista", spot)] if spot else None)
+        g_curva = svg_linhas("painel-brent-curva", series, 1, pref="US$ ", W=400, H=170, titulo="Curva futura do Brent (US$/bbl; contratos/dia no tooltip)",
+                             refs=[("à vista", spot)] if spot else None, extras=["contratos"])
         g_curva = g_curva.replace('<div class="janela" data-for="painel-brent-curva">', '<div class="janela" data-for="painel-brent-curva" style="display:none">')
     else:
         g_curva = '<div class="empty small">Curva do Brent: rode a janela diária.</div>'
