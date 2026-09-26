@@ -3265,6 +3265,27 @@ PAGE = """<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta na
 _N = {"n": 0}
 
 
+def versao() -> str:
+    """Versão = config.VERSAO (maior) + número de commits + hash curto: muda a cada commit (inclusive os do bot no GitHub),
+    então dá para saber exatamente qual build está no ar. Sem git, cai em config.VERSAO."""
+    import subprocess
+    try:
+        n = subprocess.run(["git", "rev-list", "--count", "HEAD"], capture_output=True, text=True, cwd=config.RAIZ, timeout=20).stdout.strip()
+        h = subprocess.run(["git", "rev-parse", "--short", "HEAD"], capture_output=True, text=True, cwd=config.RAIZ, timeout=20).stdout.strip()
+        return f"{config.VERSAO.split('.')[0]}.{n} · {h}" if n and h else config.VERSAO
+    except Exception:
+        return config.VERSAO
+
+
+def carimbo_build() -> str:
+    """Data e hora do build em Brasília (o GitHub Actions roda em UTC)."""
+    try:
+        from zoneinfo import ZoneInfo
+        return datetime.now(ZoneInfo("America/Sao_Paulo")).strftime("%d/%m/%Y %H:%M")
+    except Exception:
+        return datetime.now().strftime("%d/%m/%Y %H:%M")
+
+
 def slide(sec: str, sid: str, titulo: str, corpo: str, lede: str = "", nota: str = "", cls: str = "") -> tuple[str, str]:
     """Um slide da apresentação. Devolve (html, item do trilho)."""
     _N["n"] += 1
@@ -3694,8 +3715,8 @@ def build() -> None:
         rail.append(item)
     fonts_css = (config.RAIZ / "assets" / "fonts.css").read_text(encoding="utf-8") if (config.RAIZ / "assets" / "fonts.css").exists() else ""
     css = CSS.replace("/*ITALICO*/", "").replace("/*FT*/", config.FONTE_TITULO).replace("/*FC*/", config.FONTE_CORPO) + ("\nbody,body *,svg text{font-style:italic}" if config.ESTILO_ITALICO else "")
-    html = (PAGE.replace("/*FONTS*/", fonts_css).replace("/*CSS*/", css).replace("/*JS*/", JS).replace("/*VERSAO*/", config.VERSAO)
-            .replace("/*DATA*/", hoje).replace("/*RAIL*/", "".join(rail)).replace("/*SLIDES*/", "".join(h for h, _ in S)))
+    html = (PAGE.replace("/*FONTS*/", fonts_css).replace("/*CSS*/", css).replace("/*JS*/", JS).replace("/*VERSAO*/", versao())
+            .replace("/*DATA*/", carimbo_build()).replace("/*RAIL*/", "".join(rail)).replace("/*SLIDES*/", "".join(h for h, _ in S)))
     SAIDA.write_text(html, encoding="utf-8")
     print(f"ok -> {SAIDA} ({len(html) // 1024} KB)")
 
