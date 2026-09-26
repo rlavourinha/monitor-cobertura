@@ -239,7 +239,8 @@ def svg_linhas(cid: str, series: list[tuple[str, str, list[list]]], dec=1, pref=
                refs: list[tuple[str, float]] | None = None, titulo: str = "",
                bandas: dict[int, list[list]] | None = None, extras: list[str] | None = None, ini: int = 0,
                curtas: bool = False, sombra_desde: str | None = None, gap: int = 45, livre: bool = False, coluna: bool = False,
-               nominal: bool = False, resol: dict[str, list[list]] | None = None) -> str:
+               nominal: bool = False, resol: dict[str, list[list]] | None = None,
+               ativos: list[str] | None = None, alts: dict[str, list[list]] | None = None, titulo_base: str = "") -> str:
     """Gráfico de linhas genérico (1 a 4 séries), crosshair via JS. series = [(nome, cor_css, [[data, v, ...extras], ...])].
     bandas = {índice da série: [[data, mínimo, máximo], ...]} desenha a faixa sombreada na cor da série (formato mín–máx + média).
     extras = nomes dos campos adicionais de cada ponto (p[2:]), exibidos no tooltip.
@@ -337,7 +338,7 @@ def svg_linhas(cid: str, series: list[tuple[str, str, list[list]]], dec=1, pref=
     data_js = json.dumps({"series": [{"n": n, "cor": c, "pts": pts} for n, c, pts in series], "bandas": {str(k): v for k, v in bandas.items()},
                           "refs": [[r[0], r[1], r[2]] for r in refs], "pref": pref, "suf": suf, "dec": dec, "extras": extras or [],
                           "titulo": titulo, "W": W, "H": H, "ML": ML, "MR": MR, "MT": MT, "MB": MB, "gap": gap, "livre": livre, "coluna": coluna,
-                          "nominal": nominal, "resol": resol or {}})
+                          "nominal": nominal, "resol": resol or {}, "alts": alts or {}, "tituloBase": titulo_base})
     anos_total = (d1 - d0) / 365.25
     ini = ini if (ini and ini < anos_total) else 0        # janela inicial (anos); 0 = máx
     chips = "".join(f'<button data-a="{a}"{" disabled" if a >= anos_total else ""}{" class=on" if a == ini else ""}>{a}a</button>' for a in ((2, 3, 5, 10) if curtas else (1, 2, 3, 5, 10)))
@@ -345,6 +346,9 @@ def svg_linhas(cid: str, series: list[tuple[str, str, list[list]]], dec=1, pref=
         chips = '<button data-d="1">1 d</button><button data-d="5">5 d</button><button data-d="21">21 d</button><button data-mtd="1">MTD</button><button data-ytd="1">YTD</button><button data-m="12">12 m</button>' + chips
     sel_res = (f'<div class="resol" data-for="{cid}"><span>preço</span><button data-r="" class="on">diário</button>'
                + "".join(f'<button data-r="{k}">{k}</button>' for k in resol) + "</div>") if resol else ""
+    if ativos:   # lista de ativos: o JS troca a 1ª série pelo escolhido (alts embutidos ou hist do #ibov-dados)
+        sel_res = (f'<div class="resol" data-for="{cid}"><span>ativo</span><select class="ativo">'
+                   + "".join(f'<option value="{a}"{" selected" if a == series[0][0] else ""}>{a}</option>' for a in ativos) + "</select></div>") + sel_res
     return f'''<div class="lin">{sel_res}<div class="janela" data-for="{cid}">{chips}<button data-a="0"{"" if ini else " class=on"}>máx</button></div><svg class="chart" id="{cid}" viewBox="0 0 {W} {H}" data-x0="{d0}" data-span="{span}" data-lo="{lo}" data-hi="{hi}" data-ini="{ini}"{f' data-desde="{sombra_desde}"' if sombra_desde else ""}
   data-ml="{ML}" data-mr="{MR}" data-mt="{MT}" data-mb="{MB}" data-w="{W}" data-h="{H}" role="img" aria-label="{titulo}">
   <g class="corpo">{"".join(out)}</g>
@@ -903,8 +907,26 @@ def linha_variaveis_painel(M: dict) -> str:
         g_curva = g_curva.replace('id="painel-brent-curva"', 'id="painel-brent-curva" data-nosel="1"')   # eixo x = vencimentos, não entra na seleção de datas
     else:
         g_curva = '<div class="empty small">Curva do Brent: rode a janela diária.</div>'
-    return (f'<div class="pgrid" style="grid-template-columns:1fr 1fr 1fr 1fr;margin-top:10px">'
-            + "".join(f'<div class="pbox" style="padding:8px 12px 4px">{g}</div>' for g in (g_br, g_us, g_brent, g_curva)) + '</div>')
+    # 5º: fluxo por tipo de investidor (janela nominal); 6º: ativo à escolha (lista = cobertura + carteira do Ibovespa)
+    fl = fluxo_tiles(M)
+    g_fluxo = fl[2] if fl else '<div class="empty small">Fluxo por investidor: rode a janela diária.</div>'
+    from fontes import b3 as _b3
+    try:
+        C = json.loads((config.DATA / "ibov_comp.json").read_text(encoding="utf-8"))
+        cods_ibov = sorted(C.get("hist", {}))
+    except Exception:
+        cods_ibov = []
+    ativos = sorted(set(config.UNIVERSO) | set(cods_ibov))
+    tk0 = next(iter(config.UNIVERSO), ativos[0] if ativos else None)
+    if tk0:
+        s0 = [[d, v] for d, v in _b3.serie(tk0)]
+        alts = {tk: [[d, v] for d, v in _b3.serie(tk)] for tk in config.UNIVERSO if tk != tk0}   # os demais vêm do #ibov-dados
+        g_ativo = svg_linhas("painel-ativo", [(tk0, S1, s0)], 2, pref="R$ ", W=400, H=170, ini=5, titulo=f"{tk0} · fechamento (R$)",
+                             ativos=ativos, alts=alts, titulo_base="fechamento (R$)")
+    else:
+        g_ativo = '<div class="empty small">Sem papéis.</div>'
+    return (f'<div class="pgrid" style="grid-template-columns:1fr 1fr 1fr;margin-top:10px">'
+            + "".join(f'<div class="pbox" style="padding:8px 12px 4px">{g}</div>' for g in (g_br, g_us, g_brent, g_curva, g_fluxo, g_ativo)) + '</div>')
 
 
 def linha_ibov_painel(D: dict, M: dict) -> str:
@@ -933,13 +955,13 @@ def linha_ibov_painel(D: dict, M: dict) -> str:
              "ib": [[d, v] for d, v in ib if d >= ini_h], "unit": {k: 1 for k in UNIT_COMP}, "abrev": ABREV, "setor_ex": getattr(config, "SETOR_EX", {})}
     dados_js = json.dumps(dados, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
     # a janela do gráfico (1 d … máx) é a janela da decomposição; a área sem fechamentos dos papéis (antes de ini_h) fica sombreada
-    g = svg_linhas("painel-ibov", [("Ibovespa", "var(--s1)", [[d, v] for d, v in ib])], 0, W=800, H=232, ini=2, curtas=True, sombra_desde=ini_h,
-                   titulo="Ibovespa · a janela escolhida (ou o ponto clicado) define a decomposição ao lado e a janela dos outros gráficos",
+    g = svg_linhas("painel-ibov", [("Ibovespa", "var(--s1)", [[d, v] for d, v in ib])], 0, W=1180, H=300, ini=2, curtas=True, sombra_desde=ini_h,
+                   titulo="Ibovespa · a janela escolhida (ou o ponto clicado) define a decomposição abaixo e a janela dos outros gráficos",
                    resol=mt5_intraday("IBOV"))
-    return (f'<div class="pgrid dec" style="grid-template-columns:2fr 1fr 1fr">'
-            f'<div class="pbox" style="padding:8px 12px 4px">{g}</div>'
+    return (f'<div class="dec"><div class="pbox" style="padding:8px 12px 4px">{g}</div>'
+            f'<div class="pgrid" style="grid-template-columns:1fr 1fr;margin-top:10px">'
             f'<div class="pbox" data-slot="setores"><h2 style="margin:0 0 4px">Decomposição por setor</h2><div class="empty small">calculando…</div></div>'
-            f'<div class="pbox" data-slot="papeis"><h2>Quem puxou, quem segurou</h2><div class="empty small">calculando…</div></div>'
+            f'<div class="pbox" data-slot="papeis"><h2>Quem puxou, quem segurou</h2><div class="empty small">calculando…</div></div></div>'
             f'<script type="application/json" id="ibov-dados">{dados_js}</script></div>')
 
 
@@ -1082,8 +1104,8 @@ def fluxo_tiles(M: dict) -> tuple[str, str] | None:
             acc += r.get(t) or 0
             pts.append([r["data"], round(acc, 1)])
         series.append((lab, cor, pts))
-    grafico = svg_linhas("painel-fluxo", series, 0, suf=" mi", W=1100, H=190, curtas=True, nominal=True, livre=True,
-                         titulo="Saldo por tipo de investidor na janela (R$ mi): a linha parte de zero no início da janela; o fim é o acumulado do período")
+    grafico = svg_linhas("painel-fluxo", series, 0, suf=" mi", W=400, H=170, curtas=True, nominal=True, livre=True,
+                         titulo="Fluxo por investidor na janela (R$ mi; parte de zero)")
     tiles = "".join(f'<div class="tile"><div class="l">{lab} · 1 d / 5 d / 21 d</div><div class="v {dlt_cls(soma_n(t, 1))}">{sfmt(soma_n(t, 1))}</div>'
                     f'<div class="d">{it("5 d", sfmt(soma_n(t, 5)))} · {it("21 d", sfmt(soma_n(t, 21)))} · {it("mês", sfmt(saldo_mes(t) or 0))} · '
                     f'{it("ano", sfmt(soma(t, ano + "-01-01") / 1000, 1, " bi"))} · {it("12 m", sfmt(soma(t, serie[0]["data"]) / 1000, 1, " bi"))}</div></div>'
@@ -1400,7 +1422,7 @@ def slide_painel(M: dict, sgs: dict, mercado_micro: dict, minhas: list[dict], co
         tiles_fl, ult_fl, graf_fl = fl
         leg_fl = '<div class="legend" style="margin:6px 0 0"><span><i style="background:var(--s1)"></i>Estrangeiro</span><span><i style="background:var(--s2)"></i>Institucional</span><span><i style="background:var(--s3)"></i>Pessoa física</span><span><i style="background:var(--s4)"></i>Inst. financeira</span></div>'
         box_fl = (f'<div class="pbox" style="padding:6px 10px"><h2 style="margin:0 0 4px">Fluxo por tipo de investidor · ações B3, saldo até {ult_fl[8:]}/{ult_fl[5:7]} (R$ mi)</h2>'
-                  f'<div class="tiles fltiles">{tiles_fl}</div>{leg_fl}{graf_fl}</div>')
+                  f'<div class="tiles fltiles">{tiles_fl}</div></div>')
         strip = f'{tab_var}<div style="margin-top:10px">{box_fl}</div>'
     else:
         strip = tab_var
@@ -2640,7 +2662,8 @@ body{margin:0;background:var(--bg);color:var(--ink);font:15.5px/1.5 var(--f-corp
 .janela,.janela-global{display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin:0 0 6px}.janela{justify-content:flex-end}
 .resol{display:flex;gap:4px;align-items:center;margin:0 0 4px;justify-content:flex-end}.resol span{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--mut);margin-right:2px}
 .resol button{font:inherit;font-size:11px;padding:1px 8px;border-radius:999px;border:1px solid var(--ring);background:var(--sf);color:var(--ink2);cursor:pointer;line-height:1.5}.resol button.on{background:var(--s1);color:#fff;border-color:var(--s1)}
-.lin .resol+.janela{margin-top:-2px}
+.lin .resol+.janela{margin-top:-2px}.lin .resol+.resol{margin-top:-2px}
+select.ativo{font:inherit;font-size:11.5px;padding:1px 6px;border-radius:8px;border:1px solid var(--ring);background:var(--sf);color:var(--ink);max-width:150px}
 .dec .janela{gap:3px}.dec .janela button{font-size:10.5px;padding:1px 6px}
 .dec table.mini td,.dec table.mini th{padding:2px 5px;white-space:nowrap}.dec .mut{font-size:10.5px}
 .janela button,.janela-global button{font:inherit;font-size:11px;padding:1px 8px;border-radius:999px;border:1px solid var(--ring);background:var(--sf);color:var(--ink2);cursor:pointer;line-height:1.5}
@@ -2796,9 +2819,12 @@ JS = r"""
       var sel=svg.dataset.nosel?{}:(window.__sel||{});var s1=S[0];function idxAte(o){var i=-1;for(var k=0;k<s1.o.length;k++)if(s1.o[k]<=o)i=k;return i;}
       var i0=sel.t0?idxAte(ord(sel.t0)):-1,i1=sel.t1?idxAte(ord(sel.t1)):(sel.t0?s1.o.length-1:-1);
       if(i0>=0&&i1>i0){var xa=X(s1.o[i0]),xb=X(s1.o[i1]);h.push('<rect x="'+xa.toFixed(1)+'" y="'+MT+'" width="'+(xb-xa).toFixed(1)+'" height="'+(H-MT-MB)+'" style="fill:var(--s2);opacity:.07"/>');
-        var v0=s1.pts[i0][1],v1=s1.pts[i1][1],dv=data.nominal?(v1-v0):data.suf==='%'?(v1-v0):(v0?(v1/v0-1)*100:0);
-        var txt=data.nominal?((dv>0?'+':'')+num(dv,data.dec)+(data.suf||'')):((dv>0?'+':'')+num(dv,data.suf==='%'?2:1)+(data.suf==='%'?' p.p.':'%'));
-        h.push('<text class="tick" x="'+((xa+xb)/2).toFixed(1)+'" y="'+(MT+12)+'" text-anchor="middle" style="fill:var(--s2);font-weight:600">'+txt+'</text>');}
+        if(data.nominal){   // fluxo: a soma de CADA série na seleção, uma linha por série, na cor da série
+          S.forEach(function(s,k){var a=-1,b=-1;for(var q=0;q<s.o.length;q++){if(s.o[q]<=ord(sel.t0))a=q;if(sel.t1?s.o[q]<=ord(sel.t1):true)b=q;}if(a<0||b<=a)return;var dvk=s.pts[b][1]-s.pts[a][1];
+            h.push('<text class="tick" x="'+((xa+xb)/2).toFixed(1)+'" y="'+(MT+12+k*12)+'" text-anchor="middle" style="fill:'+s.cor+';font-weight:600">'+esc(s.n)+' '+(dvk>0?'+':'')+num(dvk,data.dec)+(data.suf||'')+'</text>');});}
+        else{var v0=s1.pts[i0][1],v1=s1.pts[i1][1],dv=data.suf==='%'?(v1-v0):(v0?(v1/v0-1)*100:0);
+          var txt=(dv>0?'+':'')+num(dv,data.suf==='%'?2:1)+(data.suf==='%'?' p.p.':'%');
+          h.push('<text class="tick" x="'+((xa+xb)/2).toFixed(1)+'" y="'+(MT+12)+'" text-anchor="middle" style="fill:var(--s2);font-weight:600">'+txt+'</text>');}}
       [[sel.t0,'início',i0],[sel.t1,'fim',sel.t1?i1:-1]].forEach(function(m){if(!m[0]||m[2]<0)return;var ot=s1.o[m[2]];if(ot<d0||ot>d1)return;var xm=X(ot);
         // início embaixo, fim uma linha acima: não se sobrepõem quando o intervalo é curto
         h.push('<line x1="'+xm.toFixed(1)+'" x2="'+xm.toFixed(1)+'" y1="'+MT+'" y2="'+(H-MB)+'" style="stroke:var(--s2);stroke-width:1.2;stroke-dasharray:4 3"/><text class="tick" x="'+(xm+(m[1]==='fim'?-4:4)).toFixed(1)+'" y="'+(H-MB-(m[1]==='fim'?18:6))+'" text-anchor="'+(m[1]==='fim'?'end':'start')+'" style="fill:var(--s2)">'+m[1]+' '+m[0].slice(8)+'/'+m[0].slice(5,7)+'/'+m[0].slice(2,4)+'</text>');});
@@ -2850,6 +2876,13 @@ JS = r"""
       if(b.dataset.m){var o0mm=ate(o1-Math.round((+b.dataset.m)*365.25/12));return Math.max(o1-o0mm,0.5)/365.25;}
       return +b.dataset.a;}
     svg._anosDe=function(ds){return anosDoChip({dataset:ds});};
+    // lista de ativos (select.ativo): troca a 1ª série pelo papel escolhido — série embutida em data.alts ou, para os papéis
+    // do Ibovespa, no histórico de 5 anos já embutido em #ibov-dados (hist[cod]); mantém a janela atual
+    var selA=svg.parentNode.querySelector('select.ativo');
+    if(selA){selA.addEventListener('change',function(){var k=selA.value,pts=(data.alts||{})[k];
+      if(!pts){try{var ID=window.__ibovDados||(window.__ibovDados=JSON.parse(document.getElementById('ibov-dados').textContent));pts=(ID.hist||{})[k];}catch(e){}}
+      if(!pts||!pts.length)return;var s0=data.series[0];data.series=[{n:k,cor:s0.cor,pts:pts,o:pts.map(function(p){return ord(p[0]);})}].concat(data.series.slice(1));
+      data.titulo=k+(data.tituloBase?' · '+data.tituloBase:'');render(svg._anos||0);});}
     var chips=svg.parentNode.querySelector('.janela');
     function marca(b){if(!chips)return;chips.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});if(b)b.classList.add('on');}
     if(chips)chips.querySelectorAll('button').forEach(function(b){b.addEventListener('click',function(){marca(b);render(anosDoChip(b));
