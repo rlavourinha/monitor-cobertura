@@ -10,6 +10,9 @@
 name: atualizar
 
 on:
+  push:                                   # mudança no gerador/dados manuais publica na hora (commits do bot em data/ e consenso/ não disparam)
+    branches: [main]
+    paths-ignore: ["data/**", "consenso/**", "output/**"]
   schedule:
     - cron: "0 13,15,17,19,21 * * 1-5"   # intraday
     - cron: "45 22 * * 1-5"              # diario
