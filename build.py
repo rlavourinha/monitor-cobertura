@@ -907,6 +907,35 @@ def slide_volume(M: dict) -> tuple[str, str] | None:
                  "O total é dos constituintes, não de toda a B3; a B3 divulga o total do mercado no Boletim Diário, sem histórico aberto.")
 
 
+def fluxo_tiles(M: dict) -> tuple[str, str] | None:
+    """Tiles do fluxo por tipo de investidor (saldo 1 d, 5 d, 21 d, mês, ano, 12 m), usados no Painel e no slide próprio.
+    Devolve (html, data da última referência) ou None se a série do BDI não existe."""
+    from fontes import b3_bdi
+    if not b3_bdi.ARQ.exists():
+        return None
+    O = json.loads(b3_bdi.ARQ.read_text(encoding="utf-8"))
+    serie = b3_bdi.serie_diaria(O)
+    if not serie:
+        return None
+    S1, S2, S3, S4 = "var(--s1)", "var(--s2)", "var(--s3)", "var(--s4)"
+    tipos = [("estrangeiro", "Estrangeiro", S1), ("institucional", "Institucional", S2), ("pessoa física", "Pessoa física", S3), ("inst. financeira", "Inst. financeira", S4)]
+    ult = serie[-1]["data"]
+    acum = O["diario"][ult]
+    ano = ult[:4]
+    def saldo_mes(t):
+        return (acum[t][0] - acum[t][1]) / 1000.0 if t in acum else None
+    def soma(t, desde):
+        return sum(r.get(t) or 0 for r in serie if r["data"] >= desde)
+    def soma_n(t, n):
+        return sum(r.get(t) or 0 for r in serie[-n:])
+    def sfmt(v, dec=0, suf=" mi"):
+        return num(v, dec, "+" if v > 0 else "", suf)
+    tiles = "".join(f'<div class="tile"><div class="l">{lab} · 1 d / 5 d / 21 d</div><div class="v {dlt_cls(soma_n(t, 1))}">{sfmt(soma_n(t, 1))}</div>'
+                    f'<div class="d">5 d {sfmt(soma_n(t, 5))} · 21 d {sfmt(soma_n(t, 21))} · mês {sfmt(saldo_mes(t) or 0)} · ano {sfmt(soma(t, ano + "-01-01") / 1000, 1, " bi")} · 12 m {sfmt(soma(t, serie[0]["data"]) / 1000, 1, " bi")}</div></div>'
+                    for t, lab, _ in tipos)
+    return tiles, ult
+
+
 def slide_fluxo_investidores(M: dict) -> tuple[str, str] | None:
     """Fluxo por tipo de investidor no mercado de ações (B3/BDI): saldo diário, acumulado no mês e participação no volume."""
     from fontes import b3_bdi
@@ -929,11 +958,7 @@ def slide_fluxo_investidores(M: dict) -> tuple[str, str] | None:
         return sum(r.get(t) or 0 for r in serie if r["data"] >= desde)
     def soma_n(t, n):
         return sum(r.get(t) or 0 for r in serie[-n:])
-    def sfmt(v, dec=0, suf=" mi"):
-        return num(v, dec, "+" if v > 0 else "", suf)
-    tiles = "".join(f'<div class="tile"><div class="l">{lab} · 1 d / 5 d / 21 d</div><div class="v {dlt_cls(soma_n(t, 1))}">{sfmt(soma_n(t, 1))}</div>'
-                    f'<div class="d">5 d {sfmt(soma_n(t, 5))} · 21 d {sfmt(soma_n(t, 21))} · mês {sfmt(saldo_mes(t) or 0)} · ano {sfmt(soma(t, ano + "-01-01") / 1000, 1, " bi")} · 12 m {sfmt(soma(t, serie[0]["data"]) / 1000, 1, " bi")}</div></div>'
-                    for t, lab, _ in tipos)
+    tiles, _ = fluxo_tiles(M)
     # saldo diário do estrangeiro (colunas, últimos 40 pregões) e acumulado por tipo desde o início da série (linhas)
     dias = serie[-40:]
     g_dia = svg_colunas(f"Estrangeiro · saldo diário no mercado de ações (R$ mi), últimos 40 pregões", [r["data"][8:] + "/" + r["data"][5:7] if i % 4 == 0 else "" for i, r in enumerate(dias)],
@@ -1075,27 +1100,37 @@ def slide_painel(M: dict, sgs: dict, mercado_micro: dict, minhas: list[dict], co
                 out.append((v - b) if taxa else (v / b - 1) * 100)
         return out, v
     linhas_m = []
-    def linha(nome, serie, ultimo=None, taxa=False, dec=2, suf="", obs="", var1d=None):
+    def linha(nome, serie, ultimo=None, taxa=False, dec=2, suf="", obs="", var1d=None, svg=""):
+        """Uma linha da tabela de variáveis. `svg` = id do gráfico de linha (no detalhe) que já embute a série completa:
+        a coluna "Janela" é calculada no navegador a partir dele, com a janela escolhida no gráfico do Ibovespa do Painel."""
         var, v = variacoes(serie, ultimo, taxa)
         if var1d is not None:
             var[0] = var1d                                    # 1 d pela cotação intraday (fechamento anterior do mesmo contrato/instrumento)
         cels = "".join(f'<td class="{dlt_cls(x)}">{num(x, 2, "+" if x and x > 0 else "", " p.p." if taxa else "%") if x is not None else "—"}</td>' for x in var)
-        linhas_m.append(f'<tr><td class="tk">{nome}</td><td style="font-weight:600">{num(v, dec, suf=suf)}</td>{cels}<td class="mut" style="text-align:left;white-space:nowrap">{obs}</td></tr>')
-    for nome, rot, dec in (("Ibovespa", "Ibovespa", 0), ("S&P 500", "S&P 500", 0), ("USD/BRL", "USD/BRL", 2), ("Brent (US$)", "Brent (US$/bbl)", 2), ("VIX", "VIX", 2)):
+        jan = f'<td class="varjan" data-svg="{svg}" data-v="{v if v is not None else ""}" data-taxa="{1 if taxa else 0}">—</td>'
+        linhas_m.append(f'<tr><td class="tk">{nome}</td><td style="font-weight:600">{num(v, dec, suf=suf)}</td>{cels}{jan}<td class="mut" style="text-align:left;white-space:nowrap">{obs}</td></tr>')
+    for nome, rot, dec in (("Ibovespa", "Ibovespa", 0), ("S&P 500", "S&P 500", 0), ("USD/BRL", "USD/BRL", 2), ("Brent (US$)", "Brent (US$/bbl)", 2),
+                           ("VIX", "VIX (CBOE: vol. implícita do S&P 500, 30 d)", 2)):
         q = mk.get(nome) or {}
         ult = [q["hora"][:10], q["preco"]] if q.get("preco") and q.get("hora") else None
         linha(rot, hist.get(nome, []), ult, dec=dec, obs=(f'DY 12 m {num(dyx[-1][1], 1, suf="%")}' if nome == "Ibovespa" and dyx else ""),
-              var1d=(q["var_dia"] * 100) if q.get("var_dia") is not None else None)
+              var1d=(q["var_dia"] * 100) if q.get("var_dia") is not None else None, svg="h-" + nome.replace(" ", "").replace("/", ""))
     qt = mk.get("Treasury 10a (%)") or {}
-    linha("Treasury 10 anos", hist.get("Treasury 10a (%)", []), [qt["hora"][:10], qt["preco"]] if qt.get("preco") and qt.get("hora") else None, taxa=True, suf="%")
-    linha("Pré 10 anos (Tesouro)", pre10, taxa=True, suf="%")
-    linha("Selic meta", sgs.get("432", {}).get("serie") or [], taxa=True, suf="%", obs=f"Focus {a0}: {num(foc('Selic', a0)[-1][1] if foc('Selic', a0) else None, 2, suf='%')}")
+    linha("Treasury 10 anos", hist.get("Treasury 10a (%)", []), [qt["hora"][:10], qt["preco"]] if qt.get("preco") and qt.get("hora") else None, taxa=True, suf="%", svg="painel-tnx")
+    linha("Pré 10 anos (Tesouro)", pre10, taxa=True, suf="%", svg="painel-pre10")
     med35 = (sum(v for _, v in n35) / len(n35)) if n35 else None
-    linha("NTN-B 2035 (real)", n35, taxa=True, suf="%", obs=f"média hist. {num(med35, 2, suf='%')}")
-    cab_m = '<thead><tr><th>Variável</th><th>Último</th><th>1 d</th><th>5 d</th><th>MTD</th><th>YTD</th><th>12 m</th><th style="text-align:left"></th></tr></thead>'
-    meio = (len(linhas_m) + 1) // 2
-    strip = (f'<div class="grid2" style="gap:10px"><div class="pbox" style="padding:6px 10px"><table class="mini" style="width:100%">{cab_m}<tbody>{"".join(linhas_m[:meio])}</tbody></table></div>'
-             f'<div class="pbox" style="padding:6px 10px"><table class="mini" style="width:100%">{cab_m}<tbody>{"".join(linhas_m[meio:])}</tbody></table></div></div>')
+    linha("NTN-B 2035 (real)", n35, taxa=True, suf="%", obs=f"média hist. {num(med35, 2, suf='%')}", svg="ntnb35")
+    cab_m = ('<thead><tr><th>Variável</th><th>Último</th><th>1 d</th><th>5 d</th><th>MTD</th><th>YTD</th><th>12 m</th>'
+             '<th class="varjan-h" title="Variação na janela escolhida nos chips do gráfico do Ibovespa (abaixo)">Janela</th><th style="text-align:left"></th></tr></thead>')
+    tab_var = f'<div class="pbox" style="padding:6px 10px"><table class="mini" style="width:100%">{cab_m}<tbody>{"".join(linhas_m)}</tbody></table></div>'
+    fl = fluxo_tiles(M)
+    if fl:
+        tiles_fl, ult_fl = fl
+        box_fl = (f'<div class="pbox" style="padding:6px 10px"><h2 style="margin:0 0 4px">Fluxo por tipo de investidor · ações B3, saldo até {ult_fl[8:]}/{ult_fl[5:7]} (R$ mi)</h2>'
+                  f'<div class="tiles fltiles">{tiles_fl}</div></div>')
+        strip = f'{tab_var}<div style="margin-top:10px">{box_fl}</div>'
+    else:
+        strip = tab_var
 
     # --- macro: realizado × Focus × BCB
     linhas = []
@@ -2240,6 +2275,8 @@ main{margin-left:232px}
 .tile{background:var(--sf);border:1px solid var(--ring);border-radius:14px;padding:16px 18px}.tile .l{font-size:12px;color:var(--mut)}.tile .v{font-size:30px;font-weight:600;letter-spacing:-.02em;margin-top:4px;line-height:1.1}.tile .d{font-size:12.5px;color:var(--ink2);margin-top:4px}
 .hero .v{font-size:46px;white-space:nowrap}
 .tiles.strip{grid-template-columns:repeat(8,1fr);gap:8px}.tiles.strip .tile{padding:12px 12px}.tiles.strip .v{font-size:20px}
+.tiles.fltiles{grid-template-columns:repeat(4,1fr);gap:8px;margin:0}.fltiles .tile{padding:5px 10px;border-radius:10px}.fltiles .tile .l{font-size:10.5px}.fltiles .tile .v{font-size:17px;margin-top:0}.fltiles .tile .d{font-size:10.5px;margin-top:1px;line-height:1.3}
+td.varjan{font-weight:600}th.varjan-h{white-space:nowrap}
 /* painéis e grids */
 .panel{background:var(--sf);border:1px solid var(--ring);border-radius:16px;padding:20px 22px}
 .panel h2{font-size:14px;margin:0 0 2px;font-weight:600}.panel .sub{color:var(--mut);font-size:12.5px;margin-bottom:10px}
@@ -2370,6 +2407,32 @@ JS = r"""
     document.addEventListener('selecao',function(){render(svg._anos||0);});
     render(+(svg.dataset.ini||0));
   }
+  // coluna "Janela" da tabela de variáveis do Painel: variação de cada variável na janela escolhida nos chips do gráfico
+  // do Ibovespa (evento 'janela' do #painel-ibov). Base = último ponto da série completa (embutida no gráfico de detalhe
+  // indicado em data-svg) até o início da janela; valor final = o "Último" da tabela.
+  (function(){var tds=document.querySelectorAll('td.varjan');if(!tds.length)return;
+    function serie(id){var g=document.getElementById(id);if(!g)return null;var sc=g.querySelector('script.data');if(!sc)return null;
+      try{var s=JSON.parse(sc.textContent).series[0].pts;return s.map(function(p){return [ord(p[0]),p[1]];});}catch(e){return null;}}
+    var cache={};
+    function atualiza(e){var d0=e.detail.d0;var ch=document.querySelector('.janela[data-for="painel-ibov"] button.on');var rot=ch?ch.textContent:'';
+      document.querySelectorAll('th.varjan-h').forEach(function(th){th.textContent='Janela'+(rot?' · '+rot:'');});
+      // a janela começa no fechamento anterior do Ibovespa (d0); para cada série, a base é o último ponto ANTES do 1º pregão
+      // do Ibovespa dentro da janela (assim S&P/Treasury em YTD partem de 31/12, dia em que a B3 não abre — igual à coluna YTD)
+      var ib=cache['painel-ibov']||(cache['painel-ibov']=serie('painel-ibov'));var lim=d0+1;
+      if(ib){for(var k=0;k<ib.length;k++)if(ib[k][0]>d0){lim=ib[k][0];break;}}
+      // MTD/YTD são de calendário: base = último ponto antes do 1º dia do mês/ano corrente (câmbio cota em feriados)
+      if(ch&&(ch.dataset.ytd||ch.dataset.mtd)&&e.detail.d1){var D1=new Date((e.detail.d1-719163)*86400000);lim=ch.dataset.ytd?ordDate(D1.getUTCFullYear(),1):ordDate(D1.getUTCFullYear(),D1.getUTCMonth()+1);}
+      tds.forEach(function(td){var v=parseFloat(td.dataset.v);var taxa=td.dataset.taxa==='1';
+        var s=cache[td.dataset.svg]||(cache[td.dataset.svg]=serie(td.dataset.svg));
+        if(!s||isNaN(v)){td.textContent='—';td.className='varjan';return;}
+        var base=null,bd=null;for(var i=0;i<s.length;i++){if(s[i][0]<lim&&s[i][1]!=null){base=s[i][1];bd=s[i][0];}else if(s[i][0]>=lim)break;}
+        if(base===null){base=s[0][1];bd=s[0][0];}
+        var x=taxa?(v-base):(base?(v/base-1)*100:null);if(x===null||!isFinite(x)){td.textContent='—';td.className='varjan';return;}
+        var dt=new Date((bd-719163)*86400000);td.title='desde '+String(dt.getUTCDate()).padStart(2,'0')+'/'+String(dt.getUTCMonth()+1).padStart(2,'0')+'/'+dt.getUTCFullYear();
+        td.textContent=(x>0?'+':'')+num(x,2)+(taxa?' p.p.':'%');td.className='varjan '+(x>0?'up':x<0?'dn':'');});}
+    document.addEventListener('janela',function(e){if(e.target&&e.target.id==='painel-ibov')atualiza(e);});
+    var g=document.getElementById('painel-ibov');if(g&&g._d0!==undefined)atualiza({detail:{d0:g._d0}});
+  })();
   // seleção global de datas: 1º clique em qualquer gráfico de linha = início, 2º = fim (invertidos se vier antes), 3º recomeça
   window.__sel={t0:null,t1:null};
   window.__selecionar=function(d){var s=window.__sel;
