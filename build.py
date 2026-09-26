@@ -1507,6 +1507,18 @@ def slide_painel(M: dict, sgs: dict, mercado_micro: dict, minhas: list[dict], co
         sinais.append(f"<b>Volume:</b> R$ {num(V['hoje'], 1)} bi nos papéis do Ibovespa, {num(V['razao'], 2)}x a média de 21 pregões"
                       + (f"; anormal em {an}" if an else "; nenhum papel acima de 1,5x a própria média") + ".")
     sinais += sinais_cob                                     # assertividade do Focus fica no slide próprio (Painel precisa caber numa tela)
+    CB = carteira_btg()                                       # carteira recomendada do BTG: só o que toca a cobertura (entrada, saída, peso)
+    if CB:
+        at, ant = CB["atual"], CB["anterior"]
+        pa = {r["ticker"]: r["peso"] for r in (ant or {}).get("carteira", [])}
+        for r in at["carteira"]:
+            if r["ticker"] in config.UNIVERSO:
+                novo = r["ticker"] not in pa
+                sinais.append(f'<b>{r["ticker"]}:</b> {"entrou no" if novo else "segue no"} {CB["produto"]} do {CB["casa"]} ({at["mes"][5:]}/{at["mes"][2:4]}) com {num(r["peso"], 0, suf="%")}'
+                              + (f', upside {num(r["upside"], 0, suf="%")} e P/L {num(r["pl26"], 1, suf="x")} {a0}E' if r.get("upside") is not None and r.get("pl26") else "") + '. <a href="#carteira-btg-10sim">ver carteira</a>')
+        for t in pa:
+            if t in config.UNIVERSO and t not in {r["ticker"] for r in at["carteira"]}:
+                sinais.append(f'<b>{t}:</b> saiu do {CB["produto"]} do {CB["casa"]} em {at["mes"][5:]}/{at["mes"][2:4]}.')
 
     # --- opinião do usuário
     pop = config.RAIZ / "opiniao.json"
@@ -1885,6 +1897,56 @@ def slides_carteiras_cvm(M: dict) -> list[tuple[str, str]]:
                          f'{cab}. Competência {mes[4:]}/{mes[:4]}: a CVM abre as posições quando vence o sigilo de 180 dias.',
                          f"CVM, dados abertos, CDA (cda_fi_{mes}.zip, BLC_4). Defasagem de ~6 meses por sigilo; meses mais recentes só mostram o agregado por tipo de ativo."))
     return out
+
+
+def carteira_btg() -> dict | None:
+    """Última carteira mensal do BTG 10SIM (carteiras/btg_10sim.json) com a anterior, para trocas e comparação."""
+    p = config.RAIZ / "carteiras" / "btg_10sim.json"
+    if not p.exists():
+        return None
+    J = json.loads(p.read_text(encoding="utf-8"))
+    meses = sorted(J.get("meses", []), key=lambda m: m["mes"])
+    if not meses or not meses[-1].get("carteira"):
+        return None
+    return {"casa": J.get("casa", "BTG Pactual"), "produto": J.get("produto", "10SIM"), "atual": meses[-1], "anterior": meses[-2] if len(meses) > 1 else None}
+
+
+def slide_carteiras_btg() -> tuple[str, str] | None:
+    """Carteira recomendada do BTG (10SIM): composição, trocas do mês, múltiplos e tese por papel, desempenho."""
+    C = carteira_btg()
+    if not C:
+        return None
+    at, ant = C["atual"], C["anterior"]
+    pesos_ant = {r["ticker"]: r["peso"] for r in (ant or {}).get("carteira", [])}
+    cob = set(config.UNIVERSO)
+    linhas = []
+    for r in sorted(at["carteira"], key=lambda r: (-r["peso"], r["ticker"])):
+        pa = pesos_ant.get(r["ticker"])
+        dp = "novo" if pa is None else (num(r["peso"] - pa, 0, "+" if r["peso"] > pa else "", " p.p.") if r["peso"] != pa else "=")
+        tk = f'<b>{r["ticker"]}</b>' if r["ticker"] in cob else r["ticker"]
+        linhas.append(f'<tr><td class="tk">{tk}<small>{r.get("empresa", "")} · {r.get("setor", "")}</small></td><td>{num(r["peso"], 0, suf="%")}</td>'
+                      f'<td class="{"up" if pa is None or (pa is not None and r["peso"] > pa) else ("dn" if pa is not None and r["peso"] < pa else "mut")}">{dp}</td>'
+                      f'<td class="{dlt_cls(r.get("upside"))}">{num(r.get("upside"), 0, suf="%") if r.get("upside") is not None else "—"}</td>'
+                      f'<td>{num(r.get("pl26"), 1, suf="x") if r.get("pl26") else "—"}<span class="mut"> / </span>{num(r.get("pl27"), 1, suf="x") if r.get("pl27") else "—"}</td>'
+                      f'<td>{num(r.get("ev27"), 1, suf="x") if r.get("ev27") else "—"}</td><td>{num((r.get("mcap") or 0) / 1000, 0)}</td></tr>')
+    saidas = [t for t in pesos_ant if t not in {r["ticker"] for r in at["carteira"]}]
+    tab = (f'<table class="mini"><thead><tr><th>Papel</th><th>Peso</th><th>vs mês ant.</th><th>Upside</th><th>P/L 26 / 27</th><th>EV/EBITDA 27</th><th>Mkt cap R$ bi</th></tr></thead><tbody>{"".join(linhas)}</tbody></table>'
+           + (f'<p class="note" style="margin:6px 0 0">Saíram: {", ".join(saidas)}.</p>' if saidas else ""))
+    trocas = "".join(f'<li><b>{t["entra"]}</b> entra no lugar de <b>{t["sai"]}</b>: {t.get("motivo", "")}</li>' if "entra" in t else f'<li><b>{t["peso"]}</b> de {t["de"]}% para {t["para"]}%.</li>' for t in at.get("trocas", []))
+    teses = "".join(f'<p><b>{r["ticker"]}</b> · {r["tese"]}</p>' for r in at["carteira"] if r.get("tese"))
+    d = at.get("desempenho", {})
+    mes_ant = ant["mes"] if ant else ""
+    desemp = (f'<div class="tiles strip" style="grid-template-columns:repeat(3,1fr);margin-bottom:10px">'
+              f'<div class="tile"><div class="l">Mês anterior ({mes_ant[5:]}/{mes_ant[2:4]})</div><div class="v {dlt_cls(d.get("mes_anterior"))}">{num(d.get("mes_anterior"), 1, "+" if (d.get("mes_anterior") or 0) > 0 else "", "%")}</div><div class="d">Ibovespa {num(d.get("ibov_mes_anterior"), 1, "+" if (d.get("ibov_mes_anterior") or 0) > 0 else "", "%")}</div></div>'
+              f'<div class="tile"><div class="l">No ano</div><div class="v {dlt_cls(d.get("ytd"))}">{num(d.get("ytd"), 1, "+" if (d.get("ytd") or 0) > 0 else "", "%")}</div><div class="d">Ibovespa {num(d.get("ibov_ytd"), 1, "+" if (d.get("ibov_ytd") or 0) > 0 else "", "%")} · CDI {num(d.get("cdi_ytd"), 1, "+", "%")}</div></div>'
+              f'<div class="tile"><div class="l">Desde out/2009</div><div class="v">{num(d.get("desde_out2009"), 0, "+", "%")}</div><div class="d">Ibovespa {num(d.get("ibov_desde_out2009"), 0, "+", "%")} · IBrX-50 {num(d.get("ibrx50_desde_out2009"), 0, "+", "%")}</div></div></div>')
+    corpo = (f'<p class="note" style="margin:0 0 8px"><b>{at.get("titulo", "")}.</b> {at.get("tese", "")}</p>{desemp}'
+             f'<div class="grid2" style="grid-template-columns:1.25fr 1fr;align-items:start"><div>{tab}<h2 style="font-size:13px;margin:10px 0 4px">Trocas do mês</h2><ul class="sinais">{trocas}</ul></div>'
+             f'<div class="opiniao" style="font-size:12.5px">{teses}</div></div>')
+    m = at["mes"]
+    return slide("Opinião qualificada", "carteira-btg-10sim", f'{C["casa"]} · {C["produto"]} {m[5:]}/{m[:4]}', corpo,
+                 "A carteira mensal do sell-side como termômetro do consenso comprador: o que entra, o que sai e a tese de cada nome. Em negrito, os papéis da minha cobertura.",
+                 f'{C["casa"]}, Brazil 10SIM de {at.get("data", m)} (Carlos Sequeira e equipe). Múltiplos e upside são estimativas do próprio BTG. Arquivo manual carteiras/btg_10sim.json.')
 
 
 def slides_opiniao(M: dict | None = None, sgs: dict | None = None) -> list[tuple[str, str]]:
@@ -3275,6 +3337,9 @@ def secao_macro(mercado_micro: dict) -> list[tuple[str, str]]:
     S = []
     S.append(slide_painel(M, sgs, mercado_micro, le_csv(MINHAS), le_csv(CONS), est))
     S += slides_opiniao(M, sgs)
+    scb = slide_carteiras_btg()
+    if scb:
+        S.append(scb)
     capa_fontes = slide("Fontes", "capa", "Fontes e atualizações",
                    f'<div class="duo"><div><div class="heroes">{heroes}</div></div>{painel_atual}</div>',
                    f"Macro, setores e empresas cobertas. Preço, minha estimativa e consenso. Atualizado em {M.get('gerado_em', '—')}, cotações às {hora[11:]}.",

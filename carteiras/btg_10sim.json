@@ -1,0 +1,53 @@
+{
+  "_nota": "BTG Pactual, Brazil 10SIM (10 Stock Ideas for the Month), estrategista Carlos Sequeira. Manual: a cada mês acrescentar uma entrada em 'meses' com a carteira (Table 1/5), as trocas (Table 4) e o desempenho (seção 'performance'). Fonte: PDF do portal btgpactual.com/research (login de cliente).",
+  "casa": "BTG Pactual",
+  "produto": "Brazil 10SIM",
+  "meses": [
+    {
+      "mes": "2026-08",
+      "carteira": [
+        {"ticker": "GGBR4", "setor": "Metal & Mining", "peso": 10}, {"ticker": "CURY3", "setor": "Real Estate", "peso": 10},
+        {"ticker": "ITUB4", "setor": "Banks", "peso": 15}, {"ticker": "EMBJ3", "setor": "Capital Goods", "peso": 10},
+        {"ticker": "AXIA3", "setor": "Utilities", "peso": 10}, {"ticker": "PETR4", "setor": "Oil & Gas", "peso": 15},
+        {"ticker": "MOTV3", "setor": "Transportation", "peso": 10}, {"ticker": "CSMG3", "setor": "Utilities", "peso": 5},
+        {"ticker": "TOTS3", "setor": "TMT", "peso": 5}, {"ticker": "ENEV3", "setor": "Utilities", "peso": 10}
+      ],
+      "desempenho": {"mes": 1.8, "ibov": -0.3, "ibrx50": -0.1}
+    },
+    {
+      "mes": "2026-09",
+      "data": "2026-09-01",
+      "titulo": "Positive asymmetry? Maybe",
+      "tese": "Juros longos e bolsa já embutem boa parte do risco fiscal; o câmbio, não. A carteira fica exposta às duas classes que rendem tanto no cenário bom quanto no ruim: juros longos (consolidação fiscal → queda dos longos → fluxo de caixa de longa duração) e câmbio (deterioração → real mais fraco). 50% em utilities/infra/longa duração (Axia, Eneva, Sabesp, Motiva, Rede D'Or), 10% em bancos (Itaú), 20% em câmbio (Embraer, Gerdau), 15% em petróleo/câmbio/dividendos (Petrobras), 5% em dividendos/baixa renda (Cury). Estrangeiro sacou R$ 23 bi até 20/08 e voltou a comprar R$ 5 bi nos últimos 10 dias do mês; NTN-B longa caiu 17 bps a 7,7%, ainda precificando reeleição sem ajuste fiscal.",
+      "trocas": [
+        {"entra": "SBSP3", "sai": "CSMG3", "motivo": "Sabesp a TIR real de 10,5%, risco-retorno melhor que Copasa."},
+        {"entra": "RDOR3", "sai": "TOTS3", "motivo": "Rede D'Or: fluxo de caixa de longa duração, alavancagem 1,8x, 13x P/L 2027 contra média histórica de 18x; Totvs saiu após forte alta."},
+        {"peso": "ITUB4", "de": 15, "para": 10}, {"peso": "CURY3", "de": 10, "para": 5}
+      ],
+      "carteira": [
+        {"ticker": "PETR4", "empresa": "Petrobras", "setor": "Oil & Gas", "peso": 15, "upside": 14, "pl26": 4.5, "pl27": 5.8, "ev26": 2.5, "ev27": 2.7, "mcap": 619471, "adtv": 1862.9,
+         "tese": "Produção ~2,77 MMbpd vs guidance 2,4–2,6; captura do preço de combustíveis via margens de refino (~70% da produção vai às refinarias). Dívida bruta rumo a US$ 65 bi; breakeven do FCF perto de US$ 60/bbl. FCFE yield ~11% e DY ~9% em 2027 com Brent US$ 70 e crack US$ 30; com crack US$ 45, 15% e ~12%."},
+        {"ticker": "ITUB4", "empresa": "Itaú Unibanco", "setor": "Banks", "peso": 10, "upside": 37, "pl26": 8.5, "pl27": 7.6, "ev26": null, "ev27": null, "mcap": 455471, "adtv": 917.3,
+         "tese": "Caiu ~10% em US$ em agosto com saída do estrangeiro. Âncora de qualidade do setor: melhor qualidade de ativos e gestão de risco proativa; crescimento de receita mais fraco no curto prazo é preparação para ciclo de crédito mais duro em 2027. 7,6x P/L 2027."},
+        {"ticker": "AXIA3", "empresa": "Axia", "setor": "Utilities", "peso": 10, "upside": 26, "pl26": 16.2, "pl27": 10.2, "ev26": 7.5, "ev27": 5.8, "mcap": 152750, "adtv": 608.8,
+         "tese": "Visão altista para preço de energia com muita energia descontratada para vender. Alavancagem abaixo de 3x em 2026 e 2,1x em 2027; DY médio de 10% em 2027–2029; TIR real 13,0%."},
+        {"ticker": "SBSP3", "empresa": "Sabesp", "setor": "Utilities", "peso": 10, "upside": 23, "pl26": 19.0, "pl27": 13.6, "ev26": 8.8, "ev27": 7.7, "mcap": 89100, "adtv": 536.3,
+         "tese": "Caiu ~15% com despesas de marketing e call center que persistem em 2026; 2027 reflete a realidade sustentável. Crescimento contratado de EBITDA/lucro, dividendos crescentes, monopólio natural e eficiência pós-privatização. TIR 10,5%."},
+        {"ticker": "RDOR3", "empresa": "Rede D'Or", "setor": "Healthcare", "peso": 10, "upside": 65, "pl26": 15.4, "pl27": 12.9, "ev26": 7.0, "ev27": 5.9, "mcap": 76700, "adtv": 247.9,
+         "tese": "De-rating relevante com a piora do mercado: ~13x P/L 2027, 30% abaixo do histórico, com momentum de lucro forte e 2T26 surpreendendo para cima. Consolidação em hospitais, seguro e oncologia; sem ameaça competitiva relevante. 'All-weather'."},
+        {"ticker": "EMBJ3", "empresa": "Embraer", "setor": "Capital Goods", "peso": 10, "upside": 41, "pl26": 22.7, "pl27": 18.8, "ev26": 12.0, "ev27": 11.0, "mcap": 66549, "adtv": 481.8,
+         "tese": "Farnborough com 60+ pedidos de E2 e onda de KC-390 (Colômbia, Grécia); 2T forte em margem mesmo sem o crédito fiscal de US$ 60 mi. Momentum de lucro no 2S26 com cadeia de suprimentos melhor. 11x EV/EBITDA 2027."},
+        {"ticker": "ENEV3", "empresa": "Eneva", "setor": "Utilities", "peso": 10, "upside": 18, "pl26": 80.4, "pl27": 75.6, "ev26": 12.5, "ev27": 11.0, "mcap": 50332, "adtv": 238.3,
+         "tese": "Leilão de capacidade de março acima do esperado: alvo de R$ 20 para R$ 31. Contratos longos mudam a tese de 'opção sobre spot' para fluxo de caixa estável; trade-off crescimento vs dividendos a partir de 2029. TIR 10,8%."},
+        {"ticker": "GGBR4", "empresa": "Gerdau", "setor": "Metal & Mining", "peso": 10, "upside": 18, "pl26": 8.4, "pl27": 7.7, "ev26": 3.9, "ev27": 3.6, "mcap": 44239, "adtv": 240.9,
+         "tese": "~75% do EBITDA nos EUA com margens >20% por mais tempo (tarifas, aço em alta, demanda de data centers); no Brasil o pior ficou para trás e o antidumping começou. Proteção cambial. 3,6x EV/EBITDA 2027, ~10% de retorno total em 12 meses."},
+        {"ticker": "MOTV3", "empresa": "Motiva", "setor": "Transportation", "peso": 10, "upside": 29, "pl26": 12.1, "pl27": 11.2, "ev26": 5.8, "ev27": 6.1, "mcap": 31074, "adtv": 134.4,
+         "tese": "Defensiva: contratos indexados à inflação, agenda de eficiência, venda dos aeroportos este ano reforça o balanço. Pipeline brownfield de R$ 20 bi+ (aditivos em rodovias). Saída da Mover do controle tira o overhang de governança. TIR real 12%."},
+        {"ticker": "CURY3", "empresa": "Cury", "setor": "Real Estate", "peso": 5, "upside": 35, "pl26": 8.0, "pl27": 6.0, "ev26": 6.0, "ev27": 5.2, "mcap": 10042, "adtv": 108.2,
+         "tese": "Momentum do MCMV com as novas condições (teto, faixas, juros) ampliando mercado; execução impecável (VSO, margens, retornos); EPS +20% no ano que vem e DY 11% em 2027. 8x P/L 2026, 6x 2027."}
+      ],
+      "desempenho": {"mes_anterior": 1.8, "ibov_mes_anterior": -0.3, "ibrx50_mes_anterior": -0.1, "ytd": 8.9, "ibov_ytd": 10.1, "ibrx50_ytd": 11.3, "cdi_ytd": 9.3,
+                     "desde_out2009": 622.2, "ibov_desde_out2009": 188.4, "ibrx50_desde_out2009": 246.2}
+    }
+  ]
+}
