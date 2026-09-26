@@ -475,7 +475,8 @@ def mensal_realizado():
 
 # ----------------------------------------------------------------------------- janela MT5 (só neste PC, terminal da Genial aberto)
 def _tickers_mt5() -> list[str]:
-    return sorted(b3.tickers_alvo() | {"IBOV"})
+    # + dólar futuro contínuo (WDO$, mini; pontos = R$/US$ × 1000) para o câmbio em tempo real e intraday no Painel
+    return sorted(b3.tickers_alvo() | {"IBOV", "WDO$"})
 
 
 def mt5_diario():

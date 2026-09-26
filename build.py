@@ -95,7 +95,7 @@ def ticks(lo: float, hi: float, n=5, from_zero=False) -> list[float]:
 
 
 # ----------------------------------------------------------------------------- charts
-def mt5_intraday(ticker: str, dias_1m: int = 5, dias_5m: int = 21) -> dict[str, list[list]] | None:
+def mt5_intraday(ticker: str, dias_1m: int = 5, dias_5m: int = 21, escala: float = 1.0) -> dict[str, list[list]] | None:
     """Séries alternativas de preço a partir das barras de 1 min do MT5 (data/mt5/m1/{T}_{ano}.csv.gz, só neste PC):
     {"5 min": últimos `dias_5m` pregões reamostrados a 5 min (fechamento), "1 min": últimos `dias_1m` pregões}. None se não há arquivo.
     Preços de ações no MT5 vêm ajustados por proventos; para índices (IBOV) são os próprios pontos."""
@@ -104,7 +104,7 @@ def mt5_intraday(ticker: str, dias_1m: int = 5, dias_5m: int = 21) -> dict[str, 
     if not p.exists():
         return None
     with gzip.open(p, "rt", encoding="utf-8", newline="") as fh:
-        rows = [(r["hora"], float(r["fechamento"])) for r in csv.DictReader(fh) if r.get("hora")]
+        rows = [(r["hora"], float(r["fechamento"]) * escala) for r in csv.DictReader(fh) if r.get("hora")]
     if not rows:
         return None
     dias = sorted({h[:10] for h, _ in rows})
@@ -959,7 +959,8 @@ def linha_variaveis_painel(M: dict) -> str:
     q = (M.get("mercado") or {}).get("USD/BRL") or {}
     if fx and q.get("preco") and q.get("hora") and q["hora"][:10] > fx[-1][0]:
         fx = fx + [[q["hora"][:10], q["preco"]]]
-    g_fx = svg_linhas("painel-fx", [("USD/BRL", S1, fx)], 2, W=260, H=130, ini=5, titulo="USD/BRL (PTAX venda; último ponto intraday)" if len(ptax) > 2000 else "USD/BRL (Yahoo)") if fx else '<div class="empty small">Sem histórico do câmbio.</div>'
+    g_fx = svg_linhas("painel-fx", [("USD/BRL", S1, fx)], 2, W=260, H=130, ini=5, titulo="USD/BRL (PTAX venda; último ponto intraday)" if len(ptax) > 2000 else "USD/BRL (Yahoo)",
+                      resol=mt5_intraday("WDO$", escala=0.001)) if fx else '<div class="empty small">Sem histórico do câmbio.</div>'
     return (f'<div class="pgrid pg6" style="grid-template-columns:repeat(4,1fr);margin-top:10px">'
             + "".join(f'<div class="pbox">{g}</div>' for g in (g_br, g_us, g_prem, g_fx, g_brent, g_curva, g_fluxo, g_ativo)) + '</div>')
 
