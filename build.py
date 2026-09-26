@@ -1447,7 +1447,7 @@ def slide_painel(M: dict, sgs: dict, mercado_micro: dict, minhas: list[dict], co
         jan = f'<td class="varjan" data-svg="{svg}" data-v="{v if v is not None else ""}" data-taxa="{1 if taxa else 0}">—</td>'
         linhas_m.append(f'<tr><td class="tk">{nome}</td><td style="font-weight:600">{num(v, dec, suf=suf)}</td>{cels}{jan}<td class="mut" style="text-align:left;white-space:nowrap">{obs}</td></tr>')
     for nome, rot, dec in (("Ibovespa", "Ibovespa", 0), ("S&P 500", "S&P 500", 0), ("USD/BRL", "USD/BRL", 2), ("Brent (US$)", "Brent (US$/bbl)", 2),
-                           ("VIX", "VIX (CBOE: vol. implícita do S&P 500, 30 d)", 2)):
+                           ("VIX", "VIX (CBOE, S&P 500 30 d)", 2)):
         q = mk.get(nome) or {}
         ult = [q["hora"][:10], q["preco"]] if q.get("preco") and q.get("hora") else None
         linha(rot, hist.get(nome, []), ult, dec=dec, obs=(f'DY 12 m {num(dyx[-1][1], 1, suf="%")}' if nome == "Ibovespa" and dyx else ""),
@@ -1459,16 +1459,19 @@ def slide_painel(M: dict, sgs: dict, mercado_micro: dict, minhas: list[dict], co
     linha("NTN-B 2035 (real)", n35, taxa=True, suf="%", obs=f"média hist. {num(med35, 2, suf='%')}", svg="ntnb35")
     cab_m = ('<thead><tr><th>Variável</th><th>Último</th><th>1 d</th><th>5 d</th><th>MTD</th><th>YTD</th><th>12 m</th>'
              '<th class="varjan-h" title="Variação na janela escolhida nos chips do gráfico do Ibovespa (abaixo)">Janela</th><th style="text-align:left"></th></tr></thead>')
-    tab_var = f'<div class="pbox" style="padding:6px 10px"><table class="mini" style="width:100%">{cab_m}<tbody>{"".join(linhas_m)}</tbody></table></div>'
+    tab_var = f'<div class="pbox tabvar" style="padding:6px 10px"><table class="mini" style="width:100%">{cab_m}<tbody>{"".join(linhas_m)}</tbody></table></div>'
+    # à direita: variação dos setores do Ibovespa nas mesmas janelas (calculada no navegador com #ibov-dados; clique = papéis do setor)
+    box_set = ('<div class="pbox tabvar" id="setores-perf" style="padding:6px 10px"><div style="display:flex;justify-content:space-between;align-items:baseline"><h2 style="margin:0 0 4px">Setores do Ibovespa · variação (peso atual)</h2>'
+               '<span class="mut" style="font-size:10.5px">clique no setor para ver os papéis</span></div><div class="cont"><div class="empty small">calculando…</div></div></div>')
     fl = fluxo_tiles(M)
     if fl:
         tiles_fl, ult_fl, graf_fl = fl
         leg_fl = '<div class="legend" style="margin:6px 0 0"><span><i style="background:var(--s1)"></i>Estrangeiro</span><span><i style="background:var(--s2)"></i>Institucional</span><span><i style="background:var(--s3)"></i>Pessoa física</span><span><i style="background:var(--s4)"></i>Inst. financeira</span></div>'
         box_fl = (f'<div class="pbox" style="padding:6px 10px"><h2 style="margin:0 0 4px">Fluxo por tipo de investidor · ações B3, saldo até {ult_fl[8:]}/{ult_fl[5:7]} (R$ mi)</h2>'
                   f'<div class="tiles fltiles">{tiles_fl}</div></div>')
-        strip = f'{tab_var}<div style="margin-top:10px">{box_fl}</div>'
+        strip = f'<div class="grid2" style="grid-template-columns:1fr 1fr;gap:10px;align-items:start">{tab_var}{box_set}</div><div style="margin-top:10px">{box_fl}</div>'
     else:
-        strip = tab_var
+        strip = f'<div class="grid2" style="grid-template-columns:1fr 1fr;gap:10px;align-items:start">{tab_var}{box_set}</div>'
 
     # --- macro: realizado × Focus × BCB
     linhas = []
@@ -2851,6 +2854,8 @@ main{margin-left:232px}
 .tiles.strip{grid-template-columns:repeat(8,1fr);gap:8px}.tiles.strip .tile{padding:12px 12px}.tiles.strip .v{font-size:20px}
 .tiles.fltiles{grid-template-columns:repeat(4,1fr);gap:8px;margin:0}.fltiles .tile{padding:5px 10px;border-radius:10px}.fltiles .tile .l{font-size:10.5px}.fltiles .tile .v{font-size:17px;margin-top:0}.fltiles .tile .d{font-size:10.5px;margin-top:1px;line-height:1.3}.fltiles .tile .d .it{white-space:nowrap}
 td.varjan{font-weight:600}th.varjan-h{white-space:nowrap}
+.painel .tabvar table.mini{font-size:11.5px}.painel .tabvar table.mini td,.painel .tabvar table.mini th{padding:2px 5px}.painel .tabvar table.mini th{font-size:9.5px}
+#setores-perf tr[data-setor]{cursor:pointer}#setores-perf tr[data-setor]:hover td{background:var(--chip)}#setores-perf .volta{color:var(--acc);text-decoration:none;font-size:11px}
 /* painéis e grids */
 .panel{background:var(--sf);border:1px solid var(--ring);border-radius:16px;padding:20px 22px}
 .panel h2{font-size:14px;margin:0 0 2px;font-weight:600}.panel .sub{color:var(--mut);font-size:12.5px;margin-bottom:10px}
@@ -3052,6 +3057,43 @@ JS = r"""
     document.addEventListener('selecao',function(){render(svg._anos||0);});
     render(+(svg.dataset.ini||0));
   }
+  // setores do Ibovespa: variação por janela (1 d, 5 d, MTD, YTD, 12 m, Janela) com o peso atual da carteira; papéis ao clicar.
+  // Usa #ibov-dados (hist de 5 anos por papel, com o último ponto intraday); roda em tempo ocioso como a decomposição.
+  var __setoresPerf=function(){var box=document.getElementById('setores-perf'),el=document.getElementById('ibov-dados');if(!box||!el)return;
+    var D=window.__ibovDados||(window.__ibovDados=JSON.parse(el.textContent));var cont=box.querySelector('.cont');var estado={setor:null};
+    var H={};Object.keys(D.hist||{}).forEach(function(c){H[c]=D.hist[c].map(function(p){return [ord(p[0]),p[1]];});});
+    function brd(o){var d=new Date((o-719163)*86400000);return String(d.getUTCDate()).padStart(2,'0')+'/'+String(d.getUTCMonth()+1).padStart(2,'0')+'/'+String(d.getUTCFullYear()).slice(2);}
+    function ret(c,o0,o1){var s=H[c];if(!s||s.length<2)return null;var b=null,e=null;for(var i=0;i<s.length;i++){if(s[i][0]<=o0)b=s[i][1];if(o1===null||s[i][0]<=o1)e=s[i][1];}
+      if(b===null||e===null||!b)return null;return (e/b-1)*100;}
+    function janelas(){var svg=document.getElementById('painel-ibov');var last=0;Object.keys(H).forEach(function(c){var s=H[c];if(s.length&&s[s.length-1][0]>last)last=s[s.length-1][0];});
+      var dt=new Date((last-719163)*86400000);var y=dt.getUTCFullYear(),m=dt.getUTCMonth()+1;
+      var cal=(D.cal||[]).map(ord).filter(function(o){return o<=last;});var n=cal.length;
+      var j=[['1 d',cal[n-2]||last-1,null],['5 d',cal[n-6]||last-7,null],['MTD',ordDate(y,m)-1,null],['YTD',ordDate(y,1)-1,null],['12 m',last-365,null]];
+      var sel=window.__sel||{},t0=null,t1=null,rot='';
+      if(sel.t0){t0=ord(sel.t0);t1=sel.t1?ord(sel.t1):null;rot=brd(t0)+(t1?' – '+brd(t1):' – hoje');}
+      else if(svg&&svg._d0!==undefined){t0=svg._d0;var ch=document.querySelector('.janela[data-for="painel-ibov"] button.on');rot=ch?ch.textContent:'';}
+      if(t0!==null)j.push(['Janela'+(rot?' · '+rot:''),t0,t1]);
+      return j;}
+    function cel(v){return v===null||v===undefined?'<td>—</td>':'<td class="'+(v>0?'up':v<0?'dn':'')+'">'+(v>0?'+':'')+num(v,2)+'%</td>';}
+    function render(){var J=janelas();var itens=D.itens||[];
+      var cab='<thead><tr><th>'+(estado.setor?'Papel':'Setor')+'</th><th>Peso</th>'+J.map(function(x){return '<th>'+esc(x[0])+'</th>';}).join('')+'</tr></thead>';
+      var rows=[];
+      if(estado.setor){itens.filter(function(i){return i.setor===estado.setor;}).sort(function(a,b){return b.peso-a.peso;}).forEach(function(i){
+          rows.push({k:i.cod,peso:i.peso,r:J.map(function(x){return ret(i.cod,x[1],x[2]);})});});}
+      else{var g={};itens.forEach(function(i){var e=g[i.setor]||(g[i.setor]={peso:0,acc:J.map(function(){return [0,0];})});e.peso+=i.peso;
+          J.forEach(function(x,k){var r=ret(i.cod,x[1],x[2]);if(r!==null){e.acc[k][0]+=i.peso*r;e.acc[k][1]+=i.peso;}});});
+        Object.keys(g).forEach(function(s){rows.push({k:s,peso:g[s].peso,r:g[s].acc.map(function(a){return a[1]?a[0]/a[1]:null;})});});}
+      var kj=J.length-1;rows.sort(function(a,b){return (b.r[kj]===null?-1e9:b.r[kj])-(a.r[kj]===null?-1e9:a.r[kj]);});
+      var tb=rows.map(function(r){return '<tr '+(estado.setor?'':'data-setor="'+esc(r.k)+'"')+'><td class="tk">'+esc(estado.setor?r.k:((D.abrev||{})[r.k]||r.k))+'</td><td>'+num(r.peso,1)+'%</td>'+r.r.map(cel).join('')+'</tr>';}).join('');
+      var volta=estado.setor?'<div style="margin:0 0 3px"><a href="#" class="volta">&larr; setores</a> · <b>'+esc(estado.setor)+'</b> · cada papel do setor (fechamentos B3, sem proventos)</div>':'';
+      cont.innerHTML=volta+'<table class="mini" style="width:100%">'+cab+'<tbody>'+tb+'</tbody></table>';}
+    box.addEventListener('click',function(e){var v=e.target.closest&&e.target.closest('.volta');if(v){e.preventDefault();estado.setor=null;render();return;}
+      var tr=e.target.closest&&e.target.closest('tr[data-setor]');if(tr){estado.setor=tr.dataset.setor;render();}});
+    document.addEventListener('janela',function(e){if(e.target&&e.target.id==='painel-ibov')render();});
+    document.addEventListener('selecao',function(){render();});
+    render();};
+  if('requestIdleCallback' in window)requestIdleCallback(__setoresPerf,{timeout:5000});else setTimeout(__setoresPerf,200);
+
   // coluna "Janela" da tabela de variáveis do Painel: variação de cada variável na janela escolhida nos chips do gráfico
   // do Ibovespa (evento 'janela' do #painel-ibov). Base = último ponto da série completa (embutida no gráfico de detalhe
   // indicado em data-svg) até o início da janela; valor final = o "Último" da tabela.
