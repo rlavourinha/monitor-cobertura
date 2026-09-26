@@ -19,6 +19,12 @@ except ImportError:                      # pacote ausente (ex.: GitHub Actions/L
 _ligado = False
 
 
+def _hora(ts) -> datetime:
+    """Horários do MT5 vêm no fuso do servidor (Genial = horário de Brasília) como segundos 'UTC': lê sem converter."""
+    from datetime import timezone
+    return datetime.fromtimestamp(int(ts), tz=timezone.utc).replace(tzinfo=None)
+
+
 def _caminhos() -> list[str]:
     """Caminhos candidatos do terminal64.exe: config.MT5_PATH, o processo aberto (Get-Process) e as pastas usuais."""
     import os, subprocess
@@ -101,7 +107,7 @@ def intraday(ticker: str) -> dict | None:
         "min_dia": float(barras[-1]["low"]) if barras is not None and len(barras) else None,
         "max_52s": None, "min_52s": None,
         "volume": int(barras[-1]["real_volume"]) if barras is not None and len(barras) else None,
-        "hora": datetime.fromtimestamp(tick.time).strftime("%Y-%m-%d %H:%M"),
+        "hora": _hora(tick.time).strftime("%Y-%m-%d %H:%M"),
         "bid": float(tick.bid) if tick.bid else None, "ask": float(tick.ask) if tick.ask else None,
         "fonte": "mt5",
     }
@@ -125,7 +131,7 @@ def barras(ticker: str, minutos: int = 1, n: int = 500) -> list[list]:
     r = _mt5.copy_rates_from_pos(ticker, tf, 0, n)
     if r is None:
         return []
-    return [[datetime.fromtimestamp(int(b["time"])).strftime("%Y-%m-%d %H:%M"), float(b["open"]), float(b["high"]), float(b["low"]), float(b["close"]), int(b["real_volume"])] for b in r]
+    return [[_hora(b["time"]).strftime("%Y-%m-%d %H:%M"), float(b["open"]), float(b["high"]), float(b["low"]), float(b["close"]), int(b["real_volume"])] for b in r]
 
 
 def ticks(ticker: str, desde: datetime | None = None, n: int = 100000) -> list[list]:
@@ -136,7 +142,7 @@ def ticks(ticker: str, desde: datetime | None = None, n: int = 100000) -> list[l
     r = _mt5.copy_ticks_from(ticker, desde, n, _mt5.COPY_TICKS_ALL)
     if r is None:
         return []
-    return [[datetime.fromtimestamp(int(t["time"])).strftime("%Y-%m-%d %H:%M:%S"), float(t["last"]), int(t["volume"]), float(t["bid"]), float(t["ask"])] for t in r if t["last"]]
+    return [[_hora(t["time"]).strftime("%Y-%m-%d %H:%M:%S"), float(t["last"]), int(t["volume"]), float(t["bid"]), float(t["ask"])] for t in r if t["last"]]
 
 
 def book(ticker: str, niveis: int = 10) -> dict | None:
