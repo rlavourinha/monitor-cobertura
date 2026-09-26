@@ -128,15 +128,101 @@ def _xticks(d0: int, d1: int, X, y: float, largura: float = 900) -> list[str]:
     return out
 
 
+def _trilhas(series_xy: list[list[tuple[float, float, bool]]]) -> list[list[tuple[float, float]]]:
+    """Pontos amostrados (a cada ≤ 4 px) ao longo de cada linha desenhada; (x, y, liga_ao_anterior?)."""
+    out = []
+    for pts in series_xy:
+        t, ant = [], None
+        for x, y, liga in pts:
+            if liga and ant:
+                n = max(1, int(((x - ant[0]) ** 2 + (y - ant[1]) ** 2) ** 0.5 / 4))
+                t += [(ant[0] + (x - ant[0]) * k / n, ant[1] + (y - ant[1]) * k / n) for k in range(1, n + 1)]
+            else:
+                t.append((x, y))
+            ant = (x, y)
+        out.append(t)
+    return out
+
+
+def _rotulos_livres(labels: list, refs_y: list[float], obst: list[list[float]], base: float, esq: float, dir_: float,
+                    trilhas: list | None = None) -> tuple[list, list[float], list]:
+    """Rótulos de fim de linha colocados um a um (mesma regra no JS, rotLivres): rótulos iguais no mesmo ponto viram um só;
+    cada rótulo testa posições em volta do ponto (acima/abaixo à esquerda, à direita, depois afastando-se de 16 em 16 px):
+    descarta as que cruzam linha de referência, saem da área ou colidem com título, rótulo de referência ou outro rótulo;
+    entre as válidas, fica a de menor custo: linhas de série atravessadas (até 2) e distância ao ponto.
+    labels = [[x, y, texto, acima?]]; obst = [[x0, x1, y0, y1]]; trilhas = pontos das linhas (_trilhas)."""
+    uni, vistos = [], []
+    for l in sorted(labels, key=lambda l: -l[0]):        # da direita para a esquerda: fica o rótulo do ponto mais à direita
+        if not any(u[2] == l[2] and abs(u[0] - l[0]) < 30 and abs(u[1] - l[1]) < 10 for u in vistos):
+            uni.append(l)
+        vistos.append(l)
+    uni.sort(key=lambda l: l[1])
+    pos, ys, xs = [list(o) for o in obst], [], []
+    for xl, yl, txt, acima in uni:
+        w = 6.4 * len(txt) + 2
+        L, R = (xl - 7 - w, xl - 7), (xl + 7, xl + 7 + w)
+        if L[0] < esq:                                    # série que termina junto ao eixo y: rótulo à direita do ponto
+            L = R
+        par = lambda a, b: [a, b] if acima else [b, a]
+        cands = [(L, y, 0) for y in par(yl - 8, yl + 15)] + [(R, yl + 4, 0)] + [(R, y, 0) for y in par(yl - 8, yl + 15)]
+        for k in range(1, 6):
+            cands += [(L, y, k) for y in par(yl - 8 - 16 * k, yl + 15 + 16 * k)]
+        def cruza(x0, x1, y):
+            n = 0
+            for t in trilhas or []:
+                if any(x0 - 1 <= px <= x1 + 1 and y - 12 <= py <= y + 3 and (px - xl) ** 2 + (py - yl) ** 2 > 49 for px, py in t):
+                    n += 1
+            return n
+        melhor = None
+        for i, ((x0, x1), y, k) in enumerate(cands):
+            if y - 12 < 0 or y > base - 2 or x1 > dir_ or any(y - 12 < r < y + 3 for r in refs_y):
+                continue
+            if not all(p[1] <= x0 or p[0] >= x1 or p[3] <= y - 12 or p[2] >= y + 3 for p in pos):
+                continue
+            nota = min(cruza(x0, x1, y), 2) * 10 + i * 2 + 15 * k      # afastar-se do ponto custa mais que cruzar uma linha
+            if melhor is None or nota < melhor[0]:
+                melhor = (nota, x0, x1, y)
+        _, x0, x1, y = melhor or (0, L[0], L[1], cands[0][1])
+        pos.append([x0, x1, y - 12, y + 3])
+        ys.append(y)
+        xs.append((x0, "start") if x1 > xl else (x1, "end"))
+    return uni, ys, xs
+
+
+def _rotulos_coluna(col: list, base: float) -> tuple[list, list[float]]:
+    """Rótulos das séries que terminam na borda direita, em coluna na margem direita (mesma regra no JS, rotColuna):
+    cada um na altura do seu ponto, afastados no mínimo 14 px, bloco recentrado sobre os pontos e contido entre o topo e a base.
+    Rótulos iguais no mesmo ponto viram um só."""
+    uni = []
+    for l in sorted(col, key=lambda l: l[1]):
+        if not any(u[2] == l[2] and abs(u[1] - l[1]) < 10 for u in uni):
+            uni.append(l)
+    ys = [l[1] + 4 for l in uni]
+    for i in range(1, len(ys)):
+        ys[i] = max(ys[i], ys[i - 1] + 14)
+    if ys:
+        exc = sum(y - (l[1] + 4) for y, l in zip(ys, uni)) / len(ys)
+        ys = [y - exc for y in ys]
+        dy = max(0, 13 - ys[0]) - max(0, ys[-1] + max(0, 13 - ys[0]) - base)
+        ys = [y + dy for y in ys]
+    return uni, ys
+
+
 def svg_linhas(cid: str, series: list[tuple[str, str, list[list]]], dec=1, pref="", suf="", W=470, H=220,
                refs: list[tuple[str, float]] | None = None, titulo: str = "",
                bandas: dict[int, list[list]] | None = None, extras: list[str] | None = None, ini: int = 0,
-               curtas: bool = False, sombra_desde: str | None = None, gap: int = 45) -> str:
+               curtas: bool = False, sombra_desde: str | None = None, gap: int = 45, livre: bool = False, coluna: bool = False) -> str:
     """Gráfico de linhas genérico (1 a 4 séries), crosshair via JS. series = [(nome, cor_css, [[data, v, ...extras], ...])].
     bandas = {índice da série: [[data, mínimo, máximo], ...]} desenha a faixa sombreada na cor da série (formato mín–máx + média).
     extras = nomes dos campos adicionais de cada ponto (p[2:]), exibidos no tooltip.
-    gap = lacuna máxima (dias) entre pontos ligados por linha; séries trimestrais precisam de gap maior (ex.: 120)."""
+    gap = lacuna máxima (dias) entre pontos ligados por linha; séries trimestrais precisam de gap maior (ex.: 120).
+    livre = rótulos de fim de linha posicionados um a um (_rotulos_livres) em vez da pilha única à direita: para séries que
+    terminam em datas diferentes ou convergem no mesmo valor.
+    coluna = margem direita maior e rótulos das séries que terminam na borda em coluna à direita dos pontos (_rotulos_coluna);
+    os demais seguem a regra livre. Para muitas séries que terminam juntas (a pilha acima dos pontos desalinha rótulo e série)."""
     ML, MR, MT, MB = 56, 16, 22 if titulo else 12, 30
+    if coluna:
+        MR += 44
     series = [(n, c, [p for p in pts if p[1] is not None]) for n, c, pts in series]
     series = [s for s in series if s[2]]
     if not series:
@@ -156,13 +242,16 @@ def svg_linhas(cid: str, series: list[tuple[str, str, list[list]]], dec=1, pref=
     for t in yt:
         if lo <= t <= hi:
             out.append(f'<line class="grid" x1="{ML}" x2="{W - MR}" y1="{Y(t):.1f}" y2="{Y(t):.1f}"/>'
-                       f'<text class="tick" x="{ML - 6}" y="{Y(t) + 4:.1f}" text-anchor="end">{num(t, 0 if abs(t) >= 1000 else dec)}</text>')
+                       f'<text class="tick" x="{ML - 6}" y="{Y(t) + 4:.1f}" text-anchor="end">{num(t if abs(t) > 1e-9 else 0.0, 0 if abs(t) >= 1000 else dec)}</text>')   # sem "-0,00"
     out += _xticks(d0, d1, X, H - 10, W - ML - MR)
     refs = [(r[0], r[1], r[2] if len(r) > 2 else "var(--mut)") for r in (refs or []) if r[1] is not None]
     itens = sorted(refs, key=lambda r: r[1])
+    obst = [[ML, ML + 5.6 * len(titulo), 0, 16]] if titulo else []      # título e rótulos de referência: obstáculos p/ rótulos livres
     for i, (lab, v, cor) in enumerate(itens):
         abaixo = i == 0 and len(itens) > 1 and abs(Y(itens[1][1]) - Y(v)) < 16
         esq = cor == "var(--mut)"          # referência neutra: rótulo à esquerda, longe dos rótulos de fim de linha
+        if esq:
+            obst.append([ML + 2, ML + 6 + 5.6 * len(lab), Y(v) + (1 if abaixo else -15), Y(v) + (15 if abaixo else -1)])
         out.append(f'<line class="ref" style="stroke:{cor}" x1="{ML}" x2="{W - MR}" y1="{Y(v):.1f}" y2="{Y(v):.1f}"/>'
                    f'<text class="reflab" x="{(ML + 4) if esq else (W - MR)}" y="{Y(v) + (12 if abaixo else -4):.1f}" text-anchor="{"start" if esq else "end"}">{lab}{"" if esq else (" " + pref + num(v, dec) + suf)}</text>')
     for k, b in bandas.items():
@@ -187,23 +276,35 @@ def svg_linhas(cid: str, series: list[tuple[str, str, list[list]]], dec=1, pref=
         labels.append([xl, yl, f"{pref}{num(pts[-1][1], dec)}{suf}", acima])
     # afasta rótulos de séries que terminam juntas
     labels.sort(key=lambda l: l[1])
-    ys_lab = []
-    for xl, yl, txt, acima in labels:          # empilha de cima para baixo com folga mínima de 13px
-        y = yl - 8 if acima else yl + 15
-        if ys_lab and y < ys_lab[-1] + 17:
-            y = ys_lab[-1] + 17
-        ys_lab.append(y)
-    # a pilha não invade o eixo x (séries que convergem no fim): sobe o conjunto até caber acima dos ticks
-    if ys_lab and ys_lab[-1] > H - MB - 2:
-        dy = ys_lab[-1] - (H - MB - 2)
-        ys_lab = [y - dy for y in ys_lab]
-    for (xl, yl, txt, acima), y in zip(labels, ys_lab):
-        out.append(f'<text class="endlab" x="{xl - 7:.1f}" y="{y:.1f}" text-anchor="end">{txt}</text>')
+    trilhas = _trilhas([[(X(datetime.fromisoformat(p[0]).toordinal()), Y(p[1]), i > 0 and datetime.fromisoformat(p[0]).toordinal() - datetime.fromisoformat(pts[i - 1][0]).toordinal() <= gap)
+                          for i, p in enumerate(pts)] for _, _, pts in series]) if (livre or coluna) else []
+    if coluna:
+        cl = [l for l in labels if l[0] >= W - MR - 10]
+        cl, ys_c = _rotulos_coluna(cl, H - MB + 4)
+        obst += [[l[0] + 9, l[0] + 11 + 6.4 * len(l[2]), y - 12, y + 3] for l, y in zip(cl, ys_c)]
+        resto, ys_r, xs_r = _rotulos_livres([l for l in labels if l[0] < W - MR - 10], [Y(r[1]) for r in refs], obst, H - MB, ML + 2, W - 2, trilhas)
+        labels, ys_lab, xs_lab = cl + resto, ys_c + ys_r, [(l[0] + 9, "start") for l in cl] + xs_r
+    elif livre:
+        labels, ys_lab, xs_lab = _rotulos_livres(labels, [Y(r[1]) for r in refs], obst, H - MB, ML + 2, W - 2, trilhas)
+    else:
+        ys_lab = []
+        for xl, yl, txt, acima in labels:          # empilha de cima para baixo com folga mínima de 13px
+            y = yl - 8 if acima else yl + 15
+            if ys_lab and y < ys_lab[-1] + 17:
+                y = ys_lab[-1] + 17
+            ys_lab.append(y)
+        # a pilha não invade o eixo x (séries que convergem no fim): sobe o conjunto até caber acima dos ticks
+        if ys_lab and ys_lab[-1] > H - MB - 2:
+            dy = ys_lab[-1] - (H - MB - 2)
+            ys_lab = [y - dy for y in ys_lab]
+        xs_lab = [(l[0] - 7, "end") for l in labels]
+    for (xl, yl, txt, acima), y, (xt, anc) in zip(labels, ys_lab, xs_lab):
+        out.append(f'<text class="endlab" x="{xt:.1f}" y="{y:.1f}" text-anchor="{anc}">{txt}</text>')
     hdots = "".join(f'<circle class="hdot" r="5" style="fill:{cor}"/>' for _, cor, _ in series)
     # dados completos para o renderizador JS (o seletor de janela redesenha o gráfico no navegador)
     data_js = json.dumps({"series": [{"n": n, "cor": c, "pts": pts} for n, c, pts in series], "bandas": {str(k): v for k, v in bandas.items()},
                           "refs": [[r[0], r[1], r[2]] for r in refs], "pref": pref, "suf": suf, "dec": dec, "extras": extras or [],
-                          "titulo": titulo, "W": W, "H": H, "ML": ML, "MR": MR, "MT": MT, "MB": MB, "gap": gap})
+                          "titulo": titulo, "W": W, "H": H, "ML": ML, "MR": MR, "MT": MT, "MB": MB, "gap": gap, "livre": livre, "coluna": coluna})
     anos_total = (d1 - d0) / 365.25
     ini = ini if (ini and ini < anos_total) else 0        # janela inicial (anos); 0 = máx
     chips = "".join(f'<button data-a="{a}"{" disabled" if a >= anos_total else ""}{" class=on" if a == ini else ""}>{a}a</button>' for a in ((2, 3, 5, 10) if curtas else (1, 2, 3, 5, 10)))
@@ -1064,7 +1165,7 @@ def bloco_rpm_painel() -> str:
         return ""
     cores = ["var(--axis)", "var(--s3)", "var(--s2)", "var(--s1)"][-len(rpms):]
     series = [(r["data"], c, [[_tri_data(t), v] for t, v in r["ipca"] if v is not None]) for r, c in zip(rpms, cores)]
-    g = svg_linhas("painel-rpm", series, 1, suf="%", W=440, H=190, refs=[("meta 3%", 3.0), ("teto 4,5%", 4.5)], gap=120,
+    g = svg_linhas("painel-rpm", series, 1, suf="%", W=440, H=190, refs=[("meta 3%", 3.0), ("teto 4,5%", 4.5)], gap=120, livre=True,
                    titulo="IPCA acumulado em 4 trimestres projetado em cada RPM (%)")
     g = g.replace('<div class="janela" data-for="painel-rpm">', '<div class="janela" data-for="painel-rpm" style="display:none">').replace('id="painel-rpm"', 'id="painel-rpm" data-nosel="1"')
     leg = "".join(f'<span><i style="background:{c}"></i>{r["data"]}</span>' for r, c in zip(rpms, cores))
@@ -1121,18 +1222,19 @@ def slide_rpm_historico(M: dict, sgs: dict) -> tuple[str, str] | None:
         return (f"4T{str(a)[2:]}" + (f" (real. {num(real[str(a)], 1)}%)" if str(a) in real else ""), cor, [[r["corte"], v(r, f"4T{str(a)[2:]}")] for r in rpms if v(r, f"4T{str(a)[2:]}") is not None])
     fechados = [a for a in anos if str(a) in real]; abertos = [a for a in anos if str(a) not in real]
     def legenda(series):
-        return '<div class="legend" style="margin:0 0 2px">' + "".join(f'<span><i style="background:{c}"></i>{n}</span>' for n, c, _ in series) + "</div>"
+        return ('<div class="legend" style="margin:0 0 2px;flex-wrap:wrap;gap:2px 14px">'   # quebra entre itens, nunca dentro do item
+                + "".join(f'<span style="white-space:nowrap"><i style="background:{c}"></i>{n}</span>' for n, c, _ in series) + "</div>")
     sA = [serie_ano(a, pal[i % len(pal)]) for i, a in enumerate(fechados)]
     sB = [serie_ano(a, pal[i % len(pal)]) for i, a in enumerate(abertos)]
-    gA = (legenda(sA) + svg_linhas("rpm-hist-fechados", sA, 1, suf="%", W=620, H=280, gap=130, refs=[("teto 4,5%", 4.5), ("meta 3%", 3.0)],
-                                   titulo="Anos já fechados: projeção do BCB para o 4T a cada relatório (%)")) if sA else ""
-    gB = (legenda(sB) + svg_linhas("rpm-hist-abertos", sB, 1, suf="%", W=620, H=280, gap=130, refs=[("teto 4,5%", 4.5), ("meta 3%", 3.0)],
+    gA = (legenda(sA) + svg_linhas("rpm-hist-fechados", sA, 1, suf="%", W=400, H=205, gap=130, livre=True, refs=[("teto 4,5%", 4.5), ("meta 3%", 3.0)],   # W ≈ largura da coluna: fontes reais ≥ 10,5 px
+                                   titulo="Anos fechados: projeção do BCB para o 4T a cada relatório (%)")) if sA else ""
+    gB = (legenda(sB) + svg_linhas("rpm-hist-abertos", sB, 1, suf="%", W=400, H=205, gap=130, livre=True, refs=[("teto 4,5%", 4.5), ("meta 3%", 3.0)],
                                    titulo="Anos em aberto: projeção para o 4T a cada relatório (%)")) if sB else ""
     # gráfico C: probabilidade de o IPCA do ano superar o teto, por ano, RPM a RPM
     anos_p = sorted({a for r in rpms for a in (r.get("prob_teto") or {})})
     sp = [(f"IPCA {a}", pal[i % len(pal)], [[r["corte"], r["prob_teto"][a]] for r in rpms if (r.get("prob_teto") or {}).get(a) is not None]) for i, a in enumerate(anos_p)]
     sp = [s for s in sp if len(s[2]) >= 2]
-    gC = (legenda(sp) + svg_linhas("rpm-hist-prob", sp, 0, suf="%", W=620, H=250, gap=130, titulo="Probabilidade estimada pelo BCB de o IPCA do ano superar o teto (%)")) if sp else ""
+    gC = (legenda(sp) + svg_linhas("rpm-hist-prob", sp, 0, suf="%", W=380, H=185, gap=130, livre=True, titulo="Probabilidade (BCB) de o IPCA do ano superar o teto (%)")) if sp else ""
     # tabela: erro por antecedência (projeção feita N trimestres antes do fim do ano vs realizado)
     idx = {r["data"]: r for r in rpms}
     def proj(rot, a):
@@ -2040,11 +2142,11 @@ def slides_focus(M: dict, sgs: dict) -> list[tuple[str, str]]:
         f12 = [[r[0], (r[3] if len(r) > 3 and r[3] is not None else r[1])] for r in h12["IPCA"]]
         f24 = [[r[0], (r[3] if len(r) > 3 and r[3] is not None else r[1])] for r in h24.get("IPCA", [])]
         g = svg_linhas("fh-implicita", [("Focus 12 m", S1, f12), ("Focus 24 m", S2, f24), ("implícita 2 a (Tesouro)", "var(--s3)", imp2)], 2, suf="%",
-                       W=900, H=320, refs=[("meta 3%", 3.0)], titulo="IPCA esperado: Focus 12 e 24 meses (média) contra a inflação implícita de 2 anos na curva (% a.a.)")
+                       W=900, H=320, refs=[("meta 3%", 3.0)], coluna=True, titulo="IPCA esperado: Focus 12 e 24 meses (média) contra a inflação implícita de 2 anos na curva (% a.a.)")
         # spread implícita − Focus 24 m (prêmio de inflação / risco): série diária nas datas comuns e resumo
         d24 = {d: v for d, v in f24}
         spread = [[d, v - d24[d]] for d, v in imp2 if d in d24]
-        g2 = svg_linhas("fh-implicita-spread", [("implícita 2 a − Focus 24 m", "var(--s3)", spread)], 2, suf=" p.p.", W=400, H=150,   # W = largura da coluna: fontes reais ≥ 11 px
+        g2 = svg_linhas("fh-implicita-spread", [("implícita 2 a − Focus 24 m", "var(--s3)", spread)], 2, suf=" p.p.", W=400, H=150, livre=True,   # W = largura da coluna: fontes reais ≥ 11 px
                         refs=[("zero", 0.0)], titulo="Prêmio: implícita 2 anos menos Focus 24 meses (p.p.)")
         def med(s, dias):
             if not s:
@@ -2079,7 +2181,7 @@ def slides_focus(M: dict, sgs: dict) -> list[tuple[str, str]]:
         real = (sgs.get(cod) or {}).get("serie") or []
         if real:
             series.append(("realizado (mensal)", "var(--ink)", [[d, v] for d, v in real]))
-        blocos_div.append(svg_linhas(f"fd-{cod}", series, 1, suf="%", W=420, H=230, ini=3, titulo=f"{ind} (% do PIB)"))   # W = largura da coluna: fontes reais ≥ 11 px
+        blocos_div.append(svg_linhas(f"fd-{cod}", series, 1, suf="%", W=420, H=230, ini=3, coluna=True, titulo=f"{ind} (% do PIB)"))   # W = largura da coluna: fontes reais ≥ 11 px
         def cel_d(s, dias):
             d = delta(s, dias)
             if d is None:
@@ -2518,6 +2620,29 @@ JS = r"""
   function ticks(lo,hi,n){if(hi<=lo)hi=lo+1;var raw=(hi-lo)/n,mag=Math.pow(10,Math.floor(Math.log10(raw)));var step=[1,2,2.5,5,10].map(function(s){return s*mag;}).filter(function(s){return s>=raw;})[0];var out=[];for(var t=Math.ceil(lo/step-1e-9)*step;t<=hi+1e-9;t+=step)out.push(Math.round(t*1e6)/1e6);return out;}
   function num(v,d){return v.toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d});}
   function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');}
+  // rótulos de fim de linha colocados um a um (mesma regra de _rotulos_livres no Python)
+  function trilhas(S,X,Y,gap){return S.map(function(s){var t=[],ant=null;s.pts.forEach(function(p,i){var x=X(s.o[i]),y=Y(p[1]);
+      if(i&&ant&&s.o[i]-s.o[i-1]<=gap){var n=Math.max(1,Math.floor(Math.sqrt((x-ant[0])*(x-ant[0])+(y-ant[1])*(y-ant[1]))/4));for(var k=1;k<=n;k++)t.push([ant[0]+(x-ant[0])*k/n,ant[1]+(y-ant[1])*k/n]);}
+      else t.push([x,y]);ant=[x,y];});return t;});}
+  function rotLivres(labels,refsY,obst,base,esq,dir,tr){var uni=[],vistos=[];labels.slice().sort(function(p,q){return q[0]-p[0];}).forEach(function(l){if(!vistos.some(function(u){return u[2]===l[2]&&Math.abs(u[0]-l[0])<30&&Math.abs(u[1]-l[1])<10;}))uni.push(l);vistos.push(l);});
+    uni.sort(function(p,q){return p[1]-q[1];});
+    var pos=obst.map(function(o){return o.slice();}),ys=[],xs=[];
+    uni.forEach(function(l){var xl=l[0],yl=l[1],w=6.4*l[2].length+2,L=[xl-7-w,xl-7],R=[xl+7,xl+7+w];if(L[0]<esq)L=R;
+      var par=function(a,b){return l[3]?[a,b]:[b,a];},c=[];par(yl-8,yl+15).forEach(function(y){c.push([L,y,0]);});c.push([R,yl+4,0]);par(yl-8,yl+15).forEach(function(y){c.push([R,y,0]);});
+      for(var k=1;k<6;k++)(function(k){par(yl-8-16*k,yl+15+16*k).forEach(function(y){c.push([L,y,k]);});})(k);
+      var cruza=function(x0,x1,y){var n=0;(tr||[]).forEach(function(t){for(var i=0;i<t.length;i++){var px=t[i][0],py=t[i][1];if(px>=x0-1&&px<=x1+1&&py>=y-12&&py<=y+3&&(px-xl)*(px-xl)+(py-yl)*(py-yl)>49){n++;break;}}});return n;};
+      var best=null;c.forEach(function(cd,i){var x0=cd[0][0],x1=cd[0][1],y=cd[1];
+        if(y-12<0||y>base-2||x1>dir||refsY.some(function(r){return y-12<r&&r<y+3;}))return;
+        if(!pos.every(function(p){return p[1]<=x0||p[0]>=x1||p[3]<=y-12||p[2]>=y+3;}))return;
+        var nota=Math.min(cruza(x0,x1,y),2)*10+i*2+15*cd[2];if(!best||nota<best[0])best=[nota,x0,x1,y];});
+      if(!best)best=[0,L[0],L[1],c[0][1]];pos.push([best[1],best[2],best[3]-12,best[3]+3]);ys.push(best[3]);xs.push(best[2]>xl?[best[1],'start']:[best[2],'end']);});
+    return [uni,ys,xs];}
+  // rótulos das séries que terminam na borda direita, em coluna na margem (mesma regra de _rotulos_coluna no Python)
+  function rotColuna(col,base){var uni=[];col.slice().sort(function(p,q){return p[1]-q[1];}).forEach(function(l){if(!uni.some(function(u){return u[2]===l[2]&&Math.abs(u[1]-l[1])<10;}))uni.push(l);});
+    var ys=uni.map(function(l){return l[1]+4;});for(var i=1;i<ys.length;i++)ys[i]=Math.max(ys[i],ys[i-1]+14);
+    if(ys.length){var exc=0;ys.forEach(function(y,i){exc+=y-(uni[i][1]+4);});exc/=ys.length;ys=ys.map(function(y){return y-exc;});
+      var up=Math.max(0,13-ys[0]),dy=up-Math.max(0,ys[ys.length-1]+up-base);ys=ys.map(function(y){return y+dy;});}
+    return [uni,ys];}
   function setupLinhas(svg){
     var data=JSON.parse(svg.querySelector('script.data').textContent);
     var W=data.W,H=data.H,ML=data.ML,MR=data.MR,MT=data.MT,MB=data.MB;
@@ -2535,14 +2660,14 @@ JS = r"""
       var lo=Math.min.apply(null,ys),hi=Math.max.apply(null,ys);var pad=(hi-lo)*0.08||Math.abs(hi)*0.05||1;lo-=pad;hi+=pad;
       var X=function(o){return ML+(o-d0)/span*(W-ML-MR);},Y=function(v){return MT+(hi-v)/(hi-lo)*(H-MT-MB);};
       var h=[];if(data.titulo)h.push('<text class="sub" x="'+ML+'" y="12">'+esc(data.titulo)+'</text>');
-      ticks(lo,hi,4).forEach(function(t){if(t>=lo&&t<=hi)h.push('<line class="grid" x1="'+ML+'" x2="'+(W-MR)+'" y1="'+Y(t).toFixed(1)+'" y2="'+Y(t).toFixed(1)+'"/><text class="tick" x="'+(ML-6)+'" y="'+(Y(t)+4).toFixed(1)+'" text-anchor="end">'+num(t,Math.abs(t)>=1000?0:data.dec)+'</text>');});
+      ticks(lo,hi,4).forEach(function(t){if(t>=lo&&t<=hi)h.push('<line class="grid" x1="'+ML+'" x2="'+(W-MR)+'" y1="'+Y(t).toFixed(1)+'" y2="'+Y(t).toFixed(1)+'"/><text class="tick" x="'+(ML-6)+'" y="'+(Y(t)+4).toFixed(1)+'" text-anchor="end">'+num(Math.abs(t)>1e-9?t:0,Math.abs(t)>=1000?0:data.dec)+'</text>');});
       var D0=new Date((d0-719163)*86400000),D1=new Date((d1-719163)*86400000),a0=D0.getUTCFullYear(),a1=D1.getUTCFullYear();
       if(a1-a0>=2){var passo=Math.max(1,Math.ceil(38*(a1-a0)/(W-ML-MR)));for(var a=a0;a<=a1;a++){var o=ordDate(a,1);if(o>=d0&&o<=d1&&(a-a0)%passo===0)h.push('<text class="tick" x="'+X(o).toFixed(1)+'" y="'+(H-10)+'" text-anchor="middle">'+a+'</text>');}}
       else if(d1-d0<=45){var passoD=Math.max(1,Math.ceil((d1-d0)/8));for(var o=d0;o<=d1;o+=passoD){var dt=new Date((o-719163)*86400000);h.push('<text class="tick" x="'+X(o).toFixed(1)+'" y="'+(H-10)+'" text-anchor="middle">'+String(dt.getUTCDate()).padStart(2,'0')+'/'+String(dt.getUTCMonth()+1).padStart(2,'0')+'</text>');}}
       else{for(var a=a0;a<=a1;a++)for(var m=1;m<=12;m++){var o=ordDate(a,m);if(o>=d0&&o<=d1)h.push('<text class="tick" x="'+X(o).toFixed(1)+'" y="'+(H-10)+'" text-anchor="middle">'+MESES[m-1]+(m===1?'/'+String(a).slice(2):'')+'</text>');}}
-      var refs=(data.refs||[]).slice().sort(function(p,q){return p[1]-q[1];});
+      var refs=(data.refs||[]).slice().sort(function(p,q){return p[1]-q[1];});var obst=data.titulo?[[ML,ML+5.6*data.titulo.length,0,16]]:[];
       refs.forEach(function(r,i){var abaixo=i===0&&refs.length>1&&Math.abs(Y(refs[1][1])-Y(r[1]))<16;var cor=r[2]||'var(--mut)';
-        var esq=cor==='var(--mut)';
+        var esq=cor==='var(--mut)';if(esq)obst.push([ML+2,ML+6+5.6*r[0].length,Y(r[1])+(abaixo?1:-15),Y(r[1])+(abaixo?15:-1)]);
         h.push('<line class="ref" style="stroke:'+cor+'" x1="'+ML+'" x2="'+(W-MR)+'" y1="'+Y(r[1]).toFixed(1)+'" y2="'+Y(r[1]).toFixed(1)+'"/><text class="reflab" x="'+(esq?ML+4:W-MR)+'" y="'+(Y(r[1])+(abaixo?12:-4)).toFixed(1)+'" text-anchor="'+(esq?'start':'end')+'">'+esc(r[0])+(esq?'':' '+(data.pref||'')+num(r[1],data.dec)+(data.suf||''))+'</text>');});
       Object.keys(B).forEach(function(k){var b=B[k],s=S[+k];if(!s||!b.length)return;var ida=b.map(function(p,i){return (i?'L':'M')+X(ord(p[0])).toFixed(1)+','+Y(p[2]).toFixed(1);}).join(' ');var volta=b.slice().reverse().map(function(p){return 'L'+X(ord(p[0])).toFixed(1)+','+Y(p[1]).toFixed(1);}).join(' ');
         h.push('<path d="'+ida+' '+volta+' Z" style="fill:'+s.cor+';opacity:.13;stroke:none"/>');});
@@ -2564,9 +2689,13 @@ JS = r"""
         var rec=s.pts.slice(-Math.max(3,Math.floor(s.pts.length/12))).map(function(p){return p[1];});var acima=!(Math.max.apply(null,rec)>last[1]+(hi-lo)*0.04);
         labels.push([xl,yl,(data.pref||'')+num(last[1],data.dec)+(data.suf||''),acima]);});
       labels.sort(function(p,q){return p[1]-q[1];});var ysl=[];
-      labels.forEach(function(l){var y=l[3]?l[1]-8:l[1]+15;if(ysl.length&&y<ysl[ysl.length-1]+17)y=ysl[ysl.length-1]+17;ysl.push(y);});
-      if(ysl.length&&ysl[ysl.length-1]>H-MB-2){var dyl=ysl[ysl.length-1]-(H-MB-2);ysl=ysl.map(function(y){return y-dyl;});}   // pilha acima dos ticks do eixo x
-      labels.forEach(function(l,i){h.push('<text class="endlab" x="'+(l[0]-7).toFixed(1)+'" y="'+ysl[i].toFixed(1)+'" text-anchor="end">'+esc(l[2])+'</text>');});
+      if(data.coluna){var lim=W-MR-10,rc=rotColuna(labels.filter(function(l){return l[0]>=lim;}),H-MB+4);rc[0].forEach(function(l,i){obst.push([l[0]+9,l[0]+11+6.4*l[2].length,rc[1][i]-12,rc[1][i]+3]);});
+        var rr=rotLivres(labels.filter(function(l){return l[0]<lim;}),refs.map(function(r){return Y(r[1]);}),obst,H-MB,ML+2,W-2,trilhas(S,X,Y,gap));
+        labels=rc[0].concat(rr[0]);ysl=rc[1].concat(rr[1]);var xsl=rc[0].map(function(l){return [l[0]+9,'start'];}).concat(rr[2]);}
+      else if(data.livre){var rl=rotLivres(labels,refs.map(function(r){return Y(r[1]);}),obst,H-MB,ML+2,W-2,trilhas(S,X,Y,gap));labels=rl[0];ysl=rl[1];var xsl=rl[2];}
+      else labels.forEach(function(l){var y=l[3]?l[1]-8:l[1]+15;if(ysl.length&&y<ysl[ysl.length-1]+17)y=ysl[ysl.length-1]+17;ysl.push(y);});
+      if(!data.livre&&!data.coluna&&ysl.length&&ysl[ysl.length-1]>H-MB-2){var dyl=ysl[ysl.length-1]-(H-MB-2);ysl=ysl.map(function(y){return y-dyl;});}   // pilha acima dos ticks do eixo x
+      labels.forEach(function(l,i){var xa=xsl?xsl[i]:[l[0]-7,'end'];h.push('<text class="endlab" x="'+xa[0].toFixed(1)+'" y="'+ysl[i].toFixed(1)+'" text-anchor="'+xa[1]+'">'+esc(l[2])+'</text>');});
       corpo.innerHTML=h.join('');
       G={S:S,d0:d0,span:span,X:X,Y:Y};
       svg._anos=anos;svg._d0=d0;
