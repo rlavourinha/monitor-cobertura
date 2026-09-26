@@ -19,6 +19,30 @@ except ImportError:                      # pacote ausente (ex.: GitHub Actions/L
 _ligado = False
 
 
+def _caminhos() -> list[str]:
+    """Caminhos candidatos do terminal64.exe: config.MT5_PATH, o processo aberto (Get-Process) e as pastas usuais."""
+    import os, subprocess
+    out = []
+    try:
+        import config
+        if getattr(config, "MT5_PATH", None):
+            out.append(config.MT5_PATH)
+    except Exception:
+        pass
+    try:
+        r = subprocess.run(["powershell", "-NoProfile", "-Command", "(Get-Process terminal64 -ErrorAction SilentlyContinue).Path"],
+                           capture_output=True, text=True, timeout=20)
+        out += [l.strip() for l in r.stdout.splitlines() if l.strip()]
+    except Exception:
+        pass
+    for base in (r"D:\Program Files", r"C:\Program Files"):
+        for nome in ("", "Genial Investimentos MetaTrader 5", "MetaTrader 5"):
+            p = os.path.join(base, nome, "terminal64.exe")
+            if os.path.exists(p):
+                out.append(p)
+    return list(dict.fromkeys(out))
+
+
 def disponivel() -> bool:
     """True se o pacote existe e o terminal MT5 está aberto e logado neste PC (initialize sem login: usa a sessão aberta)."""
     global _ligado
@@ -27,7 +51,13 @@ def disponivel() -> bool:
     if _ligado:
         return True
     try:
-        if not _mt5.initialize():
+        ok = _mt5.initialize()
+        if not ok:                       # terminal fora do caminho padrão (Genial: D:\Program Files\terminal64.exe): acha pelo processo aberto
+            for caminho in _caminhos():
+                if _mt5.initialize(path=caminho):
+                    ok = True
+                    break
+        if not ok:
             return False
         info = _mt5.account_info()
         _ligado = info is not None
