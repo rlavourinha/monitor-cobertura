@@ -1469,7 +1469,7 @@ def slide_painel(M: dict, sgs: dict, mercado_micro: dict, minhas: list[dict], co
         leg_fl = '<div class="legend" style="margin:6px 0 0"><span><i style="background:var(--s1)"></i>Estrangeiro</span><span><i style="background:var(--s2)"></i>Institucional</span><span><i style="background:var(--s3)"></i>Pessoa física</span><span><i style="background:var(--s4)"></i>Inst. financeira</span></div>'
         box_fl = (f'<div class="pbox" style="padding:6px 10px"><h2 style="margin:0 0 4px">Fluxo por tipo de investidor · ações B3, saldo até {ult_fl[8:]}/{ult_fl[5:7]} (R$ mi)</h2>'
                   f'<div class="tiles fltiles">{tiles_fl}</div></div>')
-        strip = f'<div class="grid2" style="grid-template-columns:1fr 1fr;gap:10px;align-items:start">{tab_var}{box_set}</div><div style="margin-top:10px">{box_fl}</div>'
+        strip = f'<div class="grid2" style="grid-template-columns:1fr 1fr;gap:10px;align-items:start">{tab_var}{box_set}</div>'   # tiles do fluxo saíram (pedido 26/09): só o gráfico da grade
     else:
         strip = f'<div class="grid2" style="grid-template-columns:1fr 1fr;gap:10px;align-items:start">{tab_var}{box_set}</div>'
 
