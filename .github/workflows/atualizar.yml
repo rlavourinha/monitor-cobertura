@@ -25,8 +25,8 @@ on:
         default: "diario"
 
 concurrency:
-  group: atualizar
-  cancel-in-progress: false
+  group: atualizar-${{ github.event_name == 'push' && 'push' || 'dados' }}   # push (só build) não espera a coleta agendada
+  cancel-in-progress: ${{ github.event_name == 'push' }}                   # push novo cancela o build anterior ainda em fila
 
 permissions:
   contents: write
@@ -66,6 +66,7 @@ jobs:
           echo "janela: $j"
 
       - name: Coletar
+        if: github.event_name != 'push'          # push = só gerar e publicar (a coleta fica com os horários agendados)
         env:
           PYTHONIOENCODING: utf-8
           TZ: America/Sao_Paulo
@@ -78,6 +79,7 @@ jobs:
         run: python build.py
 
       - name: Gravar caches e HTML no repositório
+        if: github.event_name != 'push'
         run: |
           git config user.name "monitor-bot"
           git config user.email "monitor-bot@users.noreply.github.com"
