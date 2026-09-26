@@ -87,7 +87,7 @@ FOCUS_UNIDADES = {"Câmbio": "R$/US$", "Balança comercial · Exportações": "U
 SGS_SERIES = {
     433: ("IPCA mensal (%)", "2015-01-01"),
     432: ("Selic meta (% a.a.)", "2015-01-01"),
-    1: ("USD/BRL venda", "2015-01-01"),
+    1: ("USD/BRL venda (PTAX)", "1994-07-01"),
     12: ("CDI diário (% a.d.)", "2023-01-01"),
     7326: ("PIB variação anual (%)", "2000-01-01"),
     24364: ("IBC-Br (índice dessaz.)", "2015-01-01"),

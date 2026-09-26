@@ -43,7 +43,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 1
+          fetch-depth: 0          # histórico completo: a versão do painel é o nº de commits (com depth 1 saía "0.1")
 
       - uses: actions/setup-python@v5
         with:

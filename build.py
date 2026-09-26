@@ -953,8 +953,13 @@ def linha_variaveis_painel(M: dict) -> str:
                             refs=[(f"média {num(med, 1)}", med)] if med else None, titulo="Prêmio de juro real: NTN-B 2035 − TIPS 10 anos (p.p.)")
     else:
         g_prem = '<div class="empty small">Prêmio de juro real: rode a janela diária (TIPS 10a via FRED).</div>'
-    fx = M.get("hist", {}).get("USD/BRL") or []
-    g_fx = svg_linhas("painel-fx", [("USD/BRL", S1, [[d, v] for d, v in fx])], 2, W=260, H=130, ini=5, titulo="USD/BRL (Yahoo)") if fx else '<div class="empty small">Sem histórico do câmbio.</div>'
+    # câmbio: PTAX oficial (BCB SGS 1, desde 1994) com o último ponto intraday do Yahoo; sem PTAX, Yahoo desde 2003
+    ptax = (M.get("sgs", {}).get("1") or {}).get("serie") or []
+    fx = [[d, v] for d, v in ptax] if len(ptax) > 2000 else [[d, v] for d, v in (M.get("hist", {}).get("USD/BRL") or [])]
+    q = (M.get("mercado") or {}).get("USD/BRL") or {}
+    if fx and q.get("preco") and q.get("hora") and q["hora"][:10] > fx[-1][0]:
+        fx = fx + [[q["hora"][:10], q["preco"]]]
+    g_fx = svg_linhas("painel-fx", [("USD/BRL", S1, fx)], 2, W=260, H=130, ini=5, titulo="USD/BRL (PTAX venda; último ponto intraday)" if len(ptax) > 2000 else "USD/BRL (Yahoo)") if fx else '<div class="empty small">Sem histórico do câmbio.</div>'
     return (f'<div class="pgrid pg6" style="grid-template-columns:repeat(4,1fr);margin-top:10px">'
             + "".join(f'<div class="pbox">{g}</div>' for g in (g_br, g_us, g_prem, g_fx, g_brent, g_curva, g_fluxo, g_ativo)) + '</div>')
 
