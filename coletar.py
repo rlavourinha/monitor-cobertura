@@ -25,7 +25,7 @@ import traceback
 from datetime import date, datetime
 
 import config
-from fontes import anbima, b3, b3_bdi, bcb, bloomberg, curva, cvm_cda, cvm_inf_diario, ibov_wayback, modelo_ea, mt5, tesouro, yahoo
+from fontes import anbima, b3, b3_bdi, bcb, bloomberg, curva, cvm_cda, cvm_inf_diario, fred, ibov_wayback, modelo_ea, mt5, tesouro, yahoo
 
 MINHAS = config.ESTIMATIVAS / "minhas.csv"
 CONS = config.CONSENSO / "consenso.csv"
@@ -151,6 +151,15 @@ def diario_ettj():
 def diario_curva_tesouro():
     c = curva.constroi()
     return f"pré {len(c['pre'])} dias desde {c['pre'][0][0] if c['pre'] else '—'}; real {len(c['real'])} dias"
+
+
+def diario_tips():
+    """TIPS de 10 anos (FRED DFII10): juro real americano, para o prêmio de juro real do Brasil (NTN-B 2035 − TIPS)."""
+    s = fred.serie("DFII10", "2010-01-01")
+    if not s:
+        raise RuntimeError("FRED DFII10 vazio")
+    _atualiza_macro(tips10=s)
+    return f"{len(s)} pontos, último {s[-1][0]} {s[-1][1]}%"
 
 
 def diario_sgs():
@@ -486,7 +495,7 @@ JANELAS = {
     "intraday": [("cotações universo", intraday_universo), ("cotações mercado", intraday_mercado), ("cotações Ibovespa", intraday_ibov_comp)],
     "diario": [("B3 COTAHIST", diario_cotahist), ("B3 ações", diario_acoes), ("Tesouro NTN-B", diario_tesouro),
                ("ANBIMA ETTJ", diario_ettj), ("curva Tesouro", diario_curva_tesouro),
-               ("SGS diários", diario_sgs), ("Yahoo histórico", diario_yahoo_hist), ("Ibovespa composição", diario_ibov_comp),
+               ("SGS diários", diario_sgs), ("TIPS 10a (FRED)", diario_tips), ("Yahoo histórico", diario_yahoo_hist), ("Ibovespa composição", diario_ibov_comp),
                ("consenso Yahoo", diario_consenso_yahoo), ("cotas de fundos CVM", diario_cotas_fundos), ("Ibovespa DY", diario_ibov_dy), ("fluxo por investidor", diario_fluxo_investidores), ("curva do Brent", diario_brent_curva),
                ("minhas estimativas", diario_minhas), ("cotações universo", intraday_universo), ("cotações mercado", intraday_mercado),
                ("cotações Ibovespa", intraday_ibov_comp)],

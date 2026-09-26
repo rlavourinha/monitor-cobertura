@@ -877,6 +877,21 @@ def seleciona_nomes(emp: list, minimo: int = 4, maximo: int = 8) -> tuple[list, 
     return top, bot, cab
 
 
+def premio_real(M: dict) -> tuple[list[list], float | None]:
+    """Prêmio de juro real do Brasil: NTN-B 2035 (Tesouro, real) menos TIPS de 10 anos (FRED DFII10), em p.p., com a média
+    histórica. Série diária nas datas da NTN-B, usando o último TIPS disponível até cada data."""
+    n35 = M.get("ntnb_2035") or []; tips = M.get("tips10") or []
+    if not n35 or not tips:
+        return [], None
+    ti = 0; tv = None; prem = []
+    for d, v in n35:
+        while ti < len(tips) and tips[ti][0] <= d:
+            tv = tips[ti][1]; ti += 1
+        if tv is not None and v is not None:
+            prem.append([d, v - tv])
+    return prem, (sum(p[1] for p in prem) / len(prem) if prem else None)
+
+
 def linha_variaveis_painel(M: dict) -> str:
     """Linha de variáveis-chave do Painel: juro nominal de 10 anos (Tesouro, vértice constante interpolado), Treasury de
     10 anos, Brent à vista e a curva futura do Brent (hoje contra a fotografia mais antiga disponível)."""
@@ -888,13 +903,13 @@ def linha_variaveis_painel(M: dict) -> str:
     if CT.get("pre") and 10 in prazos:
         i = prazos.index(10) + 1
         pts = [[r[0], r[i]] for r in CT["pre"] if r[i] is not None]
-        g_br = svg_linhas("painel-pre10", [("Pré 10 anos", S1, pts)], 2, suf="%", W=340, H=150, ini=5, titulo="Juro nominal 10 anos (Tesouro, vértice constante)")
+        g_br = svg_linhas("painel-pre10", [("Pré 10 anos", S1, pts)], 2, suf="%", W=260, H=130, ini=5, titulo="Juro nominal 10 anos (Tesouro, vértice constante)")
     else:
         g_br = '<div class="empty small">Curva do Tesouro ausente.</div>'
     tnx = M.get("hist", {}).get("Treasury 10a (%)") or []
-    g_us = svg_linhas("painel-tnx", [("Treasury 10a", S1, [[d, v] for d, v in tnx])], 2, suf="%", W=340, H=150, ini=5, titulo="Treasury 10 anos (%)") if tnx else '<div class="empty small">Sem histórico do Treasury: rode a janela diária.</div>'
+    g_us = svg_linhas("painel-tnx", [("Treasury 10a", S1, [[d, v] for d, v in tnx])], 2, suf="%", W=260, H=130, ini=5, titulo="Treasury 10 anos (%)") if tnx else '<div class="empty small">Sem histórico do Treasury: rode a janela diária.</div>'
     br = M.get("hist", {}).get("Brent (US$)") or []
-    g_brent = svg_linhas("painel-brent", [("Brent", S1, [[d, v] for d, v in br])], 1, pref="US$ ", W=340, H=150, ini=5, titulo="Brent à vista (US$/bbl)") if br else '<div class="empty small">Sem histórico do Brent.</div>'
+    g_brent = svg_linhas("painel-brent", [("Brent", S1, [[d, v] for d, v in br])], 1, pref="US$ ", W=260, H=130, ini=5, titulo="Brent à vista (US$/bbl)") if br else '<div class="empty small">Sem histórico do Brent.</div>'
     pb = config.DATA / "brent_curva.json"
     BC = json.loads(pb.read_text(encoding="utf-8")) if pb.exists() else {}
     fotos = BC.get("fotos") or {}
@@ -907,7 +922,7 @@ def linha_variaveis_painel(M: dict) -> str:
         if ant != hoje:
             series.append((f"curva {ant[8:]}/{ant[5:7]}", MUT, pts_de(fotos[ant])))
         spot = br[-1][1] if br else None
-        g_curva = svg_linhas("painel-brent-curva", series, 1, pref="US$ ", W=340, H=150, titulo="Curva futura do Brent (US$/bbl; contratos/dia no tooltip)",
+        g_curva = svg_linhas("painel-brent-curva", series, 1, pref="US$ ", W=260, H=130, titulo="Curva futura do Brent (US$/bbl; contratos/dia no tooltip)",
                              refs=[("à vista", spot)] if spot else None, extras=["contratos"])
         g_curva = g_curva.replace('<div class="janela" data-for="painel-brent-curva">', '<div class="janela" data-for="painel-brent-curva" style="display:none">')
         g_curva = g_curva.replace('id="painel-brent-curva"', 'id="painel-brent-curva" data-nosel="1"')   # eixo x = vencimentos, não entra na seleção de datas
@@ -927,12 +942,21 @@ def linha_variaveis_painel(M: dict) -> str:
     if tk0:
         s0 = [[d, v] for d, v in _b3.serie(tk0)]
         alts = {tk: [[d, v] for d, v in _b3.serie(tk)] for tk in config.UNIVERSO if tk != tk0}   # os demais vêm do #ibov-dados
-        g_ativo = svg_linhas("painel-ativo", [(tk0, S1, s0)], 2, pref="R$ ", W=340, H=150, ini=5, titulo=f"{tk0} · fechamento (R$)",
+        g_ativo = svg_linhas("painel-ativo", [(tk0, S1, s0)], 2, pref="R$ ", W=260, H=130, ini=5, titulo=f"{tk0} · fechamento (R$)",
                              ativos=ativos, alts=alts, titulo_base="fechamento (R$)")
     else:
         g_ativo = '<div class="empty small">Sem papéis.</div>'
-    return (f'<div class="pgrid pg6" style="grid-template-columns:1fr 1fr 1fr;margin-top:10px">'
-            + "".join(f'<div class="pbox">{g}</div>' for g in (g_br, g_us, g_brent, g_curva, g_fluxo, g_ativo)) + '</div>')
+    # 7º: prêmio de juro real do Brasil = NTN-B 2035 (real) − TIPS 10 anos (FRED DFII10), em p.p.; linha = média histórica
+    prem, med = premio_real(M)
+    if prem:
+        g_prem = svg_linhas("painel-premio", [("NTN-B 2035 − TIPS 10a", S1, prem)], 2, suf=" p.p.", W=260, H=130, ini=5,
+                            refs=[(f"média {num(med, 1)}", med)] if med else None, titulo="Prêmio de juro real: NTN-B 2035 − TIPS 10 anos (p.p.)")
+    else:
+        g_prem = '<div class="empty small">Prêmio de juro real: rode a janela diária (TIPS 10a via FRED).</div>'
+    fx = M.get("hist", {}).get("USD/BRL") or []
+    g_fx = svg_linhas("painel-fx", [("USD/BRL", S1, [[d, v] for d, v in fx])], 2, W=260, H=130, ini=5, titulo="USD/BRL (Yahoo)") if fx else '<div class="empty small">Sem histórico do câmbio.</div>'
+    return (f'<div class="pgrid pg6" style="grid-template-columns:repeat(4,1fr);margin-top:10px">'
+            + "".join(f'<div class="pbox">{g}</div>' for g in (g_br, g_us, g_prem, g_fx, g_brent, g_curva, g_fluxo, g_ativo)) + '</div>')
 
 
 def linha_ibov_painel(D: dict, M: dict) -> str:
@@ -961,13 +985,15 @@ def linha_ibov_painel(D: dict, M: dict) -> str:
              "ib": [[d, v] for d, v in ib if d >= ini_h], "unit": {k: 1 for k in UNIT_COMP}, "abrev": ABREV, "setor_ex": getattr(config, "SETOR_EX", {})}
     dados_js = json.dumps(dados, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
     # a janela do gráfico (1 d … máx) é a janela da decomposição; a área sem fechamentos dos papéis (antes de ini_h) fica sombreada
-    g = svg_linhas("painel-ibov", [("Ibovespa", "var(--s1)", [[d, v] for d, v in ib])], 0, W=1100, H=280, ini=2, curtas=True, sombra_desde=ini_h,
-                   titulo="Ibovespa · a janela escolhida (ou o ponto clicado) define a decomposição abaixo e a janela dos outros gráficos",
+    # Ibovespa à esquerda (2/4 da largura) e a explicação à direita (setores; puxou/segurou), numa linha só: com a grade de
+    # 8 gráficos logo abaixo, o print de uma tela mostra o índice, a decomposição e as variáveis juntos
+    g = svg_linhas("painel-ibov", [("Ibovespa", "var(--s1)", [[d, v] for d, v in ib])], 0, W=760, H=250, ini=2, curtas=True, sombra_desde=ini_h,
+                   titulo="Ibovespa · a janela escolhida (ou o ponto clicado) define a decomposição ao lado e a janela dos outros gráficos",
                    resol=mt5_intraday("IBOV"))
-    return (f'<div class="dec"><div class="pbox pib">{g}</div>'
-            f'<div class="pgrid pg2" style="grid-template-columns:1fr 1fr;margin-top:10px">'
+    return (f'<div class="pgrid dec pg2" style="grid-template-columns:2fr 1fr 1fr">'
+            f'<div class="pbox pib">{g}</div>'
             f'<div class="pbox" data-slot="setores"><h2 style="margin:0 0 4px">Decomposição por setor</h2><div class="empty small">calculando…</div></div>'
-            f'<div class="pbox" data-slot="papeis"><h2>Quem puxou, quem segurou</h2><div class="empty small">calculando…</div></div></div>'
+            f'<div class="pbox" data-slot="papeis"><h2>Quem puxou, quem segurou</h2><div class="empty small">calculando…</div></div>'
             f'<script type="application/json" id="ibov-dados">{dados_js}</script></div>')
 
 
@@ -1521,7 +1547,9 @@ def slide_painel(M: dict, sgs: dict, mercado_micro: dict, minhas: list[dict], co
     if selic and sl0 and sl1:
         sinais.append(f"<b>Juros:</b> Selic {num(selic[1], 2, suf='%')}; Focus vê {num(sl0[-1][1], 2, suf='%')} no fim de {a0} e {num(sl1[-1][1], 2, suf='%')} em {a1}. Trajetória: {selic_path}.")
     if ntnb35 and med35:
-        sinais.append(f"<b>Juro real:</b> NTN-B 2035 a {num(ntnb35, 2, suf='%')}, {num(ntnb35 - med35, 2, '+' if ntnb35 > med35 else '')} p.p. contra a média desde {n35[0][0][:4]}.")
+        prem_s, prem_m = premio_real(M)
+        sinais.append(f"<b>Juro real:</b> NTN-B 2035 a {num(ntnb35, 2, suf='%')}, {num(ntnb35 - med35, 2, '+' if ntnb35 > med35 else '')} p.p. contra a média desde {n35[0][0][:4]}."
+                      + (f" Prêmio sobre o TIPS de 10 anos: {num(prem_s[-1][1], 1)} p.p. ({num(prem_s[-1][1] - prem_m, 1, '+' if prem_s[-1][1] > prem_m else '')} vs média de {num(prem_m, 1)})." if prem_s else ""))
     ib = M.get("hist", {}).get("Ibovespa", [])
     if ib and mk.get("Ibovespa"):
         px = mk["Ibovespa"]["preco"]; mx = max(v for _, v in ib); r12 = _ret(ib, px, 252); r1 = _ret(ib, px, 21)
