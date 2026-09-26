@@ -200,9 +200,9 @@ def svg_linhas(cid: str, series: list[tuple[str, str, list[list]]], dec=1, pref=
                           "titulo": titulo, "W": W, "H": H, "ML": ML, "MR": MR, "MT": MT, "MB": MB})
     anos_total = (d1 - d0) / 365.25
     ini = ini if (ini and ini < anos_total) else 0        # janela inicial (anos); 0 = máx
-    chips = "".join(f'<button data-a="{a}"{" disabled" if a >= anos_total else ""}{" class=on" if a == ini else ""}>{a}a</button>' for a in (1, 2, 3, 5, 10))
-    if curtas:   # janelas curtas em pregões e o ano corrente (o Painel liga a decomposição do Ibovespa a esta mesma janela)
-        chips = '<button data-d="1">1 d</button><button data-d="5">5 d</button><button data-d="21">21 d</button><button data-ytd="1">ano</button>' + chips
+    chips = "".join(f'<button data-a="{a}"{" disabled" if a >= anos_total else ""}{" class=on" if a == ini else ""}>{a}a</button>' for a in ((2, 3, 5, 10) if curtas else (1, 2, 3, 5, 10)))
+    if curtas:   # pregões (1, 5, 21), mês corrente, ano corrente e 12 meses (o Painel liga a decomposição do Ibovespa a esta mesma janela)
+        chips = '<button data-d="1">1 d</button><button data-d="5">5 d</button><button data-d="21">21 d</button><button data-mtd="1">MTD</button><button data-ytd="1">YTD</button><button data-m="12">12 m</button>' + chips
     return f'''<div class="lin"><div class="janela" data-for="{cid}">{chips}<button data-a="0"{"" if ini else " class=on"}>máx</button></div><svg class="chart" id="{cid}" viewBox="0 0 {W} {H}" data-x0="{d0}" data-span="{span}" data-lo="{lo}" data-hi="{hi}" data-ini="{ini}"{f' data-desde="{sombra_desde}"' if sombra_desde else ""}
   data-ml="{ML}" data-mr="{MR}" data-mt="{MT}" data-mb="{MB}" data-w="{W}" data-h="{H}" role="img" aria-label="{titulo}">
   <g class="corpo">{"".join(out)}</g>
@@ -2088,8 +2088,11 @@ JS = r"""
       svg.dispatchEvent(new CustomEvent('pontoclique',{bubbles:true,detail:{data:s.pts[i][0],valor:s.pts[i][1]}}));});
     svg._render=render;
     // chips: data-a = anos (0 = máx); data-d = pregões (1, 5, 21); data-ytd = desde o 1º dia do ano
-    function anosDoChip(b){if(b.dataset.d){var n=+b.dataset.d,s=data.series[0];var o1=s.o[s.o.length-1],o0=s.o[Math.max(0,s.o.length-1-n)];return (o1-o0+1)/365.25;}
-      if(b.dataset.ytd){var s2=data.series[0];var last=new Date((s2.o[s2.o.length-1]-719163)*86400000);var o0y=ordDate(last.getUTCFullYear(),1)-1;return (s2.o[s2.o.length-1]-o0y+1)/365.25;}
+    function anosDoChip(b){var s=data.series[0],o1=s.o[s.o.length-1],last=new Date((o1-719163)*86400000);
+      if(b.dataset.d){var n=+b.dataset.d,o0=s.o[Math.max(0,s.o.length-1-n)];return (o1-o0+1)/365.25;}
+      if(b.dataset.ytd){var o0y=ordDate(last.getUTCFullYear(),1)-1;return (o1-o0y+1)/365.25;}          // desde o fechamento do ano anterior
+      if(b.dataset.mtd){var o0m=ordDate(last.getUTCFullYear(),last.getUTCMonth()+1)-1;return (o1-o0m+1)/365.25;}   // desde o fechamento do mês anterior
+      if(b.dataset.m)return (+b.dataset.m)/12+1/365.25;
       return +b.dataset.a;}
     var chips=svg.parentNode.querySelector('.janela');
     if(chips)chips.querySelectorAll('button').forEach(function(b){b.addEventListener('click',function(){chips.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});b.classList.add('on');svg._t0=null;render(anosDoChip(b));});});
@@ -2178,7 +2181,9 @@ JS = r"""
     function aviso(txt){conteudo('setores','<div class="mut" style="font-size:11.5px">'+txt+'</div>');conteudo('papeis','');}
     // a decomposição segue a janela do gráfico: começa no 1º pregão dentro da janela (ou no ponto clicado, se houver)
     function decompJanela(){var cal=D.cal,t=cal[cal.length-1];var d0=svg._d0;var ini=null;
-      if(svg._t0&&ord(svg._t0)>=d0)ini=svg._t0;else{for(var i=0;i<cal.length;i++)if(ord(cal[i])>=d0){ini=cal[i];break;}}
+      // início = último pregão até o começo da janela (MTD parte do fechamento do mês anterior, YTD do ano anterior);
+      // antes dos fechamentos dos papéis, o primeiro pregão disponível
+      if(svg._t0&&ord(svg._t0)>=d0)ini=svg._t0;else{for(var i=cal.length-1;i>=0;i--)if(ord(cal[i])<=d0){ini=cal[i];break;}if(!ini)ini=cal[0];}
       if(!ini||ini>=t){aviso('Janela sem pregão anterior ao último.');return;}
       var j=decomp(ini);if(!j){aviso('Sem decomposição para esta janela.');return;}
       if(ord(cal[0])>d0&&!svg._t0)j.nota='a janela começa antes dos fechamentos dos papéis; decomposição desde '+br(cal[0]);
