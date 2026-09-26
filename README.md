@@ -98,8 +98,15 @@ não está nas tabelas públicas do BDI (o "Quadro analítico das posições em 
 investidor); ficou fora.
 
 **Volume por papel.** O cache do COTAHIST (`data/cotahist/AAAA.csv`) passou a guardar quantidade e volume financeiro
-do dia (`QUATOT`, `VOLTOT`) além do fechamento; `b3.serie(ticker, ("fechamento", "quantidade", "volume"))`. A tabela
-Cobertura do Painel mostra o volume do dia e a razão contra a média de 20 pregões.
+do dia (`QUATOT`, `VOLTOT`) além do fechamento; `b3.serie(ticker, ("fechamento", "quantidade", "volume"))` e
+`b3.series_todas()` (uma passada para todos os papéis). A tabela Cobertura do Painel mostra o volume do dia e a razão
+contra a média de 20 pregões.
+
+**Slide "Volume · quem está sendo negociado"** (`analise_volume` em build.py): volume financeiro diário somado dos
+papéis da carteira atual do Ibovespa desde 2019 (proxy do mercado; a B3 só divulga o total sem histórico aberto), média
+móvel de 21 pregões, razão do dia contra a média (excluindo o dia), papéis com volume anormal (≥ 1,5× a própria média
+de 21 pregões) e fracos (≤ 0,5×), mais negociados e concentração dos 5 maiores. O Painel ganha um sinal "Volume" com o
+total, a razão e os papéis anormais. Volume por corretora não é público (só o ranking mensal agregado da B3).
 
 **Linha de variáveis** (entre o Ibovespa e o bloco Macro): juro nominal de 10 anos (vértice constante interpolado da
 curva prefixada do Tesouro Direto, `data/curva_tesouro.json`, desde 2004), Treasury de 10 anos (Yahoo `^TNX`, desde
