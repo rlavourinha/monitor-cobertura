@@ -1975,6 +1975,78 @@ def slide_carteiras_btg() -> tuple[str, str] | None:
                  f'{C["casa"]}, Brazil 10SIM de {at.get("data", m)} (Carlos Sequeira e equipe). Múltiplos e upside são estimativas do próprio BTG. Arquivo manual carteiras/btg_10sim.json.')
 
 
+def slide_carteiras_btg_hist(M: dict | None = None) -> tuple[str, str] | None:
+    """Histórico do BTG 10SIM (carteiras/btg_10sim.json → 'historico'): acumulado desde 2009 contra o Ibovespa a cada relatório,
+    YTD relativo, matriz de carteiras (papel × mês) e recorrência por papel."""
+    p = config.RAIZ / "carteiras" / "btg_10sim.json"
+    if not p.exists():
+        return None
+    J = json.loads(p.read_text(encoding="utf-8"))
+    H = sorted(J.get("historico", []), key=lambda h: h["mes"])
+    if len(H) < 6:
+        return None
+    S1, S2, MUT = "var(--s1)", "var(--s2)", "var(--axis)"
+    def dref(h):   # data de referência do relatório = 1º dia do mês da carteira
+        return h["mes"] + "-01"
+    # acumulado desde out/2009 (nível): 10SIM vs Ibovespa vs IBrX-50, um ponto por relatório
+    s_a = [[dref(h), h["acum_2009"]] for h in H if h.get("acum_2009") is not None]
+    s_b = [[dref(h), h["acum_2009_ibov"]] for h in H if h.get("acum_2009_ibov") is not None]
+    s_c = [[dref(h), h["acum_2009_ibrx50"]] for h in H if h.get("acum_2009_ibrx50") is not None]
+    g1 = svg_linhas("btg-acum", [("10SIM", S1, s_a), ("Ibovespa", S2, s_b), ("IBrX-50", MUT, s_c)], 0, suf="%", W=620, H=250, gap=70,
+                    titulo="Acumulado desde out/2009 informado em cada relatório (%)")
+    # razão 10SIM/Ibovespa (base 1 no 1º relatório): sobe = carteira ganhando do índice
+    razao = []
+    for h in H:
+        a, b = h.get("acum_2009"), h.get("acum_2009_ibov")
+        if a is not None and b is not None and b > -100:
+            razao.append([dref(h), (1 + a / 100) / (1 + b / 100)])
+    if razao:
+        base = razao[0][1]
+        razao = [[d, v / base * 100] for d, v in razao]
+    g2 = svg_linhas("btg-razao", [("10SIM ÷ Ibovespa", S1, razao)], 1, W=620, H=250, gap=70, refs=[("início = 100", 100.0)],
+                    titulo=f"Retorno relativo ao Ibovespa desde {H[0]['mes'][5:]}/{H[0]['mes'][2:4]} (base 100)") if razao else ""
+    # matriz papel × mês (últimos 24 meses): célula = peso
+    ult = H[-24:]
+    ordem = {}
+    for h in ult:
+        for c in h["carteira"]:
+            ordem.setdefault(c["ticker"], [0, 0]); ordem[c["ticker"]][0] += 1; ordem[c["ticker"]][1] = h["mes"]
+    tks = sorted(ordem, key=lambda t: (-ordem[t][0], t))
+    cob = set(config.UNIVERSO)
+    def cel(peso):
+        if not peso:
+            return '<td style="padding:1px 3px"></td>'
+        op = 0.25 + 0.75 * min(peso, 15) / 15
+        return f'<td style="padding:1px 3px;text-align:center;background:rgba(37,99,235,{op:.2f});color:#fff;font-size:10px">{peso}</td>'
+    cab = "".join(f'<th style="padding:1px 2px;font-size:9.5px;writing-mode:vertical-rl;transform:rotate(180deg);text-align:left">{h["mes"][5:]}/{h["mes"][2:4]}</th>' for h in ult)
+    linhas = []
+    for t in tks:
+        pesos = {h["mes"]: next((c["peso"] for c in h["carteira"] if c["ticker"] == t), None) for h in ult}
+        linhas.append(f'<tr><td class="tk" style="padding:1px 4px;font-size:11px">{"<b>" + t + "</b>" if t in cob else t}<small>{ordem[t][0]} m</small></td>' + "".join(cel(pesos[h["mes"]]) for h in ult) + "</tr>")
+    matriz = f'<table class="mini" style="border-collapse:collapse"><thead><tr><th style="text-align:left">Papel · meses</th>{cab}</tr></thead><tbody>{"".join(linhas)}</tbody></table>'
+    # recorrência total (todo o histórico) e leitura
+    tot = {}
+    for h in H:
+        for c in h["carteira"]:
+            tot[c["ticker"]] = tot.get(c["ticker"], 0) + 1
+    top = sorted(tot.items(), key=lambda x: (-x[1], x[0]))[:12]
+    rec = "".join(f'<tr><td class="tk">{"<b>" + t + "</b>" if t in cob else t}</td><td>{n}</td><td>{num(n / len(H) * 100, 0, suf="%")}</td></tr>' for t, n in top)
+    tab_rec = f'<table class="mini"><thead><tr><th>Papel</th><th>Meses na carteira</th><th>de {len(H)}</th></tr></thead><tbody>{rec}</tbody></table>'
+    # YTD relativo por relatório (últimos 12)
+    ytd = "".join(f'<tr><td class="tk">{h["mes"][5:]}/{h["mes"][2:4]}</td><td class="{dlt_cls(h.get("ret_mes_anterior"))}">{num(h.get("ret_mes_anterior"), 1, "+" if (h.get("ret_mes_anterior") or 0) > 0 else "", "%") if h.get("ret_mes_anterior") is not None else "—"}</td>'
+                  f'<td>{num(h.get("ytd"), 1, suf="%") if h.get("ytd") is not None else "—"}</td><td>{num(h.get("ytd_ibov"), 1, suf="%") if h.get("ytd_ibov") is not None else "—"}</td>'
+                  f'<td class="{dlt_cls((h.get("ytd") or 0) - (h.get("ytd_ibov") or 0)) if h.get("ytd") is not None and h.get("ytd_ibov") is not None else ""}">{num(h["ytd"] - h["ytd_ibov"], 1, "+" if h["ytd"] - h["ytd_ibov"] > 0 else "", " p.p.") if h.get("ytd") is not None and h.get("ytd_ibov") is not None else "—"}</td></tr>'
+                  for h in H[-12:])
+    tab_ytd = f'<table class="mini"><thead><tr><th>Relatório</th><th>Mês anterior</th><th>YTD 10SIM</th><th>YTD Ibov</th><th>Δ</th></tr></thead><tbody>{ytd}</tbody></table>'
+    leg = f'<div class="legend"><span><i style="background:{S1}"></i>10SIM</span><span><i style="background:{S2}"></i>Ibovespa</span><span><i style="background:{MUT}"></i>IBrX-50</span></div>'
+    corpo = (f'{leg}<div class="grid2"><div>{g1}</div><div>{g2}</div></div>'
+             f'<div class="grid2" style="grid-template-columns:1.7fr 1fr;align-items:start;margin-top:10px"><div><h2 style="font-size:13px;margin:0 0 4px">Carteira mês a mês (peso %, últimos {len(ult)} relatórios; negrito = minha cobertura)</h2><div style="overflow-x:auto">{matriz}</div></div>'
+             f'<div><h2 style="font-size:13px;margin:0 0 4px">Papéis mais recorrentes desde {H[0]["mes"][5:]}/{H[0]["mes"][2:4]}</h2>{tab_rec}<h2 style="font-size:13px;margin:10px 0 4px">Desempenho citado nos últimos 12 relatórios</h2>{tab_ytd}</div></div>')
+    return slide("Opinião qualificada", "carteira-btg-10sim-hist", f'{J.get("casa", "BTG Pactual")} · {J.get("produto", "10SIM")} histórico', corpo,
+                 f"{len(H)} relatórios mensais ({H[0]['mes'][5:]}/{H[0]['mes'][2:4]} a {H[-1]['mes'][5:]}/{H[-1]['mes'][2:4]}): o que a carteira do sell-side carregou, por quanto tempo, e como foi contra o índice.",
+                 "BTG Pactual, Brazil 10SIM (portal de research, lido no visor). Acumulado desde out/2009 e YTD são os números citados em cada relatório (com o Ibovespa e o IBrX-50 do mesmo texto); a razão 10SIM/Ibovespa é derivada deles. Pesos: Table 1 de cada relatório; meses com tabela em imagem foram reconstruídos pelo texto. Arquivo manual carteiras/btg_10sim.json.")
+
+
 def slides_opiniao(M: dict | None = None, sgs: dict | None = None) -> list[tuple[str, str]]:
     """Opinião qualificada: cartas de gestão de bons fundos (cartas/*.json) + carteiras pela CVM (config.FUNDOS_CVM)."""
     out = []
@@ -3387,6 +3459,9 @@ def secao_macro(mercado_micro: dict) -> list[tuple[str, str]]:
     scb = slide_carteiras_btg()
     if scb:
         S.append(scb)
+    scbh = slide_carteiras_btg_hist(M)
+    if scbh:
+        S.append(scbh)
     capa_fontes = slide("Fontes", "capa", "Fontes e atualizações",
                    f'<div class="duo"><div><div class="heroes">{heroes}</div></div>{painel_atual}</div>',
                    f"Macro, setores e empresas cobertas. Preço, minha estimativa e consenso. Atualizado em {M.get('gerado_em', '—')}, cotações às {hora[11:]}.",

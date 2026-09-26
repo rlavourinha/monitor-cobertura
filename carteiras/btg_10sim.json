@@ -1,53 +1,3270 @@
 {
-  "_nota": "BTG Pactual, Brazil 10SIM (10 Stock Ideas for the Month), estrategista Carlos Sequeira. Manual: a cada mês acrescentar uma entrada em 'meses' com a carteira (Table 1/5), as trocas (Table 4) e o desempenho (seção 'performance'). Fonte: PDF do portal btgpactual.com/research (login de cliente).",
-  "casa": "BTG Pactual",
-  "produto": "Brazil 10SIM",
-  "meses": [
+ "_nota": "BTG Pactual, Brazil 10SIM (10 Stock Ideas for the Month), estrategista Carlos Sequeira. Manual: a cada mês acrescentar uma entrada em 'meses' com a carteira (Table 1/5), as trocas (Table 4) e o desempenho (seção 'performance'). Fonte: PDF do portal btgpactual.com/research (login de cliente).",
+ "casa": "BTG Pactual",
+ "produto": "Brazil 10SIM",
+ "meses": [
+  {
+   "mes": "2026-08",
+   "carteira": [
     {
-      "mes": "2026-08",
-      "carteira": [
-        {"ticker": "GGBR4", "setor": "Metal & Mining", "peso": 10}, {"ticker": "CURY3", "setor": "Real Estate", "peso": 10},
-        {"ticker": "ITUB4", "setor": "Banks", "peso": 15}, {"ticker": "EMBJ3", "setor": "Capital Goods", "peso": 10},
-        {"ticker": "AXIA3", "setor": "Utilities", "peso": 10}, {"ticker": "PETR4", "setor": "Oil & Gas", "peso": 15},
-        {"ticker": "MOTV3", "setor": "Transportation", "peso": 10}, {"ticker": "CSMG3", "setor": "Utilities", "peso": 5},
-        {"ticker": "TOTS3", "setor": "TMT", "peso": 5}, {"ticker": "ENEV3", "setor": "Utilities", "peso": 10}
-      ],
-      "desempenho": {"mes": 1.8, "ibov": -0.3, "ibrx50": -0.1}
+     "ticker": "GGBR4",
+     "setor": "Metal & Mining",
+     "peso": 10
     },
     {
-      "mes": "2026-09",
-      "data": "2026-09-01",
-      "titulo": "Positive asymmetry? Maybe",
-      "tese": "Juros longos e bolsa já embutem boa parte do risco fiscal; o câmbio, não. A carteira fica exposta às duas classes que rendem tanto no cenário bom quanto no ruim: juros longos (consolidação fiscal → queda dos longos → fluxo de caixa de longa duração) e câmbio (deterioração → real mais fraco). 50% em utilities/infra/longa duração (Axia, Eneva, Sabesp, Motiva, Rede D'Or), 10% em bancos (Itaú), 20% em câmbio (Embraer, Gerdau), 15% em petróleo/câmbio/dividendos (Petrobras), 5% em dividendos/baixa renda (Cury). Estrangeiro sacou R$ 23 bi até 20/08 e voltou a comprar R$ 5 bi nos últimos 10 dias do mês; NTN-B longa caiu 17 bps a 7,7%, ainda precificando reeleição sem ajuste fiscal.",
-      "trocas": [
-        {"entra": "SBSP3", "sai": "CSMG3", "motivo": "Sabesp a TIR real de 10,5%, risco-retorno melhor que Copasa."},
-        {"entra": "RDOR3", "sai": "TOTS3", "motivo": "Rede D'Or: fluxo de caixa de longa duração, alavancagem 1,8x, 13x P/L 2027 contra média histórica de 18x; Totvs saiu após forte alta."},
-        {"peso": "ITUB4", "de": 15, "para": 10}, {"peso": "CURY3", "de": 10, "para": 5}
-      ],
-      "carteira": [
-        {"ticker": "PETR4", "empresa": "Petrobras", "setor": "Oil & Gas", "peso": 15, "upside": 14, "pl26": 4.5, "pl27": 5.8, "ev26": 2.5, "ev27": 2.7, "mcap": 619471, "adtv": 1862.9,
-         "tese": "Produção ~2,77 MMbpd vs guidance 2,4–2,6; captura do preço de combustíveis via margens de refino (~70% da produção vai às refinarias). Dívida bruta rumo a US$ 65 bi; breakeven do FCF perto de US$ 60/bbl. FCFE yield ~11% e DY ~9% em 2027 com Brent US$ 70 e crack US$ 30; com crack US$ 45, 15% e ~12%."},
-        {"ticker": "ITUB4", "empresa": "Itaú Unibanco", "setor": "Banks", "peso": 10, "upside": 37, "pl26": 8.5, "pl27": 7.6, "ev26": null, "ev27": null, "mcap": 455471, "adtv": 917.3,
-         "tese": "Caiu ~10% em US$ em agosto com saída do estrangeiro. Âncora de qualidade do setor: melhor qualidade de ativos e gestão de risco proativa; crescimento de receita mais fraco no curto prazo é preparação para ciclo de crédito mais duro em 2027. 7,6x P/L 2027."},
-        {"ticker": "AXIA3", "empresa": "Axia", "setor": "Utilities", "peso": 10, "upside": 26, "pl26": 16.2, "pl27": 10.2, "ev26": 7.5, "ev27": 5.8, "mcap": 152750, "adtv": 608.8,
-         "tese": "Visão altista para preço de energia com muita energia descontratada para vender. Alavancagem abaixo de 3x em 2026 e 2,1x em 2027; DY médio de 10% em 2027–2029; TIR real 13,0%."},
-        {"ticker": "SBSP3", "empresa": "Sabesp", "setor": "Utilities", "peso": 10, "upside": 23, "pl26": 19.0, "pl27": 13.6, "ev26": 8.8, "ev27": 7.7, "mcap": 89100, "adtv": 536.3,
-         "tese": "Caiu ~15% com despesas de marketing e call center que persistem em 2026; 2027 reflete a realidade sustentável. Crescimento contratado de EBITDA/lucro, dividendos crescentes, monopólio natural e eficiência pós-privatização. TIR 10,5%."},
-        {"ticker": "RDOR3", "empresa": "Rede D'Or", "setor": "Healthcare", "peso": 10, "upside": 65, "pl26": 15.4, "pl27": 12.9, "ev26": 7.0, "ev27": 5.9, "mcap": 76700, "adtv": 247.9,
-         "tese": "De-rating relevante com a piora do mercado: ~13x P/L 2027, 30% abaixo do histórico, com momentum de lucro forte e 2T26 surpreendendo para cima. Consolidação em hospitais, seguro e oncologia; sem ameaça competitiva relevante. 'All-weather'."},
-        {"ticker": "EMBJ3", "empresa": "Embraer", "setor": "Capital Goods", "peso": 10, "upside": 41, "pl26": 22.7, "pl27": 18.8, "ev26": 12.0, "ev27": 11.0, "mcap": 66549, "adtv": 481.8,
-         "tese": "Farnborough com 60+ pedidos de E2 e onda de KC-390 (Colômbia, Grécia); 2T forte em margem mesmo sem o crédito fiscal de US$ 60 mi. Momentum de lucro no 2S26 com cadeia de suprimentos melhor. 11x EV/EBITDA 2027."},
-        {"ticker": "ENEV3", "empresa": "Eneva", "setor": "Utilities", "peso": 10, "upside": 18, "pl26": 80.4, "pl27": 75.6, "ev26": 12.5, "ev27": 11.0, "mcap": 50332, "adtv": 238.3,
-         "tese": "Leilão de capacidade de março acima do esperado: alvo de R$ 20 para R$ 31. Contratos longos mudam a tese de 'opção sobre spot' para fluxo de caixa estável; trade-off crescimento vs dividendos a partir de 2029. TIR 10,8%."},
-        {"ticker": "GGBR4", "empresa": "Gerdau", "setor": "Metal & Mining", "peso": 10, "upside": 18, "pl26": 8.4, "pl27": 7.7, "ev26": 3.9, "ev27": 3.6, "mcap": 44239, "adtv": 240.9,
-         "tese": "~75% do EBITDA nos EUA com margens >20% por mais tempo (tarifas, aço em alta, demanda de data centers); no Brasil o pior ficou para trás e o antidumping começou. Proteção cambial. 3,6x EV/EBITDA 2027, ~10% de retorno total em 12 meses."},
-        {"ticker": "MOTV3", "empresa": "Motiva", "setor": "Transportation", "peso": 10, "upside": 29, "pl26": 12.1, "pl27": 11.2, "ev26": 5.8, "ev27": 6.1, "mcap": 31074, "adtv": 134.4,
-         "tese": "Defensiva: contratos indexados à inflação, agenda de eficiência, venda dos aeroportos este ano reforça o balanço. Pipeline brownfield de R$ 20 bi+ (aditivos em rodovias). Saída da Mover do controle tira o overhang de governança. TIR real 12%."},
-        {"ticker": "CURY3", "empresa": "Cury", "setor": "Real Estate", "peso": 5, "upside": 35, "pl26": 8.0, "pl27": 6.0, "ev26": 6.0, "ev27": 5.2, "mcap": 10042, "adtv": 108.2,
-         "tese": "Momentum do MCMV com as novas condições (teto, faixas, juros) ampliando mercado; execução impecável (VSO, margens, retornos); EPS +20% no ano que vem e DY 11% em 2027. 8x P/L 2026, 6x 2027."}
-      ],
-      "desempenho": {"mes_anterior": 1.8, "ibov_mes_anterior": -0.3, "ibrx50_mes_anterior": -0.1, "ytd": 8.9, "ibov_ytd": 10.1, "ibrx50_ytd": 11.3, "cdi_ytd": 9.3,
-                     "desde_out2009": 622.2, "ibov_desde_out2009": 188.4, "ibrx50_desde_out2009": 246.2}
+     "ticker": "CURY3",
+     "setor": "Real Estate",
+     "peso": 10
+    },
+    {
+     "ticker": "ITUB4",
+     "setor": "Banks",
+     "peso": 15
+    },
+    {
+     "ticker": "EMBJ3",
+     "setor": "Capital Goods",
+     "peso": 10
+    },
+    {
+     "ticker": "AXIA3",
+     "setor": "Utilities",
+     "peso": 10
+    },
+    {
+     "ticker": "PETR4",
+     "setor": "Oil & Gas",
+     "peso": 15
+    },
+    {
+     "ticker": "MOTV3",
+     "setor": "Transportation",
+     "peso": 10
+    },
+    {
+     "ticker": "CSMG3",
+     "setor": "Utilities",
+     "peso": 5
+    },
+    {
+     "ticker": "TOTS3",
+     "setor": "TMT",
+     "peso": 5
+    },
+    {
+     "ticker": "ENEV3",
+     "setor": "Utilities",
+     "peso": 10
     }
-  ]
+   ],
+   "desempenho": {
+    "mes": 1.8,
+    "ibov": -0.3,
+    "ibrx50": -0.1
+   }
+  },
+  {
+   "mes": "2026-09",
+   "data": "2026-09-01",
+   "titulo": "Positive asymmetry? Maybe",
+   "tese": "Juros longos e bolsa já embutem boa parte do risco fiscal; o câmbio, não. A carteira fica exposta às duas classes que rendem tanto no cenário bom quanto no ruim: juros longos (consolidação fiscal → queda dos longos → fluxo de caixa de longa duração) e câmbio (deterioração → real mais fraco). 50% em utilities/infra/longa duração (Axia, Eneva, Sabesp, Motiva, Rede D'Or), 10% em bancos (Itaú), 20% em câmbio (Embraer, Gerdau), 15% em petróleo/câmbio/dividendos (Petrobras), 5% em dividendos/baixa renda (Cury). Estrangeiro sacou R$ 23 bi até 20/08 e voltou a comprar R$ 5 bi nos últimos 10 dias do mês; NTN-B longa caiu 17 bps a 7,7%, ainda precificando reeleição sem ajuste fiscal.",
+   "trocas": [
+    {
+     "entra": "SBSP3",
+     "sai": "CSMG3",
+     "motivo": "Sabesp a TIR real de 10,5%, risco-retorno melhor que Copasa."
+    },
+    {
+     "entra": "RDOR3",
+     "sai": "TOTS3",
+     "motivo": "Rede D'Or: fluxo de caixa de longa duração, alavancagem 1,8x, 13x P/L 2027 contra média histórica de 18x; Totvs saiu após forte alta."
+    },
+    {
+     "peso": "ITUB4",
+     "de": 15,
+     "para": 10
+    },
+    {
+     "peso": "CURY3",
+     "de": 10,
+     "para": 5
+    }
+   ],
+   "carteira": [
+    {
+     "ticker": "PETR4",
+     "empresa": "Petrobras",
+     "setor": "Oil & Gas",
+     "peso": 15,
+     "upside": 14,
+     "pl26": 4.5,
+     "pl27": 5.8,
+     "ev26": 2.5,
+     "ev27": 2.7,
+     "mcap": 619471,
+     "adtv": 1862.9,
+     "tese": "Produção ~2,77 MMbpd vs guidance 2,4–2,6; captura do preço de combustíveis via margens de refino (~70% da produção vai às refinarias). Dívida bruta rumo a US$ 65 bi; breakeven do FCF perto de US$ 60/bbl. FCFE yield ~11% e DY ~9% em 2027 com Brent US$ 70 e crack US$ 30; com crack US$ 45, 15% e ~12%."
+    },
+    {
+     "ticker": "ITUB4",
+     "empresa": "Itaú Unibanco",
+     "setor": "Banks",
+     "peso": 10,
+     "upside": 37,
+     "pl26": 8.5,
+     "pl27": 7.6,
+     "ev26": null,
+     "ev27": null,
+     "mcap": 455471,
+     "adtv": 917.3,
+     "tese": "Caiu ~10% em US$ em agosto com saída do estrangeiro. Âncora de qualidade do setor: melhor qualidade de ativos e gestão de risco proativa; crescimento de receita mais fraco no curto prazo é preparação para ciclo de crédito mais duro em 2027. 7,6x P/L 2027."
+    },
+    {
+     "ticker": "AXIA3",
+     "empresa": "Axia",
+     "setor": "Utilities",
+     "peso": 10,
+     "upside": 26,
+     "pl26": 16.2,
+     "pl27": 10.2,
+     "ev26": 7.5,
+     "ev27": 5.8,
+     "mcap": 152750,
+     "adtv": 608.8,
+     "tese": "Visão altista para preço de energia com muita energia descontratada para vender. Alavancagem abaixo de 3x em 2026 e 2,1x em 2027; DY médio de 10% em 2027–2029; TIR real 13,0%."
+    },
+    {
+     "ticker": "SBSP3",
+     "empresa": "Sabesp",
+     "setor": "Utilities",
+     "peso": 10,
+     "upside": 23,
+     "pl26": 19.0,
+     "pl27": 13.6,
+     "ev26": 8.8,
+     "ev27": 7.7,
+     "mcap": 89100,
+     "adtv": 536.3,
+     "tese": "Caiu ~15% com despesas de marketing e call center que persistem em 2026; 2027 reflete a realidade sustentável. Crescimento contratado de EBITDA/lucro, dividendos crescentes, monopólio natural e eficiência pós-privatização. TIR 10,5%."
+    },
+    {
+     "ticker": "RDOR3",
+     "empresa": "Rede D'Or",
+     "setor": "Healthcare",
+     "peso": 10,
+     "upside": 65,
+     "pl26": 15.4,
+     "pl27": 12.9,
+     "ev26": 7.0,
+     "ev27": 5.9,
+     "mcap": 76700,
+     "adtv": 247.9,
+     "tese": "De-rating relevante com a piora do mercado: ~13x P/L 2027, 30% abaixo do histórico, com momentum de lucro forte e 2T26 surpreendendo para cima. Consolidação em hospitais, seguro e oncologia; sem ameaça competitiva relevante. 'All-weather'."
+    },
+    {
+     "ticker": "EMBJ3",
+     "empresa": "Embraer",
+     "setor": "Capital Goods",
+     "peso": 10,
+     "upside": 41,
+     "pl26": 22.7,
+     "pl27": 18.8,
+     "ev26": 12.0,
+     "ev27": 11.0,
+     "mcap": 66549,
+     "adtv": 481.8,
+     "tese": "Farnborough com 60+ pedidos de E2 e onda de KC-390 (Colômbia, Grécia); 2T forte em margem mesmo sem o crédito fiscal de US$ 60 mi. Momentum de lucro no 2S26 com cadeia de suprimentos melhor. 11x EV/EBITDA 2027."
+    },
+    {
+     "ticker": "ENEV3",
+     "empresa": "Eneva",
+     "setor": "Utilities",
+     "peso": 10,
+     "upside": 18,
+     "pl26": 80.4,
+     "pl27": 75.6,
+     "ev26": 12.5,
+     "ev27": 11.0,
+     "mcap": 50332,
+     "adtv": 238.3,
+     "tese": "Leilão de capacidade de março acima do esperado: alvo de R$ 20 para R$ 31. Contratos longos mudam a tese de 'opção sobre spot' para fluxo de caixa estável; trade-off crescimento vs dividendos a partir de 2029. TIR 10,8%."
+    },
+    {
+     "ticker": "GGBR4",
+     "empresa": "Gerdau",
+     "setor": "Metal & Mining",
+     "peso": 10,
+     "upside": 18,
+     "pl26": 8.4,
+     "pl27": 7.7,
+     "ev26": 3.9,
+     "ev27": 3.6,
+     "mcap": 44239,
+     "adtv": 240.9,
+     "tese": "~75% do EBITDA nos EUA com margens >20% por mais tempo (tarifas, aço em alta, demanda de data centers); no Brasil o pior ficou para trás e o antidumping começou. Proteção cambial. 3,6x EV/EBITDA 2027, ~10% de retorno total em 12 meses."
+    },
+    {
+     "ticker": "MOTV3",
+     "empresa": "Motiva",
+     "setor": "Transportation",
+     "peso": 10,
+     "upside": 29,
+     "pl26": 12.1,
+     "pl27": 11.2,
+     "ev26": 5.8,
+     "ev27": 6.1,
+     "mcap": 31074,
+     "adtv": 134.4,
+     "tese": "Defensiva: contratos indexados à inflação, agenda de eficiência, venda dos aeroportos este ano reforça o balanço. Pipeline brownfield de R$ 20 bi+ (aditivos em rodovias). Saída da Mover do controle tira o overhang de governança. TIR real 12%."
+    },
+    {
+     "ticker": "CURY3",
+     "empresa": "Cury",
+     "setor": "Real Estate",
+     "peso": 5,
+     "upside": 35,
+     "pl26": 8.0,
+     "pl27": 6.0,
+     "ev26": 6.0,
+     "ev27": 5.2,
+     "mcap": 10042,
+     "adtv": 108.2,
+     "tese": "Momentum do MCMV com as novas condições (teto, faixas, juros) ampliando mercado; execução impecável (VSO, margens, retornos); EPS +20% no ano que vem e DY 11% em 2027. 8x P/L 2026, 6x 2027."
+    }
+   ],
+   "desempenho": {
+    "mes_anterior": 1.8,
+    "ibov_mes_anterior": -0.3,
+    "ibrx50_mes_anterior": -0.1,
+    "ytd": 8.9,
+    "ibov_ytd": 10.1,
+    "ibrx50_ytd": 11.3,
+    "cdi_ytd": 9.3,
+    "desde_out2009": 622.2,
+    "ibov_desde_out2009": 188.4,
+    "ibrx50_desde_out2009": 246.2
+   }
+  }
+ ],
+ "historico": [
+  {
+   "mes": "2023-03",
+   "data": "1 March 2023",
+   "carteira": [
+    {
+     "ticker": "VALE3",
+     "peso": 15,
+     "upside": 41,
+     "pl26": 4.6
+    },
+    {
+     "ticker": "BBAS3",
+     "peso": 10,
+     "upside": 44,
+     "pl26": 3.3
+    },
+    {
+     "ticker": "BBSE3",
+     "peso": 10,
+     "upside": 23,
+     "pl26": 9.5
+    },
+    {
+     "ticker": "RENT3",
+     "peso": 10,
+     "upside": 44,
+     "pl26": 17
+    },
+    {
+     "ticker": "SBSP3",
+     "peso": 10,
+     "upside": 22,
+     "pl26": 8.7
+    },
+    {
+     "ticker": "RAIZ4",
+     "peso": 10,
+     "upside": 160,
+     "pl26": 51.6
+    },
+    {
+     "ticker": "EQTL3",
+     "peso": 10,
+     "upside": 30,
+     "pl26": 10.3
+    },
+    {
+     "ticker": "MULT3",
+     "peso": 10,
+     "upside": 23,
+     "pl26": 18.2
+    },
+    {
+     "ticker": "EMBR3",
+     "peso": 10,
+     "upside": 50,
+     "pl26": 21.2
+    },
+    {
+     "ticker": "ARZZ3",
+     "peso": 5,
+     "upside": 46,
+     "pl26": 16
+    }
+   ],
+   "ret_mes_anterior": null,
+   "ytd": -1.4,
+   "ytd_ibov": -4.4,
+   "acum_2009": 308.5,
+   "acum_2009_ibov": 70.6,
+   "acum_2009_ibrx50": 104.0,
+   "nota": null
+  },
+  {
+   "mes": "2023-04",
+   "data": "3 April 2023",
+   "carteira": [
+    {
+     "ticker": "VALE3",
+     "peso": 15,
+     "upside": 46,
+     "pl26": 4.4
+    },
+    {
+     "ticker": "BBAS3",
+     "peso": 10,
+     "upside": 48,
+     "pl26": 3.2
+    },
+    {
+     "ticker": "BBSE3",
+     "peso": 10,
+     "upside": 29,
+     "pl26": 9
+    },
+    {
+     "ticker": "RENT3",
+     "peso": 10,
+     "upside": 50,
+     "pl26": 17
+    },
+    {
+     "ticker": "SBSP3",
+     "peso": 10,
+     "upside": 24,
+     "pl26": 8.6
+    },
+    {
+     "ticker": "EQTL3",
+     "peso": 10,
+     "upside": 22,
+     "pl26": 10.9
+    },
+    {
+     "ticker": "RAIZ4",
+     "peso": 10,
+     "upside": 181,
+     "pl26": 47.7
+    },
+    {
+     "ticker": "PRIO3",
+     "peso": 5,
+     "upside": 73,
+     "pl26": 4.3
+    },
+    {
+     "ticker": "EMBR3",
+     "peso": 10,
+     "upside": 16,
+     "pl26": 27.4
+    }
+   ],
+   "ret_mes_anterior": 0.0,
+   "ytd": -1.4,
+   "ytd_ibov": -7.2,
+   "acum_2009": 308.5,
+   "acum_2009_ibov": 65.6,
+   "acum_2009_ibrx50": 97.0,
+   "nota": "9 linhas (soma 90%) (id 92968)"
+  },
+  {
+   "mes": "2023-05",
+   "data": "2 May 2023",
+   "carteira": [
+    {
+     "ticker": "BBAS3",
+     "peso": 10,
+     "upside": 35,
+     "pl26": 3.5
+    },
+    {
+     "ticker": "BBSE3",
+     "peso": 10,
+     "upside": 22,
+     "pl26": 9.2
+    },
+    {
+     "ticker": "SUZB3",
+     "peso": 10,
+     "upside": 116,
+     "pl26": 3.5
+    },
+    {
+     "ticker": "RAIL3",
+     "peso": 10,
+     "upside": 37,
+     "pl26": 34.8
+    },
+    {
+     "ticker": "RAIZ4",
+     "peso": 10,
+     "upside": 151,
+     "pl26": 53.4
+    },
+    {
+     "ticker": "SBSP3",
+     "peso": 10,
+     "upside": 34,
+     "pl26": 12.5
+    },
+    {
+     "ticker": "PRIO3",
+     "peso": 10,
+     "upside": 55,
+     "pl26": 24.1
+    },
+    {
+     "ticker": "SMFT3",
+     "peso": 10,
+     "upside": 57,
+     "pl26": 22
+    },
+    {
+     "ticker": "CIEL3",
+     "peso": 10,
+     "upside": 28,
+     "pl26": 7.1
+    },
+    {
+     "ticker": "EMBR3",
+     "peso": 10,
+     "upside": 23,
+     "pl26": 25.8
+    }
+   ],
+   "ret_mes_anterior": 2.5,
+   "ytd": 1.1,
+   "ytd_ibov": -4.8,
+   "acum_2009": 318.9,
+   "acum_2009_ibov": 69.8,
+   "acum_2009_ibrx50": 100.0,
+   "nota": null
+  },
+  {
+   "mes": "2023-06",
+   "data": "1 June 2023",
+   "carteira": [
+    {
+     "ticker": "PETR4",
+     "peso": 10,
+     "upside": 21,
+     "pl26": 3
+    },
+    {
+     "ticker": "ITUB4",
+     "peso": 15,
+     "upside": 33,
+     "pl26": 7.3
+    },
+    {
+     "ticker": "RDOR3",
+     "peso": 10,
+     "upside": 31,
+     "pl26": 27.5
+    },
+    {
+     "ticker": "BBSE3",
+     "peso": 10,
+     "upside": 42,
+     "pl26": 8.5
+    },
+    {
+     "ticker": "RAIL3",
+     "peso": 10,
+     "upside": 30,
+     "pl26": 36.8
+    },
+    {
+     "ticker": "LREN3",
+     "peso": 10,
+     "upside": 39,
+     "pl26": 13.7
+    },
+    {
+     "ticker": "VBBR3",
+     "peso": 10,
+     "upside": 74,
+     "pl26": 12.5
+    },
+    {
+     "ticker": "SMFT3",
+     "peso": 10,
+     "upside": 26,
+     "pl26": 27
+    },
+    {
+     "ticker": "MRVE3",
+     "peso": 5,
+     "upside": 49,
+     "pl26": 7.1
+    }
+   ],
+   "ret_mes_anterior": 5.1,
+   "ytd": 6.3,
+   "ytd_ibov": -1.3,
+   "acum_2009": 340.4,
+   "acum_2009_ibov": 76.1,
+   "acum_2009_ibrx50": 106.0,
+   "nota": "9 linhas (soma 90%) (id 94203)"
+  },
+  {
+   "mes": "2023-07",
+   "data": "3 July 2023",
+   "carteira": [
+    {
+     "ticker": "ITUB4",
+     "peso": 15,
+     "upside": 23,
+     "pl26": 7.9
+    },
+    {
+     "ticker": "BBAS3",
+     "peso": 10,
+     "upside": 23,
+     "pl26": 4
+    },
+    {
+     "ticker": "RDOR3",
+     "peso": 10,
+     "upside": 15,
+     "pl26": 31.2
+    },
+    {
+     "ticker": "GGBR4",
+     "peso": 10,
+     "upside": 56,
+     "pl26": 4.4
+    },
+    {
+     "ticker": "RAIL3",
+     "peso": 10,
+     "upside": 22,
+     "pl26": 39.3
+    },
+    {
+     "ticker": "EQTL3",
+     "peso": 10,
+     "upside": 6,
+     "pl26": 25.3
+    },
+    {
+     "ticker": "LREN3",
+     "peso": 10,
+     "upside": 35,
+     "pl26": 14.1
+    },
+    {
+     "ticker": "ARZZ3",
+     "peso": 10,
+     "upside": 38,
+     "pl26": 16.8
+    },
+    {
+     "ticker": "MRVE3",
+     "peso": 5,
+     "upside": 30,
+     "pl26": 8.2
+    }
+   ],
+   "ret_mes_anterior": 10.0,
+   "ytd": 16.9,
+   "ytd_ibov": 7.6,
+   "acum_2009": 384.5,
+   "acum_2009_ibov": 92.0,
+   "acum_2009_ibrx50": 124.0,
+   "nota": "9 linhas (soma 90%) (id 94645)"
+  },
+  {
+   "mes": "2023-08",
+   "data": "1 August 2023",
+   "carteira": [
+    {
+     "ticker": "PETR4",
+     "peso": 10,
+     "upside": -5,
+     "pl26": 3.8
+    },
+    {
+     "ticker": "MELI34",
+     "peso": 10,
+     "upside": 32,
+     "pl26": 69
+    },
+    {
+     "ticker": "ITUB4",
+     "peso": 15,
+     "upside": 22,
+     "pl26": 8
+    },
+    {
+     "ticker": "RDOR3",
+     "peso": 10,
+     "upside": 6,
+     "pl26": 34.1
+    },
+    {
+     "ticker": "GGBR4",
+     "peso": 10,
+     "upside": 33,
+     "pl26": 5.1
+    },
+    {
+     "ticker": "RAIL3",
+     "peso": 10,
+     "upside": 16,
+     "pl26": 41.1
+    },
+    {
+     "ticker": "HAPV3",
+     "peso": 10,
+     "upside": 25,
+     "pl26": 72.8
+    },
+    {
+     "ticker": "LREN3",
+     "peso": 10,
+     "upside": 39,
+     "pl26": 17.4
+    },
+    {
+     "ticker": "MRVE3",
+     "peso": 5,
+     "upside": 8,
+     "pl26": 9.8
+    }
+   ],
+   "ret_mes_anterior": 4.5,
+   "ytd": 22.2,
+   "ytd_ibov": 11.1,
+   "acum_2009": 406.3,
+   "acum_2009_ibov": 98.2,
+   "acum_2009_ibrx50": 132.0,
+   "nota": "9 linhas (soma 90%) (id 95174)"
+  },
+  {
+   "mes": "2023-09",
+   "data": "01 September 2023",
+   "carteira": [
+    {
+     "ticker": "PETR4",
+     "peso": 10,
+     "upside": 14,
+     "pl26": 3.8
+    },
+    {
+     "ticker": "MELI34",
+     "peso": 10,
+     "upside": 30,
+     "pl26": 48
+    },
+    {
+     "ticker": "VALE3",
+     "peso": 10,
+     "upside": 37,
+     "pl26": 6.8
+    },
+    {
+     "ticker": "ITUB4",
+     "peso": 15,
+     "upside": 28,
+     "pl26": 7
+    },
+    {
+     "ticker": "ELET3",
+     "peso": 10,
+     "upside": 50,
+     "pl26": 6.8
+    },
+    {
+     "ticker": "BBSE3",
+     "peso": 10,
+     "upside": 35,
+     "pl26": 7.7
+    },
+    {
+     "ticker": "RAIL3",
+     "peso": 10,
+     "upside": 21,
+     "pl26": 25.3
+    },
+    {
+     "ticker": "HAPV3",
+     "peso": 10,
+     "upside": 41,
+     "pl26": 20
+    },
+    {
+     "ticker": "LREN3",
+     "peso": 10,
+     "upside": 62,
+     "pl26": 10.2
+    },
+    {
+     "ticker": "MRVE3",
+     "peso": 5,
+     "upside": 32,
+     "pl26": 4.7
+    }
+   ],
+   "ret_mes_anterior": -6.6,
+   "ytd": 14.1,
+   "ytd_ibov": 5.5,
+   "acum_2009": 406.3,
+   "acum_2009_ibov": 98.2,
+   "acum_2009_ibrx50": 132.0,
+   "nota": null
+  },
+  {
+   "mes": "2023-10",
+   "data": "02 October 2023",
+   "carteira": [
+    {
+     "ticker": "PETR4",
+     "peso": 10,
+     "upside": 7,
+     "pl26": 4
+    },
+    {
+     "ticker": "MELI34",
+     "peso": 10,
+     "upside": 41,
+     "pl26": 45.2
+    },
+    {
+     "ticker": "VALE3",
+     "peso": 10,
+     "upside": 42,
+     "pl26": 5.5
+    },
+    {
+     "ticker": "ITUB4",
+     "peso": 10,
+     "upside": 29,
+     "pl26": 7
+    },
+    {
+     "ticker": "ELET3",
+     "peso": 10,
+     "upside": 44,
+     "pl26": 6.8
+    },
+    {
+     "ticker": "BBSE3",
+     "peso": 10,
+     "upside": 31,
+     "pl26": 8.4
+    },
+    {
+     "ticker": "RAIL3",
+     "peso": 10,
+     "upside": 18,
+     "pl26": 25.8
+    },
+    {
+     "ticker": "EQTL3",
+     "peso": 10,
+     "upside": 15,
+     "pl26": 11.9
+    },
+    {
+     "ticker": "HAPV3",
+     "peso": 10,
+     "upside": 28,
+     "pl26": 22
+    },
+    {
+     "ticker": "TOTS3",
+     "peso": 10,
+     "upside": 41,
+     "pl26": 17.1
+    }
+   ],
+   "ret_mes_anterior": 0.8,
+   "ytd": 15.0,
+   "ytd_ibov": 6.2,
+   "acum_2009": 377.0,
+   "acum_2009_ibov": 89.5,
+   "acum_2009_ibrx50": 124.0,
+   "nota": null
+  },
+  {
+   "mes": "2023-11",
+   "data": "01 November 2023",
+   "carteira": [
+    {
+     "ticker": "MELI34",
+     "peso": 10,
+     "upside": 44,
+     "pl26": 44.2
+    },
+    {
+     "ticker": "VALE3",
+     "peso": 10,
+     "upside": 39,
+     "pl26": 5.7
+    },
+    {
+     "ticker": "ITUB4",
+     "peso": 10,
+     "upside": 34,
+     "pl26": 6.9
+    },
+    {
+     "ticker": "ELET3",
+     "peso": 10,
+     "upside": 52,
+     "pl26": 6.4
+    },
+    {
+     "ticker": "BBSE3",
+     "peso": 10,
+     "upside": 33,
+     "pl26": 7.8
+    },
+    {
+     "ticker": "RAIL3",
+     "peso": 10,
+     "upside": 21,
+     "pl26": 25.2
+    },
+    {
+     "ticker": "PRIO3",
+     "peso": 10,
+     "upside": 40,
+     "pl26": 4.8
+    },
+    {
+     "ticker": "EQTL3",
+     "peso": 10,
+     "upside": 17,
+     "pl26": 9.6
+    },
+    {
+     "ticker": "VBBR3",
+     "peso": 10,
+     "upside": 41,
+     "pl26": 13.4
+    },
+    {
+     "ticker": "TOTS3",
+     "peso": 10,
+     "upside": 50,
+     "pl26": 16
+    }
+   ],
+   "ret_mes_anterior": -3.9,
+   "ytd": 10.5,
+   "ytd_ibov": 3.1,
+   "acum_2009": 358.1,
+   "acum_2009_ibov": 83.9,
+   "acum_2009_ibrx50": 117.3,
+   "nota": null
+  },
+  {
+   "mes": "2023-12",
+   "data": "01 December 2023",
+   "carteira": [
+    {
+     "ticker": "PETR4",
+     "peso": 15,
+     "upside": 5,
+     "pl26": 4.1
+    },
+    {
+     "ticker": "MELI34",
+     "peso": 10,
+     "upside": 17,
+     "pl26": 52.5
+    },
+    {
+     "ticker": "VALE3",
+     "peso": 10,
+     "upside": 27,
+     "pl26": 6.2
+    },
+    {
+     "ticker": "ITUB4",
+     "peso": 10,
+     "upside": 14,
+     "pl26": 7.9
+    },
+    {
+     "ticker": "BBAS3",
+     "peso": 10,
+     "upside": 22,
+     "pl26": 4
+    },
+    {
+     "ticker": "ELET3",
+     "peso": 10,
+     "upside": 30,
+     "pl26": 7.5
+    },
+    {
+     "ticker": "RENT3",
+     "peso": 10,
+     "upside": 50,
+     "pl26": 16.4
+    },
+    {
+     "ticker": "EQTL3",
+     "peso": 10,
+     "upside": 9,
+     "pl26": 10.4
+    },
+    {
+     "ticker": "VBBR3",
+     "peso": 10,
+     "upside": 20,
+     "pl26": 15.8
+    },
+    {
+     "ticker": "EMBR3",
+     "peso": 5,
+     "upside": 9,
+     "pl26": 19.7
+    }
+   ],
+   "ret_mes_anterior": 13.1,
+   "ytd": 25.0,
+   "ytd_ibov": 16.0,
+   "acum_2009": 418.0,
+   "acum_2009_ibov": 107.0,
+   "acum_2009_ibrx50": 143.4,
+   "nota": null
+  },
+  {
+   "mes": "2024-01",
+   "data": "02 January 2024",
+   "carteira": [
+    {
+     "ticker": "PETR4",
+     "peso": 15,
+     "upside": 0,
+     "pl26": 4.3
+    },
+    {
+     "ticker": "MELI34",
+     "peso": 10,
+     "upside": 19,
+     "pl26": 51.2
+    },
+    {
+     "ticker": "VALE3",
+     "peso": 10,
+     "upside": 20,
+     "pl26": 5.3
+    },
+    {
+     "ticker": "BBAS3",
+     "peso": 10,
+     "upside": 19,
+     "pl26": 3.5
+    },
+    {
+     "ticker": "ELET3",
+     "peso": 10,
+     "upside": 25,
+     "pl26": 7.8
+    },
+    {
+     "ticker": "RENT3",
+     "peso": 10,
+     "upside": 42,
+     "pl26": 17.4
+    },
+    {
+     "ticker": "CSAN3",
+     "peso": 10,
+     "upside": 55,
+     "pl26": 8.7
+    },
+    {
+     "ticker": "VBBR3",
+     "peso": 10,
+     "upside": 23,
+     "pl26": 15.4
+    },
+    {
+     "ticker": "EMBR3",
+     "peso": 5,
+     "upside": 2,
+     "pl26": 20.9
+    },
+    {
+     "ticker": "VIVA3",
+     "peso": 10,
+     "upside": 20,
+     "pl26": 16
+    }
+   ],
+   "ret_mes_anterior": null,
+   "ytd": 29.4,
+   "ytd_ibov": 22.3,
+   "acum_2009": 436.1,
+   "acum_2009_ibov": 118.1,
+   "acum_2009_ibrx50": 156.3,
+   "nota": null
+  },
+  {
+   "mes": "2024-02",
+   "data": "01 February 2024",
+   "carteira": [
+    {
+     "ticker": "PETR4",
+     "peso": 15,
+     "upside": 11,
+     "pl26": 5
+    },
+    {
+     "ticker": "MELI34",
+     "peso": 10,
+     "upside": 10,
+     "pl26": 56.2
+    },
+    {
+     "ticker": "VALE3",
+     "peso": 10,
+     "upside": 39,
+     "pl26": 4.7
+    },
+    {
+     "ticker": "ROXO34",
+     "peso": 10,
+     "upside": 10,
+     "pl26": 20.8
+    },
+    {
+     "ticker": "BBAS3",
+     "peso": 10,
+     "upside": 17,
+     "pl26": 3.8
+    },
+    {
+     "ticker": "RENT3",
+     "peso": 10,
+     "upside": 66,
+     "pl26": 14.8
+    },
+    {
+     "ticker": "EQTL3",
+     "peso": 10,
+     "upside": 19,
+     "pl26": 12.2
+    },
+    {
+     "ticker": "CSAN3",
+     "peso": 10,
+     "upside": 64,
+     "pl26": 8.2
+    },
+    {
+     "ticker": "CYRE3",
+     "peso": 10,
+     "upside": 25,
+     "pl26": 7
+    },
+    {
+     "ticker": "VIVA3",
+     "peso": 5,
+     "upside": 21,
+     "pl26": 16
+    }
+   ],
+   "ret_mes_anterior": -0.9,
+   "ytd": null,
+   "ytd_ibov": null,
+   "acum_2009": 431.1,
+   "acum_2009_ibov": 107.7,
+   "acum_2009_ibrx50": 145.7,
+   "nota": null
+  },
+  {
+   "mes": "2024-03",
+   "data": "01 March 2024",
+   "carteira": [
+    {
+     "ticker": "PETR4",
+     "peso": 15,
+     "upside": 15,
+     "pl26": 4.8
+    },
+    {
+     "ticker": "MELI34",
+     "peso": 10,
+     "upside": 30,
+     "pl26": 43
+    },
+    {
+     "ticker": "ITUB4",
+     "peso": 10,
+     "upside": 24,
+     "pl26": 8.3
+    },
+    {
+     "ticker": "RENT3",
+     "peso": 10,
+     "upside": 70,
+     "pl26": 15
+    },
+    {
+     "ticker": "EQTL3",
+     "peso": 10,
+     "upside": 23,
+     "pl26": 11.7
+    },
+    {
+     "ticker": "RAIZ4",
+     "peso": 10,
+     "upside": 126,
+     "pl26": 11.5
+    },
+    {
+     "ticker": "EMBR3",
+     "peso": 5,
+     "upside": -3,
+     "pl26": 21.9
+    },
+    {
+     "ticker": "LREN3",
+     "peso": 10,
+     "upside": 39,
+     "pl26": 13
+    },
+    {
+     "ticker": "CYRE3",
+     "peso": 10,
+     "upside": 16,
+     "pl26": 7
+    }
+   ],
+   "ret_mes_anterior": 1.9,
+   "ytd": 0.9,
+   "ytd_ibov": -3.8,
+   "acum_2009": 441.2,
+   "acum_2009_ibov": 109.7,
+   "acum_2009_ibrx50": 147.9,
+   "nota": "9 linhas (soma 90%) (id 102252)"
+  },
+  {
+   "mes": "2024-04",
+   "data": "01 April 2024",
+   "carteira": [
+    {
+     "ticker": "PETR4",
+     "peso": 15,
+     "upside": 25,
+     "pl26": 4.4
+    },
+    {
+     "ticker": "MELI34",
+     "peso": 10,
+     "upside": 38,
+     "pl26": 41
+    },
+    {
+     "ticker": "ITUB4",
+     "peso": 10,
+     "upside": 21,
+     "pl26": 8.4
+    },
+    {
+     "ticker": "ELET3",
+     "peso": 10,
+     "upside": 29,
+     "pl26": 8
+    },
+    {
+     "ticker": "RENT3",
+     "peso": 10,
+     "upside": 65,
+     "pl26": 15
+    },
+    {
+     "ticker": "STOC31",
+     "peso": 10,
+     "upside": 38,
+     "pl26": 12.1
+    },
+    {
+     "ticker": "EMBR3",
+     "peso": 5,
+     "upside": 20,
+     "pl26": 20.5
+    },
+    {
+     "ticker": "LREN3",
+     "peso": 10,
+     "upside": 30,
+     "pl26": 13.9
+    },
+    {
+     "ticker": "CYRE3",
+     "peso": 10,
+     "upside": 28,
+     "pl26": 7
+    }
+   ],
+   "ret_mes_anterior": null,
+   "ytd": 2.1,
+   "ytd_ibov": -4.5,
+   "acum_2009": 447.3,
+   "acum_2009_ibov": 108.2,
+   "acum_2009_ibrx50": 145.9,
+   "nota": "9 linhas (soma 90%) (id 102362)"
+  },
+  {
+   "mes": "2024-05",
+   "data": "02 May 2024",
+   "carteira": [
+    {
+     "ticker": "PETR4",
+     "peso": 15,
+     "upside": 12,
+     "pl26": 4.9
+    },
+    {
+     "ticker": "MELI34",
+     "peso": 10,
+     "upside": 40,
+     "pl26": 41.3
+    },
+    {
+     "ticker": "ITUB4",
+     "peso": 10,
+     "upside": 34,
+     "pl26": 7.6
+    },
+    {
+     "ticker": "ABEV3",
+     "peso": 10,
+     "upside": 23,
+     "pl26": 14.6
+    },
+    {
+     "ticker": "ELET3",
+     "peso": 10,
+     "upside": 43,
+     "pl26": 7.3
+    },
+    {
+     "ticker": "SUZB3",
+     "peso": 10,
+     "upside": 40,
+     "pl26": 7.6
+    },
+    {
+     "ticker": "RENT3",
+     "peso": 10,
+     "upside": 84,
+     "pl26": 15
+    },
+    {
+     "ticker": "STOC31",
+     "peso": 10,
+     "upside": 47,
+     "pl26": 10.9
+    },
+    {
+     "ticker": "LREN3",
+     "peso": 10,
+     "upside": 44,
+     "pl26": 12.6
+    },
+    {
+     "ticker": "CYRE3",
+     "peso": 5,
+     "upside": 58,
+     "pl26": 5.7
+    }
+   ],
+   "ret_mes_anterior": -4.2,
+   "ytd": -2.2,
+   "ytd_ibov": -6.2,
+   "acum_2009": 424.5,
+   "acum_2009_ibov": 104.7,
+   "acum_2009_ibrx50": 144.3,
+   "nota": null
+  },
+  {
+   "mes": "2024-06",
+   "data": "03 June 2024",
+   "carteira": [
+    {
+     "ticker": "PETR4",
+     "peso": 10,
+     "upside": 22,
+     "pl26": 4.1
+    },
+    {
+     "ticker": "ITUB4",
+     "peso": 15,
+     "upside": 35,
+     "pl26": 7.7
+    },
+    {
+     "ticker": "ELET3",
+     "peso": 10,
+     "upside": 55,
+     "pl26": 6.7
+    },
+    {
+     "ticker": "RENT3",
+     "peso": 10,
+     "upside": 111,
+     "pl26": 14
+    },
+    {
+     "ticker": "TIMS3",
+     "peso": 10,
+     "upside": 26,
+     "pl26": 11.3
+    },
+    {
+     "ticker": "EMBR3",
+     "peso": 10,
+     "upside": 15,
+     "pl26": 21.4
+    },
+    {
+     "ticker": "STOC31",
+     "peso": 10,
+     "upside": 59,
+     "pl26": 10.4
+    },
+    {
+     "ticker": "LREN3",
+     "peso": 10,
+     "upside": 68,
+     "pl26": 12
+    },
+    {
+     "ticker": "ALOS3",
+     "peso": 10,
+     "upside": 57,
+     "pl26": 9
+    },
+    {
+     "ticker": "CYRE3",
+     "peso": 5,
+     "upside": 67,
+     "pl26": 5.5
+    }
+   ],
+   "ret_mes_anterior": -6.2,
+   "ytd": -8.2,
+   "ytd_ibov": -9.0,
+   "acum_2009": 392.1,
+   "acum_2009_ibov": 98.5,
+   "acum_2009_ibrx50": 136.7,
+   "nota": null
+  },
+  {
+   "mes": "2024-07",
+   "data": "01 July 2024",
+   "carteira": [
+    {
+     "ticker": "PETR4",
+     "peso": 10,
+     "upside": 31,
+     "pl26": 3.8
+    },
+    {
+     "ticker": "ITUB4",
+     "peso": 15,
+     "upside": 27,
+     "pl26": 7.9
+    },
+    {
+     "ticker": "ELET3",
+     "peso": 10,
+     "upside": 51,
+     "pl26": 6.9
+    },
+    {
+     "ticker": "JBSS3",
+     "peso": 10,
+     "upside": 8,
+     "pl26": 11.2
+    },
+    {
+     "ticker": "TIMS3",
+     "peso": 10,
+     "upside": 26,
+     "pl26": 12.6
+    },
+    {
+     "ticker": "EQTL3",
+     "peso": 10,
+     "upside": 43,
+     "pl26": 13.8
+    },
+    {
+     "ticker": "KLBN11",
+     "peso": 10,
+     "upside": 40,
+     "pl26": 12.4
+    },
+    {
+     "ticker": "STOC31",
+     "peso": 10,
+     "upside": 83,
+     "pl26": 9
+    },
+    {
+     "ticker": "ALOS3",
+     "peso": 10,
+     "upside": 56,
+     "pl26": 13
+    },
+    {
+     "ticker": "CYRE3",
+     "peso": 5,
+     "upside": 70,
+     "pl26": 5.5
+    }
+   ],
+   "ret_mes_anterior": 0.2,
+   "ytd": -8.0,
+   "ytd_ibov": -7.7,
+   "acum_2009": 393.0,
+   "acum_2009_ibov": 101.4,
+   "acum_2009_ibrx50": 140.6,
+   "nota": null
+  },
+  {
+   "mes": "2024-08",
+   "data": "01 August 2024",
+   "carteira": [
+    {
+     "ticker": "ITUB4",
+     "peso": 15,
+     "upside": 21,
+     "pl26": 8.2
+    },
+    {
+     "ticker": "ELET3",
+     "peso": 10,
+     "upside": 39,
+     "pl26": 9.8
+    },
+    {
+     "ticker": "JBSS3",
+     "peso": 10,
+     "upside": 4,
+     "pl26": 11.7
+    },
+    {
+     "ticker": "RDOR3",
+     "peso": 10,
+     "upside": 45,
+     "pl26": 18.7
+    },
+    {
+     "ticker": "RAIL3",
+     "peso": 10,
+     "upside": 35,
+     "pl26": 19.9
+    },
+    {
+     "ticker": "PRIO3",
+     "peso": 10,
+     "upside": 71,
+     "pl26": 4
+    },
+    {
+     "ticker": "EQTL3",
+     "peso": 10,
+     "upside": 32,
+     "pl26": 15.1
+    },
+    {
+     "ticker": "STOC31",
+     "peso": 10,
+     "upside": 45,
+     "pl26": 10
+    },
+    {
+     "ticker": "ALOS3",
+     "peso": 10,
+     "upside": 51,
+     "pl26": 13.5
+    },
+    {
+     "ticker": "CYRE3",
+     "peso": 5,
+     "upside": 64,
+     "pl26": 5.5
+    }
+   ],
+   "ret_mes_anterior": 5.6,
+   "ytd": -2.9,
+   "ytd_ibov": -4.9,
+   "acum_2009": 420.5,
+   "acum_2009_ibov": 107.5,
+   "acum_2009_ibrx50": 148.2,
+   "nota": null
+  },
+  {
+   "mes": "2024-09",
+   "data": "02 September 2024",
+   "carteira": [
+    {
+     "ticker": "ITUB4",
+     "peso": 10,
+     "upside": 14,
+     "pl26": 8
+    },
+    {
+     "ticker": "BBAS3",
+     "peso": 10,
+     "upside": 21,
+     "pl26": 4.2
+    },
+    {
+     "ticker": "ELET3",
+     "peso": 15,
+     "upside": 32,
+     "pl26": 7.8
+    },
+    {
+     "ticker": "RDOR3",
+     "peso": 10,
+     "upside": 38,
+     "pl26": 15.7
+    },
+    {
+     "ticker": "RAIL3",
+     "peso": 10,
+     "upside": 37,
+     "pl26": 13.4
+    },
+    {
+     "ticker": "EQTL3",
+     "peso": 10,
+     "upside": 26,
+     "pl26": 11.6
+    },
+    {
+     "ticker": "PRIO3",
+     "peso": 10,
+     "upside": 62,
+     "pl26": 4.3
+    },
+    {
+     "ticker": "CYRE3",
+     "peso": 10,
+     "upside": 47,
+     "pl26": 5
+    },
+    {
+     "ticker": "POMO4",
+     "peso": 5,
+     "upside": 77,
+     "pl26": 5
+    },
+    {
+     "ticker": "VIVA3",
+     "peso": 10,
+     "upside": 32,
+     "pl26": 12
+    }
+   ],
+   "ret_mes_anterior": 5.6,
+   "ytd": 2.6,
+   "ytd_ibov": 1.4,
+   "acum_2009": 449.9,
+   "acum_2009_ibov": 121.1,
+   "acum_2009_ibrx50": 164.3,
+   "nota": null
+  },
+  {
+   "mes": "2024-10",
+   "data": "01 October 2024",
+   "carteira": [
+    {
+     "ticker": "ITUB4",
+     "peso": 10,
+     "upside": 16,
+     "pl26": 8
+    },
+    {
+     "ticker": "VALE3",
+     "peso": 10,
+     "upside": 3,
+     "pl26": 6
+    },
+    {
+     "ticker": "ABEV3",
+     "peso": 10,
+     "upside": 15,
+     "pl26": 13
+    },
+    {
+     "ticker": "ELET3",
+     "peso": 15,
+     "upside": 40,
+     "pl26": 7.4
+    },
+    {
+     "ticker": "RDOR3",
+     "peso": 10,
+     "upside": 42,
+     "pl26": 15.3
+    },
+    {
+     "ticker": "EQTL3",
+     "peso": 10,
+     "upside": 32,
+     "pl26": 11
+    },
+    {
+     "ticker": "PSSA3",
+     "peso": 10,
+     "upside": 21,
+     "pl26": 7.9
+    },
+    {
+     "ticker": "POMO4",
+     "peso": 5,
+     "upside": 64,
+     "pl26": 6
+    },
+    {
+     "ticker": "CYRE3",
+     "peso": 10,
+     "upside": 56,
+     "pl26": 5
+    },
+    {
+     "ticker": "VIVA3",
+     "peso": 10,
+     "upside": 34,
+     "pl26": 12
+    }
+   ],
+   "ret_mes_anterior": -3.6,
+   "ytd": -1.1,
+   "ytd_ibov": -1.8,
+   "acum_2009": 430.2,
+   "acum_2009_ibov": 114.3,
+   "acum_2009_ibrx50": 155.7,
+   "nota": null
+  },
+  {
+   "mes": "2024-11",
+   "data": "01 November 2024",
+   "carteira": [
+    {
+     "ticker": "PETR4",
+     "peso": 10,
+     "upside": 41,
+     "pl26": 4.4
+    },
+    {
+     "ticker": "ITUB4",
+     "peso": 15,
+     "upside": 20,
+     "pl26": 7.6
+    },
+    {
+     "ticker": "VALE3",
+     "peso": 10,
+     "upside": 12,
+     "pl26": 5.5
+    },
+    {
+     "ticker": "ELET3",
+     "peso": 10,
+     "upside": 55,
+     "pl26": 6.6
+    },
+    {
+     "ticker": "RENT3",
+     "peso": 10,
+     "upside": 52,
+     "pl26": 13
+    },
+    {
+     "ticker": "EQTL3",
+     "peso": 10,
+     "upside": 49,
+     "pl26": 13.6
+    },
+    {
+     "ticker": "LREN3",
+     "peso": 10,
+     "upside": 29,
+     "pl26": 11
+    },
+    {
+     "ticker": "POMO4",
+     "peso": 5,
+     "upside": 54,
+     "pl26": 6
+    },
+    {
+     "ticker": "CYRE3",
+     "peso": 10,
+     "upside": 47,
+     "pl26": 5
+    },
+    {
+     "ticker": "VIVA3",
+     "peso": 10,
+     "upside": 41,
+     "pl26": 10.9
+    }
+   ],
+   "ret_mes_anterior": -1.1,
+   "ytd": -2.2,
+   "ytd_ibov": -3.3,
+   "acum_2009": 424.4,
+   "acum_2009_ibov": 110.9,
+   "acum_2009_ibrx50": 151.9,
+   "nota": null
+  },
+  {
+   "mes": "2024-12",
+   "data": "02 December 2024",
+   "carteira": [
+    {
+     "ticker": "SUZB3",
+     "peso": 10,
+     "upside": null,
+     "pl26": null
+    },
+    {
+     "ticker": "ITUB4",
+     "peso": 15,
+     "upside": null,
+     "pl26": null
+    },
+    {
+     "ticker": "POMO4",
+     "peso": 5,
+     "upside": null,
+     "pl26": null
+    },
+    {
+     "ticker": "WEGE3",
+     "peso": 10,
+     "upside": null,
+     "pl26": null
+    },
+    {
+     "ticker": "CPLE6",
+     "peso": 10,
+     "upside": null,
+     "pl26": null
+    },
+    {
+     "ticker": "PETR4",
+     "peso": 15,
+     "upside": null,
+     "pl26": null
+    },
+    {
+     "ticker": "SBSP3",
+     "peso": 10,
+     "upside": null,
+     "pl26": null
+    },
+    {
+     "ticker": "TIMS3",
+     "peso": 10,
+     "upside": null,
+     "pl26": null
+    },
+    {
+     "ticker": "CYRE3",
+     "peso": 5,
+     "upside": null,
+     "pl26": null
+    },
+    {
+     "ticker": "BBSE3",
+     "peso": 10,
+     "upside": null,
+     "pl26": null
+    }
+   ],
+   "ret_mes_anterior": -7.5,
+   "ytd": -9.5,
+   "ytd_ibov": -6.3,
+   "acum_2009": 385.0,
+   "acum_2009_ibov": 104.3,
+   "acum_2009_ibrx50": 145.3,
+   "nota": "pesos da tabela de trocas do relatório de jan/25 (tabela de dez/24 é imagem); sem upside/P/E"
+  },
+  {
+   "mes": "2025-01",
+   "data": "02 January 2025",
+   "carteira": [
+    {
+     "ticker": "PETR4",
+     "peso": 15,
+     "upside": 57,
+     "pl26": 4.1
+    },
+    {
+     "ticker": "ITUB4",
+     "peso": 10,
+     "upside": 37,
+     "pl26": 6.6
+    },
+    {
+     "ticker": "WEGE3",
+     "peso": 10,
+     "upside": 29,
+     "pl26": 30
+    },
+    {
+     "ticker": "JBSS3",
+     "peso": 10,
+     "upside": 32,
+     "pl26": 9
+    },
+    {
+     "ticker": "ELET3",
+     "peso": 10,
+     "upside": 73,
+     "pl26": 5.9
+    },
+    {
+     "ticker": "SUZB3",
+     "peso": 10,
+     "upside": 31,
+     "pl26": 8.2
+    },
+    {
+     "ticker": "BBSE3",
+     "peso": 10,
+     "upside": 22,
+     "pl26": 8.2
+    },
+    {
+     "ticker": "SBSP3",
+     "peso": 10,
+     "upside": 50,
+     "pl26": 11.7
+    },
+    {
+     "ticker": "TIMS3",
+     "peso": 10,
+     "upside": 52,
+     "pl26": 9.9
+    },
+    {
+     "ticker": "POMO4",
+     "peso": 5,
+     "upside": 76,
+     "pl26": 6
+    }
+   ],
+   "ret_mes_anterior": -2.5,
+   "ytd": -11.8,
+   "ytd_ibov": -10.4,
+   "acum_2009": 372.9,
+   "acum_2009_ibov": 95.5,
+   "acum_2009_ibrx50": 135.5,
+   "nota": null
+  },
+  {
+   "mes": "2025-02",
+   "data": "02 February 2025",
+   "carteira": [
+    {
+     "ticker": "PETR4",
+     "peso": 15,
+     "upside": 41,
+     "pl26": 4.6
+    },
+    {
+     "ticker": "WEGE3",
+     "peso": 10,
+     "upside": 24,
+     "pl26": 30
+    },
+    {
+     "ticker": "ELET3",
+     "peso": 10,
+     "upside": 61,
+     "pl26": 8.4
+    },
+    {
+     "ticker": "SUZB3",
+     "peso": 10,
+     "upside": 30,
+     "pl26": 8.3
+    },
+    {
+     "ticker": "BBSE3",
+     "peso": 10,
+     "upside": 19,
+     "pl26": 8.5
+    },
+    {
+     "ticker": "SBSP3",
+     "peso": 10,
+     "upside": 41,
+     "pl26": 12.5
+    },
+    {
+     "ticker": "EMBR3",
+     "peso": 10,
+     "upside": 15,
+     "pl26": 23.2
+    },
+    {
+     "ticker": "TIMS3",
+     "peso": 10,
+     "upside": 41,
+     "pl26": 10.7
+    },
+    {
+     "ticker": "CURY3",
+     "peso": 5,
+     "upside": -3,
+     "pl26": 6.5
+    }
+   ],
+   "ret_mes_anterior": 5.3,
+   "ytd": null,
+   "ytd_ibov": null,
+   "acum_2009": 397.8,
+   "acum_2009_ibov": 105.0,
+   "acum_2009_ibrx50": 146.8,
+   "nota": "só 9 linhas (soma 90%) (id 108909)"
+  },
+  {
+   "mes": "2025-03",
+   "data": "05 March 2025",
+   "carteira": [
+    {
+     "ticker": "PETR4",
+     "peso": 15,
+     "upside": 50,
+     "pl26": 4.3
+    },
+    {
+     "ticker": "ITUB4",
+     "peso": 10,
+     "upside": 31,
+     "pl26": 7
+    },
+    {
+     "ticker": "WEGE3",
+     "peso": 10,
+     "upside": 26,
+     "pl26": 27
+    },
+    {
+     "ticker": "ELET3",
+     "peso": 10,
+     "upside": 52,
+     "pl26": 8.9
+    },
+    {
+     "ticker": "SUZB3",
+     "peso": 10,
+     "upside": 44,
+     "pl26": 4.7
+    },
+    {
+     "ticker": "SBSP3",
+     "peso": 10,
+     "upside": 40,
+     "pl26": 12.6
+    },
+    {
+     "ticker": "TIMS3",
+     "peso": 10,
+     "upside": 36,
+     "pl26": 11
+    },
+    {
+     "ticker": "EQTL3",
+     "peso": 10,
+     "upside": 60,
+     "pl26": 9.9
+    },
+    {
+     "ticker": "CURY3",
+     "peso": 5,
+     "upside": -1,
+     "pl26": 6.5
+    }
+   ],
+   "ret_mes_anterior": 0.3,
+   "ytd": 5.5,
+   "ytd_ibov": 2.3,
+   "acum_2009": 399.0,
+   "acum_2009_ibov": 100.0,
+   "acum_2009_ibrx50": 139.9,
+   "nota": "só 9 linhas (soma 90%): falta 1 papel (id 109592)"
+  },
+  {
+   "mes": "2025-04",
+   "data": "01 April 2025",
+   "carteira": [
+    {
+     "ticker": "MELI34",
+     "peso": 10,
+     "upside": 34,
+     "pl26": 39
+    },
+    {
+     "ticker": "PETR4",
+     "peso": 15,
+     "upside": 39,
+     "pl26": 4.4
+    },
+    {
+     "ticker": "ITUB4",
+     "peso": 10,
+     "upside": 21,
+     "pl26": 6.8
+    },
+    {
+     "ticker": "ROXO34",
+     "peso": 10,
+     "upside": 12,
+     "pl26": 20
+    },
+    {
+     "ticker": "WEGE3",
+     "peso": 10,
+     "upside": 35,
+     "pl26": 25
+    },
+    {
+     "ticker": "SUZB3",
+     "peso": 10,
+     "upside": 53,
+     "pl26": 4.4
+    },
+    {
+     "ticker": "EQTL3",
+     "peso": 10,
+     "upside": 50,
+     "pl26": 10.5
+    },
+    {
+     "ticker": "CPLE6",
+     "peso": 10,
+     "upside": 44,
+     "pl26": 15.2
+    },
+    {
+     "ticker": "ENEV3",
+     "peso": 10,
+     "upside": 52,
+     "pl26": 34.3
+    },
+    {
+     "ticker": "CURY3",
+     "peso": 5,
+     "upside": -14,
+     "pl26": 7.5
+    }
+   ],
+   "ret_mes_anterior": 6.5,
+   "ytd": 12.4,
+   "ytd_ibov": 8.3,
+   "acum_2009": 431.5,
+   "acum_2009_ibov": 111.7,
+   "acum_2009_ibrx50": 154.2,
+   "nota": null
+  },
+  {
+   "mes": "2025-05",
+   "data": "02 May 2025",
+   "carteira": [
+    {
+     "ticker": "PETR4",
+     "peso": 10,
+     "upside": 77,
+     "pl26": 3.5
+    },
+    {
+     "ticker": "ITUB4",
+     "peso": 10,
+     "upside": 7,
+     "pl26": 8.4
+    },
+    {
+     "ticker": "BBAS3",
+     "peso": 10,
+     "upside": 18,
+     "pl26": 4
+    },
+    {
+     "ticker": "CXSE3",
+     "peso": 10,
+     "upside": 16,
+     "pl26": 11.2
+    },
+    {
+     "ticker": "EQTL3",
+     "peso": 10,
+     "upside": 36,
+     "pl26": 9
+    },
+    {
+     "ticker": "RENT3",
+     "peso": 10,
+     "upside": 21,
+     "pl26": 13
+    },
+    {
+     "ticker": "CPLE6",
+     "peso": 10,
+     "upside": 30,
+     "pl26": 15.7
+    },
+    {
+     "ticker": "ENEV3",
+     "peso": 10,
+     "upside": 28,
+     "pl26": 13.2
+    },
+    {
+     "ticker": "CSAN3",
+     "peso": 10,
+     "upside": 196,
+     "pl26": 3
+    },
+    {
+     "ticker": "CURY3",
+     "peso": 10,
+     "upside": -24,
+     "pl26": 8.5
+    }
+   ],
+   "ret_mes_anterior": 6.9,
+   "ytd": 20.1,
+   "ytd_ibov": 12.3,
+   "acum_2009": 468.1,
+   "acum_2009_ibov": 119.6,
+   "acum_2009_ibrx50": 160.7,
+   "nota": null
+  },
+  {
+   "mes": "2025-06",
+   "data": "02 June 2025",
+   "carteira": [
+    {
+     "ticker": "MELI34",
+     "peso": 10,
+     "upside": 10,
+     "pl26": 50
+    },
+    {
+     "ticker": "ITUB4",
+     "peso": 10,
+     "upside": 7,
+     "pl26": 8.7
+    },
+    {
+     "ticker": "ROXO34",
+     "peso": 10,
+     "upside": 17,
+     "pl26": 23.3
+    },
+    {
+     "ticker": "EQTL3",
+     "peso": 10,
+     "upside": 36,
+     "pl26": 8.9
+    },
+    {
+     "ticker": "CPLE6",
+     "peso": 10,
+     "upside": 18,
+     "pl26": 15
+    },
+    {
+     "ticker": "RAIL3",
+     "peso": 10,
+     "upside": 33,
+     "pl26": 18.3
+    },
+    {
+     "ticker": "PRIO3",
+     "peso": 10,
+     "upside": 67,
+     "pl26": 9.9
+    },
+    {
+     "ticker": "CSAN3",
+     "peso": 10,
+     "upside": 179,
+     "pl26": 3.2
+    },
+    {
+     "ticker": "SMFT3",
+     "peso": 10,
+     "upside": 17,
+     "pl26": 20
+    },
+    {
+     "ticker": "CYRE3",
+     "peso": 10,
+     "upside": 28,
+     "pl26": 5
+    }
+   ],
+   "ret_mes_anterior": 0.8,
+   "ytd": 21.1,
+   "ytd_ibov": 13.9,
+   "acum_2009": 472.7,
+   "acum_2009_ibov": 122.7,
+   "acum_2009_ibrx50": 164.0,
+   "nota": null
+  },
+  {
+   "mes": "2025-07",
+   "data": "01 July 2025",
+   "carteira": [
+    {
+     "ticker": "ITUB4",
+     "peso": 10,
+     "upside": 8,
+     "pl26": 8.8
+    },
+    {
+     "ticker": "ROXO34",
+     "peso": 10,
+     "upside": 2,
+     "pl26": 26.9
+    },
+    {
+     "ticker": "RDOR3",
+     "peso": 10,
+     "upside": 30,
+     "pl26": 18.8
+    },
+    {
+     "ticker": "EQTL3",
+     "peso": 10,
+     "upside": 33,
+     "pl26": 9.3
+    },
+    {
+     "ticker": "CPLE6",
+     "peso": 10,
+     "upside": 20,
+     "pl26": 14.8
+    },
+    {
+     "ticker": "PRIO3",
+     "peso": 10,
+     "upside": 53,
+     "pl26": 11.1
+    },
+    {
+     "ticker": "RAIL3",
+     "peso": 10,
+     "upside": 35,
+     "pl26": 18
+    },
+    {
+     "ticker": "SMFT3",
+     "peso": 10,
+     "upside": 13,
+     "pl26": 20.7
+    },
+    {
+     "ticker": "CSAN3",
+     "peso": 10,
+     "upside": 235,
+     "pl26": 2.6
+    },
+    {
+     "ticker": "CYRE3",
+     "peso": 10,
+     "upside": 22,
+     "pl26": 5
+    }
+   ],
+   "ret_mes_anterior": 0.7,
+   "ytd": 21.9,
+   "ytd_ibov": 15.4,
+   "acum_2009": 476.6,
+   "acum_2009_ibov": 125.7,
+   "acum_2009_ibrx50": 167.9,
+   "nota": null
+  },
+  {
+   "mes": "2025-09",
+   "data": "01 September 2025",
+   "carteira": [
+    {
+     "ticker": "ROXO34",
+     "peso": 10,
+     "upside": 22,
+     "pl26": 22.4
+    },
+    {
+     "ticker": "ITUB4",
+     "peso": 10,
+     "upside": 20,
+     "pl26": 8.6
+    },
+    {
+     "ticker": "RDOR3",
+     "peso": 10,
+     "upside": 22,
+     "pl26": 15
+    },
+    {
+     "ticker": "EMBR3",
+     "peso": 10,
+     "upside": 33,
+     "pl26": 25.1
+    },
+    {
+     "ticker": "EQTL3",
+     "peso": 10,
+     "upside": 31,
+     "pl26": 10.9
+    },
+    {
+     "ticker": "MOTV3",
+     "peso": 10,
+     "upside": 18,
+     "pl26": 11.6
+    },
+    {
+     "ticker": "VBBR3",
+     "peso": 10,
+     "upside": 4,
+     "pl26": 12
+    },
+    {
+     "ticker": "ENGI11",
+     "peso": 10,
+     "upside": 41,
+     "pl26": 16.3
+    },
+    {
+     "ticker": "SMFT3",
+     "peso": 10,
+     "upside": 19,
+     "pl26": 15
+    },
+    {
+     "ticker": "CYRE3",
+     "peso": 10,
+     "upside": 14,
+     "pl26": 5
+    }
+   ],
+   "ret_mes_anterior": 11.7,
+   "ytd": 25.4,
+   "ytd_ibov": 17.6,
+   "acum_2009": 493.1,
+   "acum_2009_ibov": 129.9,
+   "acum_2009_ibrx50": 173.1,
+   "nota": null
+  },
+  {
+   "mes": "2025-10",
+   "data": "01 October 2025",
+   "carteira": [
+    {
+     "ticker": "ROXO34",
+     "peso": 10,
+     "upside": 12,
+     "pl26": 24.3
+    },
+    {
+     "ticker": "ITUB4",
+     "peso": 10,
+     "upside": 18,
+     "pl26": 8.7
+    },
+    {
+     "ticker": "RDOR3",
+     "peso": 10,
+     "upside": 14,
+     "pl26": 16.5
+    },
+    {
+     "ticker": "EMBR3",
+     "peso": 10,
+     "upside": 24,
+     "pl26": 26.9
+    },
+    {
+     "ticker": "RENT3",
+     "peso": 10,
+     "upside": 34,
+     "pl26": 10
+    },
+    {
+     "ticker": "CPLE6",
+     "peso": 10,
+     "upside": 9,
+     "pl26": 16.2
+    },
+    {
+     "ticker": "VBBR3",
+     "peso": 10,
+     "upside": 10,
+     "pl26": 9
+    },
+    {
+     "ticker": "ENGI11",
+     "peso": 10,
+     "upside": 36,
+     "pl26": 17
+    },
+    {
+     "ticker": "SMFT3",
+     "peso": 10,
+     "upside": 9,
+     "pl26": 17
+    },
+    {
+     "ticker": "CYRE3",
+     "peso": 10,
+     "upside": 4,
+     "pl26": 5
+    }
+   ],
+   "ret_mes_anterior": 5.2,
+   "ytd": 31.9,
+   "ytd_ibov": 21.6,
+   "acum_2009": 523.7,
+   "acum_2009_ibov": 137.7,
+   "acum_2009_ibrx50": 182.5,
+   "nota": null
+  },
+  {
+   "mes": "2025-11",
+   "data": "03 November 2025",
+   "carteira": [
+    {
+     "ticker": "ROXO34",
+     "peso": 10,
+     "upside": 12,
+     "pl26": 24.4
+    },
+    {
+     "ticker": "ITUB4",
+     "peso": 10,
+     "upside": 17,
+     "pl26": 8.8
+    },
+    {
+     "ticker": "RDOR3",
+     "peso": 10,
+     "upside": 11,
+     "pl26": 16.5
+    },
+    {
+     "ticker": "EMBR3",
+     "peso": 10,
+     "upside": 16,
+     "pl26": 28.7
+    },
+    {
+     "ticker": "EQTL3",
+     "peso": 15,
+     "upside": 26,
+     "pl26": 10.4
+    },
+    {
+     "ticker": "RENT3",
+     "peso": 10,
+     "upside": 34,
+     "pl26": 10
+    },
+    {
+     "ticker": "CPLE6",
+     "peso": 10,
+     "upside": 1,
+     "pl26": 17.4
+    },
+    {
+     "ticker": "SMFT3",
+     "peso": 10,
+     "upside": 15,
+     "pl26": 15
+    },
+    {
+     "ticker": "CYRE3",
+     "peso": 10,
+     "upside": 5,
+     "pl26": 5
+    },
+    {
+     "ticker": "DIRR3",
+     "peso": 5,
+     "upside": 18,
+     "pl26": 8
+    }
+   ],
+   "ret_mes_anterior": 1.5,
+   "ytd": 33.8,
+   "ytd_ibov": 24.3,
+   "acum_2009": 532.8,
+   "acum_2009_ibov": 143.1,
+   "acum_2009_ibrx50": 188.5,
+   "nota": null
+  },
+  {
+   "mes": "2025-12",
+   "data": "01 December 2025",
+   "carteira": [
+    {
+     "ticker": "ROXO34",
+     "peso": 15,
+     "upside": 27,
+     "pl26": 21.2
+    },
+    {
+     "ticker": "RDOR3",
+     "peso": 10,
+     "upside": 22,
+     "pl26": 17
+    },
+    {
+     "ticker": "EMBJ3",
+     "peso": 10,
+     "upside": 26,
+     "pl26": 23.2
+    },
+    {
+     "ticker": "EQTL3",
+     "peso": 10,
+     "upside": 16,
+     "pl26": 11.3
+    },
+    {
+     "ticker": "RENT3",
+     "peso": 10,
+     "upside": 22,
+     "pl26": 12
+    },
+    {
+     "ticker": "CPLE5",
+     "peso": 10,
+     "upside": -2,
+     "pl26": 17.9
+    },
+    {
+     "ticker": "ENEV3",
+     "peso": 10,
+     "upside": -14,
+     "pl26": 30.4
+    },
+    {
+     "ticker": "SMFT3",
+     "peso": 10,
+     "upside": 22,
+     "pl26": 15
+    },
+    {
+     "ticker": "CYRE3",
+     "peso": 10,
+     "upside": -10,
+     "pl26": 6
+    },
+    {
+     "ticker": "DIRR3",
+     "peso": 5,
+     "upside": 8,
+     "pl26": 8
+    }
+   ],
+   "ret_mes_anterior": 8.0,
+   "ytd": 44.5,
+   "ytd_ibov": 32.2,
+   "acum_2009": 583.3,
+   "acum_2009_ibov": 158.6,
+   "acum_2009_ibrx50": 206.6,
+   "nota": null
+  },
+  {
+   "mes": "2026-01",
+   "data": "02 January 2026",
+   "carteira": [
+    {
+     "ticker": "ROXO34",
+     "peso": 10,
+     "upside": 30,
+     "pl26": 20.7
+    },
+    {
+     "ticker": "ITUB4",
+     "peso": 15,
+     "upside": 27,
+     "pl26": 8.3
+    },
+    {
+     "ticker": "RDOR3",
+     "peso": 10,
+     "upside": 40,
+     "pl26": 15.2
+    },
+    {
+     "ticker": "EMBJ3",
+     "peso": 10,
+     "upside": 22,
+     "pl26": 24
+    },
+    {
+     "ticker": "EQTL3",
+     "peso": 10,
+     "upside": 19,
+     "pl26": 18.9
+    },
+    {
+     "ticker": "RENT3",
+     "peso": 10,
+     "upside": 26,
+     "pl26": 11.2
+    },
+    {
+     "ticker": "RADL3",
+     "peso": 10,
+     "upside": 2,
+     "pl26": 24.5
+    },
+    {
+     "ticker": "ENEV3",
+     "peso": 10,
+     "upside": -15,
+     "pl26": 30.9
+    },
+    {
+     "ticker": "AURA33",
+     "peso": 5,
+     "upside": -6,
+     "pl26": 7
+    },
+    {
+     "ticker": "CYRE3",
+     "peso": 10,
+     "upside": 8,
+     "pl26": 6.3
+    }
+   ],
+   "ret_mes_anterior": -3.0,
+   "ytd": 40.2,
+   "ytd_ibov": 34.0,
+   "acum_2009": 563.1,
+   "acum_2009_ibov": 161.9,
+   "acum_2009_ibrx50": 211.1,
+   "nota": null
+  },
+  {
+   "mes": "2026-02",
+   "data": "02 February 2026",
+   "carteira": [
+    {
+     "ticker": "ITUB4",
+     "peso": 10,
+     "upside": 10,
+     "pl26": 9.5
+    },
+    {
+     "ticker": "ROXO34",
+     "peso": 15,
+     "upside": 24,
+     "pl26": 22
+    },
+    {
+     "ticker": "AXIA3",
+     "peso": 10,
+     "upside": 4,
+     "pl26": 13.1
+    },
+    {
+     "ticker": "RENT3",
+     "peso": 15,
+     "upside": 14,
+     "pl26": 13
+    },
+    {
+     "ticker": "RADL3",
+     "peso": 10,
+     "upside": -2,
+     "pl26": 25
+    },
+    {
+     "ticker": "PRIO3",
+     "peso": 10,
+     "upside": 10,
+     "pl26": 12.9
+    },
+    {
+     "ticker": "ENEV3",
+     "peso": 10,
+     "upside": -6,
+     "pl26": 69.9
+    },
+    {
+     "ticker": "AURA33",
+     "peso": 5,
+     "upside": 37,
+     "pl26": 5.8
+    },
+    {
+     "ticker": "STOC34",
+     "peso": 5,
+     "upside": 18,
+     "pl26": 6.5
+    },
+    {
+     "ticker": "ALOS3",
+     "peso": 10,
+     "upside": -19,
+     "pl26": 17.1
+    }
+   ],
+   "ret_mes_anterior": 9.7,
+   "ytd": null,
+   "ytd_ibov": null,
+   "acum_2009": 627.7,
+   "acum_2009_ibov": 194.8,
+   "acum_2009_ibrx50": 252.0,
+   "nota": null
+  },
+  {
+   "mes": "2026-03",
+   "data": "02 March 2026",
+   "carteira": [
+    {
+     "ticker": "ITUB4",
+     "peso": 10,
+     "upside": 11,
+     "pl26": 9.5
+    },
+    {
+     "ticker": "ROXO34",
+     "peso": 10,
+     "upside": 47,
+     "pl26": 18.5
+    },
+    {
+     "ticker": "AXIA3",
+     "peso": 15,
+     "upside": 4,
+     "pl26": 13.1
+    },
+    {
+     "ticker": "RENT3",
+     "peso": 15,
+     "upside": 8,
+     "pl26": 13
+    },
+    {
+     "ticker": "PRIO3",
+     "peso": 10,
+     "upside": 3,
+     "pl26": 13.8
+    },
+    {
+     "ticker": "ENEV3",
+     "peso": 10,
+     "upside": -7,
+     "pl26": 70.8
+    },
+    {
+     "ticker": "AURA33",
+     "peso": 5,
+     "upside": 3,
+     "pl26": 7.8
+    },
+    {
+     "ticker": "MOTV3",
+     "peso": 10,
+     "upside": 20,
+     "pl26": 13
+    },
+    {
+     "ticker": "STOC34",
+     "peso": 5,
+     "upside": 13,
+     "pl26": 6.7
+    },
+    {
+     "ticker": "ALOS3",
+     "peso": 10,
+     "upside": 19,
+     "pl26": 20.3
+    }
+   ],
+   "ret_mes_anterior": 2.8,
+   "ytd": 12.8,
+   "ytd_ibov": 17.2,
+   "acum_2009": 647.7,
+   "acum_2009_ibov": 206.9,
+   "acum_2009_ibrx50": 267.0,
+   "nota": null
+  },
+  {
+   "mes": "2026-04",
+   "data": "01 April 2026",
+   "carteira": [
+    {
+     "ticker": "ITUB4",
+     "peso": 10,
+     "upside": null,
+     "pl26": null
+    },
+    {
+     "ticker": "ROXO34",
+     "peso": 10,
+     "upside": null,
+     "pl26": null
+    },
+    {
+     "ticker": "AXIA3",
+     "peso": 10,
+     "upside": null,
+     "pl26": null
+    },
+    {
+     "ticker": "ENEV3",
+     "peso": 10,
+     "upside": null,
+     "pl26": null
+    },
+    {
+     "ticker": "RENT3",
+     "peso": 15,
+     "upside": null,
+     "pl26": null
+    },
+    {
+     "ticker": "MOTV3",
+     "peso": 10,
+     "upside": null,
+     "pl26": null
+    },
+    {
+     "ticker": "PETR4",
+     "peso": 15,
+     "upside": null,
+     "pl26": null
+    },
+    {
+     "ticker": "EMBJ3",
+     "peso": 10,
+     "upside": null,
+     "pl26": null
+    },
+    {
+     "ticker": "ALOS3",
+     "peso": 5,
+     "upside": null,
+     "pl26": null
+    },
+    {
+     "ticker": "CURY3",
+     "peso": 5,
+     "upside": null,
+     "pl26": null
+    }
+   ],
+   "ret_mes_anterior": -1.0,
+   "ytd": 11.6,
+   "ytd_ibov": 16.3,
+   "acum_2009": 640.4,
+   "acum_2009_ibov": 204.7,
+   "acum_2009_ibrx50": 266.1,
+   "nota": "tabela é imagem; nomes dos picks + texto (Petrobras 15% no lugar de PRIO; Embraer no lugar de Aura; Cury 5% no lugar de Stone); pesos de AXIA/RENT/ALOS inferidos de mar e mai"
+  },
+  {
+   "mes": "2026-05",
+   "data": "04 May 2026",
+   "carteira": [
+    {
+     "ticker": "PETR4",
+     "peso": 15,
+     "upside": null,
+     "pl26": null
+    },
+    {
+     "ticker": "ROXO34",
+     "peso": 10,
+     "upside": 52,
+     "pl26": 17.8
+    },
+    {
+     "ticker": "AXIA3",
+     "peso": 10,
+     "upside": 28,
+     "pl26": 14
+    },
+    {
+     "ticker": "EMBJ3",
+     "peso": 10,
+     "upside": 55,
+     "pl26": 22.9
+    },
+    {
+     "ticker": "ENEV3",
+     "peso": 10,
+     "upside": null,
+     "pl26": null
+    },
+    {
+     "ticker": "RENT3",
+     "peso": 15,
+     "upside": 42,
+     "pl26": 12
+    },
+    {
+     "ticker": "MOTV3",
+     "peso": 10,
+     "upside": 25,
+     "pl26": 12.5
+    },
+    {
+     "ticker": "TOTS3",
+     "peso": 10,
+     "upside": 73,
+     "pl26": 16.3
+    },
+    {
+     "ticker": "ALOS3",
+     "peso": 5,
+     "upside": 27,
+     "pl26": 19.1
+    },
+    {
+     "ticker": "CURY3",
+     "peso": 5,
+     "upside": 46,
+     "pl26": 6.5
+    }
+   ],
+   "ret_mes_anterior": 0.7,
+   "ytd": 12.4,
+   "ytd_ibov": 16.3,
+   "acum_2009": 645.2,
+   "acum_2009_ibov": 204.5,
+   "acum_2009_ibrx50": 265.8,
+   "nota": null
+  },
+  {
+   "mes": "2026-06",
+   "data": "01 June 2026",
+   "carteira": [
+    {
+     "ticker": "PETR4",
+     "peso": 10,
+     "upside": 33,
+     "pl26": 5
+    },
+    {
+     "ticker": "ITUB4",
+     "peso": 15,
+     "upside": 30,
+     "pl26": 8.6
+    },
+    {
+     "ticker": "AXIA3",
+     "peso": 10,
+     "upside": 28,
+     "pl26": 14
+    },
+    {
+     "ticker": "EMBJ3",
+     "peso": 10,
+     "upside": 68,
+     "pl26": 21.6
+    },
+    {
+     "ticker": "ENEV3",
+     "peso": 10,
+     "upside": null,
+     "pl26": null
+    },
+    {
+     "ticker": "EQTL3",
+     "peso": 10,
+     "upside": 35,
+     "pl26": 30.9
+    },
+    {
+     "ticker": "RENT3",
+     "peso": 10,
+     "upside": 55,
+     "pl26": 10
+    },
+    {
+     "ticker": "MOTV3",
+     "peso": 10,
+     "upside": 42,
+     "pl26": 11
+    },
+    {
+     "ticker": "TOTS3",
+     "peso": 10,
+     "upside": 66,
+     "pl26": 16.9
+    },
+    {
+     "ticker": "CURY3",
+     "peso": 5,
+     "upside": 39,
+     "pl26": 7
+    }
+   ],
+   "ret_mes_anterior": -7.53,
+   "ytd": 3.9,
+   "ytd_ibov": 7.9,
+   "acum_2009": 589.1,
+   "acum_2009_ibov": 182.5,
+   "acum_2009_ibrx50": 238.5,
+   "nota": null
+  },
+  {
+   "mes": "2026-07",
+   "data": "01 July 2026",
+   "carteira": [
+    {
+     "ticker": "PETR4",
+     "peso": 10,
+     "upside": 55,
+     "pl26": 4.3
+    },
+    {
+     "ticker": "ITUB4",
+     "peso": 15,
+     "upside": 23,
+     "pl26": 9
+    },
+    {
+     "ticker": "ABEV3",
+     "peso": 10,
+     "upside": 23,
+     "pl26": 16
+    },
+    {
+     "ticker": "AXIA3",
+     "peso": 10,
+     "upside": 24,
+     "pl26": 16.2
+    },
+    {
+     "ticker": "EMBJ3",
+     "peso": 10,
+     "upside": 52,
+     "pl26": 23.9
+    },
+    {
+     "ticker": "ENEV3",
+     "peso": 10,
+     "upside": null,
+     "pl26": null
+    },
+    {
+     "ticker": "MOTV3",
+     "peso": 10,
+     "upside": 37,
+     "pl26": 11.4
+    },
+    {
+     "ticker": "TOTS3",
+     "peso": 10,
+     "upside": 92,
+     "pl26": 14.7
+    },
+    {
+     "ticker": "ALOS3",
+     "peso": 5,
+     "upside": 39,
+     "pl26": 17.5
+    },
+    {
+     "ticker": "CURY3",
+     "peso": 10,
+     "upside": 25,
+     "pl26": 8
+    }
+   ],
+   "ret_mes_anterior": 1.8,
+   "ytd": 5.8,
+   "ytd_ibov": 6.8,
+   "acum_2009": 601.7,
+   "acum_2009_ibov": 179.6,
+   "acum_2009_ibrx50": 234.2,
+   "nota": null
+  },
+  {
+   "mes": "2026-08",
+   "data": "03 August 2026",
+   "carteira": [
+    {
+     "ticker": "PETR4",
+     "peso": 15,
+     "upside": 13,
+     "pl26": 4.5
+    },
+    {
+     "ticker": "ITUB4",
+     "peso": 15,
+     "upside": 21,
+     "pl26": 9.2
+    },
+    {
+     "ticker": "AXIA3",
+     "peso": 10,
+     "upside": 26,
+     "pl26": 16.2
+    },
+    {
+     "ticker": "EMBJ3",
+     "peso": 10,
+     "upside": 42,
+     "pl26": 25.6
+    },
+    {
+     "ticker": "ENEV3",
+     "peso": 10,
+     "upside": 18,
+     "pl26": 80.7
+    },
+    {
+     "ticker": "GGBR4",
+     "peso": 10,
+     "upside": 12,
+     "pl26": 8.9
+    },
+    {
+     "ticker": "MOTV3",
+     "peso": 10,
+     "upside": 36,
+     "pl26": 11.5
+    },
+    {
+     "ticker": "CSMG3",
+     "peso": 5,
+     "upside": 26,
+     "pl26": 16.4
+    },
+    {
+     "ticker": "TOTS3",
+     "peso": 5,
+     "upside": 77,
+     "pl26": 15.9
+    },
+    {
+     "ticker": "CURY3",
+     "peso": 10,
+     "upside": 46,
+     "pl26": 7
+    }
+   ],
+   "ret_mes_anterior": 1.1,
+   "ytd": 7.0,
+   "ytd_ibov": 10.5,
+   "acum_2009": 609.5,
+   "acum_2009_ibov": 189.3,
+   "acum_2009_ibrx50": 246.6,
+   "nota": null
+  },
+  {
+   "mes": "2026-09",
+   "data": "01 September 2026",
+   "carteira": [
+    {
+     "ticker": "PETR4",
+     "peso": 15,
+     "upside": 14,
+     "pl26": 4.5
+    },
+    {
+     "ticker": "ITUB4",
+     "peso": 10,
+     "upside": 37,
+     "pl26": 8.5
+    },
+    {
+     "ticker": "AXIA3",
+     "peso": 10,
+     "upside": 26,
+     "pl26": 16.2
+    },
+    {
+     "ticker": "SBSP3",
+     "peso": 10,
+     "upside": 23,
+     "pl26": 19.0
+    },
+    {
+     "ticker": "RDOR3",
+     "peso": 10,
+     "upside": 65,
+     "pl26": 15.4
+    },
+    {
+     "ticker": "EMBJ3",
+     "peso": 10,
+     "upside": 41,
+     "pl26": 22.7
+    },
+    {
+     "ticker": "ENEV3",
+     "peso": 10,
+     "upside": 18,
+     "pl26": 80.4
+    },
+    {
+     "ticker": "GGBR4",
+     "peso": 10,
+     "upside": 18,
+     "pl26": 8.4
+    },
+    {
+     "ticker": "MOTV3",
+     "peso": 10,
+     "upside": 29,
+     "pl26": 12.1
+    },
+    {
+     "ticker": "CURY3",
+     "peso": 5,
+     "upside": 35,
+     "pl26": 8.0
+    }
+   ],
+   "ret_mes_anterior": 1.8,
+   "ytd": 8.9,
+   "ytd_ibov": 10.1,
+   "acum_2009": 622.2,
+   "acum_2009_ibov": 188.4,
+   "acum_2009_ibrx50": 246.2,
+   "nota": null
+  }
+ ],
+ "_nota_historico": "historico: carteira de cada mês (Table 1 do relatório: peso, upside e P/L do ano corrente estimados pelo BTG) e desempenho citado no relatório (retorno do mês anterior; YTD 10SIM e Ibovespa; acumulado desde out/2009 de 10SIM, Ibovespa e IBrX-50). Extraído do visor do portal (pdf.js, sem download) em 26/09/2026; ago/25 não estava listado; meses com 'nota' têm tabela parcial (9 linhas) ou reconstruída."
 }
