@@ -171,6 +171,110 @@ def book(ticker: str, niveis: int = 10) -> dict | None:
     return {"compra": compra, "venda": venda, "hora": datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
 
 
+# ----------------------------------------------------------------------------- histórico de barras → data/mt5/
+# O servidor da Genial serve ~10 anos de barras diárias e barras intraday (1 min) do ano corrente (meses antigos vêm
+# vazios). Guardamos por papel: data/mt5/diario/{TICKER}.csv (desde 2016) e data/mt5/m1/{TICKER}_{ano}.csv.gz.
+#
+# ATENÇÃO: os preços de AÇÕES no MT5 da Genial são AJUSTADOS POR PROVENTOS (série de retorno total, como o "Adj Close"
+# do Yahoo): PETR4 em 02/01/2019 = 6,20 no MT5 contra 24,06 no COTAHIST; só a última data coincide. Preço bruto
+# continua sendo o COTAHIST (fontes/b3.py). Como cada provento novo reajusta a série INTEIRA para trás, a coleta rebaixa
+# tudo a cada execução (não dá para ser incremental); índices (IBOV) não sofrem ajuste.
+CAMPOS_BARRA = ["abertura", "maxima", "minima", "fechamento", "quantidade", "negocios"]
+
+
+def _linha(b, com_hora: bool) -> dict:
+    t = _hora(b["time"])
+    return {"data" if not com_hora else "hora": t.strftime("%Y-%m-%d" if not com_hora else "%Y-%m-%d %H:%M"),
+            "abertura": float(b["open"]), "maxima": float(b["high"]), "minima": float(b["low"]), "fechamento": float(b["close"]),
+            "quantidade": int(b["real_volume"]), "negocios": int(b["tick_volume"])}
+
+
+def _range(ticker: str, tf, ini: datetime, fim: datetime, com_hora: bool) -> list[dict]:
+    """copy_rates_range entre ini e fim (horário do servidor, passado como UTC). Devolve [] se o terminal não tem nada."""
+    from datetime import timezone
+    r = _mt5.copy_rates_range(ticker, tf, ini.replace(tzinfo=timezone.utc), fim.replace(tzinfo=timezone.utc))
+    return [_linha(b, com_hora) for b in r] if r is not None and len(r) else []
+
+
+def historico_diario(ticker: str, desde: datetime) -> list[dict]:
+    """Barras diárias desde `desde` (uma chamada; o servidor aceita janelas de anos para D1)."""
+    if not disponivel() or not _simbolo(ticker, espera=3):
+        return []
+    return _range(ticker, _mt5.TIMEFRAME_D1, desde, datetime.now() + timedelta(days=1), com_hora=False)
+
+
+def historico_m1(ticker: str, ini: datetime, fim: datetime | None = None) -> list[dict]:
+    """Barras de 1 minuto entre ini e fim, pedidas mês a mês (janela grande dá 'Invalid params' no terminal)."""
+    if not disponivel() or not _simbolo(ticker, espera=3):
+        return []
+    fim = fim or datetime.now() + timedelta(days=1)
+    out, a = [], ini.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    while a < fim:
+        b = (a.replace(day=28) + timedelta(days=4)).replace(day=1)          # 1º dia do mês seguinte
+        out += [l for l in _range(ticker, _mt5.TIMEFRAME_M1, max(a, ini), min(b, fim), com_hora=True)]
+        a = b
+    return out
+
+
+def _le(p, chave: str) -> list[dict]:
+    import csv, gzip
+    if not p.exists():
+        return []
+    op = gzip.open if p.suffix == ".gz" else open
+    with op(p, "rt", encoding="utf-8", newline="") as fh:
+        return [r for r in csv.DictReader(fh) if r.get(chave)]
+
+
+def _grava(p, linhas: list[dict], chave: str) -> None:
+    import csv, gzip
+    p.parent.mkdir(parents=True, exist_ok=True)
+    op = gzip.open if p.suffix == ".gz" else open
+    with op(p, "wt", encoding="utf-8", newline="") as fh:
+        w = csv.DictWriter(fh, fieldnames=[chave] + CAMPOS_BARRA)
+        w.writeheader()
+        w.writerows(linhas)
+
+
+def _mescla(antigas: list[dict], novas: list[dict], chave: str) -> list[dict]:
+    d = {r[chave]: r for r in antigas}
+    d.update({r[chave]: r for r in novas})
+    return [d[k] for k in sorted(d)]
+
+
+def atualiza_diario(tickers: list[str], pasta, desde: datetime = datetime(2016, 1, 1)) -> str:
+    """Regrava pasta/diario/{T}.csv com as barras diárias (ajustadas) desde `desde`. Rebaixa a série inteira (ver nota
+    acima); se o terminal não devolver nada para um papel, o arquivo anterior é mantido."""
+    pasta = pasta / "diario"
+    novos = barras_n = sem = 0
+    for tk in tickers:
+        p = pasta / f"{tk}.csv"
+        novas = historico_diario(tk, desde)
+        if not novas:
+            sem += 1
+            continue
+        novos += 0 if p.exists() else 1
+        barras_n += len(novas)
+        _grava(p, novas, "data")
+    return f"{len(tickers)} papéis: {novos} novos, {barras_n} barras lidas, {sem} sem dados no MT5"
+
+
+def atualiza_m1(tickers: list[str], pasta, ano: int) -> str:
+    """Regrava pasta/m1/{T}_{ano}.csv.gz com as barras de 1 min (ajustadas) do ano inteiro até hoje (ver nota acima)."""
+    pasta = pasta / "m1"
+    novos = barras_n = sem = 0
+    fim = min(datetime(ano + 1, 1, 1), datetime.now() + timedelta(days=1))
+    for tk in tickers:
+        p = pasta / f"{tk}_{ano}.csv.gz"
+        novas = historico_m1(tk, datetime(ano, 1, 1), fim)
+        if not novas:
+            sem += 1
+            continue
+        novos += 0 if p.exists() else 1
+        barras_n += len(novas)
+        _grava(p, novas, "hora")
+    return f"{len(tickers)} papéis: {novos} novos, {barras_n} barras lidas, {sem} sem dados no MT5"
+
+
 if __name__ == "__main__":
     tks = sys.argv[1:] or ["PETR4", "VALE3", "ITUB4"]
     if not disponivel():

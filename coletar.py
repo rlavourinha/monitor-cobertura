@@ -7,6 +7,8 @@ se uma fonte falha, o dado anterior fica e o painel mostra o carimbo antigo.
     python coletar.py --janela semanal    # Focus completo (sai toda segunda) + séries longas do ano corrente ~2 min
     python coletar.py --janela mensal     # SGS mensais/anuais (IPCA, PIB, IBC-Br, crédito, CAGED) + realizado ~1 min
     python coletar.py --janela tudo       # todas as janelas (primeira carga)
+    python coletar.py --janela mt5        # barras diárias (10 anos) e de 1 min (ano corrente) do MT5 da Genial;
+                                          # só neste PC com o terminal logado; incremental                     ~15 min
     python coletar.py --ponte / --consenso-bloomberg   # sob demanda, na máquina com terminal
     python coletar.py --janela diario --so-macro       # compatibilidade: --so-macro = semanal + mensal + diario(macro)
 
@@ -23,7 +25,7 @@ import traceback
 from datetime import date, datetime
 
 import config
-from fontes import anbima, b3, b3_bdi, bcb, bloomberg, curva, cvm_cda, cvm_inf_diario, ibov_wayback, modelo_ea, tesouro, yahoo
+from fontes import anbima, b3, b3_bdi, bcb, bloomberg, curva, cvm_cda, cvm_inf_diario, ibov_wayback, modelo_ea, mt5, tesouro, yahoo
 
 MINHAS = config.ESTIMATIVAS / "minhas.csv"
 CONS = config.CONSENSO / "consenso.csv"
@@ -459,6 +461,23 @@ def mensal_realizado():
     return ", ".join(f"{k} até {max(v)}" for k, v in real.items() if v)
 
 
+# ----------------------------------------------------------------------------- janela MT5 (só neste PC, terminal da Genial aberto)
+def _tickers_mt5() -> list[str]:
+    return sorted(b3.tickers_alvo() | {"IBOV"})
+
+
+def mt5_diario():
+    if not mt5.disponivel():
+        raise RuntimeError("terminal MT5 da Genial fechado ou sem login")
+    return mt5.atualiza_diario(_tickers_mt5(), config.DATA / "mt5")
+
+
+def mt5_m1():
+    if not mt5.disponivel():
+        raise RuntimeError("terminal MT5 da Genial fechado ou sem login")
+    return mt5.atualiza_m1(_tickers_mt5(), config.DATA / "mt5", date.today().year)
+
+
 # ----------------------------------------------------------------------------- janelas
 JANELAS = {
     "intraday": [("cotações universo", intraday_universo), ("cotações mercado", intraday_mercado), ("cotações Ibovespa", intraday_ibov_comp)],
@@ -472,6 +491,7 @@ JANELAS = {
     "mensal": [("SGS mensais", mensal_sgs), ("realizado anual", mensal_realizado), ("carteiras CVM", mensal_carteiras_cvm)],
 }
 JANELAS["tudo"] = JANELAS["mensal"] + JANELAS["semanal"] + JANELAS["diario"]
+JANELAS["mt5"] = [("MT5 diário", mt5_diario), ("MT5 1 min", mt5_m1)]      # fora de "tudo": não roda no GitHub Actions
 
 
 def main() -> int:

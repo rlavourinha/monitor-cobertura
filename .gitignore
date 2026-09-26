@@ -5,3 +5,4 @@ data/inf_diario/*.zip
 .playwright/
 *.log
 output/
+data/mt5/

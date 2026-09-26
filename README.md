@@ -240,6 +240,7 @@ as outras: o dado anterior fica e a capa mostra o carimbo em vermelho ("falhou" 
 | `semanal` | segunda 08h30 | Focus completo (anuais, mensais, trimestrais, 12/24m, Selic, Top 5) + séries longas do ano corrente | ~2 min |
 | `mensal` | dia a dia às 08h (as séries só mudam no mês) | SGS mensais/anuais (IPCA, PIB, IBC-Br, crédito, CAGED) + realizado anual | ~1 min |
 | `tudo` | primeira carga | todas acima; COTAHIST anual se o cache não existir | ~5 min |
+| `mt5` | quando você roda, neste PC, com o terminal da Genial logado | barras diárias desde 2016 (`data/mt5/diario/{papel}.csv`) e de 1 min do ano corrente (`data/mt5/m1/{papel}_{ano}.csv.gz`) de universo + carteira histórica do Ibovespa + IBOV; **preços de ações vêm ajustados por proventos** (retorno total; o bruto é o COTAHIST), por isso a série inteira é rebaixada a cada execução; fora do `tudo` e do GitHub Actions | ~15 min na 1ª vez, ~5 min depois |
 | sob demanda | quando você roda | `--ponte` / `--consenso-bloomberg` (terminal), `macro_bcb/rpm.json` (a cada RPM), `estimativas/minhas.csv` | — |
 
 Agendamento no Windows (usuário atual, sem admin): `powershell -ExecutionPolicy Bypass -File .\agendar.ps1`
