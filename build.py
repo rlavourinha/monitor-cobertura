@@ -930,8 +930,11 @@ def fluxo_tiles(M: dict) -> tuple[str, str] | None:
         return sum(r.get(t) or 0 for r in serie[-n:])
     def sfmt(v, dec=0, suf=" mi"):
         return num(v, dec, "+" if v > 0 else "", suf)
+    def it(rot, v):
+        return f'<span class="it">{rot} {v}</span>'                   # rótulo + valor nunca se separam na quebra de linha
     tiles = "".join(f'<div class="tile"><div class="l">{lab} · 1 d / 5 d / 21 d</div><div class="v {dlt_cls(soma_n(t, 1))}">{sfmt(soma_n(t, 1))}</div>'
-                    f'<div class="d">5 d {sfmt(soma_n(t, 5))} · 21 d {sfmt(soma_n(t, 21))} · mês {sfmt(saldo_mes(t) or 0)} · ano {sfmt(soma(t, ano + "-01-01") / 1000, 1, " bi")} · 12 m {sfmt(soma(t, serie[0]["data"]) / 1000, 1, " bi")}</div></div>'
+                    f'<div class="d">{it("5 d", sfmt(soma_n(t, 5)))} · {it("21 d", sfmt(soma_n(t, 21)))} · {it("mês", sfmt(saldo_mes(t) or 0))} · '
+                    f'{it("ano", sfmt(soma(t, ano + "-01-01") / 1000, 1, " bi"))} · {it("12 m", sfmt(soma(t, serie[0]["data"]) / 1000, 1, " bi"))}</div></div>'
                     for t, lab, _ in tipos)
     return tiles, ult
 
@@ -2275,7 +2278,7 @@ main{margin-left:232px}
 .tile{background:var(--sf);border:1px solid var(--ring);border-radius:14px;padding:16px 18px}.tile .l{font-size:12px;color:var(--mut)}.tile .v{font-size:30px;font-weight:600;letter-spacing:-.02em;margin-top:4px;line-height:1.1}.tile .d{font-size:12.5px;color:var(--ink2);margin-top:4px}
 .hero .v{font-size:46px;white-space:nowrap}
 .tiles.strip{grid-template-columns:repeat(8,1fr);gap:8px}.tiles.strip .tile{padding:12px 12px}.tiles.strip .v{font-size:20px}
-.tiles.fltiles{grid-template-columns:repeat(4,1fr);gap:8px;margin:0}.fltiles .tile{padding:5px 10px;border-radius:10px}.fltiles .tile .l{font-size:10.5px}.fltiles .tile .v{font-size:17px;margin-top:0}.fltiles .tile .d{font-size:10.5px;margin-top:1px;line-height:1.3}
+.tiles.fltiles{grid-template-columns:repeat(4,1fr);gap:8px;margin:0}.fltiles .tile{padding:5px 10px;border-radius:10px}.fltiles .tile .l{font-size:10.5px}.fltiles .tile .v{font-size:17px;margin-top:0}.fltiles .tile .d{font-size:10.5px;margin-top:1px;line-height:1.3}.fltiles .tile .d .it{white-space:nowrap}
 td.varjan{font-weight:600}th.varjan-h{white-space:nowrap}
 /* painéis e grids */
 .panel{background:var(--sf);border:1px solid var(--ring);border-radius:16px;padding:20px 22px}
