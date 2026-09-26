@@ -6,3 +6,5 @@ data/inf_diario/*.zip
 *.log
 output/
 data/mt5/
+.secrets/
+data/alertas_estado.json

@@ -1086,8 +1086,27 @@ def analise_papeis(M: dict) -> dict | None:
         linhas.append(lin)
         if flags:
             alertas.append({"cod": cod, "txt": " e ".join(flags), "score": (abs(z) if z is not None else 0) + (vrel if vrel else 0)})
+    # tempo real (vigia.py neste PC durante o pregão): preço, z e volume projetado do dia sobrepõem o cálculo acima
+    tr_hora = None
+    ptr = config.DATA / "alertas_tempo_real.json"
+    if ptr.exists():
+        try:
+            TR = json.loads(ptr.read_text(encoding="utf-8"))
+            if TR.get("hora", "")[:10] == date.today().isoformat():
+                tr_hora = TR["hora"]
+                por = {l["cod"]: l for l in linhas}
+                for cod, q in TR.get("papeis", {}).items():
+                    l = por.get(cod)
+                    if not l:
+                        continue
+                    l.update({"preco": q["preco"], "data": q["hora"][:10], "r1": q["r1"], "z": q["z"], "sig": q.get("sig") or l["sig"], "flags": q["flags"], "tempo_real": q["hora"][11:]})
+                    if q.get("vrel") is not None:
+                        l["vrel"] = q["vrel"]; l["vol_proj"] = True
+                alertas = [{"cod": a["cod"], "txt": a["txt"], "score": a["score"]} for a in TR.get("alertas", [])]
+        except Exception as e:
+            print(f"  alertas em tempo real: {e}", file=sys.stderr)
     alertas.sort(key=lambda a: -a["score"])
-    return {"linhas": linhas, "alertas": alertas, "n": len(linhas), "data": max((l["data"] for l in linhas), default="—")}
+    return {"linhas": linhas, "alertas": alertas, "n": len(linhas), "data": max((l["data"] for l in linhas), default="—"), "tempo_real": tr_hora}
 
 
 def slide_papeis_ibov(M: dict) -> tuple[str, str] | None:
@@ -1110,7 +1129,8 @@ def slide_papeis_ibov(M: dict) -> tuple[str, str] | None:
     sobe = sorted([l for l in L if l["r1"] is not None], key=lambda l: -l["r1"])[:5]; cai = sorted([l for l in L if l["r1"] is not None], key=lambda l: l["r1"])[:5]
     def mini(lst, tit):
         return f'<table class="mini"><thead><tr><th>{tit}</th><th>Dia</th><th>5 d</th></tr></thead><tbody>' + "".join(f'<tr><td class="tk">{l["cod"]}</td><td class="{dlt_cls(l["r1"])}">{pct(l["r1"])}</td><td class="{dlt_cls(l["r5"])}">{pct(l["r5"])}</td></tr>' for l in lst) + "</tbody></table>"
-    corpo = (f'<div class="grid3" style="align-items:start;margin-bottom:10px"><div><h2 style="font-size:13px;margin:0 0 4px">Alertas · {P["data"][8:]}/{P["data"][5:7]}</h2><ul class="sinais">{al}</ul></div>'
+    tr_txt = f' · tempo real {P["tempo_real"][11:]} (MT5)' if P.get("tempo_real") else " · último fechamento"
+    corpo = (f'<div class="grid3" style="align-items:start;margin-bottom:10px"><div><h2 style="font-size:13px;margin:0 0 4px">Alertas · {P["data"][8:]}/{P["data"][5:7]}{tr_txt}</h2><ul class="sinais">{al}</ul></div>'
              f'<div>{mini(sobe, "Maiores altas do dia")}</div><div>{mini(cai, "Maiores quedas do dia")}</div></div>'
              f'<div style="overflow-x:auto">{tab}</div>')
     return slide("Macro", "papeis-ibov", "Papéis do Ibovespa · variação e alertas", corpo,
@@ -1670,7 +1690,7 @@ def slide_painel(M: dict, sgs: dict, mercado_micro: dict, minhas: list[dict], co
     PP = analise_papeis(M)
     if PP and PP.get("alertas"):
         top = PP["alertas"][:6]
-        sinais.append("<b>Fora do padrão:</b> " + "; ".join(f'<b>{a["cod"]}</b> {a["txt"]}' for a in top) + f'. <a href="#papeis-ibov">ver todos</a>')
+        sinais.append(f"<b>Fora do padrão{' (' + PP['tempo_real'][11:] + ')' if PP.get('tempo_real') else ''}:</b> " + "; ".join(f'<b>{a["cod"]}</b> {a["txt"]}' for a in top) + f'. <a href="#papeis-ibov">ver todos</a>')
     sinais += sinais_cob                                     # assertividade do Focus fica no slide próprio (Painel precisa caber numa tela)
     CB = carteira_btg()                                       # carteira recomendada do BTG: só o que toca a cobertura (entrada, saída, peso)
     if CB:
