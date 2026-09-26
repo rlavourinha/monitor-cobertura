@@ -10,7 +10,7 @@ from __future__ import annotations
 import csv
 import json
 import math
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 
 import config
 
@@ -941,19 +941,51 @@ def slide_painel(M: dict, sgs: dict, mercado_micro: dict, minhas: list[dict], co
                 return c["bcb"]
         return None
 
-    # --- faixa de mercado
-    def tile(l, v, d="", cls=""):
-        return f'<div class="tile"><div class="l">{l}</div><div class="v">{v}</div><div class="d {cls}">{d}</div></div>'
-    strip = ""
+    # --- tabela de mercado: último valor e variações 1 d / 5 d / MTD / YTD / 12 m (preços em %, juros em p.p.)
     dyx = (dy_ibov().get("exato") or [])
-    for nome in ("Ibovespa", "S&P 500", "USD/BRL", "Brent (US$)", "VIX", "Treasury 10a (%)"):
-        q = mk.get(nome)
-        if q:
-            extra = f' · <span class="mut">DY {num(dyx[-1][1], 1, suf="%")}</span>' if (nome == "Ibovespa" and dyx) else ""
-            strip += tile(nome.replace(" (US$)", "").replace(" (%)", ""), num(q["preco"], 2 if q["preco"] < 100 else 0), pct(q["var_dia"]) + " dia" + extra, dlt_cls(q["var_dia"]))
-    strip += tile("Selic meta", num(selic[1] if selic else None, 2, suf="%"), f"Focus {a0}: {num(foc('Selic', a0)[-1][1] if foc('Selic', a0) else None, 2, suf='%')}")
+    hist = M.get("hist", {})
+    pc = config.DATA / "curva_tesouro.json"
+    CT = json.loads(pc.read_text(encoding="utf-8")) if pc.exists() else {}
+    pre10 = [[r[0], r[CT["prazos_pre"].index(10) + 1]] for r in CT.get("pre", []) if 10 in CT.get("prazos_pre", []) and r[CT["prazos_pre"].index(10) + 1] is not None]
+    def variacoes(serie, ultimo=None, taxa=False):
+        """[1 d, 5 d, MTD, YTD, 12 m] contra fechamentos anteriores: % (preço) ou p.p. (taxa)."""
+        s = [[d, v] for d, v in serie if v is not None]
+        if not s:
+            return [None] * 5, None
+        if ultimo and ultimo[0] > s[-1][0]:
+            s = s + [list(ultimo)]
+        d, v = s[-1]
+        def em(pred):
+            return next((x[1] for x in reversed(s[:-1]) if pred(x[0])), None)
+        ano, mes = d[:4], d[:7]
+        bases = [s[-2][1] if len(s) > 1 else None, s[-6][1] if len(s) > 5 else None, em(lambda x: x[:7] < mes), em(lambda x: x[:4] < ano),
+                 em(lambda x: x <= (date.fromisoformat(d) - timedelta(days=365)).isoformat())]
+        out = []
+        for b in bases:
+            if b is None:
+                out.append(None)
+            else:
+                out.append((v - b) if taxa else (v / b - 1) * 100)
+        return out, v
+    linhas_m = []
+    def linha(nome, serie, ultimo=None, taxa=False, dec=2, suf="", obs=""):
+        var, v = variacoes(serie, ultimo, taxa)
+        cels = "".join(f'<td class="{dlt_cls(x)}">{num(x, 2, "+" if x and x > 0 else "", " p.p." if taxa else "%") if x is not None else "—"}</td>' for x in var)
+        linhas_m.append(f'<tr><td class="tk">{nome}</td><td style="font-weight:600">{num(v, dec, suf=suf)}</td>{cels}<td class="mut" style="text-align:left;white-space:nowrap">{obs}</td></tr>')
+    for nome, rot, dec in (("Ibovespa", "Ibovespa", 0), ("S&P 500", "S&P 500", 0), ("USD/BRL", "USD/BRL", 2), ("Brent (US$)", "Brent (US$/bbl)", 2), ("VIX", "VIX", 2)):
+        q = mk.get(nome) or {}
+        ult = [q["hora"][:10], q["preco"]] if q.get("preco") and q.get("hora") else None
+        linha(rot, hist.get(nome, []), ult, dec=dec, obs=(f'DY 12 m {num(dyx[-1][1], 1, suf="%")}' if nome == "Ibovespa" and dyx else ""))
+    qt = mk.get("Treasury 10a (%)") or {}
+    linha("Treasury 10 anos", hist.get("Treasury 10a (%)", []), [qt["hora"][:10], qt["preco"]] if qt.get("preco") and qt.get("hora") else None, taxa=True, suf="%")
+    linha("Pré 10 anos (Tesouro)", pre10, taxa=True, suf="%")
+    linha("Selic meta", sgs.get("432", {}).get("serie") or [], taxa=True, suf="%", obs=f"Focus {a0}: {num(foc('Selic', a0)[-1][1] if foc('Selic', a0) else None, 2, suf='%')}")
     med35 = (sum(v for _, v in n35) / len(n35)) if n35 else None
-    strip += tile("NTN-B 2035", num(ntnb35, 2, suf="%"), f"média hist. {num(med35, 2, suf='%')}")
+    linha("NTN-B 2035 (real)", n35, taxa=True, suf="%", obs=f"média hist. {num(med35, 2, suf='%')}")
+    cab_m = '<thead><tr><th>Variável</th><th>Último</th><th>1 d</th><th>5 d</th><th>MTD</th><th>YTD</th><th>12 m</th><th style="text-align:left"></th></tr></thead>'
+    meio = (len(linhas_m) + 1) // 2
+    strip = (f'<div class="grid2" style="gap:10px"><div class="pbox" style="padding:6px 10px"><table class="mini" style="width:100%">{cab_m}<tbody>{"".join(linhas_m[:meio])}</tbody></table></div>'
+             f'<div class="pbox" style="padding:6px 10px"><table class="mini" style="width:100%">{cab_m}<tbody>{"".join(linhas_m[meio:])}</tbody></table></div></div>')
 
     # --- macro: realizado × Focus × BCB
     linhas = []
@@ -1092,7 +1124,7 @@ def slide_painel(M: dict, sgs: dict, mercado_micro: dict, minhas: list[dict], co
 
     D = decomp_ibov(M)
     M["_ibov_decomp"] = D
-    corpo = f'''<div class="strip8">{strip}</div>
+    corpo = f'''{strip}
 {linha_ibov_painel(D, M)}
 {linha_variaveis_painel(M)}
 <div class="pgrid" style="margin-top:10px">
