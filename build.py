@@ -2177,12 +2177,17 @@ JS = r"""
       var chip=box.querySelector('.janela button[data-j].on');var key=chip?chip.dataset.j:'dia';
       var j=key==='clique'?window.__ibovClique:D.jan[key];if(!j)return;
       var pap=j.papeis.filter(function(p){return p[1]===setor;}).sort(function(a,b){return b[4]-a[4];});var soma=pap.reduce(function(a,p){return a+p[4];},0);
+      // desce do setor para as empresas: o gráfico de setores dá lugar às barras dos papéis do setor, na mesma caixa
+      var cabS='<div class="mut" style="font-size:11px;margin:0 0 4px"><a href="#" data-volta="1" style="color:var(--acc)">&larr; setores</a> · <b style="color:var(--ink)">'+esc(setor)+'</b> · '+pap.length+' papéis · '+sinal(soma,2,' p.p.')+' de '+br(j.t0)+' a '+br(j.t)+'</div>';
+      var rh=pap.length>14?11:13;var gS=hbar(pap.map(function(p){return [p[0],p[4]];}),430,rh,104,44);
+      var sl=box.querySelector('[data-slot="setores"]');var el2=sl.querySelector('[data-j="setor"]');if(!el2){el2=document.createElement('div');el2.dataset.j='setor';sl.appendChild(el2);}
+      el2.innerHTML=cabS+gS;sl.querySelectorAll('[data-j]').forEach(function(x){x.style.display=x===el2?'':'none';});
+      // e a caixa "quem puxou" lista os mesmos papéis com peso e variação
       var rows=pap.map(function(p){return '<tr><td class="tk">'+p[0]+'</td><td>'+num(p[2],2)+'%</td><td class="'+cls(p[3])+'">'+sinal(p[3]*100,1,'%')+'</td><td class="'+cls(p[4])+'">'+sinal(p[4],2)+'</td></tr>';});
       var metade=Math.ceil(rows.length/2);function tb(r){return '<table class="mini"><thead><tr><th>Papel</th><th>Peso</th><th>Var.</th><th>p.p.</th></tr></thead><tbody>'+r.join('')+'</tbody></table>';}
-      var html='<div class="mut" style="font-size:11px;margin:0 0 4px"><b style="color:var(--ink)">'+esc(setor)+'</b> · '+pap.length+' papéis · '+sinal(soma,2,' p.p.')+' de '+br(j.t0)+' a '+br(j.t)+' · <a href="#" data-volta="1" style="color:var(--acc)">todos os setores</a></div>'
-        +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'+tb(rows.slice(0,metade))+(rows.length>metade?tb(rows.slice(metade)):'')+'</div>';
-      var sl=box.querySelector('[data-slot="papeis"]');var el2=sl.querySelector('[data-j="setor"]');if(!el2){el2=document.createElement('div');el2.dataset.j='setor';sl.appendChild(el2);}
-      el2.innerHTML=html;sl.querySelectorAll('[data-j]').forEach(function(x){x.style.display=x===el2?'':'none';});
+      var slP=box.querySelector('[data-slot="papeis"]');var el3=slP.querySelector('[data-j="setor"]');if(!el3){el3=document.createElement('div');el3.dataset.j='setor';slP.appendChild(el3);}
+      el3.innerHTML='<div class="mut" style="font-size:11px;margin:0 0 4px">'+esc(setor)+' · cada papel do setor</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'+tb(rows.slice(0,metade))+(rows.length>metade?tb(rows.slice(metade)):'')+'</div>';
+      slP.querySelectorAll('[data-j]').forEach(function(x){x.style.display=x===el3?'':'none';});
       el2.querySelector('[data-volta]').addEventListener('click',function(ev){ev.preventDefault();mostraJ(box,key);});
       e.preventDefault();});
     svg.addEventListener('pontoclique',function(e){var j=decomp(e.detail.data);
