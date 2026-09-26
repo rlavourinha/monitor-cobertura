@@ -1038,6 +1038,86 @@ def dy_ibov() -> dict:
     return json.loads(p.read_text(encoding="utf-8")) if p.exists() else {}
 
 
+def analise_papeis(M: dict) -> dict | None:
+    """Variação diária e de 5 pregões de cada papel do Ibovespa (e BDRs acompanhados), com alertas de comportamento fora
+    do padrão: |retorno do dia| ≥ ALERTA_Z desvios-padrão dos retornos diários dos últimos 60 pregões, ou volume
+    financeiro ≥ ALERTA_VOL × a média de 21 pregões. Fechamentos e volumes do COTAHIST; último preço intraday (Yahoo)
+    quando é mais novo que o último fechamento (o volume do dia corrente só entra depois do COTAHIST do dia)."""
+    from fontes import b3 as _b3
+    import math
+    pc = config.DATA / "ibov_comp.json"
+    if not pc.exists():
+        return None
+    C = json.loads(pc.read_text(encoding="utf-8"))
+    itens = {i["cod"]: i for i in C.get("itens", [])}
+    intr = C.get("intraday") or {}
+    S = _b3.series_todas(("fechamento", "quantidade", "volume"), desde="2025-06-01")
+    zlim, vlim = getattr(config, "ALERTA_Z", 2.0), getattr(config, "ALERTA_VOL", 2.0)
+    linhas, alertas = [], []
+    for cod in sorted(set(itens) | set(getattr(config, "BDRS", []))):
+        s = [r for r in S.get(cod, []) if r[1]]
+        if len(s) < 25:
+            continue
+        fech = [r[1] for r in s]; vols = [r[3] for r in s]
+        data_f = s[-1][0]
+        preco, data_p = fech[-1], data_f
+        q = intr.get(cod) or {}
+        if q.get("preco") and q.get("data") and q["data"] > data_f:
+            preco, data_p = float(q["preco"]), q["data"]
+        base1 = fech[-1] if data_p > data_f else fech[-2]           # fechamento anterior ao preço mostrado
+        r1 = preco / base1 - 1 if base1 else None
+        i5 = -5 if data_p > data_f else -6
+        r5 = preco / fech[i5] - 1 if len(fech) >= 6 and fech[i5] else None
+        i21 = -21 if data_p > data_f else -22
+        r21 = preco / fech[i21] - 1 if len(fech) >= 22 and fech[i21] else None
+        rets = [math.log(fech[i] / fech[i - 1]) for i in range(max(1, len(fech) - 60), len(fech)) if fech[i - 1]]
+        sig = (sum((x - sum(rets) / len(rets)) ** 2 for x in rets) / (len(rets) - 1)) ** 0.5 if len(rets) > 10 else None
+        z = (math.log(1 + r1) / sig) if (sig and r1 is not None and r1 > -1) else None
+        vmed = sum(vols[-22:-1]) / 21 if len(vols) >= 22 else None
+        vrel = (vols[-1] / vmed) if vmed else None
+        flags = []
+        if z is not None and abs(z) >= zlim:
+            flags.append(f"oscilação {num(r1 * 100, 1, '+' if r1 > 0 else '', '%')} = {num(abs(z), 1)}σ")
+        if vrel is not None and vrel >= vlim:
+            flags.append(f"volume {num(vrel, 1)}× a média ({data_f[8:]}/{data_f[5:7]})")
+        it = itens.get(cod, {})
+        lin = {"cod": cod, "setor": it.get("setor", "BDR" if cod in getattr(config, "BDRS", []) else "—"), "peso": it.get("peso"), "preco": preco, "data": data_p,
+               "r1": r1, "r5": r5, "r21": r21, "vol": vols[-1], "vrel": vrel, "z": z, "sig": sig, "flags": flags}
+        linhas.append(lin)
+        if flags:
+            alertas.append({"cod": cod, "txt": " e ".join(flags), "score": (abs(z) if z is not None else 0) + (vrel if vrel else 0)})
+    alertas.sort(key=lambda a: -a["score"])
+    return {"linhas": linhas, "alertas": alertas, "n": len(linhas), "data": max((l["data"] for l in linhas), default="—")}
+
+
+def slide_papeis_ibov(M: dict) -> tuple[str, str] | None:
+    """Painel de papéis: todos os constituintes do Ibovespa e BDRs acompanhados, com variação do dia, 5 e 21 pregões,
+    volume relativo e z-score; alertas no topo; linhas fora do padrão destacadas."""
+    P = analise_papeis(M)
+    if not P or not P["linhas"]:
+        return None
+    zlim, vlim = getattr(config, "ALERTA_Z", 2.0), getattr(config, "ALERTA_VOL", 2.0)
+    L = sorted(P["linhas"], key=lambda l: (-(abs(l["z"]) if l["z"] is not None else 0)))
+    def cls_z(l):
+        return ' style="background:rgba(220,38,38,.08)"' if (l["z"] is not None and abs(l["z"]) >= zlim) else (' style="background:rgba(37,99,235,.07)"' if (l["vrel"] and l["vrel"] >= vlim) else "")
+    tr = "".join(f'<tr{cls_z(l)}><td class="tk">{l["cod"]}<small>{l["setor"]}</small></td><td>{num(l["peso"], 1, suf="%") if l["peso"] else "—"}</td><td>{num(l["preco"], 2)}</td>'
+                 f'<td class="{dlt_cls(l["r1"])}">{pct(l["r1"])}</td><td class="{dlt_cls(l["r5"])}">{pct(l["r5"])}</td><td class="{dlt_cls(l["r21"])}">{pct(l["r21"])}</td>'
+                 f'<td class="{dlt_cls(l["z"])}">{num(l["z"], 1) if l["z"] is not None else "—"}</td><td>{num(l["sig"] * 100, 1, suf="%") if l["sig"] else "—"}</td>'
+                 f'<td{" class=up" if l["vrel"] and l["vrel"] >= vlim else ""}>{num(l["vrel"], 1, suf="×") if l["vrel"] else "—"}</td><td>{num(l["vol"] / 1e6, 0)}</td><td class="mut" style="text-align:left">{"; ".join(l["flags"])}</td></tr>'
+                 for l in L)
+    tab = (f'<table class="mini"><thead><tr><th>Papel</th><th>Peso</th><th>Preço</th><th>Dia</th><th>5 d</th><th>21 d</th><th>z do dia</th><th>σ diário</th><th>Vol. × méd. 21 d</th><th>Vol. R$ mi</th><th style="text-align:left">Alerta</th></tr></thead><tbody>{tr}</tbody></table>')
+    al = "".join(f'<li><b>{a["cod"]}</b> · {a["txt"]}</li>' for a in P["alertas"]) or "<li>Nenhum papel fora do padrão hoje.</li>"
+    sobe = sorted([l for l in L if l["r1"] is not None], key=lambda l: -l["r1"])[:5]; cai = sorted([l for l in L if l["r1"] is not None], key=lambda l: l["r1"])[:5]
+    def mini(lst, tit):
+        return f'<table class="mini"><thead><tr><th>{tit}</th><th>Dia</th><th>5 d</th></tr></thead><tbody>' + "".join(f'<tr><td class="tk">{l["cod"]}</td><td class="{dlt_cls(l["r1"])}">{pct(l["r1"])}</td><td class="{dlt_cls(l["r5"])}">{pct(l["r5"])}</td></tr>' for l in lst) + "</tbody></table>"
+    corpo = (f'<div class="grid3" style="align-items:start;margin-bottom:10px"><div><h2 style="font-size:13px;margin:0 0 4px">Alertas · {P["data"][8:]}/{P["data"][5:7]}</h2><ul class="sinais">{al}</ul></div>'
+             f'<div>{mini(sobe, "Maiores altas do dia")}</div><div>{mini(cai, "Maiores quedas do dia")}</div></div>'
+             f'<div style="overflow-x:auto">{tab}</div>')
+    return slide("Macro", "papeis-ibov", "Papéis do Ibovespa · variação e alertas", corpo,
+                 f"Os {P['n']} papéis do índice e os BDRs acompanhados, ordenados pelo tamanho do movimento do dia em desvios-padrão. Vermelho = oscilação fora do padrão (≥ {num(zlim, 0)}σ); azul = volume fora do padrão (≥ {num(vlim, 0)}× a média).",
+                 f"Fechamentos e volumes B3 (COTAHIST); último preço intraday do Yahoo quando mais novo que o fechamento. z = ln(1 + retorno do dia) ÷ desvio-padrão dos retornos diários de 60 pregões; volume relativo = volume financeiro do último pregão fechado ÷ média dos 21 anteriores. Limites em config.ALERTA_Z e config.ALERTA_VOL.")
+
+
 def analise_volume(M: dict) -> dict | None:
     """Volume financeiro dos papéis do Ibovespa (COTAHIST): total diário e média de 21 pregões, e por papel a razão
     volume do dia ÷ média de 21 pregões (excluindo o dia). Base do slide de volume e do sinal no Painel."""
@@ -1587,6 +1667,10 @@ def slide_painel(M: dict, sgs: dict, mercado_micro: dict, minhas: list[dict], co
         an = ", ".join(f'{r["cod"]} ({num(r["razao"], 1)}x)' for r in V["anormais"][:5])
         sinais.append(f"<b>Volume:</b> R$ {num(V['hoje'], 1)} bi nos papéis do Ibovespa, {num(V['razao'], 2)}x a média de 21 pregões"
                       + (f"; anormal em {an}" if an else "; nenhum papel acima de 1,5x a própria média") + ".")
+    PP = analise_papeis(M)
+    if PP and PP.get("alertas"):
+        top = PP["alertas"][:6]
+        sinais.append("<b>Fora do padrão:</b> " + "; ".join(f'<b>{a["cod"]}</b> {a["txt"]}' for a in top) + f'. <a href="#papeis-ibov">ver todos</a>')
     sinais += sinais_cob                                     # assertividade do Focus fica no slide próprio (Painel precisa caber numa tela)
     CB = carteira_btg()                                       # carteira recomendada do BTG: só o que toca a cobertura (entrada, saída, peso)
     if CB:
@@ -2866,6 +2950,7 @@ main{margin-left:232px}
 .tiles.fltiles{grid-template-columns:repeat(4,1fr);gap:8px;margin:0}.fltiles .tile{padding:5px 10px;border-radius:10px}.fltiles .tile .l{font-size:10.5px}.fltiles .tile .v{font-size:17px;margin-top:0}.fltiles .tile .d{font-size:10.5px;margin-top:1px;line-height:1.3}.fltiles .tile .d .it{white-space:nowrap}
 td.varjan{font-weight:600}th.varjan-h{white-space:nowrap}
 .painel .tabvar table.mini{font-size:11.5px}.painel .tabvar table.mini td,.painel .tabvar table.mini th{padding:2px 5px}.painel .tabvar table.mini th{font-size:9.5px}
+#papeis-ibov table.mini{font-size:11.5px}#papeis-ibov table.mini td,#papeis-ibov table.mini th{padding:2px 6px}#papeis-ibov .tk small{font-size:10px}
 #setores-perf tr[data-setor]{cursor:pointer}#setores-perf tr[data-setor]:hover td{background:var(--chip)}#setores-perf .volta{color:var(--acc);text-decoration:none;font-size:11px}
 /* painéis e grids */
 .panel{background:var(--sf);border:1px solid var(--ring);border-radius:16px;padding:20px 22px}
@@ -3634,6 +3719,9 @@ def secao_macro(mercado_micro: dict) -> list[tuple[str, str]]:
     svl = slide_volume(M)
     if svl:
         S.append(svl)
+    spp = slide_papeis_ibov(M)
+    if spp:
+        S.append(spp)
     srh = slide_rpm_historico(M, sgs)
     if srh:
         S.append(srh)

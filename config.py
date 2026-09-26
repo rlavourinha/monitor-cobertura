@@ -107,6 +107,11 @@ MERCADO = {
 }
 # Papéis avulsos para o quadro de movimentos recentes (fora da cobertura).
 MOVIMENTOS = {"ENEV3": "ENEV3.SA", "PRIO3": "PRIO3.SA", "NVDA": "NVDA", "NU": "NU"}
+# BDRs acompanhados no painel de papéis (negociam na B3; entram no COTAHIST junto com o Ibovespa)
+BDRS = ["ROXO34", "MELI34", "STOC34", "AURA33", "INBR32", "JBSS32", "IVVB11", "BOVA11"]
+# painel de papéis: limites dos alertas
+ALERTA_Z = 2.0            # |retorno do dia| ≥ 2 desvios-padrão dos retornos diários (60 pregões)
+ALERTA_VOL = 2.0          # volume financeiro do dia ≥ 2× a média de 21 pregões
 
 # Primeiro ano do cache COTAHIST (fechamentos oficiais). 2019 cobre as fotografias mais antigas da carteira do Ibovespa.
 COTAHIST_DESDE = 2019

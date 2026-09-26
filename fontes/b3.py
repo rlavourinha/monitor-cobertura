@@ -62,7 +62,7 @@ CABECALHO = ["data", "ticker", "fechamento", "quantidade", "volume"]
 
 def tickers_alvo() -> set[str]:
     """Universo coberto + papéis da carteira do Ibovespa (do cache data/ibov_comp.json ou direto da B3)."""
-    t = set(config.UNIVERSO)
+    t = set(config.UNIVERSO) | set(getattr(config, "BDRS", []))
     p = config.DATA / "ibov_comp.json"
     try:
         itens = json.loads(p.read_text(encoding="utf-8")).get("itens", []) if p.exists() else carteira_ibov()["itens"]
