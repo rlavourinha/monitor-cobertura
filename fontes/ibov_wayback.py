@@ -79,6 +79,8 @@ def parse(h: str, tipo: str, calend: list[str]) -> dict | None:
         if len(cels) < 5:
             continue
         cod = cels[0]
+        if not re.fullmatch(r"[A-Z0-9]{4}\d{1,2}", cod):        # ignora linhas de total/redutor que também usam lblCodigo
+            continue
         try:
             q[cod] = _num(cels[3]); peso[cod] = _num(cels[4])
         except ValueError:
