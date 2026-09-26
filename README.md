@@ -77,6 +77,29 @@ HTML de volta na branch `main` e publica o painel em **https://rlavourinha.githu
 alternativa, mas não é necessário. Enviar o arquivo de workflow exige o escopo `workflow` no token do `gh`
 (`gh auth refresh -h github.com -s workflow`).
 
+## Fluxo por tipo de investidor e volume por papel
+
+**Fluxo (slide "Fluxo por tipo de investidor", seção Macro).** Fonte: Boletim Diário do Mercado da B3 em tabelas
+(`arquivos.b3.com.br/bdi`, API sem autenticação: `POST /bdi/table/{Tabela}/{data}/{data}/1/{n}` com corpo `{}`).
+`fontes/b3_bdi.py`, passo diário "fluxo por investidor", cache `data/fluxo_investidores.json`:
+- `SharesInvesVolum`: compras e vendas por tipo (estrangeiro, institucional, pessoa física, instituição financeira,
+  outros) no mercado de ações, **acumuladas do início do mês até a data de referência** (D-2 da consulta, lida do texto
+  da tabela). A B3 só serve os últimos ~20 dias, então a série diária é construída aqui: saldo do dia = diferença entre
+  dois acumulados consecutivos do mesmo mês. Começa em 25/08/2026.
+- `SharesInvesVolumMonthly`: participação por segmento (à vista, termo, opções, exercícios, blocos) do mês anterior.
+- `PreviaQuadrimestral` (filho `OficialWalletIbovespa`): composição do Ibovespa do quadrimestre corrente (sem histórico).
+Cash × futuro: essa tabela é só o mercado de ações (segmento Bovespa). A posição do estrangeiro em futuro de índice
+não está nas tabelas públicas do BDI (o "Quadro analítico das posições em aberto" é por instrumento, não por
+investidor); ficou fora.
+
+**Volume por papel.** O cache do COTAHIST (`data/cotahist/AAAA.csv`) passou a guardar quantidade e volume financeiro
+do dia (`QUATOT`, `VOLTOT`) além do fechamento; `b3.serie(ticker, ("fechamento", "quantidade", "volume"))`. A tabela
+Cobertura do Painel mostra o volume do dia e a razão contra a média de 20 pregões.
+
+**Clique no setor.** Na decomposição do Painel, clicar numa barra (ou no nome) de setor abre, na caixa "quem puxou,
+quem segurou", todos os papéis daquele setor na janela ativa (dia/5 d/20 d/ano ou a data clicada no gráfico), com
+peso, variação e contribuição; "todos os setores" volta.
+
 ## Dividend yield do Ibovespa
 
 Slide "Ibovespa · dividend yield" (seção Macro) e chip "DY" no tile do Ibovespa no Painel. Duas séries em

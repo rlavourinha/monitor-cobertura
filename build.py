@@ -538,8 +538,9 @@ def decomp_ibov(M: dict) -> dict | None:
     return out
 
 
-def svg_hbar(linhas: list[tuple[str, float]], W=560, RH=13, ML=170, MR=56, dec=2, suf=" p.p.") -> str:
-    """Barras horizontais divergentes (positivo azul, negativo vermelho) com rótulo do valor na ponta."""
+def svg_hbar(linhas: list[tuple[str, float]], W=560, RH=13, ML=170, MR=56, dec=2, suf=" p.p.", chaves: list[str] | None = None) -> str:
+    """Barras horizontais divergentes (positivo azul, negativo vermelho) com rótulo do valor na ponta.
+    `chaves` (uma por linha) vira data-setor na barra e no rótulo: o Painel usa para abrir os papéis do setor ao clicar."""
     if not linhas:
         return '<div class="empty small">sem dados</div>'
     H = 8 + RH * len(linhas) + 4
@@ -552,8 +553,10 @@ def svg_hbar(linhas: list[tuple[str, float]], W=560, RH=13, ML=170, MR=56, dec=2
         y = 8 + RH * i
         x0, x1 = X(min(v, 0)), X(max(v, 0))
         cor = "var(--s1)" if v >= 0 else "var(--dn)"
-        out.append(f'<text class="tick" style="font-size:10.5px;fill:var(--ink)" x="{ML - 6}" y="{y + RH - 4:.1f}" text-anchor="end">{lab}</text>')
-        out.append(f'<rect class="bar" data-tip="{lab}: {num(v, dec)}{suf}" x="{x0:.1f}" y="{y + 1.5:.1f}" width="{max(x1 - x0, 0.8):.1f}" height="{RH - 3}" rx="2" style="fill:{cor}"/>')
+        ds = f' data-setor="{chaves[i]}"' if chaves else ""
+        cur = ";cursor:pointer" if chaves else ""
+        out.append(f'<text class="tick"{ds} style="font-size:10.5px;fill:var(--ink){cur}" x="{ML - 6}" y="{y + RH - 4:.1f}" text-anchor="end">{lab}</text>')
+        out.append(f'<rect class="bar"{ds} data-tip="{lab}: {num(v, dec)}{suf}{" · clique para ver os papéis" if chaves else ""}" x="{x0:.1f}" y="{y + 1.5:.1f}" width="{max(x1 - x0, 0.8):.1f}" height="{RH - 3}" rx="2" style="fill:{cor}{cur}"/>')
         esq = v < 0 and (x0 - ML) >= 34   # negativo curto: rótulo à direita do eixo, para não invadir os nomes
         out.append(f'<text class="cap" style="font-size:10px" x="{(x0 - 4) if esq else (x1 + 4):.1f}" y="{y + RH - 4:.1f}" text-anchor="{"end" if esq else "start"}">{num(v, dec, "+" if v > 0 else "")}</text>')
     return f'<svg class="chart" viewBox="0 0 {W} {H}" role="img" aria-label="Contribuição por setor">{"".join(out)}</svg>'
@@ -618,7 +621,7 @@ def linha_ibov_painel(D: dict, M: dict) -> str:
     """Linha de baixo do Painel: gráfico do Ibovespa (clicável) + decomposição em dois blocos (setores; puxaram/seguraram).
     O clique num ponto do gráfico dispara, no navegador, a decomposição daquela data até hoje (dados embutidos em #ibov-dados)."""
     ib = M.get("hist", {}).get("Ibovespa", [])
-    g = svg_linhas("painel-ibov", [("Ibovespa", "var(--s1)", [[d, v] for d, v in ib])], 0, W=800, H=262, ini=2,
+    g = svg_linhas("painel-ibov", [("Ibovespa", "var(--s1)", [[d, v] for d, v in ib])], 0, W=800, H=232, ini=2,
                    titulo="Ibovespa · clique num ponto para explicar o movimento daquela data até hoje") if ib else '<div class="empty small">Sem histórico do Ibovespa.</div>'
     if not D:
         return (f'<div class="pgrid dec" style="grid-template-columns:1.6fr 1fr;margin-top:10px"><div class="pbox" style="padding:8px 12px 4px">{g}</div>'
@@ -632,7 +635,7 @@ def linha_ibov_painel(D: dict, M: dict) -> str:
             continue
         cab = (f'<div class="mut" style="font-size:11px;margin:0 0 4px">De {j["t0"][8:]}/{j["t0"][5:7]}/{j["t0"][2:4]} a {j["t"][8:]}/{j["t"][5:7]}/{j["t"][2:4]}: Ibovespa {num(j["indice"], 2, "+" if j["indice"] and j["indice"] > 0 else "", "%") if j["indice"] is not None else "—"} · soma {num(j["soma"], 2, "+" if j["soma"] > 0 else "", " p.p.")}'
                f' · erro {num(j["erro"], 2, "+" if j["erro"] and j["erro"] > 0 else "", " p.p.") if j["erro"] is not None else "—"} · {j["metodo"]}</div>')
-        vs.append(f'<div data-j="{k}"{"" if k == "dia" else " style=display:none"}>{cab}{svg_hbar([(ABREV.get(s, s), c) for s, _, c, _ in j["setores"]], W=430, RH=13, ML=104, MR=44)}</div>')
+        vs.append(f'<div data-j="{k}"{"" if k == "dia" else " style=display:none"}>{cab}{svg_hbar([(ABREV.get(s, s), c) for s, _, c, _ in j["setores"]], W=430, RH=13, ML=104, MR=44, chaves=[s for s, *_ in j["setores"]])}</div>')
         emp = agrupa_empresa(j["papeis"])
         top, bot, cab_e = seleciona_nomes(emp)
         tr = "".join(f'<tr><td class="tk">{c}</td><td class="{dlt_cls(r)}">{pct(r)}</td><td class="{dlt_cls(x)}">{num(x, 2, "+" if x > 0 else "")}</td></tr>' for c, _, _, r, x in top)
@@ -653,7 +656,8 @@ def linha_ibov_painel(D: dict, M: dict) -> str:
     prov_ini = min((p["com"] for ps in C.get("proventos", {}).values() for p in ps if p.get("com")), default="9999")
     dados = {"itens": [{"cod": i["cod"], "setor": i["setor"], "peso": i["peso"], "q": i.get("q"), "classe": i.get("classe", "ON")} for i in C.get("itens", [])],
              "hist": hist, "prov": proventos_completos(C), "prov_ini": prov_ini, "red": C.get("redutor"), "fotos": fotos, "cal": calend, "rebal": rebal,
-             "ib": [[d, v] for d, v in ib if d >= ini_h], "unit": {k: 1 for k in UNIT_COMP}, "abrev": ABREV}
+             "ib": [[d, v] for d, v in ib if d >= ini_h], "unit": {k: 1 for k in UNIT_COMP}, "abrev": ABREV,
+             "jan": {k: {"t0": j["t0"], "t": j["t"], "papeis": [list(p) for p in j["papeis"]]} for k, j in D["jan"].items()}}
     dados_js = json.dumps(dados, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
     return (f'<div class="pgrid dec" style="grid-template-columns:2fr 1fr 1fr">'
             f'<div class="pbox" style="padding:8px 12px 4px">{g}</div>'
@@ -690,6 +694,64 @@ def dy_ibov() -> dict:
     """Lê data/ibov_dy.json (série exata diária, papéis de hoje, histórico mensal aproximado)."""
     p = config.DATA / "ibov_dy.json"
     return json.loads(p.read_text(encoding="utf-8")) if p.exists() else {}
+
+
+def slide_fluxo_investidores(M: dict) -> tuple[str, str] | None:
+    """Fluxo por tipo de investidor no mercado de ações (B3/BDI): saldo diário, acumulado no mês e participação no volume."""
+    from fontes import b3_bdi
+    if not b3_bdi.ARQ.exists():
+        return None
+    O = json.loads(b3_bdi.ARQ.read_text(encoding="utf-8"))
+    serie = b3_bdi.serie_diaria(O)
+    if not serie:
+        return None
+    S1, S2, S3, S4 = "var(--s1)", "var(--s2)", "var(--s3)", "var(--s4)"
+    tipos = [("estrangeiro", "Estrangeiro", S1), ("institucional", "Institucional", S2), ("pessoa física", "Pessoa física", S3), ("inst. financeira", "Inst. financeira", S4)]
+    ult = serie[-1]["data"]
+    mes = ult[:7]
+    acum = O["diario"][ult]                                   # acumulado do mês na última data de referência
+    tot_c = sum(v[0] for v in acum.values()); tot_v = sum(v[1] for v in acum.values())
+    def saldo_mes(t):
+        return (acum[t][0] - acum[t][1]) / 1000.0 if t in acum else None
+    tiles = "".join(f'<div class="tile"><div class="l">{lab} · saldo no mês</div><div class="v {dlt_cls(saldo_mes(t))}">{num(saldo_mes(t), 0, "+" if (saldo_mes(t) or 0) > 0 else "", " mi")}</div>'
+                    f'<div class="d">{num(acum[t][0] / tot_c * 100, 1, suf="%") if t in acum and tot_c else "—"} das compras · {num(acum[t][1] / tot_v * 100, 1, suf="%") if t in acum and tot_v else "—"} das vendas</div></div>'
+                    for t, lab, _ in tipos)
+    # saldo diário do estrangeiro (colunas) e acumulado no mês por tipo (linhas)
+    dias = [r for r in serie if r["data"][:7] == mes] or serie[-20:]
+    g_dia = svg_colunas(f"Estrangeiro · saldo diário no mercado de ações (R$ mi), {mes[5:]}/{mes[:4]}", [r["data"][8:] for r in dias],
+                        [r.get("estrangeiro") for r in dias], [S1 if (r.get("estrangeiro") or 0) >= 0 else "var(--dn)" for r in dias], 0, "", W=560, H=175, rotulos=True, passo_rotulo_x=1)
+    series = []
+    for t, lab, cor in tipos:
+        acc, pts = 0.0, []
+        for r in serie:
+            if r["data"][:7] != mes:
+                continue
+            acc += r.get(t) or 0
+            pts.append([r["data"], acc])
+        if pts:
+            series.append((lab, cor, pts))
+    g_acum = svg_linhas("fluxo-acum", series, 0, suf=" mi", W=520, H=175, titulo=f"Acumulado no mês por tipo (R$ mi)")
+    leg = "".join(f'<span><i style="background:{c}"></i>{l}</span>' for _, l, c in tipos)
+    tr = "".join(f'<tr><td class="tk">{lab}</td><td>{num(acum[t][0] / 1000, 0)}</td><td>{num(acum[t][1] / 1000, 0)}</td><td class="{dlt_cls(saldo_mes(t))}">{num(saldo_mes(t), 0, "+" if (saldo_mes(t) or 0) > 0 else "")}</td>'
+                 f'<td>{num((acum[t][0] + acum[t][1]) / (tot_c + tot_v) * 100, 1, suf="%") if (tot_c + tot_v) else "—"}</td></tr>' for t, lab, _ in tipos + [("outros", "Outros", "")] if t in acum)
+    tab = f'<table class="mini" style="width:100%"><thead><tr><th>Investidor</th><th>Compras R$ mi</th><th>Vendas R$ mi</th><th>Saldo</th><th>% do volume</th></tr></thead><tbody>{tr}</tbody></table>'
+    # participação mensal por segmento (último mês fechado)
+    men = O.get("mensal") or {}
+    tab_m = ""
+    if men:
+        km = sorted(men)[-1]; m = men[km]
+        segs = ["À vista", "A termo", "Opções", "Exercícios de opções", "Blocos", "Total geral"]
+        segs = [s for s in segs if any(s in v for v in m.values())]
+        trm = "".join(f'<tr><td class="tk">{lab}</td>' + "".join(f'<td>{num(m[t][s][1], 0, suf="%") if s in m.get(t, {}) else "—"}</td>' for s in segs) + "</tr>" for t, lab, _ in tipos + [("outros", "Outros", "")] if t in m)
+        tab_m = (f'<h2 style="font-size:13px;margin:10px 0 4px">Participação no volume por segmento, {km[5:]}/{km[:4]} (compras + vendas, %)</h2>'
+                 f'<table class="mini" style="width:100%"><thead><tr><th>Investidor</th>{"".join(f"<th>{s}</th>" for s in segs)}</tr></thead><tbody>{trm}</tbody></table>')
+    corpo = (f'<div class="tiles strip" style="grid-template-columns:repeat(4,1fr);margin-bottom:10px">{tiles}</div>'
+             f'<div class="grid2" style="grid-template-columns:1.1fr 1fr;align-items:start"><div>{g_dia}</div><div><div class="legend" style="margin-bottom:4px">{leg}</div>{g_acum}</div></div>'
+             f'<div class="grid2" style="grid-template-columns:1fr 1.2fr;align-items:start;margin-top:10px"><div><h2 style="font-size:13px;margin:0 0 4px">Acumulado do mês até {ult[8:]}/{ult[5:7]} (R$ mi)</h2>{tab}</div><div>{tab_m}</div></div>')
+    return slide("Macro", "fluxo-investidores", "Fluxo por tipo de investidor", corpo,
+                 "Quem está comprando e quem está vendendo ações na B3: saldo diário, acumulado do mês e fatia de cada investidor no volume. Só o mercado de ações; futuros de índice não entram.",
+                 f"B3, Boletim Diário (tabela 'Participação dos investidores'): compras e vendas por tipo, acumuladas no mês até D-2; o saldo diário é a diferença entre dois acumulados. "
+                 f"A B3 só serve os últimos ~20 dias, então a série é acumulada aqui desde {sorted(O['diario'])[0][8:]}/{sorted(O['diario'])[0][5:7]}/{sorted(O['diario'])[0][:4]}. Mensal por segmento: tabela 'Participação dos investidores mensal'.")
 
 
 def slide_ibov_dy(M: dict) -> tuple[str, str] | None:
@@ -843,12 +905,15 @@ def slide_painel(M: dict, sgs: dict, mercado_micro: dict, minhas: list[dict], co
         rev = (hist_c[-1]["lucro"] / hist_c[0]["lucro"] - 1) if len(hist_c) >= 2 and hist_c[0]["lucro"] else None
         h = [[d, p] for d, p in serie]
         r20 = _ret(h, preco, 20)
-        linhas_cob.append(f'<tr><td class="tk">{tk}</td><td>{num(preco, 2)}</td><td class="{dlt_cls(var_dia)}">{pct(var_dia)}</td><td class="{dlt_cls(r20)}">{pct(r20)}</td>'
+        sv = _b3.serie(tk, ("fechamento", "quantidade", "volume"))          # volume financeiro do dia vs média de 20 pregões
+        vol_rel = (sv[-1][3] / (sum(x[3] for x in sv[-21:-1]) / 20)) if len(sv) > 21 and sum(x[3] for x in sv[-21:-1]) > 0 else None
+        vol_txt = f'{num(sv[-1][3] / 1e6, 0)} mi <span class="mut">({num(vol_rel, 1, suf="x")})</span>' if sv and vol_rel else "—"
+        linhas_cob.append(f'<tr><td class="tk">{tk}</td><td>{num(preco, 2)}</td><td class="{dlt_cls(var_dia)}">{pct(var_dia)}</td><td class="{dlt_cls(r20)}">{pct(r20)}</td><td>{vol_txt}</td>'
                           f'<td>{num(pl(mm), 1, suf="x")}<span class="mut"> / </span>{num(pl(c), 1, suf="x")}</td><td class="{dlt_cls(up_c)}">{pct(up_m)}<span class="mut"> / </span>{pct(up_c)}</td></tr>')
         if c:
             sinais_cob.append(f"<b>{tk}</b> a {num(pl(c), 1, suf='x')} P/L {a0} do consenso ({c.get('n_analistas') or '—'} analistas), upside {pct(up_c)} para R$ {num(tgt_c, 2)}"
                               + (f"; consenso de lucro {pct(rev)} desde {hist_c[0]['data'][5:].replace('-', '/')}" if rev is not None and abs(rev) > 0.002 else "") + ".")
-    tab_cob = f'<table class="mini"><thead><tr><th>Papel</th><th>Preço</th><th>Dia</th><th>20 d</th><th>P/L {a0} meu / cons.</th><th>Upside meu / cons.</th></tr></thead><tbody>{"".join(linhas_cob)}</tbody></table>'
+    tab_cob = f'<table class="mini"><thead><tr><th>Papel</th><th>Preço</th><th>Dia</th><th>20 d</th><th>Vol. R$ (× méd. 20 d)</th><th>P/L {a0} meu / cons.</th><th>Upside meu / cons.</th></tr></thead><tbody>{"".join(linhas_cob)}</tbody></table>'
     mov = []
     for tk, q in M.get("movimentos", {}).items():
         h = M.get("mov_hist", {}).get(tk, [])
@@ -877,9 +942,7 @@ def slide_painel(M: dict, sgs: dict, mercado_micro: dict, minhas: list[dict], co
     cf = foc("Câmbio", a0)
     if cambio and cf:
         sinais.append(f"<b>Câmbio:</b> PTAX {num(cambio[1], 2)} contra {num(cf[-1][1], 2)} esperado para o fim de {a0} pelo Focus.")
-    sinais += sinais_cob
-    if assert_txt:
-        sinais.append(f"<b>Assertividade:</b> {assert_txt[len('Erro médio do Focus a 12 meses, 2002–2025: '):]}")
+    sinais += sinais_cob                                     # assertividade do Focus fica no slide próprio (Painel precisa caber numa tela)
 
     # --- opinião do usuário
     pop = config.RAIZ / "opiniao.json"
@@ -1888,7 +1951,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font:15.5px/1.5 var(--f-corp
 .pgrid{display:grid;grid-template-columns:1.15fr 1fr 1.05fr;gap:12px;align-items:start}
 .pbox{background:var(--sf);border:1px solid var(--ring);border-radius:12px;padding:10px 12px}.pbox h2{font-size:12.5px;margin:0 0 6px;letter-spacing:.02em}.pbox+.pbox{margin-top:10px}
 table.mini{font-size:12.5px}table.mini td,table.mini th{padding:3px 6px}table.mini th{font-size:10.5px}
-.sinais{margin:0;padding-left:16px;font-size:12.3px;line-height:1.35}.sinais li{margin:0 0 4px}.sinais b{font-weight:600}
+.sinais{margin:0;padding-left:16px;font-size:12.1px;line-height:1.33}.sinais li{margin:0 0 3px}.sinais b{font-weight:600}
 .opiniao{font-size:12.8px;line-height:1.45}.opiniao p{margin:0 0 5px}.opiniao .vazio{color:var(--mut)}
 .sparks{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px}.sparks>div{background:var(--sf);border:1px solid var(--ring);border-radius:12px;padding:8px 10px 4px}
 .carimbo{font-size:11px;color:var(--mut)}.carimbo i{display:inline-block;width:7px;height:7px;border-radius:50%;margin:0 4px 0 10px;vertical-align:1px}
@@ -2052,10 +2115,10 @@ JS = r"""
         if(p.fator!=null){var a=(p.acao||'').toUpperCase();if(a.indexOf('BONIFIC')>=0||a.indexOf('DESDOBR')>=0)q=q/(1+p.fator/100);else if(a.indexOf('GRUPAM')>=0&&p.fator)q=p.fator<1?q*p.fator:q/p.fator;return;}
         var Dv=p.valor||0,pc=com?precoEm(it.cod,com):null;if(pc&&pc>Dv&&Dv>0)q=q/(pc/(pc-Dv));else if(Dv>0)ex=false;});
       if(it.classe==='UNT'&&!D.unit[it.cod])ex=false;return [q,ex];}
-    function hbar(linhas,W,RH,ML,MR){var H=8+RH*linhas.length+4,vals=linhas.map(function(l){return l[1];});var lo=Math.min.apply(null,vals.concat([0])),hi=Math.max.apply(null,vals.concat([0])),sp=(hi-lo)||1;
+    function hbar(linhas,W,RH,ML,MR,chaves){var H=8+RH*linhas.length+4,vals=linhas.map(function(l){return l[1];});var lo=Math.min.apply(null,vals.concat([0])),hi=Math.max.apply(null,vals.concat([0])),sp=(hi-lo)||1;
       var X=function(v){return ML+(v-lo)/sp*(W-ML-MR);};var h=['<line class="axis" x1="'+X(0).toFixed(1)+'" x2="'+X(0).toFixed(1)+'" y1="4" y2="'+(H-4)+'"/>'];
-      linhas.forEach(function(l,i){var y=8+RH*i,v=l[1],x0=X(Math.min(v,0)),x1=X(Math.max(v,0)),cor=v>=0?'var(--s1)':'var(--dn)';
-        h.push('<text class="tick" style="font-size:10.5px;fill:var(--ink)" x="'+(ML-6)+'" y="'+(y+RH-4)+'" text-anchor="end">'+esc(l[0])+'</text><rect class="bar" x="'+x0.toFixed(1)+'" y="'+(y+1.5)+'" width="'+Math.max(x1-x0,0.8).toFixed(1)+'" height="'+(RH-3)+'" rx="2" style="fill:'+cor+'"/>');
+      linhas.forEach(function(l,i){var y=8+RH*i,v=l[1],x0=X(Math.min(v,0)),x1=X(Math.max(v,0)),cor=v>=0?'var(--s1)':'var(--dn)';var ds=chaves?' data-setor="'+esc(chaves[i])+'"':'';
+        h.push('<text class="tick"'+ds+' style="font-size:10.5px;fill:var(--ink);cursor:pointer" x="'+(ML-6)+'" y="'+(y+RH-4)+'" text-anchor="end">'+esc(l[0])+'</text><rect class="bar"'+ds+' x="'+x0.toFixed(1)+'" y="'+(y+1.5)+'" width="'+Math.max(x1-x0,0.8).toFixed(1)+'" height="'+(RH-3)+'" rx="2" style="fill:'+cor+';cursor:pointer"/>');
         var esq=v<0&&(x0-ML)>=34;h.push('<text class="cap" style="font-size:10px" x="'+((esq?x0-4:x1+4)).toFixed(1)+'" y="'+(y+RH-4)+'" text-anchor="'+(esq?'end':'start')+'">'+(v>0?'+':'')+num(v,2)+'</text>');});
       return '<svg class="chart" viewBox="0 0 '+W+' '+H+'">'+h.join('')+'</svg>';}
     function sinal(v,d,suf){return (v>0?'+':'')+num(v,d)+(suf||'');}
@@ -2091,7 +2154,8 @@ JS = r"""
         metodo:exato?((exAll?'exato':'quase exato (units/proventos aprox.)')+(foto0?' · fotografia '+br(s0):'')):'aprox. (cruza rebalanceamento sem fotografia)'};}
     function br(d){return d.slice(8)+'/'+d.slice(5,7)+'/'+d.slice(2,4);}
     function render(j){var cab='<div class="mut" style="font-size:11px;margin:0 0 4px">De '+br(j.t0)+' a '+br(j.t)+': Ibovespa '+(j.indice===null?'—':sinal(j.indice,2,'%'))+' · soma '+sinal(j.soma,2,' p.p.')+' · erro '+(j.erro===null?'—':sinal(j.erro,2,' p.p.'))+' · '+j.metodo+(j.faltam.length?' · sem preço na data: '+j.faltam.join(', '):'')+'</div>';
-      var vs=cab+hbar(j.setores.map(function(s){return [ABREV[s[0]]||s[0],s[2]];}),430,13,104,44);
+      var vs=cab+hbar(j.setores.map(function(s){return [ABREV[s[0]]||s[0],s[2]];}),430,13,104,44,j.setores.map(function(s){return s[0];}));
+      window.__ibovClique=j;
       // agrupa classes da mesma empresa e escolhe os nomes: mínimo 4, todo nome ≥ 0,5 p.p., máximo 8
       var g={};j.papeis.forEach(function(p){var k=p[0].slice(0,4);var e=g[k]||(g[k]={cls:[],setor:p[1],peso:0,wr:0,x:0});e.cls.push(p[0].slice(4));e.peso+=p[2];e.wr+=p[2]*p[3];e.x+=p[4];});
       var emp=Object.keys(g).map(function(k){var e=g[k];return [k+(e.cls.length>1?e.cls.sort().join('+'):e.cls[0]),e.setor,e.peso,e.peso?e.wr/e.peso:0,e.x];}).sort(function(a,b){return b[4]-a[4];});
@@ -2108,6 +2172,19 @@ JS = r"""
       var ch=box.querySelector('.janela');var b=ch.querySelector('button[data-j="clique"]');
       if(!b){b=document.createElement('button');b.dataset.j='clique';b.addEventListener('click',function(){mostraJ(box,'clique');});ch.appendChild(b);}
       b.textContent='desde '+br(j.t0);mostraJ(box,'clique');}
+    // clique num setor (barra ou rótulo): a caixa "quem puxou" passa a listar todos os papéis daquele setor na janela ativa
+    box.addEventListener('click',function(e){var el=e.target.closest&&e.target.closest('[data-setor]');if(!el)return;var setor=el.dataset.setor;
+      var chip=box.querySelector('.janela button[data-j].on');var key=chip?chip.dataset.j:'dia';
+      var j=key==='clique'?window.__ibovClique:D.jan[key];if(!j)return;
+      var pap=j.papeis.filter(function(p){return p[1]===setor;}).sort(function(a,b){return b[4]-a[4];});var soma=pap.reduce(function(a,p){return a+p[4];},0);
+      var rows=pap.map(function(p){return '<tr><td class="tk">'+p[0]+'</td><td>'+num(p[2],2)+'%</td><td class="'+cls(p[3])+'">'+sinal(p[3]*100,1,'%')+'</td><td class="'+cls(p[4])+'">'+sinal(p[4],2)+'</td></tr>';});
+      var metade=Math.ceil(rows.length/2);function tb(r){return '<table class="mini"><thead><tr><th>Papel</th><th>Peso</th><th>Var.</th><th>p.p.</th></tr></thead><tbody>'+r.join('')+'</tbody></table>';}
+      var html='<div class="mut" style="font-size:11px;margin:0 0 4px"><b style="color:var(--ink)">'+esc(setor)+'</b> · '+pap.length+' papéis · '+sinal(soma,2,' p.p.')+' de '+br(j.t0)+' a '+br(j.t)+' · <a href="#" data-volta="1" style="color:var(--acc)">todos os setores</a></div>'
+        +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'+tb(rows.slice(0,metade))+(rows.length>metade?tb(rows.slice(metade)):'')+'</div>';
+      var sl=box.querySelector('[data-slot="papeis"]');var el2=sl.querySelector('[data-j="setor"]');if(!el2){el2=document.createElement('div');el2.dataset.j='setor';sl.appendChild(el2);}
+      el2.innerHTML=html;sl.querySelectorAll('[data-j]').forEach(function(x){x.style.display=x===el2?'':'none';});
+      el2.querySelector('[data-volta]').addEventListener('click',function(ev){ev.preventDefault();mostraJ(box,key);});
+      e.preventDefault();});
     svg.addEventListener('pontoclique',function(e){var j=decomp(e.detail.data);
       if(!j){var el=box.querySelector('[data-slot="setores"]');var av=el.querySelector('[data-j="aviso"]');if(!av){av=document.createElement('div');av.dataset.j='aviso';av.className='mut';av.style.fontSize='11.5px';el.appendChild(av);}
         av.textContent=e.detail.data<D.cal[0]?'Sem fechamentos dos papéis antes de '+br(D.cal[0])+': a decomposição cobre '+br(D.cal[0])+' até hoje. Clique num ponto mais recente.':'Clique num ponto anterior ao último pregão.';
@@ -2378,6 +2455,9 @@ def secao_macro(mercado_micro: dict) -> list[tuple[str, str]]:
     sdy = slide_ibov_dy(M)
     if sdy:
         S.append(sdy)
+    sfl = slide_fluxo_investidores(M)
+    if sfl:
+        S.append(sfl)
     S += slides_juros(M, sgs)
     S += slides_fra(M, sgs)
     S.append(slide("Macro", "focus", "Focus vs realizado",

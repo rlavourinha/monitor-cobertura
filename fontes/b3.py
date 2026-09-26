@@ -36,7 +36,9 @@ def _baixa_zip(ano: int) -> bytes | None:
         return None
 
 
-def _extrai(dados: bytes, tickers: set[str]) -> list[tuple[str, str, float]]:
+def _extrai(dados: bytes, tickers: set[str]) -> list[tuple]:
+    """(data, ticker, fechamento, quantidade negociada, volume financeiro R$) do layout COTAHIST (mercado à vista, tipo 010):
+    PREULT pos 109-121, QUATOT pos 153-170, VOLTOT pos 171-188 (2 decimais implícitos)."""
     out = []
     for raw in dados.splitlines():
         if len(raw) < 217:
@@ -47,10 +49,15 @@ def _extrai(dados: bytes, tickers: set[str]) -> list[tuple[str, str, float]]:
         d = raw[2:10].decode()
         try:
             preult = int(raw[108:121]) / 100.0
+            quatot = int(raw[152:170])
+            voltot = int(raw[170:188]) / 100.0
         except ValueError:
             continue
-        out.append((f"{d[:4]}-{d[4:6]}-{d[6:8]}", codneg, preult))
+        out.append((f"{d[:4]}-{d[4:6]}-{d[6:8]}", codneg, preult, quatot, voltot))
     return out
+
+
+CABECALHO = ["data", "ticker", "fechamento", "quantidade", "volume"]
 
 
 def tickers_alvo() -> set[str]:
@@ -103,7 +110,7 @@ def atualiza_cotahist(force_ano_corrente: bool = True) -> None:
         linhas = sorted(_extrai(dados, tickers))
         with f.open("w", newline="", encoding="utf-8") as fh:
             w = csv.writer(fh)
-            w.writerow(["data", "ticker", "fechamento"])
+            w.writerow(CABECALHO)
             w.writerows(linhas)
         print(f"  COTAHIST {ano}: {len(linhas)} registros")
 
@@ -128,7 +135,7 @@ def atualiza_cotahist_diario(max_dias: int = 40) -> int:
         with f.open(encoding="utf-8") as fh:
             for row in csv.DictReader(fh):
                 existentes.add(row["data"])
-                linhas.append((row["data"], row["ticker"], float(row["fechamento"])))
+                linhas.append((row["data"], row["ticker"], float(row["fechamento"]), int(float(row.get("quantidade") or 0)), float(row.get("volume") or 0)))
     ultima = max(existentes) if existentes else None
     if ultima is None or (hoje - date.fromisoformat(ultima)).days > max_dias:
         atualiza_cotahist(force_ano_corrente=True)
@@ -154,14 +161,14 @@ def atualiza_cotahist_diario(max_dias: int = 40) -> int:
         linhas = sorted(set(linhas))
         with f.open("w", newline="", encoding="utf-8") as fh:
             w = csv.writer(fh)
-            w.writerow(["data", "ticker", "fechamento"])
+            w.writerow(CABECALHO)
             w.writerows(linhas)
     return novos
 
 
-def serie(ticker: str) -> list[tuple[str, float]]:
-    """Série (data, fechamento) ordenada, lida do cache. Papel renomeado (config.ALIAS_TICKER): emenda a série do
-    código antigo antes do primeiro pregão do código novo."""
+def serie(ticker: str, campos: tuple[str, ...] = ("fechamento",)) -> list[tuple]:
+    """Série (data, fechamento[, quantidade, volume]) ordenada, lida do cache. Papel renomeado (config.ALIAS_TICKER):
+    emenda a série do código antigo antes do primeiro pregão do código novo."""
     antigo = getattr(config, "ALIAS_TICKER", {}).get(ticker)
     alvo = {ticker, antigo} if antigo else {ticker}
     pts, pts_ant = [], []
@@ -169,7 +176,7 @@ def serie(ticker: str) -> list[tuple[str, float]]:
         with f.open(encoding="utf-8") as fh:
             for row in csv.DictReader(fh):
                 if row["ticker"] in alvo:
-                    (pts if row["ticker"] == ticker else pts_ant).append((row["data"], float(row["fechamento"])))
+                    (pts if row["ticker"] == ticker else pts_ant).append((row["data"], *[float(row.get(c) or 0) for c in campos]))
     pts.sort(); pts_ant.sort()
     if pts_ant:
         # o código antigo prevalece enquanto negociou (alguns códigos novos reaproveitam um código que já existiu,

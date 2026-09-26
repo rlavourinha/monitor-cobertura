@@ -23,7 +23,7 @@ import traceback
 from datetime import date, datetime
 
 import config
-from fontes import anbima, b3, bcb, bloomberg, curva, cvm_cda, cvm_inf_diario, ibov_wayback, modelo_ea, tesouro, yahoo
+from fontes import anbima, b3, b3_bdi, bcb, bloomberg, curva, cvm_cda, cvm_inf_diario, ibov_wayback, modelo_ea, tesouro, yahoo
 
 MINHAS = config.ESTIMATIVAS / "minhas.csv"
 CONS = config.CONSENSO / "consenso.csv"
@@ -351,6 +351,12 @@ def mensal_sgs():
     return ", ".join(f"{c} {len(sgs[str(c)]['serie'])}" for c in config.SGS_SERIES if c not in (432, 1))
 
 
+def diario_fluxo_investidores():
+    """Participação dos investidores no volume de ações (B3/BDI): acumulado do mês por tipo, um ponto por dia de referência."""
+    n, m = b3_bdi.atualiza_fluxo(30)
+    return f"+{n} dias, +{m} meses"
+
+
 def diario_cotas_fundos():
     """Cota diária (CVM, informe diário) dos fundos com ficha em cartas/*.json que tenham cnpj e inicio."""
     n = 0
@@ -397,7 +403,7 @@ JANELAS = {
     "diario": [("B3 COTAHIST", diario_cotahist), ("B3 ações", diario_acoes), ("Tesouro NTN-B", diario_tesouro),
                ("ANBIMA ETTJ", diario_ettj), ("curva Tesouro", diario_curva_tesouro),
                ("SGS diários", diario_sgs), ("Yahoo histórico", diario_yahoo_hist), ("Ibovespa composição", diario_ibov_comp),
-               ("consenso Yahoo", diario_consenso_yahoo), ("cotas de fundos CVM", diario_cotas_fundos), ("Ibovespa DY", diario_ibov_dy),
+               ("consenso Yahoo", diario_consenso_yahoo), ("cotas de fundos CVM", diario_cotas_fundos), ("Ibovespa DY", diario_ibov_dy), ("fluxo por investidor", diario_fluxo_investidores),
                ("minhas estimativas", diario_minhas), ("cotações universo", intraday_universo), ("cotações mercado", intraday_mercado),
                ("cotações Ibovespa", intraday_ibov_comp)],
     "semanal": [("Focus", semanal_focus), ("Focus longo", semanal_focus_longo), ("Ibovespa DY histórico", semanal_ibov_dy_hist)],
