@@ -129,7 +129,8 @@ def _xticks(d0: int, d1: int, X, y: float, largura: float = 900) -> list[str]:
 
 def svg_linhas(cid: str, series: list[tuple[str, str, list[list]]], dec=1, pref="", suf="", W=470, H=220,
                refs: list[tuple[str, float]] | None = None, titulo: str = "",
-               bandas: dict[int, list[list]] | None = None, extras: list[str] | None = None, ini: int = 0) -> str:
+               bandas: dict[int, list[list]] | None = None, extras: list[str] | None = None, ini: int = 0,
+               curtas: bool = False, sombra_desde: str | None = None) -> str:
     """Gráfico de linhas genérico (1 a 4 séries), crosshair via JS. series = [(nome, cor_css, [[data, v, ...extras], ...])].
     bandas = {índice da série: [[data, mínimo, máximo], ...]} desenha a faixa sombreada na cor da série (formato mín–máx + média).
     extras = nomes dos campos adicionais de cada ponto (p[2:]), exibidos no tooltip."""
@@ -200,7 +201,9 @@ def svg_linhas(cid: str, series: list[tuple[str, str, list[list]]], dec=1, pref=
     anos_total = (d1 - d0) / 365.25
     ini = ini if (ini and ini < anos_total) else 0        # janela inicial (anos); 0 = máx
     chips = "".join(f'<button data-a="{a}"{" disabled" if a >= anos_total else ""}{" class=on" if a == ini else ""}>{a}a</button>' for a in (1, 2, 3, 5, 10))
-    return f'''<div class="lin"><div class="janela" data-for="{cid}">{chips}<button data-a="0"{"" if ini else " class=on"}>máx</button></div><svg class="chart" id="{cid}" viewBox="0 0 {W} {H}" data-x0="{d0}" data-span="{span}" data-lo="{lo}" data-hi="{hi}" data-ini="{ini}"
+    if curtas:   # janelas curtas em pregões e o ano corrente (o Painel liga a decomposição do Ibovespa a esta mesma janela)
+        chips = '<button data-d="1">1 d</button><button data-d="5">5 d</button><button data-d="21">21 d</button><button data-ytd="1">ano</button>' + chips
+    return f'''<div class="lin"><div class="janela" data-for="{cid}">{chips}<button data-a="0"{"" if ini else " class=on"}>máx</button></div><svg class="chart" id="{cid}" viewBox="0 0 {W} {H}" data-x0="{d0}" data-span="{span}" data-lo="{lo}" data-hi="{hi}" data-ini="{ini}"{f' data-desde="{sombra_desde}"' if sombra_desde else ""}
   data-ml="{ML}" data-mr="{MR}" data-mt="{MT}" data-mb="{MB}" data-w="{W}" data-h="{H}" role="img" aria-label="{titulo}">
   <g class="corpo">{"".join(out)}</g>
   <g class="hover" style="display:none"><line class="xh" y1="{MT}" y2="{H - MB}"/>{hdots}</g>
@@ -621,27 +624,11 @@ def linha_ibov_painel(D: dict, M: dict) -> str:
     """Linha de baixo do Painel: gráfico do Ibovespa (clicável) + decomposição em dois blocos (setores; puxaram/seguraram).
     O clique num ponto do gráfico dispara, no navegador, a decomposição daquela data até hoje (dados embutidos em #ibov-dados)."""
     ib = M.get("hist", {}).get("Ibovespa", [])
-    g = svg_linhas("painel-ibov", [("Ibovespa", "var(--s1)", [[d, v] for d, v in ib])], 0, W=800, H=232, ini=2,
-                   titulo="Ibovespa · clique num ponto para explicar o movimento daquela data até hoje") if ib else '<div class="empty small">Sem histórico do Ibovespa.</div>'
     if not D:
+        g = svg_linhas("painel-ibov", [("Ibovespa", "var(--s1)", [[d, v] for d, v in ib])], 0, W=800, H=232, ini=2, titulo="Ibovespa") if ib else '<div class="empty small">Sem histórico do Ibovespa.</div>'
         return (f'<div class="pgrid dec" style="grid-template-columns:1.6fr 1fr;margin-top:10px"><div class="pbox" style="padding:8px 12px 4px">{g}</div>'
                 f'<div class="pbox"><h2>Ibovespa · decomposição</h2><div class="empty small">Rode <code>python coletar.py --janela diario</code>.</div></div></div>')
-    chips = "".join(f'<button data-j="{k}"{" class=on" if k == "dia" else ""}>{r}</button>' for k, r, _ in JANELAS_IBOV)
     ABREV = {"Consumo não cíclico": "Cons. não cíclico", "Consumo cíclico": "Cons. cíclico", "Utilidade pública": "Utilidade públ.", "Materiais básicos": "Mat. básicos", "Bens industriais": "Bens indust."}
-    vs, vp = [], []
-    for k, _, _ in JANELAS_IBOV:
-        j = D["jan"].get(k)
-        if not j:
-            continue
-        cab = (f'<div class="mut" style="font-size:11px;margin:0 0 4px">De {j["t0"][8:]}/{j["t0"][5:7]}/{j["t0"][2:4]} a {j["t"][8:]}/{j["t"][5:7]}/{j["t"][2:4]}: Ibovespa {num(j["indice"], 2, "+" if j["indice"] and j["indice"] > 0 else "", "%") if j["indice"] is not None else "—"} · soma {num(j["soma"], 2, "+" if j["soma"] > 0 else "", " p.p.")}'
-               f' · erro {num(j["erro"], 2, "+" if j["erro"] and j["erro"] > 0 else "", " p.p.") if j["erro"] is not None else "—"} · {j["metodo"]}</div>')
-        vs.append(f'<div data-j="{k}"{"" if k == "dia" else " style=display:none"}>{cab}{svg_hbar([(ABREV.get(s, s), c) for s, _, c, _ in j["setores"]], W=430, RH=13, ML=104, MR=44, chaves=[s for s, *_ in j["setores"]])}</div>')
-        emp = agrupa_empresa(j["papeis"])
-        top, bot, cab_e = seleciona_nomes(emp)
-        tr = "".join(f'<tr><td class="tk">{c}</td><td class="{dlt_cls(r)}">{pct(r)}</td><td class="{dlt_cls(x)}">{num(x, 2, "+" if x > 0 else "")}</td></tr>' for c, _, _, r, x in top)
-        tr2 = "".join(f'<tr><td class="tk">{c}</td><td class="{dlt_cls(r)}">{pct(r)}</td><td class="{dlt_cls(x)}">{num(x, 2, "+" if x > 0 else "")}</td></tr>' for c, _, _, r, x in bot)
-        vp.append(f'<div data-j="{k}"{"" if k == "dia" else " style=display:none"}><div class="mut" style="font-size:11px;margin:0 0 4px">{cab_e}</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><table class="mini"><thead><tr><th>Puxaram</th><th>Var.</th><th>p.p.</th></tr></thead><tbody>{tr}</tbody></table>'
-                  f'<table class="mini"><thead><tr><th>Seguraram</th><th>Var.</th><th>p.p.</th></tr></thead><tbody>{tr2}</tbody></table></div></div>')
     # dados para o clique: carteira, histórico (com o último ponto intraday), proventos, fotografias, índice, calendário, rebalanceamentos
     C = json.loads((config.DATA / "ibov_comp.json").read_text(encoding="utf-8"))
     hist = C.get("hist", {})
@@ -656,20 +643,22 @@ def linha_ibov_painel(D: dict, M: dict) -> str:
     prov_ini = min((p["com"] for ps in C.get("proventos", {}).values() for p in ps if p.get("com")), default="9999")
     dados = {"itens": [{"cod": i["cod"], "setor": i["setor"], "peso": i["peso"], "q": i.get("q"), "classe": i.get("classe", "ON")} for i in C.get("itens", [])],
              "hist": hist, "prov": proventos_completos(C), "prov_ini": prov_ini, "red": C.get("redutor"), "fotos": fotos, "cal": calend, "rebal": rebal,
-             "ib": [[d, v] for d, v in ib if d >= ini_h], "unit": {k: 1 for k in UNIT_COMP}, "abrev": ABREV,
-             "jan": {k: {"t0": j["t0"], "t": j["t"], "papeis": [list(p) for p in j["papeis"]]} for k, j in D["jan"].items()}}
+             "ib": [[d, v] for d, v in ib if d >= ini_h], "unit": {k: 1 for k in UNIT_COMP}, "abrev": ABREV}
     dados_js = json.dumps(dados, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
+    # a janela do gráfico (1 d … máx) é a janela da decomposição; a área sem fechamentos dos papéis (antes de ini_h) fica sombreada
+    g = svg_linhas("painel-ibov", [("Ibovespa", "var(--s1)", [[d, v] for d, v in ib])], 0, W=800, H=232, ini=2, curtas=True, sombra_desde=ini_h,
+                   titulo="Ibovespa · a janela escolhida (ou o ponto clicado) define a decomposição ao lado")
     return (f'<div class="pgrid dec" style="grid-template-columns:2fr 1fr 1fr">'
             f'<div class="pbox" style="padding:8px 12px 4px">{g}</div>'
-            f'<div class="pbox" data-slot="setores"><div style="display:flex;justify-content:space-between;align-items:center;gap:6px"><h2 style="margin:0;white-space:nowrap">Decomposição</h2><div class="janela" style="margin:0">{chips}</div></div><div style="margin-top:4px">{"".join(vs)}</div></div>'
-            f'<div class="pbox" data-slot="papeis"><h2>Quem puxou, quem segurou</h2>{"".join(vp)}</div>'
+            f'<div class="pbox" data-slot="setores"><h2 style="margin:0 0 4px">Decomposição por setor</h2><div class="empty small">calculando…</div></div>'
+            f'<div class="pbox" data-slot="papeis"><h2>Quem puxou, quem segurou</h2><div class="empty small">calculando…</div></div>'
             f'<script type="application/json" id="ibov-dados">{dados_js}</script></div>')
 
 
 def slide_ibov_decomp(D: dict) -> tuple[str, str] | None:
     if not D:
         return None
-    chips = "".join(f'<button data-j="{k}"{" class=on" if k == "20d" else ""}>{r}</button>' for k, r, _ in JANELAS_IBOV)
+    chips = "".join(f'<button data-j="{k}"{" class=on" if k == "21d" else ""}>{r}</button>' for k, r, _ in JANELAS_IBOV)
     blocos = []
     for k, _, _ in JANELAS_IBOV:
         j = D["jan"].get(k)
@@ -683,7 +672,7 @@ def slide_ibov_decomp(D: dict) -> tuple[str, str] | None:
             return f'<table class="compact"><thead><tr><th>{tit}</th><th>Peso</th><th>Var.</th><th>p.p.</th></tr></thead><tbody>{tr}</tbody></table>'
         cab = (f'<p class="note" style="margin:0 0 8px">Ibovespa {num(j["indice"], 2, "+" if j["indice"] and j["indice"] > 0 else "", "%") if j["indice"] is not None else "—"} de {j["t0"][8:]}/{j["t0"][5:7]} a {j["t"][8:]}/{j["t"][5:7]}; soma das contribuições {num(j["soma"], 2, "+" if j["soma"] > 0 else "", " p.p.")}; '
                f'erro {num(j["erro"], 2, "+" if j["erro"] and j["erro"] > 0 else "", " p.p.") if j["erro"] is not None else "—"}. Método: {j["metodo"]}.</p>')
-        blocos.append(f'<div data-j="{k}"{"" if k == "20d" else " style=display:none"}>{cab}<div class="grid3"><div>{tab_s}</div><div>{tab(top, "Maiores contribuições")}</div><div>{tab(bot, "Menores contribuições")}</div></div></div>')
+        blocos.append(f'<div data-j="{k}"{"" if k == "21d" else " style=display:none"}>{cab}<div class="grid3"><div>{tab_s}</div><div>{tab(top, "Maiores contribuições")}</div><div>{tab(bot, "Menores contribuições")}</div></div></div>')
     corpo = f'<div class="dec"><div class="janela" style="justify-content:flex-start;margin-bottom:8px">{chips}</div>{"".join(blocos)}</div>'
     return slide("Macro", "ibov-decomp", "Ibovespa · decomposição",
                  corpo, "Quem puxou e quem segurou o índice. Identidade do índice: Σ quantidade teórica × preço ÷ redutor; a quantidade já reinveste o dividendo, então a soma bate com o índice.",
@@ -1946,6 +1935,8 @@ body{margin:0;background:var(--bg);color:var(--ink);font:15.5px/1.5 var(--f-corp
 .rail a{display:block;font-size:13px;color:var(--ink2);text-decoration:none;padding:5px 10px;border-radius:7px;line-height:1.3}
 .rail a:hover{background:var(--chip)}.rail a.on{background:var(--ink);color:var(--bg)}
 .janela,.janela-global{display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin:0 0 6px}.janela{justify-content:flex-end}
+.dec .janela{gap:3px}.dec .janela button{font-size:10.5px;padding:1px 6px}
+.dec table.mini td,.dec table.mini th{padding:2px 5px;white-space:nowrap}.dec .mut{font-size:10.5px}
 .janela button,.janela-global button{font:inherit;font-size:11px;padding:1px 8px;border-radius:999px;border:1px solid var(--ring);background:var(--sf);color:var(--ink2);cursor:pointer;line-height:1.5}
 .janela button.on,.janela-global button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}.janela button:disabled{opacity:.35;cursor:default}
 .janela-global{margin:8px 0 10px}.janela-global span{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--mut);width:100%;margin-bottom:2px}
@@ -2061,6 +2052,9 @@ JS = r"""
         h.push('<line class="ref" style="stroke:'+cor+'" x1="'+ML+'" x2="'+(W-MR)+'" y1="'+Y(r[1]).toFixed(1)+'" y2="'+Y(r[1]).toFixed(1)+'"/><text class="reflab" x="'+(esq?ML+4:W-MR)+'" y="'+(Y(r[1])+(abaixo?12:-4)).toFixed(1)+'" text-anchor="'+(esq?'start':'end')+'">'+esc(r[0])+(esq?'':' '+(data.pref||'')+num(r[1],data.dec)+(data.suf||''))+'</text>');});
       Object.keys(B).forEach(function(k){var b=B[k],s=S[+k];if(!s||!b.length)return;var ida=b.map(function(p,i){return (i?'L':'M')+X(ord(p[0])).toFixed(1)+','+Y(p[2]).toFixed(1);}).join(' ');var volta=b.slice().reverse().map(function(p){return 'L'+X(ord(p[0])).toFixed(1)+','+Y(p[1]).toFixed(1);}).join(' ');
         h.push('<path d="'+ida+' '+volta+' Z" style="fill:'+s.cor+';opacity:.13;stroke:none"/>');});
+      // área sem decomposição (antes dos fechamentos dos papéis) sombreada, e marcador do início da decomposição
+      if(svg.dataset.desde){var od=ord(svg.dataset.desde);if(od>d0){var xf=X(Math.min(od,d1));h.push('<rect x="'+ML+'" y="'+MT+'" width="'+(xf-ML).toFixed(1)+'" height="'+(H-MT-MB)+'" style="fill:var(--mut);opacity:.09"/><text class="tick" x="'+(ML+6)+'" y="'+(MT+14)+'" style="fill:var(--mut)">sem decomposição antes de '+svg.dataset.desde.slice(8)+'/'+svg.dataset.desde.slice(5,7)+'/'+svg.dataset.desde.slice(2,4)+'</text>');}}
+      if(svg._t0){var ot=ord(svg._t0);if(ot>=d0&&ot<=d1)h.push('<line x1="'+X(ot).toFixed(1)+'" x2="'+X(ot).toFixed(1)+'" y1="'+MT+'" y2="'+(H-MB)+'" style="stroke:var(--s2);stroke-width:1.2;stroke-dasharray:4 3"/><text class="tick" x="'+(X(ot)+4).toFixed(1)+'" y="'+(H-MB-6)+'" style="fill:var(--s2)">decomposição desde '+svg._t0.slice(8)+'/'+svg._t0.slice(5,7)+'/'+svg._t0.slice(2,4)+'</text>');}
       var labels=[];
       S.forEach(function(s){h.push('<path class="line" style="stroke:'+s.cor+'" d="'+s.pts.map(function(p,i){return ((i&&s.o[i]-s.o[i-1]<=45)?'L':'M')+X(s.o[i]).toFixed(1)+','+Y(p[1]).toFixed(1);}).join(' ')+'"/>');
         var last=s.pts[s.pts.length-1],xl=X(s.o[s.o.length-1]),yl=Y(last[1]);h.push('<circle class="dot" cx="'+xl.toFixed(1)+'" cy="'+yl.toFixed(1)+'" r="4" style="fill:'+s.cor+'"/>');
@@ -2071,6 +2065,8 @@ JS = r"""
       labels.forEach(function(l,i){h.push('<text class="endlab" x="'+(l[0]-7).toFixed(1)+'" y="'+ysl[i].toFixed(1)+'" text-anchor="end">'+esc(l[2])+'</text>');});
       corpo.innerHTML=h.join('');
       G={S:S,d0:d0,span:span,X:X,Y:Y};
+      svg._anos=anos;svg._d0=d0;
+      svg.dispatchEvent(new CustomEvent('janela',{bubbles:true,detail:{anos:anos,d0:d0,d1:d1}}));
     }
     hit.addEventListener('mousemove',function(e){if(!G)return;
       var r=svg.getBoundingClientRect();var mx=(e.clientX-r.left)*W/r.width;var o=G.d0+(mx-ML)/(W-ML-MR)*G.span;
@@ -2091,8 +2087,12 @@ JS = r"""
       var s=G.S[0],i=0,best=1e18;for(var k=0;k<s.o.length;k++){var dd=Math.abs(s.o[k]-o);if(dd<best){best=dd;i=k;}}
       svg.dispatchEvent(new CustomEvent('pontoclique',{bubbles:true,detail:{data:s.pts[i][0],valor:s.pts[i][1]}}));});
     svg._render=render;
+    // chips: data-a = anos (0 = máx); data-d = pregões (1, 5, 21); data-ytd = desde o 1º dia do ano
+    function anosDoChip(b){if(b.dataset.d){var n=+b.dataset.d,s=data.series[0];var o1=s.o[s.o.length-1],o0=s.o[Math.max(0,s.o.length-1-n)];return (o1-o0+1)/365.25;}
+      if(b.dataset.ytd){var s2=data.series[0];var last=new Date((s2.o[s2.o.length-1]-719163)*86400000);var o0y=ordDate(last.getUTCFullYear(),1)-1;return (s2.o[s2.o.length-1]-o0y+1)/365.25;}
+      return +b.dataset.a;}
     var chips=svg.parentNode.querySelector('.janela');
-    if(chips)chips.querySelectorAll('button').forEach(function(b){b.addEventListener('click',function(){chips.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});b.classList.add('on');render(+b.dataset.a);});});
+    if(chips)chips.querySelectorAll('button').forEach(function(b){b.addEventListener('click',function(){chips.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});b.classList.add('on');svg._t0=null;render(anosDoChip(b));});});
     render(+(svg.dataset.ini||0));
   }
   document.querySelectorAll('svg.chart[data-x0]').forEach(setupLinhas);
@@ -2159,53 +2159,50 @@ JS = r"""
       return {t0:t0,t:t,setores:lst,papeis:pap,soma:soma,indice:indice,erro:indice===null?null:soma-indice,faltam:faltam,
         metodo:exato?((exAll?'exato':'quase exato (units/proventos aprox.)')+(foto0?' · fotografia '+br(s0):'')):'aprox. (cruza rebalanceamento sem fotografia)'};}
     function br(d){return d.slice(8)+'/'+d.slice(5,7)+'/'+d.slice(2,4);}
-    function render(j){var cab='<div class="mut" style="font-size:11px;margin:0 0 4px">De '+br(j.t0)+' a '+br(j.t)+': Ibovespa '+(j.indice===null?'—':sinal(j.indice,2,'%'))+' · soma '+sinal(j.soma,2,' p.p.')+' · erro '+(j.erro===null?'—':sinal(j.erro,2,' p.p.'))+' · '+j.metodo+(j.faltam.length?' · sem preço na data: '+j.faltam.join(', '):'')+'</div>';
-      var vs=cab+hbar(j.setores.map(function(s){return [ABREV[s[0]]||s[0],s[2]];}),430,13,104,44,j.setores.map(function(s){return s[0];}));
+    function render(j){var cab='<div class="mut" style="font-size:11px;margin:0 0 4px">De '+br(j.t0)+' a '+br(j.t)+': Ibovespa '+(j.indice===null?'—':sinal(j.indice,2,'%'))+' · soma '+sinal(j.soma,2,' p.p.')+' · erro '+(j.erro===null?'—':sinal(j.erro,2,' p.p.'))+' · '+j.metodo+(j.faltam.length?' · sem preço na data: '+j.faltam.join(', '):'')+(j.nota?' · '+j.nota:'')+'</div>';
+      var rhS=11;
+      var vs=cab+hbar(j.setores.map(function(s){return [ABREV[s[0]]||s[0],s[2]];}),430,rhS,104,44,j.setores.map(function(s){return s[0];}));
       window.__ibovClique=j;
       // agrupa classes da mesma empresa e escolhe os nomes: mínimo 4, todo nome ≥ 0,5 p.p., máximo 8
       var g={};j.papeis.forEach(function(p){var k=p[0].slice(0,4);var e=g[k]||(g[k]={cls:[],setor:p[1],peso:0,wr:0,x:0});e.cls.push(p[0].slice(4));e.peso+=p[2];e.wr+=p[2]*p[3];e.x+=p[4];});
       var emp=Object.keys(g).map(function(k){var e=g[k];return [k+(e.cls.length>1?e.cls.sort().join('+'):e.cls[0]),e.setor,e.peso,e.peso?e.wr/e.peso:0,e.x];}).sort(function(a,b){return b[4]-a[4];});
       var pos=emp.filter(function(e){return e[4]>0;}),neg=emp.filter(function(e){return e[4]<0;}).reverse();
-      function corta(l){var n=Math.max(4,l.filter(function(e){return Math.abs(e[4])>=0.5;}).length);return l.slice(0,Math.min(n,8));}
+      function corta(l){var n=Math.max(4,l.filter(function(e){return Math.abs(e[4])>=0.5;}).length);return l.slice(0,Math.min(n,5));}
       var top=corta(pos),bot=corta(neg);var sum=function(l){return l.reduce(function(a,e){return a+e[4];},0);};
       var tp=sum(pos),tn=sum(neg),sp=sum(top),sn=sum(bot);
-      var cabE='<div class="mut" style="font-size:11px;margin:0 0 4px">Mostrados explicam '+sinal(sp,2)+' de '+sinal(tp,2)+' p.p. que puxaram e '+num(sn,2)+' de '+num(tn,2)+' p.p. que seguraram ('+((tp||tn)?num((Math.abs(sp)+Math.abs(sn))/(Math.abs(tp)+Math.abs(tn))*100,0):'—')+'% do movimento bruto). Classes da mesma empresa somadas.</div>';
-      function tab(l,tit){return '<table class="mini"><thead><tr><th>'+tit+'</th><th>Var.</th><th>p.p.</th></tr></thead><tbody>'+l.map(function(p){return '<tr><td class="tk">'+p[0]+'</td><td class="'+cls(p[3])+'">'+sinal(p[3]*100,1,'%')+'</td><td class="'+cls(p[4])+'">'+sinal(p[4],2)+'</td></tr>';}).join('')+'</tbody></table>';}
+      var cabE='<div class="mut" style="font-size:10.5px;margin:0 0 4px">Mostrados: '+sinal(sp,2)+' de '+sinal(tp,2)+' p.p. (puxaram) e '+num(sn,2)+' de '+num(tn,2)+' (seguraram) = '+((tp||tn)?num((Math.abs(sp)+Math.abs(sn))/(Math.abs(tp)+Math.abs(tn))*100,0):'—')+'% do movimento bruto. Classes da mesma empresa somadas.</div>';
+      function tab(l,tit){return '<table class="mini"><thead><tr><th>'+tit+'</th><th>Var.</th><th>p.p.</th></tr></thead><tbody>'+l.map(function(p){var v=p[1]==='Saíram do índice'?'<span class="mut">saiu</span>':'<span class="'+cls(p[3])+'">'+sinal(p[3]*100,1,'%')+'</span>';return '<tr><td class="tk">'+p[0]+'</td><td>'+v+'</td><td class="'+cls(p[4])+'">'+sinal(p[4],2)+'</td></tr>';}).join('')+'</tbody></table>';}
       var vp=cabE+'<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'+tab(top,'Puxaram')+tab(bot,'Seguraram')+'</div>';
-      var alvos=box.querySelectorAll('[data-slot]');alvos.forEach(function(sl){var k=sl.dataset.slot;var el=sl.querySelector('[data-j="clique"]');
-        if(!el){el=document.createElement('div');el.dataset.j='clique';sl.appendChild(el);}
-        el.innerHTML=k==='setores'?vs:vp;});
-      var ch=box.querySelector('.janela');var b=ch.querySelector('button[data-j="clique"]');
-      if(!b){b=document.createElement('button');b.dataset.j='clique';b.addEventListener('click',function(){mostraJ(box,'clique');});ch.appendChild(b);}
-      b.textContent='desde '+br(j.t0);mostraJ(box,'clique');enquadra(j.t0);}
-    // as janelas 1 d / 5 d / 21 d / ano também enquadram o gráfico do Ibovespa na mesma janela
-    function enquadra(t0){var cal=D.cal,t=cal[cal.length-1];var dias=ord(t)-ord(t0)+1;if(svg._render){svg._render(Math.max(dias,3)/365.25);
-      var ch=svg.parentNode.querySelector('.janela');if(ch)ch.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});}}
-    box.querySelectorAll('.janela button[data-j]').forEach(function(b){b.addEventListener('click',function(){var j=D.jan[b.dataset.j];if(j)enquadra(j.t0);});});
-    // clique num setor (barra ou rótulo): a caixa "quem puxou" passa a listar todos os papéis daquele setor na janela ativa
+      conteudo('setores',vs);conteudo('papeis',vp);}
+    function conteudo(slot,html){var sl=box.querySelector('[data-slot="'+slot+'"]');var h2=sl.querySelector('h2');sl.innerHTML='';if(h2)sl.appendChild(h2);var d=document.createElement('div');d.innerHTML=html;sl.appendChild(d);}
+    function aviso(txt){conteudo('setores','<div class="mut" style="font-size:11.5px">'+txt+'</div>');conteudo('papeis','');}
+    // a decomposição segue a janela do gráfico: começa no 1º pregão dentro da janela (ou no ponto clicado, se houver)
+    function decompJanela(){var cal=D.cal,t=cal[cal.length-1];var d0=svg._d0;var ini=null;
+      if(svg._t0&&ord(svg._t0)>=d0)ini=svg._t0;else{for(var i=0;i<cal.length;i++)if(ord(cal[i])>=d0){ini=cal[i];break;}}
+      if(!ini||ini>=t){aviso('Janela sem pregão anterior ao último.');return;}
+      var j=decomp(ini);if(!j){aviso('Sem decomposição para esta janela.');return;}
+      if(ord(cal[0])>d0&&!svg._t0)j.nota='a janela começa antes dos fechamentos dos papéis; decomposição desde '+br(cal[0]);
+      render(j);}
+    svg.addEventListener('janela',function(){decompJanela();});
+    // clique num setor (barra ou rótulo): desce do setor para as empresas, na janela ativa
     box.addEventListener('click',function(e){var el=e.target.closest&&e.target.closest('[data-setor]');if(!el)return;var setor=el.dataset.setor;
-      var chip=box.querySelector('.janela button[data-j].on');var key=chip?chip.dataset.j:'dia';
-      var j=key==='clique'?window.__ibovClique:D.jan[key];if(!j)return;
+      var j=window.__ibovClique;if(!j)return;
       var pap=j.papeis.filter(function(p){return p[1]===setor;}).sort(function(a,b){return b[4]-a[4];});var soma=pap.reduce(function(a,p){return a+p[4];},0);
       // desce do setor para as empresas: o gráfico de setores dá lugar às barras dos papéis do setor, na mesma caixa
       var cabS='<div class="mut" style="font-size:11px;margin:0 0 4px"><a href="#" data-volta="1" style="color:var(--acc)">&larr; setores</a> · <b style="color:var(--ink)">'+esc(setor)+'</b> · '+pap.length+' papéis · '+sinal(soma,2,' p.p.')+' de '+br(j.t0)+' a '+br(j.t)+'</div>';
       var rh=pap.length>14?11:13;var gS=hbar(pap.map(function(p){return [p[0],p[4]];}),430,rh,104,44);
-      var sl=box.querySelector('[data-slot="setores"]');var el2=sl.querySelector('[data-j="setor"]');if(!el2){el2=document.createElement('div');el2.dataset.j='setor';sl.appendChild(el2);}
-      el2.innerHTML=cabS+gS;sl.querySelectorAll('[data-j]').forEach(function(x){x.style.display=x===el2?'':'none';});
+      conteudo('setores',cabS+gS);
       // e a caixa "quem puxou" lista os mesmos papéis com peso e variação
       var rows=pap.map(function(p){return '<tr><td class="tk">'+p[0]+'</td><td>'+num(p[2],2)+'%</td><td class="'+cls(p[3])+'">'+sinal(p[3]*100,1,'%')+'</td><td class="'+cls(p[4])+'">'+sinal(p[4],2)+'</td></tr>';});
       var metade=Math.ceil(rows.length/2);function tb(r){return '<table class="mini"><thead><tr><th>Papel</th><th>Peso</th><th>Var.</th><th>p.p.</th></tr></thead><tbody>'+r.join('')+'</tbody></table>';}
-      var slP=box.querySelector('[data-slot="papeis"]');var el3=slP.querySelector('[data-j="setor"]');if(!el3){el3=document.createElement('div');el3.dataset.j='setor';slP.appendChild(el3);}
-      el3.innerHTML='<div class="mut" style="font-size:11px;margin:0 0 4px">'+esc(setor)+' · cada papel do setor</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'+tb(rows.slice(0,metade))+(rows.length>metade?tb(rows.slice(metade)):'')+'</div>';
-      slP.querySelectorAll('[data-j]').forEach(function(x){x.style.display=x===el3?'':'none';});
-      el2.querySelector('[data-volta]').addEventListener('click',function(ev){ev.preventDefault();mostraJ(box,key);});
+      conteudo('papeis','<div class="mut" style="font-size:11px;margin:0 0 4px">'+esc(setor)+' · cada papel do setor</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'+tb(rows.slice(0,metade))+(rows.length>metade?tb(rows.slice(metade)):'')+'</div>');
+      box.querySelector('[data-volta]').addEventListener('click',function(ev){ev.preventDefault();render(j);});
       e.preventDefault();});
-    svg.addEventListener('pontoclique',function(e){var j=decomp(e.detail.data);
-      if(!j){var el=box.querySelector('[data-slot="setores"]');var av=el.querySelector('[data-j="aviso"]');if(!av){av=document.createElement('div');av.dataset.j='aviso';av.className='mut';av.style.fontSize='11.5px';el.appendChild(av);}
-        av.textContent=e.detail.data<D.cal[0]?'Sem fechamentos dos papéis antes de '+br(D.cal[0])+': a decomposição cobre '+br(D.cal[0])+' até hoje. Clique num ponto mais recente.':'Clique num ponto anterior ao último pregão.';
-        box.querySelectorAll('[data-slot="papeis"] [data-j]').forEach(function(x){x.style.display='none';});el.querySelectorAll('[data-j]').forEach(function(x){x.style.display=x===av?'':'none';});
-        box.querySelectorAll('.janela button[data-j]').forEach(function(x){x.classList.remove('on');});return;}
-      render(j);});
+    // clique num ponto do gráfico: a decomposição passa a começar nessa data (a janela do gráfico não muda); o marcador é redesenhado
+    svg.addEventListener('pontoclique',function(e){var d=e.detail.data;
+      if(d<D.cal[0]){aviso('Sem fechamentos dos papéis antes de '+br(D.cal[0])+': clique num ponto a partir dessa data.');return;}
+      svg._t0=d;if(svg._render)svg._render(svg._anos||0);});
+    if(svg._d0!==undefined)decompJanela();   // o gráfico já foi desenhado antes deste bloco existir
   })();
   // tooltip simples em barras/pontos
   var t=document.createElement('div');t.className='tip';document.body.appendChild(t);

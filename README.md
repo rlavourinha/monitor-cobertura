@@ -101,9 +101,15 @@ investidor); ficou fora.
 do dia (`QUATOT`, `VOLTOT`) além do fechamento; `b3.serie(ticker, ("fechamento", "quantidade", "volume"))`. A tabela
 Cobertura do Painel mostra o volume do dia e a razão contra a média de 20 pregões.
 
-**Clique no setor.** Na decomposição do Painel, clicar numa barra (ou no nome) de setor desce do setor para as
-empresas: o gráfico de setores dá lugar às barras dos papéis daquele setor na janela ativa (1 d / 5 d / 21 d / ano ou a
-data clicada no gráfico), e a caixa ao lado lista peso, variação e contribuição de cada um; "← setores" volta.
+**Uma janela só.** No Painel, a janela do gráfico do Ibovespa (1 d, 5 d, 21 d, ano, 1a, 2a, 3a, 5a, 10a, máx) é a
+janela da decomposição: a decomposição vai do primeiro pregão dentro da janela até hoje e é recalculada no navegador a
+cada troca. Clicar num ponto do gráfico faz a decomposição começar naquela data (a janela não muda) e desenha um
+marcador tracejado no ponto. Onde não há fechamentos dos papéis (antes de 02/01/2019) o gráfico fica sombreado e a
+decomposição começa na primeira data disponível, com aviso no cabeçalho.
+
+**Clique no setor.** Clicar numa barra (ou no nome) de setor desce do setor para as empresas: o gráfico de setores
+dá lugar às barras dos papéis daquele setor na janela ativa, e a caixa ao lado lista peso, variação e contribuição
+de cada um; "← setores" volta.
 
 **De-para de setores** (`b3.SETOR_MACRO` por prefixo do subsetor da B3, `b3.SETOR_EXCECAO` por trecho): a B3 põe
 shoppings em "Financeiro e Outros / Exploração de Imóveis" e incorporadoras em "Consumo Cíclico / Construção Civil";
