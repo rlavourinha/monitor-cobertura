@@ -103,9 +103,13 @@ MERCADO = {
 # Papéis avulsos para o quadro de movimentos recentes (fora da cobertura).
 MOVIMENTOS = {"ENEV3": "ENEV3.SA", "PRIO3": "PRIO3.SA", "NVDA": "NVDA", "NU": "NU"}
 
+# Primeiro ano do cache COTAHIST (fechamentos oficiais). 2019 cobre as fotografias mais antigas da carteira do Ibovespa.
+COTAHIST_DESDE = 2019
+
 # Papéis que trocaram de código sem alterar a ação (novo -> antigo): a série do novo é emendada com a do antigo
 # antes da troca. Necessário para a decomposição do Ibovespa em janelas longas.
-ALIAS_TICKER = {"AXIA3": "ELET3", "EMBJ3": "EMBR3", "NATU3": "NTCO3", "MOTV3": "CCRO3", "MBRF3": "MRFG3"}
+ALIAS_TICKER = {"AXIA3": "ELET3", "EMBJ3": "EMBR3", "NATU3": "NTCO3", "MOTV3": "CCRO3", "MBRF3": "MRFG3",
+                "VBBR3": "BRDT3", "ALOS3": "ALSO3", "AZZA3": "ARZZ3", "BRAV3": "RRRP3", "ISAE4": "TRPL4"}
 
 # Fundos cuja carteira é lida na CVM (CDA mensal, sigilo de 180 dias). Usar o CNPJ do MASTER (o feeder só tem cotas).
 FUNDOS_CVM = {"Dynamo Cougar": "37.916.879/0001-26"}

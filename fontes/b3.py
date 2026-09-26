@@ -90,7 +90,7 @@ def atualiza_cotahist(force_ano_corrente: bool = True) -> None:
     """Garante data/cotahist/{ano}.csv para cada ano do universo."""
     CACHE.mkdir(parents=True, exist_ok=True)
     tickers = tickers_alvo()
-    ano_ini = min(v["inicio"] for v in config.UNIVERSO.values())
+    ano_ini = min([v["inicio"] for v in config.UNIVERSO.values()] + [getattr(config, "COTAHIST_DESDE", 9999)])
     hoje = date.today().year
     for ano in range(ano_ini, hoje + 1):
         f = CACHE / f"{ano}.csv"
@@ -172,8 +172,10 @@ def serie(ticker: str) -> list[tuple[str, float]]:
                     (pts if row["ticker"] == ticker else pts_ant).append((row["data"], float(row["fechamento"])))
     pts.sort(); pts_ant.sort()
     if pts_ant:
-        corte = pts[0][0] if pts else "9999"
-        pts = [p for p in pts_ant if p[0] < corte] + pts
+        # o código antigo prevalece enquanto negociou (alguns códigos novos reaproveitam um código que já existiu,
+        # ex.: NATU3 antes de 2020 e de novo em 2025); o novo entra só depois do último pregão do antigo
+        primeiro_ant, ultimo_ant = pts_ant[0][0], pts_ant[-1][0]
+        pts = [p for p in pts if p[0] < primeiro_ant] + pts_ant + [p for p in pts if p[0] > ultimo_ant]
     return pts
 
 

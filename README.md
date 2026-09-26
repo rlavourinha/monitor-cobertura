@@ -41,9 +41,24 @@ inicial. Fontes, em ordem de qualidade:
 Com fotografia, papéis que saíram do índice entram com valor inicial e valor final zero, e os que entraram, com
 valor inicial zero, então a soma fecha mesmo cruzando rebalanceamento. Proventos: canal da B3 nos últimos 13 meses
 (com bonificações); antes disso, dividendos do Yahoo (`prov_yahoo` em `ibov_comp.json`, gravado pelo passo semanal
-do DY), marcados como aproximados. Uma fotografia histórica veio do Wayback Machine (carteira de 31/03/2025, única
-captura completa da API da B3); as demais capturas arquivadas só têm a primeira página (20 papéis) e não servem.
-Carteiras históricas completas só na B3 (produto pago) ou num terminal, e aí ficariam fora do repositório.
+do DY), marcados como aproximados.
+
+**Fotografias históricas (29, de 2019 a 2026).** A B3 não publica o histórico, mas ele existe espalhado:
+- **Wayback Machine, site antigo da B3** (`bvmf.bmfbovespa.com.br/indices/ResumoCarteiraTeorica.aspx` e
+  `ResumoCarteiraQuadrimestre.aspx`): tabela completa com quantidade, peso e redutor. Cobre jan/2019 a mar/2021; depois
+  a página congelou (as capturas de 2022–2026 ainda mostram o quadrimestre jan–abr/2021). `python -m fontes.ibov_wayback`.
+- **Wayback, API nova** (`GetPortfolioDay`): só uma captura completa (31/03/2025); as ~30 mensais são a página 1.
+- **GitHub, arquivos `IBOVDia_dd-mm-aa.csv`** que usuários baixaram da B3 e commitaram: set e out/2021, jun/2023,
+  mar/2024, ago/2024, dez/2024, jun e jul/2025. Alguns vêm sem o rodapé; o redutor é derivado
+  (Σ quantidade × fechamento ÷ Ibovespa do dia, `ibov_wayback.preenche_redutores`, campo `redutor_derivado`).
+- **B3 ao vivo:** todo dia desde 25/09/2026.
+Quadrimestres ainda sem fotografia: 2022 inteiro, jan–abr e set–dez/2023, set/2025 a ago/2026. Nesses, janela que
+cruza o rebalanceamento continua aproximada. Para fechar, precisa de mais arquivos IBOVDia dessas datas (qualquer
+`IBOVDia_*.csv` baixado da B3 na época serve: basta pôr o arquivo em `data/ibov_carteira/` no formato das outras
+fotografias) ou da carteira histórica de um terminal.
+Códigos antigos nas fotografias são traduzidos por `config.ALIAS_TICKER` (ELET3→AXIA3, ALSO3→ALOS3, ARZZ3→AZZA3,
+RRRP3→BRAV3, TRPL4→ISAE4, BRDT3→VBBR3...), e `b3.serie` emenda as séries de preço; o código antigo prevalece
+enquanto negociou (NATU3 existiu antes de 2020 e voltou em 2025).
 
 **Quem puxou, quem segurou.** Classes da mesma empresa somadas (PETR3+4, BBDC3+4); pelo menos quatro nomes de cada
 lado, mais todo nome com contribuição acima de 0,5 p.p., até oito. A linha acima das tabelas diz quanto do movimento

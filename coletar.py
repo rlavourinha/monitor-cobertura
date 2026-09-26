@@ -23,7 +23,7 @@ import traceback
 from datetime import date, datetime
 
 import config
-from fontes import anbima, b3, bcb, bloomberg, curva, cvm_cda, cvm_inf_diario, modelo_ea, tesouro, yahoo
+from fontes import anbima, b3, bcb, bloomberg, curva, cvm_cda, cvm_inf_diario, ibov_wayback, modelo_ea, tesouro, yahoo
 
 MINHAS = config.ESTIMATIVAS / "minhas.csv"
 CONS = config.CONSENSO / "consenso.csv"
@@ -184,7 +184,10 @@ def diario_ibov_comp():
     cods = {it["cod"] for it in c["itens"]}
     for f in fdir.glob("*.json"):                               # papéis de fotografias antigas (já saíram do índice): preço na data inicial
         cods |= set(_le_json(f, {}).get("q", {}))
-    hist = {cod: [[d, v] for d, v in b3.serie(cod)][-1300:] for cod in sorted(cods)}   # ~5 anos: base do clique no gráfico do Painel
+    desde_h = f"{getattr(config, 'COTAHIST_DESDE', 2021)}-01-01"
+    hist = {cod: [[d, v] for d, v in b3.serie(cod) if d >= desde_h] for cod in sorted(cods)}   # base do clique no gráfico do Painel
+    hist = {k: v for k, v in hist.items() if v}
+    ibov_wayback.preenche_redutores(hist, _le_json(MACRO, {}).get("hist", {}).get("Ibovespa", []))
     hist = {k: v for k, v in hist.items() if v}
     # proventos com data-com nos últimos 13 meses: reconstrução da quantidade teórica (janelas curtas) e dividend yield 12 m
     desde = (date.today() - timedelta(days=400)).isoformat()

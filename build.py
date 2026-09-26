@@ -396,6 +396,26 @@ def proventos_completos(C: dict) -> dict:
     return out
 
 
+def carrega_fotos() -> dict:
+    """Fotografias da carteira (data -> {redutor, q, peso}), com códigos antigos traduzidos para os atuais (config.ALIAS_TICKER),
+    para que um papel renomeado não apareça como 'saiu' e 'entrou'. Só fotografias com redutor."""
+    fdir = config.DATA / "ibov_carteira"
+    if not fdir.exists():
+        return {}
+    alias = getattr(config, "ALIAS_TICKER", {})
+    inv = {v: k for k, v in alias.items()}          # antigo -> novo
+    out = {}
+    for f in sorted(fdir.glob("*.json")):
+        obj = json.loads(f.read_text(encoding="utf-8"))
+        if not obj.get("redutor") or obj.get("ok") is False:
+            continue
+        for chave in ("q", "peso"):
+            if isinstance(obj.get(chave), dict):
+                obj[chave] = {inv.get(k, k): v for k, v in obj[chave].items()}
+        out[f.stem] = obj
+    return out
+
+
 def _foto_quadri(fotos: dict, t0: str, rebal: list[str]) -> tuple[str | None, dict | None]:
     """Fotografia mais próxima de t0 dentro do mesmo quadrimestre (nenhum rebalanceamento entre as duas datas)."""
     melhor = None
@@ -425,8 +445,7 @@ def decomp_ibov(M: dict) -> dict | None:
         if h and q.get("data") and q["data"] > h[-1][0]:
             hist[cod] = h + [[q["data"], q["preco"]]]
     prov = proventos_completos(C)
-    fotos_dir = config.DATA / "ibov_carteira"
-    fotos = {f.stem: json.loads(f.read_text(encoding="utf-8")) for f in sorted(fotos_dir.glob("*.json"))} if fotos_dir.exists() else {}
+    fotos = carrega_fotos()
     calend = sorted({d for h in hist.values() for d, _ in h})
     if not calend:
         return None
@@ -628,8 +647,7 @@ def linha_ibov_painel(D: dict, M: dict) -> str:
         if h and q.get("data") and q["data"] > h[-1][0]:
             hist[cod] = h + [[q["data"], q["preco"]]]
     calend = sorted({d for h in hist.values() for d, _ in h})
-    fdir = config.DATA / "ibov_carteira"
-    fotos = {f.stem: json.loads(f.read_text(encoding="utf-8")) for f in sorted(fdir.glob("*.json"))} if fdir.exists() else {}
+    fotos = carrega_fotos()
     rebal = [d for d in calend if d[5:7] in ("01", "05", "09") and d[8:10] <= "03" and d[5:7] != calend[0][5:7]] if calend else []
     ini_h = calend[0] if calend else "9999"
     prov_ini = min((p["com"] for ps in C.get("proventos", {}).values() for p in ps if p.get("com")), default="9999")
