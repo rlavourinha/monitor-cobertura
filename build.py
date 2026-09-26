@@ -2739,23 +2739,32 @@ JS = r"""
     function serie(id){var g=document.getElementById(id);if(!g)return null;var sc=g.querySelector('script.data');if(!sc)return null;
       try{var s=JSON.parse(sc.textContent).series[0].pts;return s.map(function(p){return [ord(p[0]),p[1]];});}catch(e){return null;}}
     var cache={};
+    function br(o){var dt=new Date((o-719163)*86400000);return String(dt.getUTCDate()).padStart(2,'0')+'/'+String(dt.getUTCMonth()+1).padStart(2,'0')+'/'+String(dt.getUTCFullYear()).slice(2);}
     function atualiza(e){var d0=e.detail.d0;var ch=document.querySelector('.janela[data-for="painel-ibov"] button.on');var rot=ch?ch.textContent:'';
+      // seleção por clique no gráfico (1º = início, 2º = fim) tem prioridade sobre os chips: a coluna segue o intervalo marcado
+      var sel=window.__sel||{};var t0=sel.t0?ord(sel.t0):null,t1=sel.t1?ord(sel.t1):null;
+      if(t0!==null)rot=br(t0)+(t1!==null?' – '+br(t1):' – hoje');
       document.querySelectorAll('th.varjan-h').forEach(function(th){th.textContent='Janela'+(rot?' · '+rot:'');});
       // a janela começa no fechamento anterior do Ibovespa (d0); para cada série, a base é o último ponto ANTES do 1º pregão
       // do Ibovespa dentro da janela (assim S&P/Treasury em YTD partem de 31/12, dia em que a B3 não abre — igual à coluna YTD)
       var ib=cache['painel-ibov']||(cache['painel-ibov']=serie('painel-ibov'));var lim=d0+1;
       if(ib){for(var k=0;k<ib.length;k++)if(ib[k][0]>d0){lim=ib[k][0];break;}}
       // MTD/YTD são de calendário: base = último ponto antes do 1º dia do mês/ano corrente (câmbio cota em feriados)
-      if(ch&&(ch.dataset.ytd||ch.dataset.mtd)&&e.detail.d1){var D1=new Date((e.detail.d1-719163)*86400000);lim=ch.dataset.ytd?ordDate(D1.getUTCFullYear(),1):ordDate(D1.getUTCFullYear(),D1.getUTCMonth()+1);}
+      if(t0===null&&ch&&(ch.dataset.ytd||ch.dataset.mtd)&&e.detail.d1){var D1=new Date((e.detail.d1-719163)*86400000);lim=ch.dataset.ytd?ordDate(D1.getUTCFullYear(),1):ordDate(D1.getUTCFullYear(),D1.getUTCMonth()+1);}
+      if(t0!==null)lim=t0+1;                       // seleção: base = último ponto até a data de início (igual ao gráfico)
       tds.forEach(function(td){var v=parseFloat(td.dataset.v);var taxa=td.dataset.taxa==='1';
         var s=cache[td.dataset.svg]||(cache[td.dataset.svg]=serie(td.dataset.svg));
         if(!s||isNaN(v)){td.textContent='—';td.className='varjan';return;}
         var base=null,bd=null;for(var i=0;i<s.length;i++){if(s[i][0]<lim&&s[i][1]!=null){base=s[i][1];bd=s[i][0];}else if(s[i][0]>=lim)break;}
         if(base===null){base=s[0][1];bd=s[0][0];}
-        var x=taxa?(v-base):(base?(v/base-1)*100:null);if(x===null||!isFinite(x)){td.textContent='—';td.className='varjan';return;}
-        var dt=new Date((bd-719163)*86400000);td.title='desde '+String(dt.getUTCDate()).padStart(2,'0')+'/'+String(dt.getUTCMonth()+1).padStart(2,'0')+'/'+dt.getUTCFullYear();
+        var vf=v,fd=null;                            // fim = 2º clique: último ponto da série até essa data; senão o "Último" da tabela
+        if(t1!==null){vf=null;for(var j=0;j<s.length;j++){if(s[j][0]<=t1&&s[j][1]!=null){vf=s[j][1];fd=s[j][0];}else if(s[j][0]>t1)break;}}
+        if(vf===null){td.textContent='—';td.className='varjan';return;}
+        var x=taxa?(vf-base):(base?(vf/base-1)*100:null);if(x===null||!isFinite(x)){td.textContent='—';td.className='varjan';return;}
+        td.title='de '+br(bd)+' a '+(fd!==null?br(fd):'hoje');
         td.textContent=(x>0?'+':'')+num(x,2)+(taxa?' p.p.':'%');td.className='varjan '+(x>0?'up':x<0?'dn':'');});}
     document.addEventListener('janela',function(e){if(e.target&&e.target.id==='painel-ibov')atualiza(e);});
+    document.addEventListener('selecao',function(){var g=document.getElementById('painel-ibov');if(g&&g._d0!==undefined)atualiza({detail:{d0:g._d0}});});
     var g=document.getElementById('painel-ibov');if(g&&g._d0!==undefined)atualiza({detail:{d0:g._d0}});
   })();
   // seleção global de datas: 1º clique em qualquer gráfico de linha = início, 2º = fim (invertidos se vier antes), 3º recomeça
