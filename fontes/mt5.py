@@ -82,10 +82,21 @@ def desligar() -> None:
         _ligado = False
 
 
-def _simbolo(ticker: str) -> str | None:
-    """Garante o símbolo no Observação do Mercado (senão o terminal não entrega tick)."""
+def _simbolo(ticker: str, espera: float = 8.0) -> str | None:
+    """Garante o símbolo no Observação do Mercado (senão o terminal não entrega tick) e espera o primeiro tick chegar.
+
+    Quando `initialize()` acabou de abrir o terminal, o histórico do símbolo leva alguns segundos para sincronizar e
+    `symbol_info_tick` devolve last=0 nesse meio-tempo; sem a espera, a primeira coleta após abrir o terminal vinha vazia.
+    """
+    import time
     if not _mt5.symbol_select(ticker, True):
         return None
+    fim = time.monotonic() + espera
+    while time.monotonic() < fim:
+        t = _mt5.symbol_info_tick(ticker)
+        if t and t.last:
+            break
+        time.sleep(0.5)
     return ticker
 
 
