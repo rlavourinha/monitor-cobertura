@@ -504,7 +504,20 @@ JANELAS = {
     "mensal": [("SGS mensais", mensal_sgs), ("realizado anual", mensal_realizado), ("carteiras CVM", mensal_carteiras_cvm)],
 }
 JANELAS["tudo"] = JANELAS["mensal"] + JANELAS["semanal"] + JANELAS["diario"]
-JANELAS["mt5"] = [("MT5 diário", mt5_diario), ("MT5 1 min", mt5_m1)]      # fora de "tudo": não roda no GitHub Actions
+def mt5_extrato_intraday():
+    """Extrato pequeno (últimos 21 pregões a 5 min e 5 pregões a 1 min) de IBOV, WDO$ e cobertura em data/mt5_intraday.json,
+    versionado: é o que o build do GitHub Actions usa para o seletor 'preço: diário / 5 min / 1 min' no site."""
+    import build
+    out = {}
+    for tk in ["IBOV", "WDO$"] + list(config.UNIVERSO):
+        r = build.mt5_intraday(tk)
+        if r:
+            out[tk] = r
+    _grava_json(config.DATA / "mt5_intraday.json", out)
+    return ", ".join(f"{k} {len(v['1 min'])}/{len(v['5 min'])}" for k, v in out.items())
+
+
+JANELAS["mt5"] = [("MT5 diário", mt5_diario), ("MT5 1 min", mt5_m1), ("MT5 extrato intraday", mt5_extrato_intraday)]   # fora de "tudo": não roda no GitHub Actions
 
 
 def main() -> int:

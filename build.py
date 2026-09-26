@@ -101,7 +101,12 @@ def mt5_intraday(ticker: str, dias_1m: int = 5, dias_5m: int = 21, escala: float
     Preços de ações no MT5 vêm ajustados por proventos; para índices (IBOV) são os próprios pontos."""
     import csv, gzip
     p = config.DATA / "mt5" / "m1" / f"{ticker}_{date.today().year}.csv.gz"
-    if not p.exists():
+    if not p.exists():                       # fora deste PC (GitHub Actions): usa o extrato publicado pela janela mt5
+        pj = config.DATA / "mt5_intraday.json"
+        if pj.exists():
+            J = json.loads(pj.read_text(encoding="utf-8"))
+            if ticker in J:
+                return {k: [[h, v * escala] for h, v in pts] for k, pts in J[ticker].items()}
         return None
     with gzip.open(p, "rt", encoding="utf-8", newline="") as fh:
         rows = [(r["hora"], float(r["fechamento"]) * escala) for r in csv.DictReader(fh) if r.get("hora")]
