@@ -1445,7 +1445,18 @@ def slide_painel(M: dict, sgs: dict, mercado_micro: dict, minhas: list[dict], co
             var[0] = var1d                                    # 1 d pela cotação intraday (fechamento anterior do mesmo contrato/instrumento)
         cels = "".join(f'<td class="{dlt_cls(x)}">{num(x, 2, "+" if x and x > 0 else "", " p.p." if taxa else "%") if x is not None else "—"}</td>' for x in var)
         jan = f'<td class="varjan" data-svg="{svg}" data-v="{v if v is not None else ""}" data-taxa="{1 if taxa else 0}">—</td>'
-        linhas_m.append(f'<tr><td class="tk">{nome}</td><td style="font-weight:600">{num(v, dec, suf=suf)}</td>{cels}{jan}</tr>')   # coluna de observação saiu (pedido 26/09)
+        # mínimo e máximo dos últimos 12 meses (níveis), incluindo o último ponto intraday
+        s12 = [[d, x] for d, x in serie if x is not None]
+        if ultimo and s12 and ultimo[0] > s12[-1][0]:
+            s12 = s12 + [list(ultimo)]
+        if s12:
+            corte = (date.fromisoformat(s12[-1][0]) - timedelta(days=365)).isoformat()
+            vals = [x for d, x in s12 if d >= corte]
+            mn, mx = (min(vals), max(vals)) if vals else (None, None)
+        else:
+            mn = mx = None
+        mm = f'<td class="mut">{num(mn, dec, suf=suf) if mn is not None else "—"}</td><td class="mut">{num(mx, dec, suf=suf) if mx is not None else "—"}</td>'
+        linhas_m.append(f'<tr><td class="tk">{nome}</td><td style="font-weight:600">{num(v, dec, suf=suf)}</td>{mm}{cels}{jan}</tr>')
     for nome, rot, dec in (("Ibovespa", "Ibovespa", 0), ("S&P 500", "S&P 500", 0), ("USD/BRL", "USD/BRL", 2), ("Brent (US$)", "Brent (US$/bbl)", 2),
                            ("VIX", "VIX (CBOE, S&P 500 30 d)", 2)):
         q = mk.get(nome) or {}
@@ -1457,7 +1468,7 @@ def slide_painel(M: dict, sgs: dict, mercado_micro: dict, minhas: list[dict], co
     linha("Pré 10 anos (Tesouro)", pre10, taxa=True, suf="%", svg="painel-pre10")
     med35 = (sum(v for _, v in n35) / len(n35)) if n35 else None
     linha("NTN-B 2035 (real)", n35, taxa=True, suf="%", obs=f"média hist. {num(med35, 2, suf='%')}", svg="ntnb35")
-    cab_m = ('<thead><tr><th>Variável</th><th>Último</th><th>1 d</th><th>5 d</th><th>MTD</th><th>YTD</th><th>12 m</th>'
+    cab_m = ('<thead><tr><th>Variável</th><th>Último</th><th>Mín 12 m</th><th>Máx 12 m</th><th>1 d</th><th>5 d</th><th>MTD</th><th>YTD</th><th>12 m</th>'
              '<th class="varjan-h" title="Variação na janela escolhida nos chips do gráfico do Ibovespa (abaixo)">Janela</th></tr></thead>')
     tab_var = f'<div class="pbox tabvar" style="padding:6px 10px"><table class="mini" style="width:100%">{cab_m}<tbody>{"".join(linhas_m)}</tbody></table></div>'
     # à direita: variação dos setores do Ibovespa nas mesmas janelas (calculada no navegador com #ibov-dados; clique = papéis do setor)
