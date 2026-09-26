@@ -84,6 +84,26 @@ def dividendos(sym: str) -> list[list]:
         return []
 
 
+def desdobramentos(sym: str) -> list[list]:
+    """[[data-ex, numerador, denominador], ...] (Yahoo chart API, events=split): desdobramentos, grupamentos e também
+    bonificações (110:100 = bonificação de 10%). Cobre o que a B3 só mantém por ~13 meses."""
+    url = f"https://query1.finance.yahoo.com/v8/finance/chart/{sym}?period1=0&period2={int(datetime.now().timestamp())}&interval=1d&events=split"
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    try:
+        with urllib.request.urlopen(req, timeout=30) as r:
+            res = json.load(r)["chart"]["result"][0]
+        ev = (res.get("events") or {}).get("splits") or {}
+        out = []
+        for k, v in ev.items():
+            num, den = float(v.get("numerator") or 0), float(v.get("denominator") or 0)
+            if num > 0 and den > 0 and num != den:
+                out.append([datetime.fromtimestamp(int(v.get("date") or k)).strftime("%Y-%m-%d"), num, den])
+        return sorted(out)
+    except Exception as e:
+        print(f"  Yahoo desdobramentos {sym}: {e}", file=sys.stderr)
+        return []
+
+
 def consenso(sym: str, ticker: str, acoes: int | None) -> list[dict]:
     """Linhas no schema config.CAMPOS para os anos fiscais corrente e próximo."""
     try:

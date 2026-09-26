@@ -111,6 +111,26 @@ COTAHIST_DESDE = 2019
 ALIAS_TICKER = {"AXIA3": "ELET3", "EMBJ3": "EMBR3", "NATU3": "NTCO3", "MOTV3": "CCRO3", "MBRF3": "MRFG3",
                 "VBBR3": "BRDT3", "ALOS3": "ALSO3", "AZZA3": "ARZZ3", "BRAV3": "RRRP3", "ISAE4": "TRPL4"}
 
+# Setor dos papéis que já saíram do Ibovespa (a B3 só informa o subsetor da carteira atual). Usado pela decomposição
+# encadeada, em que cada papel contribui enquanto esteve no índice. Quem não estiver aqui aparece como "Ex-constituintes".
+# IR retido sobre JCP: a B3 ajusta o Ibovespa pelo provento LÍQUIDO (JCP × 0,85); dividendos são isentos
+JCP_IR = 0.15
+
+SETOR_EX = {
+    "CIEL3": "Financeiro", "IRBR3": "Financeiro", "SULA11": "Financeiro", "BIDI11": "Financeiro", "BPAN4": "Financeiro", "CASH3": "Financeiro",
+    "BRKM5": "Materiais básicos", "DXCO3": "Materiais básicos", "FIBR3": "Materiais básicos", "DTEX3": "Materiais básicos",
+    "AMER3": "Consumo cíclico", "BTOW3": "Consumo cíclico", "LAME4": "Consumo cíclico", "CVCB3": "Consumo cíclico", "PETZ3": "Consumo cíclico",
+    "HGTX3": "Consumo cíclico", "LCAM3": "Consumo cíclico", "ALPA4": "Consumo cíclico", "SOMA3": "Consumo cíclico", "VIIA3": "Consumo cíclico",
+    "BHIA3": "Consumo cíclico", "VVAR3": "Consumo cíclico", "KROT3": "Consumo cíclico", "ESTC3": "Consumo cíclico", "MEAL3": "Consumo cíclico",
+    "GOLL4": "Bens industriais", "AZUL4": "Bens industriais", "ECOR3": "Bens industriais", "RAPT4": "Bens industriais",
+    "QUAL3": "Saúde", "GNDI3": "Saúde", "DASA3": "Saúde",
+    "JBSS3": "Consumo não cíclico", "BRFS3": "Consumo não cíclico", "CRFB3": "Consumo não cíclico", "PCAR3": "Consumo não cíclico",
+    "SLCE3": "Consumo não cíclico", "SMTO3": "Consumo não cíclico", "MDIA3": "Consumo não cíclico",
+    "ENBR3": "Utilidade pública", "ELET6": "Utilidade pública", "CPLE6": "Utilidade pública", "LIGT3": "Utilidade pública", "EGIE3": "Utilidade pública",
+    "EZTC3": "Imobiliário", "BRML3": "Imobiliário", "IGTA3": "Imobiliário", "JHSF3": "Imobiliário", "GFSA3": "Imobiliário",
+    "RAIZ4": "Petróleo e gás", "LWSA3": "Tecnologia", "POSI3": "Tecnologia", "TIMP3": "Telecom", "OIBR3": "Telecom",
+}
+
 # Fundos cuja carteira é lida na CVM (CDA mensal, sigilo de 180 dias). Usar o CNPJ do MASTER (o feeder só tem cotas).
 FUNDOS_CVM = {"Dynamo Cougar": "37.916.879/0001-26"}
 

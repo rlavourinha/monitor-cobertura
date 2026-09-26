@@ -115,6 +115,35 @@ Financial via Yahoo (`BZ{mês}{aa}.NYM`, códigos F…Z), até ~24 meses, passo 
 fotografia por dia em `data/brent_curva.json`; o gráfico mostra a curva de hoje contra a fotografia mais antiga e o
 preço à vista como referência.
 
+**Decomposição encadeada.** Quando a janela cruza rebalanceamentos e cada quadrimestre tem fotografia, a
+decomposição é feita trecho a trecho com a carteira vigente em cada um: os trechos se encontram no fechamento do dia
+anterior a cada rebalanceamento (o redutor novo é calibrado para o índice ser contínuo ali), as variações em pontos de
+índice se somam por papel, e cada papel contribui só enquanto esteve no índice. Assim os que saíram aparecem com a
+contribuição real (setor de `config.SETOR_EX`; sem registro, "Ex-constituintes") em vez do bloco "saíram do índice".
+Se algum quadrimestre da janela não tem fotografia, cai para a fotografia única. Cabeçalho: "encadeado em N trechos".
+Ajustes de quantidade: proventos da B3 (13 meses, bonificações deduplicadas por classe), dividendos do Yahoo (também
+dos ex-constituintes) e **grupamentos/desdobramentos inferidos** de saltos de preço fora da cobertura (razão inteira,
+ex.: HAPV3 15:1 em jun/2025); grupamento n:1 multiplica a quantidade por n para trás e divide para frente.
+**Fontes dos eventos, em ordem:** suplemento da B3 (`GetListedSupplementCompany`, ~13 meses: dinheiro + bonificações/
+desdobramentos com `assetIssued`), histórico completo de proventos em dinheiro da B3 (`GetListedCashDividends`, paginado,
+com o **fechamento oficial na data-com** `closingPricePriorExDate` = a referência do redutor; `prov_b3_hist`), desdobramentos/
+grupamentos/bonificações do Yahoo (`events=split`; 110:100 = bonificação de 10%: ITUB4 18/03/2025, CMIG4 30% 30/04/2024,
+GGBR4 6:5 18/04/2024 — pequenos demais para a inferência por salto; `split_yahoo`), dividendos do Yahoo só como reserva
+(valores na base de ações de hoje, desfeitos pelos splits posteriores) e, por fim, saltos inferidos. **Saída no meio do
+quadrimestre** (OPA da CIEL3, incorporação da BRFS3/JBSS3, conversão ELET6/CPLE6/AXIA6): o papel contribui até o último
+fechamento e dali em diante o índice redistribui o valor dele nos que ficam (fator S = valor total / valor dos que ficam),
+mantendo a continuidade do índice.
+**JCP líquido.** A B3 ajusta o Ibovespa pelo JCP líquido de IR (× 0,85, `config.JCP_IR`); com o bruto a réplica derivava
++0,15%/quadrimestre, com o líquido fecha em ±0,05% (teste de 26/09/2026). Dividendos são isentos e entram brutos.
+`window.__ibovEncDbg` (console) lista, por trecho, a fotografia usada, as saídas e o desvio da réplica no início e no fim.
+A coluna **Var.** de cada papel é ajustada pelos mesmos eventos (`_fator_preco` / `varPreco`): um desdobramento 1:5
+(SBSP3, 29/04/2026) não aparece como queda de 80%. **Bonificação paga em outra classe** (CYRE3 → CYRE4, RENT3 → RENT4,
+AXIA3/5/6 → AXIA7; detectada por `assetIssued` ≠ `isinCode` no `GetListedSupplementCompany`) não muda a quantidade nem a
+variação do papel: vira provento em espécie (fator × 1º fechamento da classe nova), como um dividendo. Os eventos de
+capital são filtrados pela classe do ticker (ISIN) e a coleta cobre também os papéis que saíram do índice nos últimos
+14 meses. A classe nova (CYRE4) entra na carteira do quadrimestre seguinte; sem fechamento no dia anterior ao
+rebalanceamento, usa o 1º fechamento disponível.
+
 **Uma janela só.** No Painel, a janela do gráfico do Ibovespa (1 d, 5 d, 21 d, ano, 1a, 2a, 3a, 5a, 10a, máx) é a
 janela da decomposição: a decomposição vai do primeiro pregão dentro da janela até hoje e é recalculada no navegador a
 cada troca. Clicar num ponto do gráfico faz a decomposição começar naquela data (a janela não muda) e desenha um

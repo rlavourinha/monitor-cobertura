@@ -261,6 +261,17 @@ def _iso(d: str) -> str | None:
     return f"{d[6:]}-{d[3:5]}-{d[:2]}" if d and len(d) == 10 else None
 
 
+_SUFIXO_CLASSE = {"ON": "3", "PN": "4", "PNA": "5", "PNB": "6", "PNC": "7", "PND": "8"}
+
+
+def _classe_isin(isin: str) -> str:
+    """Classe da ação pelo ISIN da B3 (posições 7-9: OR = ON, PR = PN, PA/PB/PC/PD = PN classes A-D); '' se não for ação."""
+    if len(isin) < 12 or isin[6:9] not in ("ACN", "CDA"):
+        return ""
+    tipo = isin[9:11]
+    return {"OR": "ON", "PR": "PN", "PA": "PNA", "PB": "PNB", "PC": "PNC", "PD": "PND"}.get(tipo, "")
+
+
 def proventos_ticker(ticker: str, classe: str, desde_iso: str) -> list[dict]:
     """Proventos e eventos de capital do papel (canal de listadas, GetListedSupplementCompany por código da empresa),
     já convertidos para 'por unidade do ticker' (ON, PN ou unit). [{com, valor, acao}] e [{com, fator, acao}] misturados:
@@ -301,15 +312,108 @@ def proventos_ticker(ticker: str, classe: str, desde_iso: str) -> list[dict]:
                 for v in por_com.values():
                     if v["classe"] == alvo or (not tem_alvo and v["classe"] == "ON"):
                         out.append({"com": v["com"], "valor": v["valor"], "acao": v["acao"]})
-            for x in r.get("stockDividends") or []:
+            vistos = set()
+            suf = ticker[4:]
+            alvo_cl = ("UNT" if classe == "UNT" or suf == "11" else
+                       {"3": "ON", "4": "PN", "5": "PNA", "6": "PNB", "7": "PNC", "8": "PND"}.get(suf, "PN" if classe.startswith("PN") else "ON"))
+            for x in r.get("stockDividends") or []:            # a B3 repete o evento por classe (ON/PN); um só por (data, evento, fator)
                 com = _iso(x.get("lastDatePrior") or "")
-                if com and com >= desde_iso:
-                    out.append({"com": com, "fator": _br(x.get("factor")), "acao": x.get("label")})
+                k = (com, x.get("label"), _br(x.get("factor")))
+                if not com or com < desde_iso or k in vistos:
+                    continue
+                cl_isin = _classe_isin(x.get("isinCode") or "")
+                if alvo_cl != "UNT" and cl_isin and cl_isin != alvo_cl:   # evento de outra classe da mesma empresa (ex.: só a PN)
+                    continue
+                vistos.add(k)
+                ev = {"com": com, "fator": _br(x.get("factor")), "acao": x.get("label")}
+                emitido = _classe_isin(x.get("assetIssued") or "")
+                if emitido and cl_isin and emitido != cl_isin:            # bonificação paga em ações de OUTRA classe (CYRE3 -> CYRE4)
+                    ev["em"] = cod + _SUFIXO_CLASSE.get(emitido, "")
+                out.append(ev)
             return sorted(out, key=lambda v: v["com"])
         except Exception as e:
             if tentativa:
                 print(f"  proventos {ticker}: {e}", file=sys.stderr)
     return []
+
+
+def trading_name(ticker: str) -> str | None:
+    """Nome de pregão (tradingName) da empresa pelo código de negociação, via GetInitialCompanies (busca por código)."""
+    for tentativa in range(2):
+        try:
+            r = _listadas("GetInitialCompanies", {"language": "pt-br", "pageNumber": 1, "pageSize": 20, "company": ticker})
+            rows = r.get("results", []) if isinstance(r, dict) else (r or [])
+            for x in rows:
+                if (x.get("issuingCompany") or "") == ticker[:4] and x.get("tradingName"):
+                    return x["tradingName"]
+            if rows and rows[0].get("tradingName"):
+                return rows[0]["tradingName"]
+            if tentativa:
+                return None
+        except Exception as e:
+            if tentativa:
+                print(f"  tradingName {ticker}: {e}", file=sys.stderr)
+    return None
+
+
+def proventos_historico(trading_name: str, ticker: str, classe: str) -> list[dict]:
+    """TODO o histórico de proventos em dinheiro da empresa (GetListedCashDividends, paginado), por unidade do ticker:
+    [{com, valor, pcum, acao}] com o fechamento oficial na data-com (closingPricePriorExDate) — a mesma referência do redutor
+    do Ibovespa. ON/PN pela classe (typeStock); units somam ON×a + PN×b (config UNIT_COMP; PN = ON se faltar)."""
+    rows, pg = [], 1
+    while True:
+        r = None
+        for tentativa in range(2):
+            try:
+                r = _listadas("GetListedCashDividends", {"language": "pt-br", "pageNumber": pg, "pageSize": 100, "tradingName": trading_name})
+                break
+            except Exception as e:
+                if tentativa:
+                    print(f"  proventos histórico {trading_name} p{pg}: {e}", file=sys.stderr)
+        res = (r or {}).get("results") or [] if isinstance(r, dict) else []
+        rows += res
+        total = ((r or {}).get("page") or {}).get("totalPages") if isinstance(r, dict) else None
+        if not res or not total or pg >= total or pg > 30:
+            break
+        pg += 1
+    def _num(s):
+        try:
+            return float(str(s or "0").replace(".", "").replace(",", "."))
+        except ValueError:
+            return 0.0
+    por: dict[tuple, dict] = {}
+    for x in rows:
+        com = x.get("lastDatePriorEx") or ""
+        if len(com) != 10:
+            continue
+        com_iso = f"{com[6:]}-{com[3:5]}-{com[:2]}"
+        tipo = (x.get("typeStock") or "ON").upper()
+        cl = "PN" if tipo.startswith("PN") else "ON"
+        if tipo.startswith("PN") and len(tipo) > 2 and classe.startswith("PN") and classe != "PN" and tipo != classe:
+            continue                                            # PNA/PNB: só a classe do ticker
+        valor = _num(x.get("valueCash")) / (_num(x.get("quotedPerShares")) or 1.0)
+        k = (com_iso, x.get("corporateAction"), round(valor, 8), cl)
+        por[k] = {"com": com_iso, "valor": valor, "pcum": _num(x.get("closingPricePriorExDate")) or None, "acao": x.get("corporateAction"), "classe": cl}
+    out = []
+    if classe == "UNT":
+        a_on, a_pn = UNIT_COMP.get(ticker, (1, 0))
+        grupos: dict[tuple, dict] = {}
+        for v in por.values():
+            g = grupos.setdefault((v["com"], v["acao"]), {"ON": 0.0, "PN": None, "pcum": None})
+            if v["classe"] == "PN":
+                g["PN"] = (g["PN"] or 0.0) + v["valor"]
+            else:
+                g["ON"] += v["valor"]
+        for (com, acao), g in grupos.items():
+            pn = g["PN"] if g["PN"] is not None else g["ON"]
+            out.append({"com": com, "valor": g["ON"] * a_on + pn * a_pn, "acao": acao})   # pcum da unit: fechamento oficial da própria unit
+    else:
+        alvo = "PN" if classe.startswith("PN") else "ON"
+        tem_alvo = any(v["classe"] == alvo for v in por.values())
+        for v in por.values():
+            if v["classe"] == alvo or (not tem_alvo and v["classe"] == "ON"):
+                out.append({"com": v["com"], "valor": v["valor"], "pcum": v["pcum"] if v["classe"] == alvo else None, "acao": v["acao"]})
+    return sorted(out, key=lambda v: v["com"])
 
 
 def proventos_recentes(trading_name: str, desde_iso: str) -> list[dict]:

@@ -194,6 +194,15 @@ def diario_ibov_comp():
     prov = {}
     for it in c["itens"]:
         prov[it["cod"]] = b3.proventos_ticker(it["cod"], it.get("classe", "ON"), desde)
+    # papéis que saíram do índice nos últimos ~14 meses (fotografias recentes): os eventos enquanto estavam na carteira
+    # entram na decomposição encadeada (ex.: bonificação da AXIA6 em AXIA7 antes de sair)
+    recentes = set()
+    for f in fdir.glob("*.json"):
+        if f.stem >= (date.today() - timedelta(days=430)).isoformat():
+            recentes |= set(_le_json(f, {}).get("q", {}))
+    for cod in sorted(recentes - set(prov)):
+        classe = "UNT" if cod.endswith("11") else ("PN" if cod[4:] in ("4", "5", "6", "7", "8") else "ON")
+        prov[cod] = b3.proventos_ticker(cod, classe, desde)
     obj = _le_json(config.DATA / "ibov_comp.json", {}); obj["hist"] = hist; obj["proventos"] = prov
     _grava_json(config.DATA / "ibov_comp.json", obj)
     return f"{len(c['itens'])} papéis, {len(hist)} com histórico B3, {sum(len(v) for v in prov.values())} proventos recentes, carteira de {c['data']}"
@@ -244,15 +253,43 @@ def semanal_ibov_dy_hist():
     itens = C.get("itens", [])
     if not itens:
         return "sem carteira"
-    divs, closes = {}, {}
+    divs, closes, splits = {}, {}, {}
     for it in itens:
         sym = it["cod"] + ".SA"
         divs[it["cod"]] = yahoo.dividendos(sym)
+        splits[it["cod"]] = yahoo.desdobramentos(sym)
         closes[it["cod"]] = yahoo.historico(sym, "max")
-    # guarda os dividendos históricos (data ex, valor) em ibov_comp.json: a decomposição usa-os para reconstruir a
-    # quantidade teórica em datas anteriores à cobertura do canal da B3 (~13 meses)
+    # dividendos e desdobramentos também dos papéis que já saíram do índice (fotografias antigas): a decomposição
+    # encadeada precisa ajustar a quantidade teórica deles enquanto estiveram na carteira
+    antigos = set()
+    for f in (config.DATA / "ibov_carteira").glob("*.json"):
+        antigos |= set(_le_json(f, {}).get("q", {}))
+    inv = {v: k for k, v in getattr(config, "ALIAS_TICKER", {}).items()}
+    classe_de = {it["cod"]: it.get("classe", "ON") for it in itens}
+    for cod in sorted(antigos):
+        cod_n = inv.get(cod, cod)
+        if cod_n in divs or cod in divs:
+            continue
+        divs[cod_n] = yahoo.dividendos(cod_n + ".SA") or yahoo.dividendos(cod + ".SA")
+        splits[cod_n] = yahoo.desdobramentos(cod_n + ".SA") or yahoo.desdobramentos(cod + ".SA")
+    # histórico COMPLETO de proventos em dinheiro pela B3 (GetListedCashDividends, com o fechamento oficial na data-com):
+    # fonte primária para reconstruir a quantidade teórica antes da cobertura de 13 meses do suplemento; Yahoo só como reserva
     obj = _le_json(config.DATA / "ibov_comp.json", {})
+    hist_b3 = obj.get("prov_b3_hist", {}) or {}
+    nomes = {it["cod"]: it.get("nome") for it in itens}
+    for cod in sorted(set(divs)):
+        tn = nomes.get(cod) or b3.trading_name(cod)
+        if not tn:
+            continue
+        classe = classe_de.get(cod) or ("UNT" if cod.endswith("11") else ("PN" if cod[4:] in ("4", "5", "6", "7", "8") else "ON"))
+        lst = b3.proventos_historico(tn, cod, classe)
+        if lst:
+            hist_b3[cod] = [p for p in lst if p["com"] >= "2018-06-01"]
+    # guarda em ibov_comp.json: a decomposição usa-os para reconstruir a quantidade teórica em datas anteriores à
+    # cobertura do canal da B3 (~13 meses); os desdobramentos do Yahoo cobrem bonificações pequenas (110:100 = 10%)
     obj["prov_yahoo"] = {k: [[d, v] for d, v in vs if d >= "2019-01-01"] for k, vs in divs.items() if vs}
+    obj["split_yahoo"] = {k: [s for s in vs if s[0] >= "2018-06-01"] for k, vs in splits.items() if vs}
+    obj["prov_b3_hist"] = hist_b3
     _grava_json(config.DATA / "ibov_comp.json", obj)
     ini = date(2010, 1, 31)
     meses = []
