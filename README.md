@@ -51,11 +51,14 @@ do DY), marcados como aproximados.
 - **GitHub, arquivos `IBOVDia_dd-mm-aa.csv`** que usuários baixaram da B3 e commitaram: set e out/2021, jun/2023,
   mar/2024, ago/2024, dez/2024, jun e jul/2025. Alguns vêm sem o rodapé; o redutor é derivado
   (Σ quantidade × fechamento ÷ Ibovespa do dia, `ibov_wayback.preenche_redutores`, campo `redutor_derivado`).
+- **Boletim Diário do Mercado em PDF** (`fontes/ibov_bdi_pdf.py`): a B3 serve o capítulo "Indicadores e informativos"
+  por URL para qualquer data desde set/2022 (`arquivos.b3.com.br/bdi/download/bdi/{data}/BDI_02_{data}.pdf`), e ele
+  traz a composição do Ibovespa do quadrimestre com quantidade teórica e participação na data de abertura da carteira.
+  `pdftotext -table` extrai a tabela limpa; um PDF por quadrimestre cobre set/2022 em diante. Redutor derivado.
 - **B3 ao vivo:** todo dia desde 25/09/2026.
-Quadrimestres ainda sem fotografia: 2022 inteiro, jan–abr e set–dez/2023, set/2025 a ago/2026. Nesses, janela que
-cruza o rebalanceamento continua aproximada. Para fechar, precisa de mais arquivos IBOVDia dessas datas (qualquer
-`IBOVDia_*.csv` baixado da B3 na época serve: basta pôr o arquivo em `data/ibov_carteira/` no formato das outras
-fotografias) ou da carteira histórica de um terminal.
+Com isso todo quadrimestre desde jan/2019 tem pelo menos uma fotografia (jan–abr/2022 e mai–ago/2022 dependem do
+Wayback/GitHub). Onde faltar, a janela que cruza o rebalanceamento continua aproximada; qualquer `IBOVDia_*.csv`
+baixado da B3 na época fecha o buraco (pôr em `data/ibov_carteira/` no formato das outras fotografias).
 Códigos antigos nas fotografias são traduzidos por `config.ALIAS_TICKER` (ELET3→AXIA3, ALSO3→ALOS3, ARZZ3→AZZA3,
 RRRP3→BRAV3, TRPL4→ISAE4, BRDT3→VBBR3...), e `b3.serie` emenda as séries de preço; o código antigo prevalece
 enquanto negociou (NATU3 existiu antes de 2020 e voltou em 2025).
@@ -86,6 +89,8 @@ alternativa, mas não é necessário. Enviar o arquivo de workflow exige o escop
   outros) no mercado de ações, **acumuladas do início do mês até a data de referência** (D-2 da consulta, lida do texto
   da tabela). A B3 só serve os últimos ~20 dias, então a série diária é construída aqui: saldo do dia = diferença entre
   dois acumulados consecutivos do mesmo mês. Começa em 25/08/2026.
+- Histórico anterior (12 meses, desde 29/09/2025): tabela do Dados de Mercado (dadosdemercado.com.br/fluxo), que compila
+  a mesma tabela da B3 e bate ao centavo na sobreposição; guardado em `historico` no mesmo JSON (saldo diário, R$ mi).
 - `SharesInvesVolumMonthly`: participação por segmento (à vista, termo, opções, exercícios, blocos) do mês anterior.
 - `PreviaQuadrimestral` (filho `OficialWalletIbovespa`): composição do Ibovespa do quadrimestre corrente (sem histórico).
 Cash × futuro: essa tabela é só o mercado de ações (segmento Bovespa). A posição do estrangeiro em futuro de índice
@@ -96,9 +101,16 @@ investidor); ficou fora.
 do dia (`QUATOT`, `VOLTOT`) além do fechamento; `b3.serie(ticker, ("fechamento", "quantidade", "volume"))`. A tabela
 Cobertura do Painel mostra o volume do dia e a razão contra a média de 20 pregões.
 
-**Clique no setor.** Na decomposição do Painel, clicar numa barra (ou no nome) de setor abre, na caixa "quem puxou,
-quem segurou", todos os papéis daquele setor na janela ativa (dia/5 d/20 d/ano ou a data clicada no gráfico), com
-peso, variação e contribuição; "todos os setores" volta.
+**Clique no setor.** Na decomposição do Painel, clicar numa barra (ou no nome) de setor desce do setor para as
+empresas: o gráfico de setores dá lugar às barras dos papéis daquele setor na janela ativa (1 d / 5 d / 21 d / ano ou a
+data clicada no gráfico), e a caixa ao lado lista peso, variação e contribuição de cada um; "← setores" volta.
+
+**De-para de setores** (`b3.SETOR_MACRO` por prefixo do subsetor da B3, `b3.SETOR_EXCECAO` por trecho): a B3 põe
+shoppings em "Financeiro e Outros / Exploração de Imóveis" e incorporadoras em "Consumo Cíclico / Construção Civil";
+no painel os dois viram **Imobiliário**. "Diversos" (aluguel de carros, educação) é "Consumo Cíclico / Diversos" na
+B3, então vai para Consumo cíclico. Holdings (ITSA4), seguradoras e B3 ficam em Financeiro. Os demais seguem o setor
+da B3: Petróleo e gás, Materiais básicos, Bens industriais, Consumo não cíclico, Saúde, Tecnologia, Telecom, Utilidade
+pública.
 
 ## Dividend yield do Ibovespa
 

@@ -314,7 +314,7 @@ def svg_spark(titulo: str, pts: list[list], cor: str, dec: int, pref="", suf="",
             f'<text class="tick" x="{X(datetime.fromisoformat(pts[imin][0]).toordinal()):.1f}" y="{Y(pts[imin][1]) + 11:.1f}" text-anchor="middle">{num(pts[imin][1], dec)}</text></svg>')
 
 
-JANELAS_IBOV = [("dia", "dia", 1), ("5d", "5 d", 5), ("20d", "20 d", 20), ("ano", "ano", None)]
+JANELAS_IBOV = [("dia", "1 d", 1), ("5d", "5 d", 5), ("21d", "21 d", 21), ("ano", "ano", None)]
 UNIT_COMP = {"BPAC11": 3, "ENGI11": 5, "IGTI11": 3, "KLBN11": 5, "SANB11": 2, "TAEE11": 3}   # units com composição conhecida (o valor por unit já vem somado da coleta)
 
 
@@ -713,24 +713,29 @@ def slide_fluxo_investidores(M: dict) -> tuple[str, str] | None:
     tot_c = sum(v[0] for v in acum.values()); tot_v = sum(v[1] for v in acum.values())
     def saldo_mes(t):
         return (acum[t][0] - acum[t][1]) / 1000.0 if t in acum else None
-    tiles = "".join(f'<div class="tile"><div class="l">{lab} · saldo no mês</div><div class="v {dlt_cls(saldo_mes(t))}">{num(saldo_mes(t), 0, "+" if (saldo_mes(t) or 0) > 0 else "", " mi")}</div>'
-                    f'<div class="d">{num(acum[t][0] / tot_c * 100, 1, suf="%") if t in acum and tot_c else "—"} das compras · {num(acum[t][1] / tot_v * 100, 1, suf="%") if t in acum and tot_v else "—"} das vendas</div></div>'
+    ano = ult[:4]
+    def soma(t, desde):
+        return sum(r.get(t) or 0 for r in serie if r["data"] >= desde)
+    def soma_n(t, n):
+        return sum(r.get(t) or 0 for r in serie[-n:])
+    def sfmt(v, dec=0, suf=" mi"):
+        return num(v, dec, "+" if v > 0 else "", suf)
+    tiles = "".join(f'<div class="tile"><div class="l">{lab} · 1 d / 5 d / 21 d</div><div class="v {dlt_cls(soma_n(t, 1))}">{sfmt(soma_n(t, 1))}</div>'
+                    f'<div class="d">5 d {sfmt(soma_n(t, 5))} · 21 d {sfmt(soma_n(t, 21))} · mês {sfmt(saldo_mes(t) or 0)} · ano {sfmt(soma(t, ano + "-01-01") / 1000, 1, " bi")} · 12 m {sfmt(soma(t, serie[0]["data"]) / 1000, 1, " bi")}</div></div>'
                     for t, lab, _ in tipos)
-    # saldo diário do estrangeiro (colunas) e acumulado no mês por tipo (linhas)
-    dias = [r for r in serie if r["data"][:7] == mes] or serie[-20:]
-    g_dia = svg_colunas(f"Estrangeiro · saldo diário no mercado de ações (R$ mi), {mes[5:]}/{mes[:4]}", [r["data"][8:] for r in dias],
-                        [r.get("estrangeiro") for r in dias], [S1 if (r.get("estrangeiro") or 0) >= 0 else "var(--dn)" for r in dias], 0, "", W=560, H=175, rotulos=True, passo_rotulo_x=1)
+    # saldo diário do estrangeiro (colunas, últimos 40 pregões) e acumulado por tipo desde o início da série (linhas)
+    dias = serie[-40:]
+    g_dia = svg_colunas(f"Estrangeiro · saldo diário no mercado de ações (R$ mi), últimos 40 pregões", [r["data"][8:] + "/" + r["data"][5:7] if i % 4 == 0 else "" for i, r in enumerate(dias)],
+                        [r.get("estrangeiro") for r in dias], [S1 if (r.get("estrangeiro") or 0) >= 0 else "var(--dn)" for r in dias], 0, "", W=560, H=175, rotulos=False, passo_rotulo_x=1)
     series = []
     for t, lab, cor in tipos:
         acc, pts = 0.0, []
         for r in serie:
-            if r["data"][:7] != mes:
-                continue
             acc += r.get(t) or 0
-            pts.append([r["data"], acc])
+            pts.append([r["data"], acc / 1000])
         if pts:
             series.append((lab, cor, pts))
-    g_acum = svg_linhas("fluxo-acum", series, 0, suf=" mi", W=520, H=175, titulo=f"Acumulado no mês por tipo (R$ mi)")
+    g_acum = svg_linhas("fluxo-acum", series, 1, suf=" bi", W=520, H=175, titulo=f"Acumulado por tipo desde {serie[0]['data'][8:]}/{serie[0]['data'][5:7]}/{serie[0]['data'][2:4]} (R$ bi)")
     leg = "".join(f'<span><i style="background:{c}"></i>{l}</span>' for _, l, c in tipos)
     tr = "".join(f'<tr><td class="tk">{lab}</td><td>{num(acum[t][0] / 1000, 0)}</td><td>{num(acum[t][1] / 1000, 0)}</td><td class="{dlt_cls(saldo_mes(t))}">{num(saldo_mes(t), 0, "+" if (saldo_mes(t) or 0) > 0 else "")}</td>'
                  f'<td>{num((acum[t][0] + acum[t][1]) / (tot_c + tot_v) * 100, 1, suf="%") if (tot_c + tot_v) else "—"}</td></tr>' for t, lab, _ in tipos + [("outros", "Outros", "")] if t in acum)
@@ -751,7 +756,7 @@ def slide_fluxo_investidores(M: dict) -> tuple[str, str] | None:
     return slide("Macro", "fluxo-investidores", "Fluxo por tipo de investidor", corpo,
                  "Quem está comprando e quem está vendendo ações na B3: saldo diário, acumulado do mês e fatia de cada investidor no volume. Só o mercado de ações; futuros de índice não entram.",
                  f"B3, Boletim Diário (tabela 'Participação dos investidores'): compras e vendas por tipo, acumuladas no mês até D-2; o saldo diário é a diferença entre dois acumulados. "
-                 f"A B3 só serve os últimos ~20 dias, então a série é acumulada aqui desde {sorted(O['diario'])[0][8:]}/{sorted(O['diario'])[0][5:7]}/{sorted(O['diario'])[0][:4]}. Mensal por segmento: tabela 'Participação dos investidores mensal'.")
+                 f"A B3 só serve os últimos ~20 dias: a série é acumulada aqui desde {sorted(O['diario'])[0][8:]}/{sorted(O['diario'])[0][5:7]}/{sorted(O['diario'])[0][:4]}; antes disso, histórico compilado pelo Dados de Mercado a partir da mesma tabela (bate ao centavo na sobreposição). Mensal por segmento: tabela 'Participação dos investidores mensal'.")
 
 
 def slide_ibov_dy(M: dict) -> tuple[str, str] | None:
@@ -2048,6 +2053,7 @@ JS = r"""
       ticks(lo,hi,4).forEach(function(t){if(t>=lo&&t<=hi)h.push('<line class="grid" x1="'+ML+'" x2="'+(W-MR)+'" y1="'+Y(t).toFixed(1)+'" y2="'+Y(t).toFixed(1)+'"/><text class="tick" x="'+(ML-6)+'" y="'+(Y(t)+4).toFixed(1)+'" text-anchor="end">'+num(t,Math.abs(t)>=1000?0:data.dec)+'</text>');});
       var D0=new Date((d0-719163)*86400000),D1=new Date((d1-719163)*86400000),a0=D0.getUTCFullYear(),a1=D1.getUTCFullYear();
       if(a1-a0>=2){var passo=Math.max(1,Math.ceil(38*(a1-a0)/(W-ML-MR)));for(var a=a0;a<=a1;a++){var o=ordDate(a,1);if(o>=d0&&o<=d1&&(a-a0)%passo===0)h.push('<text class="tick" x="'+X(o).toFixed(1)+'" y="'+(H-10)+'" text-anchor="middle">'+a+'</text>');}}
+      else if(d1-d0<=45){var passoD=Math.max(1,Math.ceil((d1-d0)/8));for(var o=d0;o<=d1;o+=passoD){var dt=new Date((o-719163)*86400000);h.push('<text class="tick" x="'+X(o).toFixed(1)+'" y="'+(H-10)+'" text-anchor="middle">'+String(dt.getUTCDate()).padStart(2,'0')+'/'+String(dt.getUTCMonth()+1).padStart(2,'0')+'</text>');}}
       else{for(var a=a0;a<=a1;a++)for(var m=1;m<=12;m++){var o=ordDate(a,m);if(o>=d0&&o<=d1)h.push('<text class="tick" x="'+X(o).toFixed(1)+'" y="'+(H-10)+'" text-anchor="middle">'+MESES[m-1]+(m===1?'/'+String(a).slice(2):'')+'</text>');}}
       var refs=(data.refs||[]).slice().sort(function(p,q){return p[1]-q[1];});
       refs.forEach(function(r,i){var abaixo=i===0&&refs.length>1&&Math.abs(Y(refs[1][1])-Y(r[1]))<16;var cor=r[2]||'var(--mut)';
@@ -2171,7 +2177,11 @@ JS = r"""
         el.innerHTML=k==='setores'?vs:vp;});
       var ch=box.querySelector('.janela');var b=ch.querySelector('button[data-j="clique"]');
       if(!b){b=document.createElement('button');b.dataset.j='clique';b.addEventListener('click',function(){mostraJ(box,'clique');});ch.appendChild(b);}
-      b.textContent='desde '+br(j.t0);mostraJ(box,'clique');}
+      b.textContent='desde '+br(j.t0);mostraJ(box,'clique');enquadra(j.t0);}
+    // as janelas 1 d / 5 d / 21 d / ano também enquadram o gráfico do Ibovespa na mesma janela
+    function enquadra(t0){var cal=D.cal,t=cal[cal.length-1];var dias=ord(t)-ord(t0)+1;if(svg._render){svg._render(Math.max(dias,3)/365.25);
+      var ch=svg.parentNode.querySelector('.janela');if(ch)ch.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});}}
+    box.querySelectorAll('.janela button[data-j]').forEach(function(b){b.addEventListener('click',function(){var j=D.jan[b.dataset.j];if(j)enquadra(j.t0);});});
     // clique num setor (barra ou rótulo): a caixa "quem puxou" passa a listar todos os papéis daquele setor na janela ativa
     box.addEventListener('click',function(e){var el=e.target.closest&&e.target.closest('[data-setor]');if(!el)return;var setor=el.dataset.setor;
       var chip=box.querySelector('.janela button[data-j].on');var key=chip?chip.dataset.j:'dia';

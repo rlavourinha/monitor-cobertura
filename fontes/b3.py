@@ -198,11 +198,16 @@ def _listadas(ep: str, payload: dict):
 
 
 URL_INDICE = "https://sistemaswebb3-listados.b3.com.br/indexProxy/indexCall/{ep}/{b64}"
-SETOR_MACRO = {  # subsetor da B3 -> setor agregado do painel
+SETOR_MACRO = {  # subsetor da B3 -> setor agregado do painel (prefixo do texto que a API devolve)
     "Petróleo": "Petróleo e gás", "Financ": "Financeiro", "Financeiro": "Financeiro", "Utilidade": "Utilidade pública",
     "Mats": "Materiais básicos", "Bens": "Bens industriais", "Cons N": "Consumo não cíclico", "Consumo Cíclico": "Consumo cíclico",
-    "Saúde": "Saúde", "Telecom": "Telecom", "Tec": "Tecnologia", "Diversos": "Diversos",
+    "Saúde": "Saúde", "Telecom": "Telecom", "Tec": "Tecnologia",
+    # 'Diversos' na B3 é 'Consumo Cíclico / Diversos' (aluguel de carros, educação); a API só devolve a última parte
+    "Diversos": "Consumo cíclico",
 }
+# Exceções por trecho do subsetor (avaliadas antes do prefixo): a B3 põe shoppings em 'Financeiro e Outros / Exploração de
+# Imóveis' e incorporadoras em 'Consumo Cíclico / Construção Civil'; para o painel os dois são Imobiliário.
+SETOR_EXCECAO = {"Explor Im": "Imobiliário", "Constr Civil": "Imobiliário"}
 
 
 def carteira_ibov() -> dict:
@@ -215,7 +220,7 @@ def carteira_ibov() -> dict:
     itens = []
     for x in obj.get("results", []):
         sub = (x.get("segment") or "").strip()
-        setor = next((v for k, v in SETOR_MACRO.items() if sub.startswith(k)), sub or "Outros")
+        setor = next((v for k, v in SETOR_EXCECAO.items() if k in sub), None) or next((v for k, v in SETOR_MACRO.items() if sub.startswith(k)), sub or "Outros")
         itens.append({"cod": x["cod"], "nome": x.get("asset", "").strip(), "peso": float(str(x.get("part", "0")).replace(".", "").replace(",", ".")),
                       "subsetor": sub, "setor": setor, "classe": (x.get("type") or "ON").split()[0],
                       "q": float(str(x.get("theoricalQty", "0")).replace(".", "").replace(",", "."))})

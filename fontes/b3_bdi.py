@@ -126,12 +126,24 @@ def serie_diaria(obj: dict | None = None) -> list[dict]:
     out, ant = [], None
     for d in dias:
         cur = obj["diario"][d]
+        mesmo_mes = bool(ant and ant[0][:7] == d[:7])
+        if not mesmo_mes:
+            dd = date.fromisoformat(d)                          # sem acumulado anterior no mês: só vale se for o 1º dia útil do mês
+            primeiro = all(date(dd.year, dd.month, k).weekday() >= 5 for k in range(1, dd.day))
+            if not primeiro:
+                ant = (d, cur); continue
         row = {"data": d}
         for tipo, (c, v) in cur.items():
             saldo = c - v
-            if ant and ant[0][:7] == d[:7] and tipo in ant[1]:
+            if mesmo_mes and tipo in ant[1]:
                 saldo -= ant[1][tipo][0] - ant[1][tipo][1]
             row[tipo] = saldo / 1000.0                          # R$ mil -> R$ mi
         out.append(row)
         ant = (d, cur)
+    # histórico de terceiros (saldos diários já líquidos, R$ mi) para as datas anteriores à nossa coleta
+    vistos = {r["data"] for r in out}
+    for d, row in (obj.get("historico") or {}).items():
+        if d not in vistos:
+            out.append({"data": d, **row, "fonte": "historico"})
+    out.sort(key=lambda r: r["data"])
     return out
