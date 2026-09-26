@@ -339,7 +339,9 @@ def svg_linhas(cid: str, series: list[tuple[str, str, list[list]]], dec=1, pref=
         out.append(f'<text class="endlab" x="{xt:.1f}" y="{y:.1f}" text-anchor="{anc}">{txt}</text>')
     hdots = "".join(f'<circle class="hdot" r="5" style="fill:{cor}"/>' for _, cor, _ in series)
     # dados completos para o renderizador JS (o seletor de janela redesenha o gráfico no navegador)
-    data_js = json.dumps({"series": [{"n": n, "cor": c, "pts": pts} for n, c, pts in series], "bandas": {str(k): v for k, v in bandas.items()},
+    def _r(p):   # 4 decimais bastam para qualquer série daqui; floats longos dobravam o tamanho do HTML (parse lento no celular)
+        return [p[0]] + [(round(x, 4) if isinstance(x, float) else x) for x in p[1:]]
+    data_js = json.dumps({"series": [{"n": n, "cor": c, "pts": [_r(p) for p in pts]} for n, c, pts in series], "bandas": {str(k): [_r(p) for p in v] for k, v in bandas.items()},
                           "refs": [[r[0], r[1], r[2]] for r in refs], "pref": pref, "suf": suf, "dec": dec, "extras": extras or [],
                           "titulo": titulo, "W": W, "H": H, "ML": ML, "MR": MR, "MT": MT, "MB": MB, "gap": gap, "livre": livre, "coluna": coluna,
                           "nominal": nominal, "resol": resol or {}, "alts": alts or {}, "tituloBase": titulo_base})
@@ -2817,7 +2819,8 @@ code{background:var(--chip);padding:1px 5px;border-radius:4px;font-size:12.5px}
 .progress{position:fixed;top:0;left:232px;right:0;height:3px;background:transparent;z-index:6}.progress i{display:block;height:100%;background:var(--acc);width:0}
 @media(max-width:980px){.rail{position:static;width:auto;border-right:0;border-bottom:1px solid var(--ring);padding:16px;white-space:nowrap;overflow-x:auto}
  .rail .sec{display:inline-block;margin:0 6px 0 12px}.rail a{display:inline-block}.rail .chip{margin:6px 0}main{margin-left:0}.progress{left:0}
- .slide{padding:32px 16px 28px;min-height:auto}.slide h1{font-size:28px}.cover h1{font-size:40px}.cover .heroes,.tiles.strip{grid-template-columns:1fr 1fr}.grid2,.grid3{grid-template-columns:1fr}.hero .v{font-size:32px}.tile .v{font-size:24px}}
+ .slide{padding:32px 16px 28px;min-height:auto}.slide h1{font-size:28px}.cover h1{font-size:40px}.cover .heroes,.tiles.strip{grid-template-columns:1fr 1fr}.grid2,.grid3{grid-template-columns:1fr}.hero .v{font-size:32px}.tile .v{font-size:24px}
+ .pgrid{grid-template-columns:1fr!important}.tiles.fltiles{grid-template-columns:1fr 1fr}.pbox,.grid2>div,.grid3>div,.panel{overflow-x:auto;-webkit-overflow-scrolling:touch}.janela,.resol{flex-wrap:wrap;justify-content:flex-start}}
 """
 
 JS = r"""
@@ -3035,7 +3038,13 @@ JS = r"""
     else s.t1=d;
     document.dispatchEvent(new CustomEvent('selecao'));};
   document.addEventListener('pontoclique',function(e){window.__selecionar(e.detail.data);});
-  document.querySelectorAll('svg.chart[data-x0]').forEach(setupLinhas);
+  // gráficos do Painel montam já; os demais só quando chegam perto da tela (IntersectionObserver): a página tem 80+ gráficos
+  // e ~12 MB de dados embutidos — montar tudo no carregamento travava a rolagem no celular por dezenas de segundos
+  var todos=[...document.querySelectorAll('svg.chart[data-x0]')],adiados=[];
+  todos.forEach(function(svg){if(svg.closest('#painel'))setupLinhas(svg);else adiados.push(svg);});
+  if('IntersectionObserver' in window){var io=new IntersectionObserver(function(es){es.forEach(function(en){if(!en.isIntersecting)return;var s=en.target;io.unobserve(s);if(!s._render)setupLinhas(s);});},{rootMargin:'900px 0px'});
+    adiados.forEach(function(s){io.observe(s);});}
+  else adiados.forEach(setupLinhas);
   // seletor global (trilho): aplica a janela a todos os gráficos de linha
   document.querySelectorAll('.janela-global button').forEach(function(b){b.addEventListener('click',function(){
     document.querySelectorAll('.janela-global button').forEach(function(x){x.classList.remove('on');});b.classList.add('on');
@@ -3046,9 +3055,10 @@ JS = r"""
   function mostraJ(box,key){box.querySelectorAll('.janela button[data-j]').forEach(function(x){x.classList.toggle('on',x.dataset.j===key);});
     box.querySelectorAll('[data-j]:not(button)').forEach(function(el){el.style.display=el.dataset.j===key?(el.getAttribute('style')||'').indexOf('grid-template')>=0?'grid':'':'none';});}
   document.querySelectorAll('.dec').forEach(function(box){box.querySelectorAll('.janela button[data-j]').forEach(function(b){b.addEventListener('click',function(){mostraJ(box,b.dataset.j);});});});
-  // clique no gráfico do Ibovespa (Painel): decomposição daquela data até hoje, calculada aqui com a identidade do índice
-  (function(){
-    var el=document.getElementById('ibov-dados');if(!el)return;var D=JSON.parse(el.textContent);
+  // clique no gráfico do Ibovespa (Painel): decomposição daquela data até hoje, calculada aqui com a identidade do índice.
+  // Roda em tempo ocioso: o JSON de ~5 MB e o cálculo travavam a thread por segundos no celular; até lá o slot mostra "calculando…"
+  var __decompIbov=function(){
+    var el=document.getElementById('ibov-dados');if(!el)return;var D=window.__ibovDados||(window.__ibovDados=JSON.parse(el.textContent));
     var box=document.querySelector('.dec');var svg=document.getElementById('painel-ibov');if(!box||!svg)return;
     var ABREV=D.abrev||{};
     function precoEm(cod,d){var h=D.hist[cod]||[];for(var i=h.length-1;i>=0;i--)if(h[i][0]<=d)return h[i][1];return null;}
@@ -3208,7 +3218,8 @@ JS = r"""
     // o clique num ponto (deste ou de qualquer gráfico) entra na seleção global; cada gráfico se redesenha e o do Ibovespa
     // dispara 'janela', que refaz a decomposição para o intervalo selecionado
     if(svg._d0!==undefined)decompJanela();   // o gráfico já foi desenhado antes deste bloco existir
-  })();
+  };
+  if('requestIdleCallback' in window)requestIdleCallback(__decompIbov,{timeout:4000});else setTimeout(__decompIbov,120);
   // tooltip simples em barras/pontos
   var t=document.createElement('div');t.className='tip';document.body.appendChild(t);
   document.querySelectorAll('[data-tip]').forEach(function(el){
