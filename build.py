@@ -2324,7 +2324,8 @@ JS = r"""
         var v0=s1.pts[i0][1],v1=s1.pts[i1][1],dv=data.suf==='%'?(v1-v0):(v0?(v1/v0-1)*100:0);var txt=(dv>0?'+':'')+num(dv,data.suf==='%'?2:1)+(data.suf==='%'?' p.p.':'%');
         h.push('<text class="tick" x="'+((xa+xb)/2).toFixed(1)+'" y="'+(MT+12)+'" text-anchor="middle" style="fill:var(--s2);font-weight:600">'+txt+'</text>');}
       [[sel.t0,'início',i0],[sel.t1,'fim',sel.t1?i1:-1]].forEach(function(m){if(!m[0]||m[2]<0)return;var ot=s1.o[m[2]];if(ot<d0||ot>d1)return;var xm=X(ot);
-        h.push('<line x1="'+xm.toFixed(1)+'" x2="'+xm.toFixed(1)+'" y1="'+MT+'" y2="'+(H-MB)+'" style="stroke:var(--s2);stroke-width:1.2;stroke-dasharray:4 3"/><text class="tick" x="'+(xm+(m[1]==='fim'?-4:4)).toFixed(1)+'" y="'+(H-MB-6)+'" text-anchor="'+(m[1]==='fim'?'end':'start')+'" style="fill:var(--s2)">'+m[1]+' '+m[0].slice(8)+'/'+m[0].slice(5,7)+'/'+m[0].slice(2,4)+'</text>');});
+        // início embaixo, fim uma linha acima: não se sobrepõem quando o intervalo é curto
+        h.push('<line x1="'+xm.toFixed(1)+'" x2="'+xm.toFixed(1)+'" y1="'+MT+'" y2="'+(H-MB)+'" style="stroke:var(--s2);stroke-width:1.2;stroke-dasharray:4 3"/><text class="tick" x="'+(xm+(m[1]==='fim'?-4:4)).toFixed(1)+'" y="'+(H-MB-(m[1]==='fim'?18:6))+'" text-anchor="'+(m[1]==='fim'?'end':'start')+'" style="fill:var(--s2)">'+m[1]+' '+m[0].slice(8)+'/'+m[0].slice(5,7)+'/'+m[0].slice(2,4)+'</text>');});
       var labels=[];
       S.forEach(function(s){h.push('<path class="line" style="stroke:'+s.cor+'" d="'+s.pts.map(function(p,i){return ((i&&s.o[i]-s.o[i-1]<=45)?'L':'M')+X(s.o[i]).toFixed(1)+','+Y(p[1]).toFixed(1);}).join(' ')+'"/>');
         var last=s.pts[s.pts.length-1],xl=X(s.o[s.o.length-1]),yl=Y(last[1]);h.push('<circle class="dot" cx="'+xl.toFixed(1)+'" cy="'+yl.toFixed(1)+'" r="4" style="fill:'+s.cor+'"/>');
@@ -2536,7 +2537,9 @@ JS = r"""
     // clique num setor (barra ou rótulo): desce do setor para as empresas, na janela ativa
     box.addEventListener('click',function(e){var el=e.target.closest&&e.target.closest('[data-setor]');if(!el)return;var setor=el.dataset.setor;
       var j=window.__ibovClique;if(!j)return;
-      var pap=j.papeis.filter(function(p){return p[1]===setor;}).sort(function(a,b){return b[4]-a[4];});var soma=pap.reduce(function(a,p){return a+p[4];},0);
+      // classes da mesma empresa somadas (BBDC3+4), como na tabela principal: peso somado, variação ponderada pelo peso
+      var gs={};j.papeis.filter(function(p){return p[1]===setor;}).forEach(function(p){var k=p[0].slice(0,4);var e=gs[k]||(gs[k]={cls:[],peso:0,wr:0,x:0});e.cls.push(p[0].slice(4));e.peso+=p[2];e.wr+=p[2]*p[3];e.x+=p[4];});
+      var pap=Object.keys(gs).map(function(k){var e=gs[k];return [k+(e.cls.length>1?e.cls.sort().join('+'):e.cls[0]),setor,e.peso,e.peso?e.wr/e.peso:0,e.x];}).sort(function(a,b){return b[4]-a[4];});var soma=pap.reduce(function(a,p){return a+p[4];},0);
       // desce do setor para as empresas: o gráfico de setores dá lugar às barras dos papéis do setor, na mesma caixa
       var cabS='<div class="mut" style="font-size:11px;margin:0 0 4px"><a href="#" data-volta="1" style="color:var(--acc)">&larr; setores</a> · <b style="color:var(--ink)">'+esc(setor)+'</b> · '+pap.length+' papéis · '+sinal(soma,2,' p.p.')+' de '+br(j.t0)+' a '+br(j.t)+'</div>';
       var rh=pap.length>14?11:13;var gS=hbar(pap.map(function(p){return [p[0],p[4]];}),430,rh,104,44);
