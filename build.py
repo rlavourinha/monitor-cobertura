@@ -193,6 +193,10 @@ def svg_linhas(cid: str, series: list[tuple[str, str, list[list]]], dec=1, pref=
         if ys_lab and y < ys_lab[-1] + 17:
             y = ys_lab[-1] + 17
         ys_lab.append(y)
+    # a pilha não invade o eixo x (séries que convergem no fim): sobe o conjunto até caber acima dos ticks
+    if ys_lab and ys_lab[-1] > H - MB - 2:
+        dy = ys_lab[-1] - (H - MB - 2)
+        ys_lab = [y - dy for y in ys_lab]
     for (xl, yl, txt, acima), y in zip(labels, ys_lab):
         out.append(f'<text class="endlab" x="{xl - 7:.1f}" y="{y:.1f}" text-anchor="end">{txt}</text>')
     hdots = "".join(f'<circle class="hdot" r="5" style="fill:{cor}"/>' for _, cor, _ in series)
@@ -1054,7 +1058,8 @@ def bloco_rpm_painel() -> str:
     p = config.RAIZ / "macro_bcb" / "rpm_hist.json"
     if not p.exists():
         return ""
-    rpms = json.loads(p.read_text(encoding="utf-8")).get("rpms", [])
+    todos = json.loads(p.read_text(encoding="utf-8")).get("rpms", [])
+    rpms = todos[-4:]                                    # o Painel mostra os 4 últimos; o histórico completo fica no slide rpm-historico
     if not rpms:
         return ""
     cores = ["var(--axis)", "var(--s3)", "var(--s2)", "var(--s1)"][-len(rpms):]
@@ -1074,17 +1079,86 @@ def bloco_rpm_painel() -> str:
         linhas.append(f'<tr><td class="tk">{rot}</td>{cels}<td class="{dlt_cls(d)}">{dtxt}</td></tr>')
     horiz = [t for t in ("4T26", "4T27", "1T28", "4T28") if v_ipca(ult, t) is not None]
     for t in horiz:
-        linha(f"IPCA {t}" + (" <small>(horizonte relevante)</small>" if t == "1T28" else ""), [v_ipca(r, t) for r in rpms])
-    linha("Prob. IPCA acima do teto em 4T26", [r.get("prob_teto_4T26") for r in rpms], 0, "%", pp=True)
+        linha(f"IPCA {t}" + (' <small style="font-size:10.5px">(horizonte relevante)</small>' if t == "1T28" else ""), [v_ipca(r, t) for r in rpms])
+    linha("Prob. IPCA acima do teto em 4T26", [(r.get("prob_teto") or {}).get("2026", r.get("prob_teto_4T26")) for r in rpms], 0, "%", pp=True)
     for ano in ("2026", "2027"):
         linha(f"Selic fim-{ano[2:]} usada (Focus)", [(r.get("selic_fim") or {}).get(ano) for r in rpms], 2, "%")
     linha("Câmbio de partida (R$/US$)", [r.get("cambio_partida") for r in rpms], 2, "", pp=False)
     linha("PIB 2026", [(r.get("pib") or {}).get("2026") for r in rpms], 1, "%")
     cab = "".join(f"<th>{r['data']}</th>" for r in rpms)
     tab = f'<table class="mini" style="width:100%"><thead><tr><th>Cenário de referência</th>{cab}<th>Δ último</th></tr></thead><tbody>{"".join(linhas)}</tbody></table>'
-    nota = f'<div class="mut" style="font-size:10.5px;margin-top:4px">{ult.get("nota", "")}</div>'
+    nota = f'<div class="mut" style="font-size:10.5px;margin-top:4px">{ult.get("nota", "")} Histórico desde {todos[0]["data"]} em <a href="#rpm-historico">BCB · cenário RPM a RPM</a>.</div>'
     return (f'<div class="pbox"><h2>BCB · cenário de referência, RPM a RPM (até {ult["data"]})</h2>'
             f'<div class="legend" style="margin-bottom:2px">{leg}</div>{g}{tab}{nota}</div>')
+
+
+def slide_rpm_historico(M: dict, sgs: dict) -> tuple[str, str] | None:
+    """Cenário de referência do Copom desde jun/22: como a projeção para o 4T de cada ano andou a cada RPM, contra o realizado;
+    probabilidade de estourar o teto por ano; e o erro por antecedência (o que se aprende sobre o viés do BCB)."""
+    p = config.RAIZ / "macro_bcb" / "rpm_hist.json"
+    if not p.exists():
+        return None
+    rpms = json.loads(p.read_text(encoding="utf-8")).get("rpms", [])
+    if len(rpms) < 4:
+        return None
+    S1, S2, S3, S4, MUT = "var(--s1)", "var(--s2)", "var(--s3)", "var(--s4)", "var(--axis)"
+    def v(r, t):
+        return next((x for k, x in r["ipca"] if k == t), None)
+    # realizado: IPCA dez/dez por ano (SGS 433 mensal)
+    ipca_m = (sgs.get("433") or {}).get("serie") or []
+    real = {}
+    for ano in range(2022, date.today().year + 1):
+        ms = [x for d, x in ipca_m if d.startswith(str(ano))]
+        if len(ms) == 12:
+            acc = 1.0
+            for x in ms:
+                acc *= 1 + x / 100
+            real[str(ano)] = (acc - 1) * 100
+    # gráfico A: projeção para o 4T de cada ano, RPM a RPM
+    anos = [a for a in range(2022, 2030) if sum(1 for r in rpms if v(r, f"4T{str(a)[2:]}") is not None) >= 3]
+    pal = [S1, S2, S3, S4, MUT, "var(--mut)", "var(--ink)"]
+    def serie_ano(a, cor):
+        return (f"4T{str(a)[2:]}" + (f" (real. {num(real[str(a)], 1)}%)" if str(a) in real else ""), cor, [[r["corte"], v(r, f"4T{str(a)[2:]}")] for r in rpms if v(r, f"4T{str(a)[2:]}") is not None])
+    fechados = [a for a in anos if str(a) in real]; abertos = [a for a in anos if str(a) not in real]
+    def legenda(series):
+        return '<div class="legend" style="margin:0 0 2px">' + "".join(f'<span><i style="background:{c}"></i>{n}</span>' for n, c, _ in series) + "</div>"
+    sA = [serie_ano(a, pal[i % len(pal)]) for i, a in enumerate(fechados)]
+    sB = [serie_ano(a, pal[i % len(pal)]) for i, a in enumerate(abertos)]
+    gA = (legenda(sA) + svg_linhas("rpm-hist-fechados", sA, 1, suf="%", W=620, H=280, gap=130, refs=[("teto 4,5%", 4.5), ("meta 3%", 3.0)],
+                                   titulo="Anos já fechados: projeção do BCB para o 4T a cada relatório (%)")) if sA else ""
+    gB = (legenda(sB) + svg_linhas("rpm-hist-abertos", sB, 1, suf="%", W=620, H=280, gap=130, refs=[("teto 4,5%", 4.5), ("meta 3%", 3.0)],
+                                   titulo="Anos em aberto: projeção para o 4T a cada relatório (%)")) if sB else ""
+    # gráfico C: probabilidade de o IPCA do ano superar o teto, por ano, RPM a RPM
+    anos_p = sorted({a for r in rpms for a in (r.get("prob_teto") or {})})
+    sp = [(f"IPCA {a}", pal[i % len(pal)], [[r["corte"], r["prob_teto"][a]] for r in rpms if (r.get("prob_teto") or {}).get(a) is not None]) for i, a in enumerate(anos_p)]
+    sp = [s for s in sp if len(s[2]) >= 2]
+    gC = (legenda(sp) + svg_linhas("rpm-hist-prob", sp, 0, suf="%", W=620, H=250, gap=130, titulo="Probabilidade estimada pelo BCB de o IPCA do ano superar o teto (%)")) if sp else ""
+    # tabela: erro por antecedência (projeção feita N trimestres antes do fim do ano vs realizado)
+    idx = {r["data"]: r for r in rpms}
+    def proj(rot, a):
+        r = idx.get(rot)
+        return v(r, f"4T{str(a)[2:]}") if r else None
+    tr, E = [], []
+    for a in [a for a in anos if str(a) in real] + abertos:
+        s = str(a)[2:]
+        cols = [proj(f"dez/{int(s) - 2:02d}", a), proj(f"dez/{int(s) - 1:02d}", a), proj(f"jun/{s}", a), proj(f"set/{s}", a), proj(f"dez/{s}", a)]
+        rv = real.get(str(a))
+        err = (cols[1] - rv) if (cols[1] is not None and rv is not None) else None
+        if err is not None:
+            E.append(err)
+        tr.append(f'<tr><td class="tk">{a}</td>' + "".join(f"<td>{num(c, 1, suf='%') if c is not None else '—'}</td>" for c in cols)
+                  + f'<td style="font-weight:600">{num(rv, 1, suf="%") if rv is not None else "—"}</td><td class="{dlt_cls(err)}">{num(err, 1, "+" if err and err > 0 else "", " p.p.") if err is not None else "—"}</td></tr>')
+    tab = ('<table class="mini"><thead><tr><th>Ano</th><th>8 tri antes</th><th>4 tri antes</th><th>2 tri</th><th>1 tri</th><th>no fim</th><th>Realizado</th><th>Erro a 4 tri</th></tr></thead>'
+           f'<tbody>{"".join(tr)}</tbody></table>')
+    resumo = ""
+    if E:
+        vies = sum(E) / len(E); mae = sum(abs(e) for e in E) / len(E)
+        resumo = f'<p class="note" style="margin:6px 0 0">Com 4 trimestres de antecedência, o cenário de referência errou em média {num(mae, 1)} p.p. (viés {num(vies, 1, "+" if vies > 0 else "")} p.p.: {"subestimou" if vies < 0 else "superestimou"} a inflação) nos anos fechados. Compare com o Focus a 12 meses no slide de assertividade.</p>'
+    corpo = (f'<div class="grid2">{"<div>" + gA + "</div>" if gA else ""}{"<div>" + gB + "</div>" if gB else ""}</div>'
+             f'<div class="grid2" style="margin-top:10px;align-items:start"><div>{gC}</div><div><h2 style="font-size:13px;margin:0 0 4px">Projeção para o 4T de cada ano por antecedência (RPM de dezembro, junho e setembro)</h2>{tab}{resumo}</div></div>')
+    return slide("Macro", "rpm-historico", "BCB · cenário RPM a RPM",
+                 corpo, f"Desde {rpms[0]['data']}: como a projeção do Copom para o fim de cada ano foi mudando de relatório em relatório, e quanto errou. Referência para ler o relatório novo.",
+                 f"BCB, Relatórios de Inflação/Política Monetária ({rpms[0]['data']} a {rpms[-1]['data']}), Tabela 2.2.1 (cenário com Selic do Focus e câmbio PPC, IPCA acumulado em 4 trimestres) e probabilidades do capítulo 2. Realizado: IPCA dez/dez (SGS 433). Arquivo manual macro_bcb/rpm_hist.json.")
 
 
 def slide_painel(M: dict, sgs: dict, mercado_micro: dict, minhas: list[dict], cons: list[dict], est: dict) -> tuple[str, str]:
@@ -1966,11 +2040,11 @@ def slides_focus(M: dict, sgs: dict) -> list[tuple[str, str]]:
         f12 = [[r[0], (r[3] if len(r) > 3 and r[3] is not None else r[1])] for r in h12["IPCA"]]
         f24 = [[r[0], (r[3] if len(r) > 3 and r[3] is not None else r[1])] for r in h24.get("IPCA", [])]
         g = svg_linhas("fh-implicita", [("Focus 12 m", S1, f12), ("Focus 24 m", S2, f24), ("implícita 2 a (Tesouro)", "var(--s3)", imp2)], 2, suf="%",
-                       W=900, H=380, refs=[("meta 3%", 3.0)], titulo="IPCA esperado: Focus 12 e 24 meses (média) contra a inflação implícita de 2 anos na curva (% a.a.)")
+                       W=900, H=320, refs=[("meta 3%", 3.0)], titulo="IPCA esperado: Focus 12 e 24 meses (média) contra a inflação implícita de 2 anos na curva (% a.a.)")
         # spread implícita − Focus 24 m (prêmio de inflação / risco): série diária nas datas comuns e resumo
         d24 = {d: v for d, v in f24}
         spread = [[d, v - d24[d]] for d, v in imp2 if d in d24]
-        g2 = svg_linhas("fh-implicita-spread", [("implícita 2 a − Focus 24 m", "var(--s3)", spread)], 2, suf=" p.p.", W=900, H=200,
+        g2 = svg_linhas("fh-implicita-spread", [("implícita 2 a − Focus 24 m", "var(--s3)", spread)], 2, suf=" p.p.", W=400, H=150,   # W = largura da coluna: fontes reais ≥ 11 px
                         refs=[("zero", 0.0)], titulo="Prêmio: implícita 2 anos menos Focus 24 meses (p.p.)")
         def med(s, dias):
             if not s:
@@ -1983,7 +2057,7 @@ def slides_focus(M: dict, sgs: dict) -> list[tuple[str, str]]:
         tab = f'<table class="mini"><thead><tr><th>Série</th><th>Último</th><th>Média 12 m</th><th>Mín. desde {config.FOCUS_DESDE[:4]}</th><th>Máx.</th></tr></thead><tbody>{tr}</tbody></table>'
         leg = f'<div class="legend"><span><i style="background:{S1}"></i>Focus 12 m</span><span><i style="background:{S2}"></i>Focus 24 m</span><span><i style="background:var(--s3)"></i>implícita 2 anos (pré 2a vs IPCA+ 2a)</span></div>'
         out.append(slide("Macro", "focus-vs-implicita", "Focus vs inflação implícita",
-                         f'{leg}{g}<div class="grid2" style="grid-template-columns:1.6fr 1fr;align-items:start;margin-top:8px"><div>{g2}</div><div>{tab}</div></div>',
+                         f'{leg}{g}<div class="grid2" style="align-items:start;margin-top:8px"><div>{g2}</div><div>{tab}</div></div>',
                          "O que o economista responde ao Focus contra o que o mercado paga na curva: a implícita de 2 anos carrega prêmio de risco e sazonalidade, por isso costuma correr acima do Focus 24 meses; o prêmio abrindo ou fechando é o sinal.",
                          "BCB Focus (12 e 24 meses à frente, suavizado, média dos respondentes). Implícita: Tesouro Direto, vencimento constante de 2 anos, (1 + pré)/(1 + IPCA+) − 1 (fontes/curva.py). Séries desde " + config.FOCUS_DESDE[:4] + "."))
 
@@ -2005,7 +2079,7 @@ def slides_focus(M: dict, sgs: dict) -> list[tuple[str, str]]:
         real = (sgs.get(cod) or {}).get("serie") or []
         if real:
             series.append(("realizado (mensal)", "var(--ink)", [[d, v] for d, v in real]))
-        blocos_div.append(svg_linhas(f"fd-{cod}", series, 1, suf="%", W=620, H=300, ini=3, titulo=f"{ind} (% do PIB): expectativa Focus por ano de referência e realizado"))
+        blocos_div.append(svg_linhas(f"fd-{cod}", series, 1, suf="%", W=420, H=230, ini=3, titulo=f"{ind} (% do PIB)"))   # W = largura da coluna: fontes reais ≥ 11 px
         def cel_d(s, dias):
             d = delta(s, dias)
             if d is None:
@@ -2491,6 +2565,7 @@ JS = r"""
         labels.push([xl,yl,(data.pref||'')+num(last[1],data.dec)+(data.suf||''),acima]);});
       labels.sort(function(p,q){return p[1]-q[1];});var ysl=[];
       labels.forEach(function(l){var y=l[3]?l[1]-8:l[1]+15;if(ysl.length&&y<ysl[ysl.length-1]+17)y=ysl[ysl.length-1]+17;ysl.push(y);});
+      if(ysl.length&&ysl[ysl.length-1]>H-MB-2){var dyl=ysl[ysl.length-1]-(H-MB-2);ysl=ysl.map(function(y){return y-dyl;});}   // pilha acima dos ticks do eixo x
       labels.forEach(function(l,i){h.push('<text class="endlab" x="'+(l[0]-7).toFixed(1)+'" y="'+ysl[i].toFixed(1)+'" text-anchor="end">'+esc(l[2])+'</text>');});
       corpo.innerHTML=h.join('');
       G={S:S,d0:d0,span:span,X:X,Y:Y};
@@ -3007,6 +3082,9 @@ def secao_macro(mercado_micro: dict) -> list[tuple[str, str]]:
     svl = slide_volume(M)
     if svl:
         S.append(svl)
+    srh = slide_rpm_historico(M, sgs)
+    if srh:
+        S.append(srh)
     S += slides_juros(M, sgs)
     S += slides_fra(M, sgs)
     S.append(slide("Macro", "focus", "Focus vs realizado",
