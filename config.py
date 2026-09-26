@@ -93,7 +93,12 @@ SGS_SERIES = {
     24364: ("IBC-Br (índice dessaz.)", "2015-01-01"),
     20539: ("Crédito saldo total (R$ mi)", "2015-01-01"),
     28763: ("CAGED estoque de empregos", "2020-01-01"),
+    13762: ("Dívida bruta do governo geral (% PIB)", "2010-01-01"),
+    4513: ("Dívida líquida do setor público (% PIB)", "2010-01-01"),
 }
+# Focus fiscal: série completa por ano de referência (data/focus_longo), para ver como a expectativa de dívida se move.
+FOCUS_FISCAL_INDICADORES = ["Dívida bruta do governo geral", "Dívida líquida do setor público"]
+FOCUS_FISCAL_ANOS_FRENTE = 4      # anos de referência: do ano passado até hoje + 4
 
 # Mercado (Yahoo, atraso): chave -> símbolo. Minério (TIO=F) ficou fora: contrato ilíquido, preço inconsistente.
 MERCADO = {

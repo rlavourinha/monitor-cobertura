@@ -1,0 +1,29 @@
+{
+  "_nota": "Cenário de referência do Copom, RPM a RPM (Tabela 2.2.1: IPCA acumulado em 4 trimestres, % ; condicionantes do capítulo 2). Manual: a cada RPM (mar/jun/set/dez) acrescentar uma entrada. Fonte: bcb.gov.br/content/ri/relatorioinflacao/AAAAMM/rpmAAAAMMp.pdf. Trimestres em fundo branco no PDF são efetivos; aqui tudo vai junto (o gráfico marca até 'efetivo_ate').",
+  "rpms": [
+    {
+      "data": "dez/25", "corte": "2025-12-05", "efetivo_ate": "3T25",
+      "ipca": [["4T24", 4.8], ["1T25", 5.5], ["2T25", 5.4], ["3T25", 5.2], ["4T25", 4.4], ["1T26", 3.6], ["2T26", 3.6], ["3T26", 3.6], ["4T26", 3.5], ["1T27", 3.2], ["2T27", 3.2], ["3T27", 3.2], ["4T27", 3.1], ["1T28", 3.0], ["2T28", 3.0]],
+      "prob_teto_4T26": 23, "cambio_partida": 5.35, "selic_fim": {}, "pib": {"2026": 1.6}, "brent_partida": 63.55,
+      "nota": "Projeções caíram 0,1 a 0,5 p.p. em todo o horizonte; câmbio de partida 0,9% menor."
+    },
+    {
+      "data": "mar/26", "corte": "2026-03-06", "efetivo_ate": "4T25",
+      "ipca": [["1T25", 5.5], ["2T25", 5.4], ["3T25", 5.2], ["4T25", 4.3], ["1T26", 3.6], ["2T26", 3.7], ["3T26", 3.8], ["4T26", 3.9], ["1T27", 3.6], ["2T27", 3.4], ["3T27", 3.3], ["4T27", 3.3], ["1T28", 3.2], ["2T28", 3.2], ["3T28", 3.1]],
+      "prob_teto_4T26": 30, "cambio_partida": 5.20, "selic_fim": {"2026": 12.25, "2027": 10.50}, "pib": {"2026": 1.6}, "brent_partida": null,
+      "nota": "Selic do Focus com corte de 0,25 p.p. em março e ritmo acelerando depois; projeções subiram 0,1 a 0,4 p.p."
+    },
+    {
+      "data": "jun/26", "corte": "2026-06-12", "efetivo_ate": "1T26",
+      "ipca": [["2T25", 5.4], ["3T25", 5.2], ["4T25", 4.3], ["1T26", 4.1], ["2T26", 4.8], ["3T26", 4.8], ["4T26", 5.2], ["1T27", 4.6], ["2T27", 4.0], ["3T27", 4.1], ["4T27", 3.7], ["1T28", 3.2], ["2T28", 3.2], ["3T28", 3.1], ["4T28", 3.1]],
+      "prob_teto_4T26": 79, "cambio_partida": 5.10, "selic_fim": {"2026": 13.75, "2027": 12.00}, "pib": {"2026": 2.0}, "brent_partida": 100,
+      "nota": "Salto de até 1,3 p.p. em 2026: petróleo a US$ 100, hiato positivo, câmbio depreciado na ponta; Selic do Focus bem mais alta (aceleração dos cortes não veio)."
+    },
+    {
+      "data": "set/26", "corte": "2026-09-11", "efetivo_ate": "2T26",
+      "ipca": [["3T25", 5.2], ["4T25", 4.3], ["1T26", 4.1], ["2T26", 4.6], ["3T26", 4.4], ["4T26", 5.2], ["1T27", 4.9], ["2T27", 4.5], ["3T27", 4.5], ["4T27", 3.9], ["1T28", 3.2], ["2T28", 3.1], ["3T28", 3.1], ["4T28", 3.1], ["1T29", 3.1]],
+      "prob_teto_4T26": 90, "cambio_partida": 5.15, "selic_fim": {"2026": 13.75, "2027": 12.00, "2028": 10.50, "2029": 10.00}, "pib": {"2026": 1.8, "2027": 1.4}, "brent_partida": null,
+      "nota": "2026 estável em 5,2%; 2027 sobe 0,2 a 0,5 p.p. (clima e petróleo); horizonte relevante (1T28) mantido em 3,2%."
+    }
+  ]
+}

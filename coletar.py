@@ -376,6 +376,9 @@ def semanal_focus_longo():
     for ind in config.FOCUS_ASSERT_INDICADORES:
         for ano in range(config.FOCUS_ASSERT_ANO_INI, hoje.year + 2):
             n += len(bcb.focus_serie_anual(ind, ano, config.DATA / "focus_longo"))
+    for ind in getattr(config, "FOCUS_FISCAL_INDICADORES", []):          # dívida bruta/líquida: do ano passado a hoje + 4
+        for ano in range(hoje.year - 1, hoje.year + config.FOCUS_FISCAL_ANOS_FRENTE + 1):
+            n += len(bcb.focus_serie_anual(ind, ano, config.DATA / "focus_longo"))
     return f"{n} pontos (anos passados em cache)"
 
 

@@ -131,10 +131,11 @@ def _xticks(d0: int, d1: int, X, y: float, largura: float = 900) -> list[str]:
 def svg_linhas(cid: str, series: list[tuple[str, str, list[list]]], dec=1, pref="", suf="", W=470, H=220,
                refs: list[tuple[str, float]] | None = None, titulo: str = "",
                bandas: dict[int, list[list]] | None = None, extras: list[str] | None = None, ini: int = 0,
-               curtas: bool = False, sombra_desde: str | None = None) -> str:
+               curtas: bool = False, sombra_desde: str | None = None, gap: int = 45) -> str:
     """Gráfico de linhas genérico (1 a 4 séries), crosshair via JS. series = [(nome, cor_css, [[data, v, ...extras], ...])].
     bandas = {índice da série: [[data, mínimo, máximo], ...]} desenha a faixa sombreada na cor da série (formato mín–máx + média).
-    extras = nomes dos campos adicionais de cada ponto (p[2:]), exibidos no tooltip."""
+    extras = nomes dos campos adicionais de cada ponto (p[2:]), exibidos no tooltip.
+    gap = lacuna máxima (dias) entre pontos ligados por linha; séries trimestrais precisam de gap maior (ex.: 120)."""
     ML, MR, MT, MB = 56, 16, 22 if titulo else 12, 30
     series = [(n, c, [p for p in pts if p[1] is not None]) for n, c, pts in series]
     series = [s for s in series if s[2]]
@@ -175,7 +176,7 @@ def svg_linhas(cid: str, series: list[tuple[str, str, list[list]]], dec=1, pref=
         segs, prev = [], None                     # quebra a linha em lacunas > 45 dias (série sem título no prazo)
         for p in pts:
             o = datetime.fromisoformat(p[0]).toordinal()
-            segs.append(f"{'L' if prev is not None and o - prev <= 45 else 'M'}{X(o):.1f},{Y(p[1]):.1f}")
+            segs.append(f"{'L' if prev is not None and o - prev <= gap else 'M'}{X(o):.1f},{Y(p[1]):.1f}")
             prev = o
         out.append(f'<path class="line" style="stroke:{cor}" d="{" ".join(segs)}"/>')
         xl, yl = X(datetime.fromisoformat(pts[-1][0]).toordinal()), Y(pts[-1][1])
@@ -198,7 +199,7 @@ def svg_linhas(cid: str, series: list[tuple[str, str, list[list]]], dec=1, pref=
     # dados completos para o renderizador JS (o seletor de janela redesenha o gráfico no navegador)
     data_js = json.dumps({"series": [{"n": n, "cor": c, "pts": pts} for n, c, pts in series], "bandas": {str(k): v for k, v in bandas.items()},
                           "refs": [[r[0], r[1], r[2]] for r in refs], "pref": pref, "suf": suf, "dec": dec, "extras": extras or [],
-                          "titulo": titulo, "W": W, "H": H, "ML": ML, "MR": MR, "MT": MT, "MB": MB})
+                          "titulo": titulo, "W": W, "H": H, "ML": ML, "MR": MR, "MT": MT, "MB": MB, "gap": gap})
     anos_total = (d1 - d0) / 365.25
     ini = ini if (ini and ini < anos_total) else 0        # janela inicial (anos); 0 = máx
     chips = "".join(f'<button data-a="{a}"{" disabled" if a >= anos_total else ""}{" class=on" if a == ini else ""}>{a}a</button>' for a in ((2, 3, 5, 10) if curtas else (1, 2, 3, 5, 10)))
@@ -1040,6 +1041,52 @@ def slide_ibov_dy(M: dict) -> tuple[str, str] | None:
                  "Aproximado: Yahoo (dividendos e fechamentos de cada papel), carteira e quantidades de hoje aplicadas ao passado; JCP e dividendos misturados; papéis sem 12 meses de história ficam de fora do mês. Sem recompras.")
 
 
+def _tri_data(t: str) -> str:
+    """'4T26' -> '2026-12-31' (fim do trimestre)."""
+    q, yy = int(t[0]), int(t[2:])
+    m = q * 3
+    return f"{2000 + yy}-{m:02d}-{31 if m in (3, 12) else 30}"
+
+
+def bloco_rpm_painel() -> str:
+    """Bloco do Painel: cenário de referência do Copom, RPM a RPM (macro_bcb/rpm_hist.json) — trajetória do IPCA projetada
+    em cada relatório e a tabela de como os condicionantes e os horizontes mudaram de um RPM para o outro."""
+    p = config.RAIZ / "macro_bcb" / "rpm_hist.json"
+    if not p.exists():
+        return ""
+    rpms = json.loads(p.read_text(encoding="utf-8")).get("rpms", [])
+    if not rpms:
+        return ""
+    cores = ["var(--axis)", "var(--s3)", "var(--s2)", "var(--s1)"][-len(rpms):]
+    series = [(r["data"], c, [[_tri_data(t), v] for t, v in r["ipca"] if v is not None]) for r, c in zip(rpms, cores)]
+    g = svg_linhas("painel-rpm", series, 1, suf="%", W=440, H=190, refs=[("meta 3%", 3.0), ("teto 4,5%", 4.5)], gap=120,
+                   titulo="IPCA acumulado em 4 trimestres projetado em cada RPM (%)")
+    g = g.replace('<div class="janela" data-for="painel-rpm">', '<div class="janela" data-for="painel-rpm" style="display:none">').replace('id="painel-rpm"', 'id="painel-rpm" data-nosel="1"')
+    leg = "".join(f'<span><i style="background:{c}"></i>{r["data"]}</span>' for r, c in zip(rpms, cores))
+    ult, ant = rpms[-1], rpms[-2] if len(rpms) > 1 else None
+    def v_ipca(r, t):
+        return next((v for k, v in r["ipca"] if k == t), None)
+    linhas = []
+    def linha(rot, vals, dec=1, suf="%", pp=True):
+        cels = "".join(f"<td>{num(v, dec, suf=suf) if v is not None else '—'}</td>" for v in vals)
+        d = (vals[-1] - vals[-2]) if len(vals) > 1 and vals[-1] is not None and vals[-2] is not None else None
+        dtxt = num(d, dec, "+" if d and d > 0 else "", " p.p." if pp else "") if d is not None else "—"
+        linhas.append(f'<tr><td class="tk">{rot}</td>{cels}<td class="{dlt_cls(d)}">{dtxt}</td></tr>')
+    horiz = [t for t in ("4T26", "4T27", "1T28", "4T28") if v_ipca(ult, t) is not None]
+    for t in horiz:
+        linha(f"IPCA {t}" + (" <small>(horizonte relevante)</small>" if t == "1T28" else ""), [v_ipca(r, t) for r in rpms])
+    linha("Prob. IPCA acima do teto em 4T26", [r.get("prob_teto_4T26") for r in rpms], 0, "%", pp=True)
+    for ano in ("2026", "2027"):
+        linha(f"Selic fim-{ano[2:]} usada (Focus)", [(r.get("selic_fim") or {}).get(ano) for r in rpms], 2, "%")
+    linha("Câmbio de partida (R$/US$)", [r.get("cambio_partida") for r in rpms], 2, "", pp=False)
+    linha("PIB 2026", [(r.get("pib") or {}).get("2026") for r in rpms], 1, "%")
+    cab = "".join(f"<th>{r['data']}</th>" for r in rpms)
+    tab = f'<table class="mini" style="width:100%"><thead><tr><th>Cenário de referência</th>{cab}<th>Δ último</th></tr></thead><tbody>{"".join(linhas)}</tbody></table>'
+    nota = f'<div class="mut" style="font-size:10.5px;margin-top:4px">{ult.get("nota", "")}</div>'
+    return (f'<div class="pbox"><h2>BCB · cenário de referência, RPM a RPM (até {ult["data"]})</h2>'
+            f'<div class="legend" style="margin-bottom:2px">{leg}</div>{g}{tab}{nota}</div>')
+
+
 def slide_painel(M: dict, sgs: dict, mercado_micro: dict, minhas: list[dict], cons: list[dict], est: dict) -> tuple[str, str]:
     """Painel de uma tela: mercado, macro (realizado × Focus × BCB), sinais, opinião, cobertura, movimentos, sparklines."""
     from fontes import b3 as _b3
@@ -1277,6 +1324,7 @@ def slide_painel(M: dict, sgs: dict, mercado_micro: dict, minhas: list[dict], co
 {linha_variaveis_painel(M)}
 <div class="pgrid" style="margin-top:10px">
   <div><div class="pbox"><h2>Macro · realizado × Focus × BCB ({a0} e {a1})</h2>{tab_macro}</div>
+       {bloco_rpm_painel()}
        <div class="pbox"><h2>Cobertura</h2>{tab_cob}</div></div>
   <div><div class="pbox"><h2>Sinais</h2><ul class="sinais">{"".join(f"<li>{x}</li>" for x in sinais)}</ul></div></div>
   <div><div class="pbox"><h2>Opinião · {O.get("data", "—")}</h2><div class="opiniao">{op}</div></div>
@@ -1907,6 +1955,75 @@ def slides_focus(M: dict, sgs: dict) -> list[tuple[str, str]]:
                          "A âncora de curto e médio prazo: o que o mercado espera de inflação acumulada nos próximos 12 e 24 meses.",
                          f"BCB Focus, séries suavizadas desde {config.FOCUS_DESDE[:7]}. Tabela: última leitura por abertura."))
 
+    # --- Focus 12/24 m vs inflação implícita de 2 anos (Tesouro Direto: pré 2a contra IPCA+ 2a, vencimento constante)
+    pc = config.DATA / "curva_tesouro.json"
+    CT = json.loads(pc.read_text(encoding="utf-8")) if pc.exists() else {}
+    if h12.get("IPCA") and CT.get("pre") and 2 in CT.get("prazos_pre", []) and 2 in CT.get("prazos_real", []):
+        ip, ir = CT["prazos_pre"].index(2) + 1, CT["prazos_real"].index(2) + 1
+        real2 = {r[0]: r[ir] for r in CT.get("real", []) if r[ir] is not None}
+        imp2 = [[r[0], ((1 + r[ip] / 100) / (1 + real2[r[0]] / 100) - 1) * 100] for r in CT["pre"]
+                if r[ip] is not None and r[0] in real2 and r[0] >= config.FOCUS_DESDE]
+        f12 = [[r[0], (r[3] if len(r) > 3 and r[3] is not None else r[1])] for r in h12["IPCA"]]
+        f24 = [[r[0], (r[3] if len(r) > 3 and r[3] is not None else r[1])] for r in h24.get("IPCA", [])]
+        g = svg_linhas("fh-implicita", [("Focus 12 m", S1, f12), ("Focus 24 m", S2, f24), ("implícita 2 a (Tesouro)", "var(--s3)", imp2)], 2, suf="%",
+                       W=900, H=380, refs=[("meta 3%", 3.0)], titulo="IPCA esperado: Focus 12 e 24 meses (média) contra a inflação implícita de 2 anos na curva (% a.a.)")
+        # spread implícita − Focus 24 m (prêmio de inflação / risco): série diária nas datas comuns e resumo
+        d24 = {d: v for d, v in f24}
+        spread = [[d, v - d24[d]] for d, v in imp2 if d in d24]
+        g2 = svg_linhas("fh-implicita-spread", [("implícita 2 a − Focus 24 m", "var(--s3)", spread)], 2, suf=" p.p.", W=900, H=200,
+                        refs=[("zero", 0.0)], titulo="Prêmio: implícita 2 anos menos Focus 24 meses (p.p.)")
+        def med(s, dias):
+            if not s:
+                return None
+            corte = date.fromisoformat(s[-1][0]).toordinal() - dias
+            v = [x[1] for x in s if date.fromisoformat(x[0]).toordinal() >= corte]
+            return sum(v) / len(v) if v else None
+        tr = "".join(f'<tr><td class="tk">{rot}</td><td>{num(s[-1][1], 2, suf=suf) if s else "—"}</td><td>{num(med(s, 365), 2, suf=suf) if s else "—"}</td><td>{num(min(x[1] for x in s), 2, suf=suf) if s else "—"}</td><td>{num(max(x[1] for x in s), 2, suf=suf) if s else "—"}</td></tr>'
+                     for rot, s, suf in (("Focus 12 m", f12, "%"), ("Focus 24 m", f24, "%"), ("Implícita 2 a", imp2, "%"), ("Prêmio (impl. − Focus 24 m)", spread, " p.p.")))
+        tab = f'<table class="mini"><thead><tr><th>Série</th><th>Último</th><th>Média 12 m</th><th>Mín. desde {config.FOCUS_DESDE[:4]}</th><th>Máx.</th></tr></thead><tbody>{tr}</tbody></table>'
+        leg = f'<div class="legend"><span><i style="background:{S1}"></i>Focus 12 m</span><span><i style="background:{S2}"></i>Focus 24 m</span><span><i style="background:var(--s3)"></i>implícita 2 anos (pré 2a vs IPCA+ 2a)</span></div>'
+        out.append(slide("Macro", "focus-vs-implicita", "Focus vs inflação implícita",
+                         f'{leg}{g}<div class="grid2" style="grid-template-columns:1.6fr 1fr;align-items:start;margin-top:8px"><div>{g2}</div><div>{tab}</div></div>',
+                         "O que o economista responde ao Focus contra o que o mercado paga na curva: a implícita de 2 anos carrega prêmio de risco e sazonalidade, por isso costuma correr acima do Focus 24 meses; o prêmio abrindo ou fechando é o sinal.",
+                         "BCB Focus (12 e 24 meses à frente, suavizado, média dos respondentes). Implícita: Tesouro Direto, vencimento constante de 2 anos, (1 + pré)/(1 + IPCA+) − 1 (fontes/curva.py). Séries desde " + config.FOCUS_DESDE[:4] + "."))
+
+    # --- Focus fiscal: dívida bruta e líquida por ano de referência (série completa) contra o realizado (SGS)
+    dirp = config.DATA / "focus_longo"
+    blocos_div, tabs_div = [], []
+    a0 = M["anos"][0]
+    for ind, cod in (("Dívida bruta do governo geral", "13762"), ("Dívida líquida do setor público", "4513")):
+        anos_ref = list(range(a0 - 1, a0 + getattr(config, "FOCUS_FISCAL_ANOS_FRENTE", 4) + 1))
+        srs = {}
+        for ano in anos_ref:
+            f = dirp / f"{ind.replace(' ', '_')}_{ano}.json"
+            if f.exists():
+                srs[ano] = [[r[0], r[1]] for r in json.loads(f.read_text(encoding="utf-8")) if r[1] is not None]
+        if not srs:
+            continue
+        pal = ["var(--axis)", "var(--s3)", "var(--s2)", "var(--s1)", "var(--s4)", "var(--mut)"]
+        series = [(f"Focus {ano}", pal[i % len(pal)], s) for i, (ano, s) in enumerate(sorted(srs.items()))]
+        real = (sgs.get(cod) or {}).get("serie") or []
+        if real:
+            series.append(("realizado (mensal)", "var(--ink)", [[d, v] for d, v in real]))
+        blocos_div.append(svg_linhas(f"fd-{cod}", series, 1, suf="%", W=620, H=300, ini=3, titulo=f"{ind} (% do PIB): expectativa Focus por ano de referência e realizado"))
+        def cel_d(s, dias):
+            d = delta(s, dias)
+            if d is None:
+                return "<td>—</td>"
+            d = round(d, 1) or 0.0                                   # evita "-0,0"
+            return f'<td class="{dlt_cls(d)}">{num(d, 1, "+" if d > 0 else "", " p.p.")}</td>'
+        tr = "".join(f'<tr><td class="tk"><i style="display:inline-block;width:9px;height:9px;border-radius:3px;background:{cor};margin-right:5px"></i>{ano}</td><td>{num(s[-1][1], 1, suf="%")}</td>{cel_d(s, 28)}{cel_d(s, 91)}{cel_d(s, 365)}</tr>'
+                     for (ano, s), (_, cor, _) in zip(sorted(srs.items()), series) if s)
+        tabs_div.append(f'<div><h2 style="font-size:13px;margin:0 0 4px">{ind}{f" · realizado {real[-1][0][5:7]}/{real[-1][0][2:4]}: {num(real[-1][1], 1, suf=chr(37))}" if real else ""}</h2>'
+                        f'<table class="mini"><thead><tr><th>Ano ref.</th><th>Focus</th><th>Δ 4 sem</th><th>Δ 3 m</th><th>Δ 12 m</th></tr></thead><tbody>{tr}</tbody></table></div>')
+    if blocos_div:
+        leg = ('<div class="legend"><span><i style="background:var(--ink)"></i>realizado (mensal)</span>'
+               + "".join(f'<span><i style="background:{c}"></i>Focus {n[6:]}</span>' for n, c, _ in series if n.startswith("Focus")) + '</div>')
+        out.append(slide("Macro", "focus-divida", "Focus · dívida bruta e líquida",
+                         f'{leg}<div class="grid2">{"".join(blocos_div)}</div><div class="grid2" style="margin-top:10px;align-items:start">{"".join(tabs_div)}</div>',
+                         "Como o mercado revisa a trajetória fiscal: a expectativa de dívida para cada ano de referência, ao longo do tempo, contra o realizado.",
+                         "BCB Focus (ExpectativasMercadoAnuais, mediana, todos os respondentes; fiscais têm horizonte até 2035) e SGS 13762 (DBGG) / 4513 (DLSP), % do PIB, mensal."))
+
     # --- Top 5 vs mercado
     t5 = M.get("focus_top5", {}).get("linhas", [])
     t5s = M.get("focus_top5_selic", {}).get("linhas", [])
@@ -2367,7 +2484,8 @@ JS = r"""
         // início embaixo, fim uma linha acima: não se sobrepõem quando o intervalo é curto
         h.push('<line x1="'+xm.toFixed(1)+'" x2="'+xm.toFixed(1)+'" y1="'+MT+'" y2="'+(H-MB)+'" style="stroke:var(--s2);stroke-width:1.2;stroke-dasharray:4 3"/><text class="tick" x="'+(xm+(m[1]==='fim'?-4:4)).toFixed(1)+'" y="'+(H-MB-(m[1]==='fim'?18:6))+'" text-anchor="'+(m[1]==='fim'?'end':'start')+'" style="fill:var(--s2)">'+m[1]+' '+m[0].slice(8)+'/'+m[0].slice(5,7)+'/'+m[0].slice(2,4)+'</text>');});
       var labels=[];
-      S.forEach(function(s){h.push('<path class="line" style="stroke:'+s.cor+'" d="'+s.pts.map(function(p,i){return ((i&&s.o[i]-s.o[i-1]<=45)?'L':'M')+X(s.o[i]).toFixed(1)+','+Y(p[1]).toFixed(1);}).join(' ')+'"/>');
+      var gap=data.gap||45;
+      S.forEach(function(s){h.push('<path class="line" style="stroke:'+s.cor+'" d="'+s.pts.map(function(p,i){return ((i&&s.o[i]-s.o[i-1]<=gap)?'L':'M')+X(s.o[i]).toFixed(1)+','+Y(p[1]).toFixed(1);}).join(' ')+'"/>');
         var last=s.pts[s.pts.length-1],xl=X(s.o[s.o.length-1]),yl=Y(last[1]);h.push('<circle class="dot" cx="'+xl.toFixed(1)+'" cy="'+yl.toFixed(1)+'" r="4" style="fill:'+s.cor+'"/>');
         var rec=s.pts.slice(-Math.max(3,Math.floor(s.pts.length/12))).map(function(p){return p[1];});var acima=!(Math.max.apply(null,rec)>last[1]+(hi-lo)*0.04);
         labels.push([xl,yl,(data.pref||'')+num(last[1],data.dec)+(data.suf||''),acima]);});
