@@ -166,6 +166,22 @@ def atualiza_cotahist_diario(max_dias: int = 40) -> int:
     return novos
 
 
+def series_todas(campos: tuple[str, ...] = ("fechamento", "quantidade", "volume"), desde: str = "2019-01-01") -> dict[str, list[tuple]]:
+    """Todas as séries do cache numa passada só ({ticker: [(data, *campos)]}), sem emenda de códigos antigos.
+    Para varreduras de volume sobre muitos papéis (o `serie` relê os CSVs a cada chamada)."""
+    out: dict[str, list[tuple]] = {}
+    for f in sorted(CACHE.glob("*.csv")):
+        if f.stem < desde[:4]:
+            continue
+        with f.open(encoding="utf-8") as fh:
+            for row in csv.DictReader(fh):
+                if row["data"] >= desde:
+                    out.setdefault(row["ticker"], []).append((row["data"], *[float(row.get(c) or 0) for c in campos]))
+    for v in out.values():
+        v.sort()
+    return out
+
+
 def serie(ticker: str, campos: tuple[str, ...] = ("fechamento",)) -> list[tuple]:
     """Série (data, fechamento[, quantidade, volume]) ordenada, lida do cache. Papel renomeado (config.ALIAS_TICKER):
     emenda a série do código antigo antes do primeiro pregão do código novo."""

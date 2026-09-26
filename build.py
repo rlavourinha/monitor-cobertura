@@ -722,6 +722,82 @@ def dy_ibov() -> dict:
     return json.loads(p.read_text(encoding="utf-8")) if p.exists() else {}
 
 
+def analise_volume(M: dict) -> dict | None:
+    """Volume financeiro dos papéis do Ibovespa (COTAHIST): total diário e média de 21 pregões, e por papel a razão
+    volume do dia ÷ média de 21 pregões (excluindo o dia). Base do slide de volume e do sinal no Painel."""
+    from fontes import b3 as _b3
+    p = config.DATA / "ibov_comp.json"
+    if not p.exists():
+        return None
+    C = json.loads(p.read_text(encoding="utf-8"))
+    itens = C.get("itens", [])
+    if not itens:
+        return None
+    S = _b3.series_todas(("fechamento", "quantidade", "volume"), desde="2019-01-01")
+    cods = [i["cod"] for i in itens]
+    setor = {i["cod"]: i["setor"] for i in itens}
+    # total diário dos papéis da carteira atual (proxy do mercado: ~85% do volume de ações da B3)
+    tot: dict[str, float] = {}
+    for c in cods:
+        for d, _, _, v in S.get(c, []):
+            tot[d] = tot.get(d, 0.0) + v
+    dias = sorted(tot)
+    if len(dias) < 30:
+        return None
+    serie_tot = [[d, tot[d] / 1e9] for d in dias]                     # R$ bi
+    mm21 = []
+    for i in range(len(serie_tot)):
+        jan = [v for _, v in serie_tot[max(0, i - 20):i + 1]]
+        mm21.append([serie_tot[i][0], sum(jan) / len(jan)])
+    hoje = dias[-1]
+    med21 = sum(tot[d] for d in dias[-22:-1]) / 21 / 1e9
+    med63 = sum(tot[d] for d in dias[-64:-1]) / 63 / 1e9
+    # por papel
+    papeis = []
+    for c in cods:
+        s = S.get(c, [])
+        if len(s) < 25 or s[-1][0] != hoje:
+            continue
+        v_hoje = s[-1][3]
+        base = [x[3] for x in s[-22:-1]]
+        med = sum(base) / len(base) if base else 0
+        var = (s[-1][1] / s[-2][1] - 1) if s[-2][1] else None
+        papeis.append({"cod": c, "setor": setor.get(c, ""), "vol": v_hoje / 1e6, "med21": med / 1e6, "razao": (v_hoje / med) if med else None, "var": var})
+    papeis.sort(key=lambda r: -(r["razao"] or 0))
+    top5 = sorted(papeis, key=lambda r: -r["vol"])[:5]
+    conc = sum(r["vol"] for r in top5) / (tot[hoje] / 1e6) if tot.get(hoje) else None
+    return {"data": hoje, "hoje": tot[hoje] / 1e9, "med21": med21, "med63": med63, "razao": (tot[hoje] / 1e9 / med21) if med21 else None,
+            "serie": serie_tot, "mm21": mm21, "papeis": papeis, "top5": top5, "conc5": conc,
+            "anormais": [r for r in papeis if (r["razao"] or 0) >= 1.5], "fracos": [r for r in papeis if r["razao"] is not None and r["razao"] <= 0.5]}
+
+
+def slide_volume(M: dict) -> tuple[str, str] | None:
+    """Volume: total do Ibovespa contra a média, papéis com volume anormal, concentração."""
+    V = analise_volume(M)
+    if not V:
+        return None
+    S1, S2, MUT = "var(--s1)", "var(--s2)", "var(--axis)"
+    tiles = "".join(f'<div class="tile"><div class="l">{l}</div><div class="v">{v}</div><div class="d">{s}</div></div>' for l, v, s in (
+        (f"Volume hoje ({V['data'][8:]}/{V['data'][5:7]})", f"R$ {num(V['hoje'], 1)} bi", f"papéis do Ibovespa, {len(V['papeis'])} negociados"),
+        ("× média 21 pregões", num(V["razao"], 2, suf="x"), f"média R$ {num(V['med21'], 1)} bi · 63 pregões R$ {num(V['med63'], 1)} bi"),
+        ("Papéis com volume anormal", str(len(V["anormais"])), "≥ 1,5× a própria média de 21 pregões"),
+        ("Concentração", num((V["conc5"] or 0) * 100, 0, suf="%"), "5 papéis mais negociados no volume do dia")))
+    g = svg_linhas("volume-ibov", [("Volume diário", MUT, [[d, v] for d, v in V["serie"]]), ("Média 21 pregões", S1, [[d, v] for d, v in V["mm21"]])],
+                   1, pref="R$ ", suf=" bi", W=1080, H=165, ini=2, titulo="Volume financeiro diário dos papéis do Ibovespa (R$ bi) e média móvel de 21 pregões")
+    def tab(lst, tit):
+        tr = "".join(f'<tr><td class="tk">{r["cod"]}<small>{r["setor"][:14]}</small></td><td>{num(r["vol"], 0)}</td><td>{num(r["razao"], 1, suf="x")}</td><td class="{dlt_cls(r["var"])}">{pct(r["var"])}</td></tr>' for r in lst)
+        return f'<table class="mini" style="width:100%"><thead><tr><th>{tit}</th><th>R$ mi</th><th>× méd. 21</th><th>Dia</th></tr></thead><tbody>{tr}</tbody></table>'
+    corpo = (f'<div class="tiles strip" style="grid-template-columns:repeat(4,1fr);margin-bottom:10px">{tiles}</div>'
+             f'<div class="panel" style="padding:10px 14px 4px"><div class="legend"><span><i style="background:{MUT}"></i>volume diário</span><span><i style="background:{S1}"></i>média 21 pregões</span></div>{g}</div>'
+             f'<div class="grid3" style="margin-top:10px;align-items:start"><div><h2 style="font-size:13px;margin:0 0 4px">Volume mais forte que o normal</h2>{tab(V["papeis"][:7], "Papel")}</div>'
+             f'<div><h2 style="font-size:13px;margin:0 0 4px">Volume mais fraco que o normal</h2>{tab(V["papeis"][-7:][::-1], "Papel")}</div>'
+             f'<div><h2 style="font-size:13px;margin:0 0 4px">Mais negociados hoje</h2>{tab(V["top5"] + sorted(V["papeis"], key=lambda r: -r["vol"])[5:7], "Papel")}</div></div>')
+    return slide("Macro", "volume", "Volume · quem está sendo negociado", corpo,
+                 "O mercado está mais líquido ou mais parado que o normal, e em quais papéis o volume destoa da média própria.",
+                 "B3 COTAHIST (volume financeiro do mercado à vista, tipo 010) dos papéis da carteira atual do Ibovespa, desde 2019. A média de 21 pregões exclui o dia. "
+                 "O total é dos constituintes, não de toda a B3; a B3 divulga o total do mercado no Boletim Diário, sem histórico aberto.")
+
+
 def slide_fluxo_investidores(M: dict) -> tuple[str, str] | None:
     """Fluxo por tipo de investidor no mercado de ações (B3/BDI): saldo diário, acumulado no mês e participação no volume."""
     from fontes import b3_bdi
@@ -973,6 +1049,11 @@ def slide_painel(M: dict, sgs: dict, mercado_micro: dict, minhas: list[dict], co
     cf = foc("Câmbio", a0)
     if cambio and cf:
         sinais.append(f"<b>Câmbio:</b> PTAX {num(cambio[1], 2)} contra {num(cf[-1][1], 2)} esperado para o fim de {a0} pelo Focus.")
+    V = analise_volume(M)
+    if V and V.get("razao"):
+        an = ", ".join(f'{r["cod"]} ({num(r["razao"], 1)}x)' for r in V["anormais"][:5])
+        sinais.append(f"<b>Volume:</b> R$ {num(V['hoje'], 1)} bi nos papéis do Ibovespa, {num(V['razao'], 2)}x a média de 21 pregões"
+                      + (f"; anormal em {an}" if an else "; nenhum papel acima de 1,5x a própria média") + ".")
     sinais += sinais_cob                                     # assertividade do Focus fica no slide próprio (Painel precisa caber numa tela)
 
     # --- opinião do usuário
@@ -2513,6 +2594,9 @@ def secao_macro(mercado_micro: dict) -> list[tuple[str, str]]:
     sfl = slide_fluxo_investidores(M)
     if sfl:
         S.append(sfl)
+    svl = slide_volume(M)
+    if svl:
+        S.append(svl)
     S += slides_juros(M, sgs)
     S += slides_fra(M, sgs)
     S.append(slide("Macro", "focus", "Focus vs realizado",
