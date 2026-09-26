@@ -5,6 +5,7 @@
 #   semanal   segunda 8h45 BRT                          -> Focus completo, histórico do DY
 #   mensal    8h BRT, todo dia                          -> SGS mensais, realizado, carteiras CVM
 # Cada janela roda o coletor, regenera output/monitor.html, grava os caches (data/) e o HTML de volta no repositório
+# (o HTML vai só para o GitHub Pages, não para o repositório)
 # e publica o HTML no GitHub Pages (rlavourinha.github.io/monitor-cobertura).
 name: atualizar
 
@@ -77,7 +78,7 @@ jobs:
         run: |
           git config user.name "monitor-bot"
           git config user.email "monitor-bot@users.noreply.github.com"
-          git add -A data output consenso
+          git add -A data consenso
           if git diff --cached --quiet; then echo "nada mudou"; exit 0; fi
           git commit -m "atualização ${{ steps.janela.outputs.janela }} $(TZ=America/Sao_Paulo date '+%Y-%m-%d %H:%M')"
           git pull --rebase --autostash origin "${{ github.ref_name }}"

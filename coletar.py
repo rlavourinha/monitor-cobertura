@@ -161,7 +161,7 @@ def diario_sgs():
 
 
 def diario_yahoo_hist():
-    hist = {k: yahoo.historico(v, "max") for k, v in {"Ibovespa": "^BVSP", "S&P 500": "^GSPC", "USD/BRL": "BRL=X", "Brent (US$)": "BZ=F", "VIX": "^VIX"}.items()}
+    hist = {k: yahoo.historico(v, "max") for k, v in {"Ibovespa": "^BVSP", "S&P 500": "^GSPC", "USD/BRL": "BRL=X", "Brent (US$)": "BZ=F", "VIX": "^VIX", "Treasury 10a (%)": "^TNX"}.items()}
     _atualiza_macro(hist=hist, mov_hist={k: yahoo.historico(v, "3mo") for k, v in config.MOVIMENTOS.items()})
     return f"{sum(len(v) for v in hist.values())} pontos"
 
@@ -351,6 +351,31 @@ def mensal_sgs():
     return ", ".join(f"{c} {len(sgs[str(c)]['serie'])}" for c in config.SGS_SERIES if c not in (432, 1))
 
 
+BRENT_ARQ = config.DATA / "brent_curva.json"
+MESES_FUT = "FGHJKMNQUVXZ"      # códigos de vencimento dos futuros: F=jan … Z=dez
+
+
+def diario_brent_curva(meses: int = 30):
+    """Curva futura do Brent (ICE via Yahoo, contratos BZ{mês}{ano}.NYM = Brent Last Day Financial): preço de cada
+    vencimento dos próximos `meses` meses. Guarda uma fotografia por dia em data/brent_curva.json (histórico da curva)."""
+    hoje = date.today()
+    y, m = hoje.year, hoje.month + 1          # primeiro vencimento negociável: mês seguinte
+    pts = []
+    for _ in range(meses):
+        if m > 12:
+            m -= 12; y += 1
+        sym = f"BZ{MESES_FUT[m - 1]}{str(y)[2:]}.NYM"
+        q = yahoo.intraday(sym)
+        if q and q.get("preco"):
+            pts.append([f"{y}-{m:02d}", round(float(q["preco"]), 2)])
+        m += 1
+    obj = _le_json(BRENT_ARQ, {"fotos": {}})
+    if pts:
+        obj["fotos"][hoje.isoformat()] = pts
+        _grava_json(BRENT_ARQ, obj)
+    return f"{len(pts)} vencimentos ({pts[0][0] if pts else '—'} a {pts[-1][0] if pts else '—'}); {len(obj['fotos'])} fotografias"
+
+
 def diario_fluxo_investidores():
     """Participação dos investidores no volume de ações (B3/BDI): acumulado do mês por tipo, um ponto por dia de referência."""
     n, m = b3_bdi.atualiza_fluxo(30)
@@ -403,7 +428,7 @@ JANELAS = {
     "diario": [("B3 COTAHIST", diario_cotahist), ("B3 ações", diario_acoes), ("Tesouro NTN-B", diario_tesouro),
                ("ANBIMA ETTJ", diario_ettj), ("curva Tesouro", diario_curva_tesouro),
                ("SGS diários", diario_sgs), ("Yahoo histórico", diario_yahoo_hist), ("Ibovespa composição", diario_ibov_comp),
-               ("consenso Yahoo", diario_consenso_yahoo), ("cotas de fundos CVM", diario_cotas_fundos), ("Ibovespa DY", diario_ibov_dy), ("fluxo por investidor", diario_fluxo_investidores),
+               ("consenso Yahoo", diario_consenso_yahoo), ("cotas de fundos CVM", diario_cotas_fundos), ("Ibovespa DY", diario_ibov_dy), ("fluxo por investidor", diario_fluxo_investidores), ("curva do Brent", diario_brent_curva),
                ("minhas estimativas", diario_minhas), ("cotações universo", intraday_universo), ("cotações mercado", intraday_mercado),
                ("cotações Ibovespa", intraday_ibov_comp)],
     "semanal": [("Focus", semanal_focus), ("Focus longo", semanal_focus_longo), ("Ibovespa DY histórico", semanal_ibov_dy_hist)],

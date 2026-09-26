@@ -101,6 +101,13 @@ investidor); ficou fora.
 do dia (`QUATOT`, `VOLTOT`) além do fechamento; `b3.serie(ticker, ("fechamento", "quantidade", "volume"))`. A tabela
 Cobertura do Painel mostra o volume do dia e a razão contra a média de 20 pregões.
 
+**Linha de variáveis** (entre o Ibovespa e o bloco Macro): juro nominal de 10 anos (vértice constante interpolado da
+curva prefixada do Tesouro Direto, `data/curva_tesouro.json`, desde 2004), Treasury de 10 anos (Yahoo `^TNX`, desde
+1970), Brent à vista (Yahoo `BZ=F`, desde 2007) e a **curva futura do Brent**: contratos mensais do Brent Last Day
+Financial via Yahoo (`BZ{mês}{aa}.NYM`, códigos F…Z), até ~24 meses, passo diário "curva do Brent" que guarda uma
+fotografia por dia em `data/brent_curva.json`; o gráfico mostra a curva de hoje contra a fotografia mais antiga e o
+preço à vista como referência.
+
 **Uma janela só.** No Painel, a janela do gráfico do Ibovespa (1 d, 5 d, 21 d, ano, 1a, 2a, 3a, 5a, 10a, máx) é a
 janela da decomposição: a decomposição vai do primeiro pregão dentro da janela até hoje e é recalculada no navegador a
 cada troca. Clicar num ponto do gráfico faz a decomposição começar naquela data (a janela não muda) e desenha um

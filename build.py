@@ -620,6 +620,43 @@ def seleciona_nomes(emp: list, minimo: int = 4, maximo: int = 8) -> tuple[list, 
     return top, bot, cab
 
 
+def linha_variaveis_painel(M: dict) -> str:
+    """Linha de variáveis-chave do Painel: juro nominal de 10 anos (Tesouro, vértice constante interpolado), Treasury de
+    10 anos, Brent à vista e a curva futura do Brent (hoje contra a fotografia mais antiga disponível)."""
+    S1, S2, MUT = "var(--s1)", "var(--s2)", "var(--axis)"
+    pc = config.DATA / "curva_tesouro.json"
+    CT = json.loads(pc.read_text(encoding="utf-8")) if pc.exists() else {}
+    prazos = CT.get("prazos_pre") or []
+    g_br = ""
+    if CT.get("pre") and 10 in prazos:
+        i = prazos.index(10) + 1
+        pts = [[r[0], r[i]] for r in CT["pre"] if r[i] is not None]
+        g_br = svg_linhas("painel-pre10", [("Pré 10 anos", S1, pts)], 2, suf="%", W=400, H=170, ini=5, titulo="Juro nominal 10 anos (Tesouro, vértice constante)")
+    else:
+        g_br = '<div class="empty small">Curva do Tesouro ausente.</div>'
+    tnx = M.get("hist", {}).get("Treasury 10a (%)") or []
+    g_us = svg_linhas("painel-tnx", [("Treasury 10a", S1, [[d, v] for d, v in tnx])], 2, suf="%", W=400, H=170, ini=5, titulo="Treasury 10 anos (%)") if tnx else '<div class="empty small">Sem histórico do Treasury: rode a janela diária.</div>'
+    br = M.get("hist", {}).get("Brent (US$)") or []
+    g_brent = svg_linhas("painel-brent", [("Brent", S1, [[d, v] for d, v in br])], 1, pref="US$ ", W=400, H=170, ini=5, titulo="Brent à vista (US$/bbl)") if br else '<div class="empty small">Sem histórico do Brent.</div>'
+    pb = config.DATA / "brent_curva.json"
+    BC = json.loads(pb.read_text(encoding="utf-8")) if pb.exists() else {}
+    fotos = BC.get("fotos") or {}
+    if fotos:
+        datas = sorted(fotos)
+        hoje, ant = datas[-1], datas[0]
+        series = [(f"curva {hoje[8:]}/{hoje[5:7]}", S1, [[f"{v}-15", p] for v, p in fotos[hoje]])]
+        if ant != hoje:
+            series.append((f"curva {ant[8:]}/{ant[5:7]}", MUT, [[f"{v}-15", p] for v, p in fotos[ant]]))
+        spot = br[-1][1] if br else None
+        g_curva = svg_linhas("painel-brent-curva", series, 1, pref="US$ ", W=400, H=170, titulo="Curva futura do Brent (vencimentos mensais, US$/bbl)",
+                             refs=[("à vista", spot)] if spot else None)
+        g_curva = g_curva.replace('<div class="janela" data-for="painel-brent-curva">', '<div class="janela" data-for="painel-brent-curva" style="display:none">')
+    else:
+        g_curva = '<div class="empty small">Curva do Brent: rode a janela diária.</div>'
+    return (f'<div class="pgrid" style="grid-template-columns:1fr 1fr 1fr 1fr;margin-top:10px">'
+            + "".join(f'<div class="pbox" style="padding:8px 12px 4px">{g}</div>' for g in (g_br, g_us, g_brent, g_curva)) + '</div>')
+
+
 def linha_ibov_painel(D: dict, M: dict) -> str:
     """Linha de baixo do Painel: gráfico do Ibovespa (clicável) + decomposição em dois blocos (setores; puxaram/seguraram).
     O clique num ponto do gráfico dispara, no navegador, a decomposição daquela data até hoje (dados embutidos em #ibov-dados)."""
@@ -974,6 +1011,7 @@ def slide_painel(M: dict, sgs: dict, mercado_micro: dict, minhas: list[dict], co
     M["_ibov_decomp"] = D
     corpo = f'''<div class="strip8">{strip}</div>
 {linha_ibov_painel(D, M)}
+{linha_variaveis_painel(M)}
 <div class="pgrid" style="margin-top:10px">
   <div><div class="pbox"><h2>Macro · realizado × Focus × BCB ({a0} e {a1})</h2>{tab_macro}</div>
        <div class="pbox"><h2>Cobertura</h2>{tab_cob}</div></div>
