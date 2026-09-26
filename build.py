@@ -1538,14 +1538,14 @@ def slide_painel(M: dict, sgs: dict, mercado_micro: dict, minhas: list[dict], co
     CB = carteira_btg()                                       # carteira recomendada do BTG: só o que toca a cobertura (entrada, saída, peso)
     if CB:
         at, ant = CB["atual"], CB["anterior"]
-        pa = {r["ticker"]: r["peso"] for r in (ant or {}).get("carteira", [])}
+        pa = {_tk_atual(r["ticker"]): r["peso"] for r in (ant or {}).get("carteira", [])}
         for r in at["carteira"]:
             if r["ticker"] in config.UNIVERSO:
-                novo = r["ticker"] not in pa
+                novo = _tk_atual(r["ticker"]) not in pa
                 sinais.append(f'<b>{r["ticker"]}:</b> {"entrou no" if novo else "segue no"} {CB["produto"]} do {CB["casa"]} ({at["mes"][5:]}/{at["mes"][2:4]}) com {num(r["peso"], 0, suf="%")}'
                               + (f', upside {num(r["upside"], 0, suf="%")} e P/L {num(r["pl26"], 1, suf="x")} {a0}E' if r.get("upside") is not None and r.get("pl26") else "") + '. <a href="#carteira-btg-10sim">ver carteira</a>')
         for t in pa:
-            if t in config.UNIVERSO and t not in {r["ticker"] for r in at["carteira"]}:
+            if t in config.UNIVERSO and t not in {_tk_atual(r["ticker"]) for r in at["carteira"]}:
                 sinais.append(f'<b>{t}:</b> saiu do {CB["produto"]} do {CB["casa"]} em {at["mes"][5:]}/{at["mes"][2:4]}.')
 
     # --- opinião do usuário
@@ -1939,17 +1939,26 @@ def carteira_btg() -> dict | None:
     return {"casa": J.get("casa", "BTG Pactual"), "produto": J.get("produto", "10SIM"), "atual": meses[-1], "anterior": meses[-2] if len(meses) > 1 else None}
 
 
+def _tk_atual(t: str) -> str:
+    """Código atual de um papel que mudou de ticker (ELET3→AXIA3, EMBR3→EMBJ3, ARZZ3→AZZA3, CCRO3→MOTV3, STOC31→STOC34,
+    CPLE6/CPLE5→CPLE3 após a unificação de classes, JBSS3→JBSS32 após a migração para a NYSE): o histórico do 10SIM é
+    contado por empresa, não por código. Mapa local: não altera as séries de preço (classes diferentes não se emendam)."""
+    inv = {v: k for k, v in getattr(config, "ALIAS_TICKER", {}).items()}
+    extra = {"STOC31": "STOC34", "CPLE6": "CPLE3", "CPLE5": "CPLE3", "JBSS3": "JBSS32", "ELET6": "AXIA3", "AXIA6": "AXIA3"}
+    return inv.get(t, extra.get(t, t))
+
+
 def slide_carteiras_btg() -> tuple[str, str] | None:
     """Carteira recomendada do BTG (10SIM): composição, trocas do mês, múltiplos e tese por papel, desempenho."""
     C = carteira_btg()
     if not C:
         return None
     at, ant = C["atual"], C["anterior"]
-    pesos_ant = {r["ticker"]: r["peso"] for r in (ant or {}).get("carteira", [])}
+    pesos_ant = {_tk_atual(r["ticker"]): r["peso"] for r in (ant or {}).get("carteira", [])}
     cob = set(config.UNIVERSO)
     linhas = []
     for r in sorted(at["carteira"], key=lambda r: (-r["peso"], r["ticker"])):
-        pa = pesos_ant.get(r["ticker"])
+        pa = pesos_ant.get(_tk_atual(r["ticker"]))
         dp = "novo" if pa is None else (num(r["peso"] - pa, 0, "+" if r["peso"] > pa else "", " p.p.") if r["peso"] != pa else "=")
         tk = f'<b>{r["ticker"]}</b>' if r["ticker"] in cob else r["ticker"]
         linhas.append(f'<tr><td class="tk">{tk}<small>{r.get("empresa", "")} · {r.get("setor", "")}</small></td><td>{num(r["peso"], 0, suf="%")}</td>'
@@ -1957,7 +1966,7 @@ def slide_carteiras_btg() -> tuple[str, str] | None:
                       f'<td class="{dlt_cls(r.get("upside"))}">{num(r.get("upside"), 0, suf="%") if r.get("upside") is not None else "—"}</td>'
                       f'<td>{num(r.get("pl26"), 1, suf="x") if r.get("pl26") else "—"}<span class="mut"> / </span>{num(r.get("pl27"), 1, suf="x") if r.get("pl27") else "—"}</td>'
                       f'<td>{num(r.get("ev27"), 1, suf="x") if r.get("ev27") else "—"}</td><td>{num((r.get("mcap") or 0) / 1000, 0)}</td></tr>')
-    saidas = [t for t in pesos_ant if t not in {r["ticker"] for r in at["carteira"]}]
+    saidas = [t for t in pesos_ant if t not in {_tk_atual(r["ticker"]) for r in at["carteira"]}]
     tab = (f'<table class="mini"><thead><tr><th>Papel</th><th>Peso</th><th>vs mês ant.</th><th>Upside</th><th>P/L 26 / 27</th><th>EV/EBITDA 27</th><th>Mkt cap R$ bi</th></tr></thead><tbody>{"".join(linhas)}</tbody></table>'
            + (f'<p class="note" style="margin:6px 0 0">Saíram: {", ".join(saidas)}.</p>' if saidas else ""))
     trocas = "".join(f'<li><b>{t["entra"]}</b> entra no lugar de <b>{t["sai"]}</b>: {t.get("motivo", "")}</li>' if "entra" in t else f'<li><b>{t["peso"]}</b> de {t["de"]}% para {t["para"]}%.</li>' for t in at.get("trocas", []))
@@ -2010,9 +2019,13 @@ def slide_carteiras_btg_hist(M: dict | None = None) -> tuple[str, str] | None:
     # matriz papel × mês (últimos 24 meses): célula = peso
     ult = H[-24:]
     ordem = {}
+    ex = {}                                                    # código atual -> códigos antigos vistos (ex-ELET3)
     for h in ult:
         for c in h["carteira"]:
-            ordem.setdefault(c["ticker"], [0, 0]); ordem[c["ticker"]][0] += 1; ordem[c["ticker"]][1] = h["mes"]
+            t = _tk_atual(c["ticker"])
+            if t != c["ticker"]:
+                ex.setdefault(t, set()).add(c["ticker"])
+            ordem.setdefault(t, [0, 0]); ordem[t][0] += 1; ordem[t][1] = h["mes"]
     tks = sorted(ordem, key=lambda t: (-ordem[t][0], t))
     cob = set(config.UNIVERSO)
     def cel(peso):
@@ -2023,16 +2036,20 @@ def slide_carteiras_btg_hist(M: dict | None = None) -> tuple[str, str] | None:
     cab = "".join(f'<th style="padding:1px 2px;font-size:9.5px;writing-mode:vertical-rl;transform:rotate(180deg);text-align:left">{h["mes"][5:]}/{h["mes"][2:4]}</th>' for h in ult)
     linhas = []
     for t in tks:
-        pesos = {h["mes"]: next((c["peso"] for c in h["carteira"] if c["ticker"] == t), None) for h in ult}
-        linhas.append(f'<tr><td class="tk" style="padding:1px 4px;font-size:11px">{"<b>" + t + "</b>" if t in cob else t}<small>{ordem[t][0]} m</small></td>' + "".join(cel(pesos[h["mes"]]) for h in ult) + "</tr>")
+        pesos = {h["mes"]: next((c["peso"] for c in h["carteira"] if _tk_atual(c["ticker"]) == t), None) for h in ult}
+        rot = ("<b>" + t + "</b>" if t in cob else t) + (f'<small>ex-{"/".join(sorted(ex[t]))}</small>' if ex.get(t) else "")
+        linhas.append(f'<tr><td class="tk" style="padding:1px 4px;font-size:11px">{rot}<small>{ordem[t][0]} m</small></td>' + "".join(cel(pesos[h["mes"]]) for h in ult) + "</tr>")
     matriz = f'<table class="mini" style="border-collapse:collapse"><thead><tr><th style="text-align:left">Papel · meses</th>{cab}</tr></thead><tbody>{"".join(linhas)}</tbody></table>'
     # recorrência total (todo o histórico) e leitura
-    tot = {}
+    tot, ex_tot = {}, {}
     for h in H:
         for c in h["carteira"]:
-            tot[c["ticker"]] = tot.get(c["ticker"], 0) + 1
+            t = _tk_atual(c["ticker"])
+            if t != c["ticker"]:
+                ex_tot.setdefault(t, set()).add(c["ticker"])
+            tot[t] = tot.get(t, 0) + 1
     top = sorted(tot.items(), key=lambda x: (-x[1], x[0]))[:12]
-    rec = "".join(f'<tr><td class="tk">{"<b>" + t + "</b>" if t in cob else t}</td><td>{n}</td><td>{num(n / len(H) * 100, 0, suf="%")}</td></tr>' for t, n in top)
+    rec = "".join(f'<tr><td class="tk">{"<b>" + t + "</b>" if t in cob else t}{"<small>ex-" + "/".join(sorted(ex_tot[t])) + "</small>" if ex_tot.get(t) else ""}</td><td>{n}</td><td>{num(n / len(H) * 100, 0, suf="%")}</td></tr>' for t, n in top)
     tab_rec = f'<table class="mini"><thead><tr><th>Papel</th><th>Meses na carteira</th><th>de {len(H)}</th></tr></thead><tbody>{rec}</tbody></table>'
     # YTD relativo por relatório (últimos 12)
     ytd = "".join(f'<tr><td class="tk">{h["mes"][5:]}/{h["mes"][2:4]}</td><td class="{dlt_cls(h.get("ret_mes_anterior"))}">{num(h.get("ret_mes_anterior"), 1, "+" if (h.get("ret_mes_anterior") or 0) > 0 else "", "%") if h.get("ret_mes_anterior") is not None else "—"}</td>'
@@ -2745,7 +2762,7 @@ select.ativo{font:inherit;font-size:11.5px;padding:1px 6px;border-radius:8px;bor
 .dec .janela{gap:3px}.dec .janela button{font-size:10.5px;padding:1px 6px}
 .dec table.mini td,.dec table.mini th{padding:2px 5px;white-space:nowrap}.dec .mut{font-size:10.5px}
 .janela button,.janela-global button{font:inherit;font-size:11px;padding:1px 8px;border-radius:999px;border:1px solid var(--ring);background:var(--sf);color:var(--ink2);cursor:pointer;line-height:1.5}
-.janela button.on,.janela-global button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}.janela button:disabled{opacity:.35;cursor:default}
+.janela button.on,.janela-global button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}.janela button.limpar-sel{border-color:var(--s2);color:var(--s2);background:var(--sf);font-weight:600}.janela button:disabled{opacity:.35;cursor:default}
 .janela-global{margin:8px 0 10px}.janela-global span{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--mut);width:100%;margin-bottom:2px}
 
 /* painel de uma tela */
@@ -2973,8 +2990,11 @@ JS = r"""
       if(!pts||!pts.length)return;var s0=data.series[0];data.series=[{n:k,cor:s0.cor,pts:pts,o:pts.map(function(p){return ord(p[0]);})}].concat(data.series.slice(1));
       data.titulo=k+(data.tituloBase?' · '+data.tituloBase:'');render(svg._anos||0);});}
     var chips=svg.parentNode.querySelector('.janela');
-    function marca(b){if(!chips)return;chips.querySelectorAll('button').forEach(function(x){x.classList.remove('on');});if(b)b.classList.add('on');}
-    if(chips)chips.querySelectorAll('button').forEach(function(b){b.addEventListener('click',function(){marca(b);render(anosDoChip(b));
+    if(chips&&!svg.dataset.nosel){var bl=document.createElement('button');bl.className='limpar-sel';bl.type='button';bl.textContent='✕ seleção';bl.title='Limpa o intervalo selecionado por clique (ou tecle Esc, ou dê duplo clique no gráfico)';
+      bl.style.display=(window.__sel&&window.__sel.t0)?'':'none';bl.addEventListener('click',function(ev){ev.stopPropagation();window.__selecionar(null);});chips.appendChild(bl);}
+    hit.addEventListener('dblclick',function(){if(!svg.dataset.nosel)window.__selecionar(null);});
+    function marca(b){if(!chips)return;chips.querySelectorAll('button:not(.limpar-sel)').forEach(function(x){x.classList.remove('on');});if(b)b.classList.add('on');}
+    if(chips)chips.querySelectorAll('button:not(.limpar-sel)').forEach(function(b){b.addEventListener('click',function(){marca(b);render(anosDoChip(b));
       // a janela do gráfico do Ibovespa do Painel comanda todos os outros gráficos de linha (mesmo chip; senão o equivalente em anos)
       if(svg.id==='painel-ibov'){var ds={};['d','mtd','ytd','m','a'].forEach(function(k){if(b.dataset[k]!==undefined)ds[k]=b.dataset[k];});
         document.querySelectorAll('.lin svg.chart').forEach(function(o){if(o===svg||!o._render||o.dataset.nosel||o._intraday)return;
@@ -3036,7 +3056,9 @@ JS = r"""
     else if(d===s.t0)return;
     else if(d<s.t0){s.t1=s.t0;s.t0=d;}
     else s.t1=d;
+    document.querySelectorAll('.limpar-sel').forEach(function(b){b.style.display=s.t0?'':'none';});   // botão "✕ seleção" só aparece com seleção ativa
     document.dispatchEvent(new CustomEvent('selecao'));};
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')window.__selecionar(null);});   // Esc limpa a seleção em todos os gráficos
   document.addEventListener('pontoclique',function(e){window.__selecionar(e.detail.data);});
   // gráficos do Painel montam já; os demais só quando chegam perto da tela (IntersectionObserver): a página tem 80+ gráficos
   // e ~12 MB de dados embutidos — montar tudo no carregamento travava a rolagem no celular por dezenas de segundos
