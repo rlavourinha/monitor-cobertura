@@ -5,7 +5,8 @@ param([switch]$Remover)
 $nome = "Monitor vigia tempo real"
 $raiz = Split-Path -Parent $MyInvocation.MyCommand.Path
 if ($Remover) { Unregister-ScheduledTask -TaskName $nome -Confirm:$false -ErrorAction SilentlyContinue; "removida"; exit }
-$acao = New-ScheduledTaskAction -Execute "python" -Argument "vigia.py" -WorkingDirectory $raiz
+$py = (& python -c "import sys; print(sys.executable)")   # caminho real (o alias da WindowsApps não serve ao Agendador)
+$acao = New-ScheduledTaskAction -Execute $py -Argument "vigia.py" -WorkingDirectory $raiz
 $gatilho = New-ScheduledTaskTrigger -Daily -At 10:00
 $gatilho.Repetition = (New-ScheduledTaskTrigger -Once -At 10:00 -RepetitionInterval (New-TimeSpan -Minutes 5) -RepetitionDuration (New-TimeSpan -Hours 7 -Minutes 45)).Repetition
 $cfg = New-ScheduledTaskSettingsSet -ExecutionTimeLimit (New-TimeSpan -Minutes 4) -MultipleInstances IgnoreNew -StartWhenAvailable
