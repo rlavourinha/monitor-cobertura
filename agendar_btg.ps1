@@ -9,9 +9,9 @@ $py = (& python -c "import sys; print(sys.executable)")   # caminho real (o alia
 $acao = New-ScheduledTaskAction -Execute $py -Argument "btg_relatorios.py" -WorkingDirectory $raiz
 $dias = "Monday","Tuesday","Wednesday","Thursday","Friday"
 $gatilhos = @(
-  (New-ScheduledTaskTrigger -Weekly -DaysOfWeek $dias -At 07:40),
-  (New-ScheduledTaskTrigger -Weekly -DaysOfWeek $dias -At 12:40),
-  (New-ScheduledTaskTrigger -Weekly -DaysOfWeek $dias -At 18:40)
+  (New-ScheduledTaskTrigger -Weekly -DaysOfWeek $dias -At 08:15),
+  (New-ScheduledTaskTrigger -Weekly -DaysOfWeek $dias -At 09:45),
+  (New-ScheduledTaskTrigger -Weekly -DaysOfWeek $dias -At 18:45)
 )
 $cfg = New-ScheduledTaskSettingsSet -ExecutionTimeLimit (New-TimeSpan -Minutes 20) -MultipleInstances IgnoreNew -StartWhenAvailable
 Register-ScheduledTask -TaskName $nome -Action $acao -Trigger $gatilhos -Settings $cfg -Force | Out-Null

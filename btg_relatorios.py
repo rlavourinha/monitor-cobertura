@@ -34,6 +34,7 @@ ESPELHO = config.RAIZ.parent / "btg-research"          # repo privado opcional (
 DESTAQUE = re.compile(r"10SIM|Rede D'?Or|RDOR|Hapvida|SAUD3|Localiza|RENT3|Cyrela|CYRE3|Cury|Brazil Strategy|Ibovespa|"
                       r"Bovespa|Health ?care|Real Estate|Homebuilder|Macroeconomic Research\s*-\s*Brazil|Brazil Macro|"
                       r"Equity Strategy|Petrobras|Vale\b|Itaú|Itau", re.I)
+EXCLUI = re.compile(r"FIBRA|Mexico|Mexican|Chile|Argentin|Colombia|Peru", re.I)     # relatórios de outros países nunca são destaque
 MAX_PAGINAS = 80
 
 
@@ -117,9 +118,99 @@ def avisar(novos: list[dict]) -> None:
     telegram.enviar(cab + "\n" + "\n".join(linhas))
 
 
+def _meta(d: dict) -> dict:
+    """Metadados a partir de um item da lista do portal (campos da API ou os curtos {id,d,co,t,an,rating,kb})."""
+    id_ = int(d.get("document_id") or d["id"])
+    meta = {"id": id_, "data": (d.get("publish_date") or d.get("d") or d.get("data") or "")[:10],
+            "empresa": _limpa(d.get("company_sector") or d.get("co") or d.get("empresa")),
+            "titulo": _limpa(d.get("title") or d.get("t") or d.get("titulo")),
+            "analista": _limpa(d.get("main_analyst") or d.get("an") or d.get("analista")), "rating": d.get("rating"),
+            "kb": int(d.get("file_size") or d.get("kb") or 0), "paginas": None, "chars": 0, "erro": None,
+            "coletado": datetime.now().strftime("%Y-%m-%d %H:%M")}
+    chave = meta["empresa"] + " " + meta["titulo"]
+    meta["destaque"] = bool(DESTAQUE.search(chave)) and not EXCLUI.search(chave)
+    return meta
+
+
+def modo_novos(arq: str, dias: int) -> int:
+    """Modo Chrome (sessão do Claude): recebe a lista do portal em JSON e imprime os novos, destaque primeiro."""
+    lista = json.loads(open(arq, encoding="utf-8").read())
+    indice = _carrega(INDICE, {})
+    limite = (date.today() - timedelta(days=dias)).isoformat()
+    novos = [_meta(d) for d in lista if str(d.get("document_id") or d.get("id")) not in indice]
+    novos = [m for m in novos if m["data"] >= limite]
+    novos.sort(key=lambda m: (not m["destaque"], m["data"]))
+    print(json.dumps([{k: m[k] for k in ("id", "data", "empresa", "titulo", "analista", "rating", "kb", "destaque")} for m in novos],
+                     ensure_ascii=False, indent=0))
+    return 0
+
+
+def modo_conhecidos(dias: int) -> int:
+    """Modo Chrome: imprime os ids já indexados com data recente (para o JS da lista devolver só os novos)."""
+    indice = _carrega(INDICE, {})
+    limite = (date.today() - timedelta(days=dias + 4)).isoformat()
+    print(json.dumps(sorted(int(k) for k, m in indice.items() if m.get("data", "") >= limite)))
+    return 0
+
+
+MARCA = re.compile(r"<<<BTG (\d{3,8})>>>\n")
+
+
+def modo_clip() -> int:
+    """Modo Chrome: a página copiou para a área de transferência blocos '<<<BTG id>>>\\ntexto'; grava txt/<id>.txt."""
+    tmp = DIR / "_clip.txt"
+    ps = f"[IO.File]::WriteAllText('{tmp}', [string](Get-Clipboard -Raw), [Text.Encoding]::UTF8)"
+    subprocess.run(["powershell", "-NoProfile", "-Command", ps], capture_output=True, text=True, timeout=60)
+    bruto = tmp.read_text(encoding="utf-8") if tmp.exists() else ""
+    partes = MARCA.split(bruto)          # ['', id1, txt1, id2, txt2, ...]
+    n = 0
+    for i in range(1, len(partes) - 1, 2):
+        id_, txt = partes[i], partes[i + 1].strip()
+        if txt:
+            TXT.mkdir(parents=True, exist_ok=True)
+            (TXT / f"{id_}.txt").write_text(txt, encoding="utf-8")
+            n += 1
+            print(f"  {id_}: {len(txt)} chars")
+    tmp.unlink(missing_ok=True)
+    print(f"{n} textos gravados da área de transferência")
+    return 0 if n else 1
+
+
+def modo_registrar(arq: str, sem_telegram: bool, sem_espelho: bool) -> int:
+    """Modo Chrome: recebe a lista de metadados dos novos (texto já gravado em txt/<id>.txt quando houver) e fecha a passada."""
+    metas = json.loads(open(arq, encoding="utf-8").read())
+    indice = _carrega(INDICE, {})
+    novos = []
+    for d in metas:
+        m = _meta(d)
+        t = TXT / f"{m['id']}.txt"
+        if t.exists():
+            txt = t.read_text(encoding="utf-8")
+            m["chars"] = len(txt)
+            m["paginas"] = d.get("paginas") or (txt.count("[página ") or None)
+        indice[str(m["id"])] = m
+        novos.append(m)
+    _grava(INDICE, indice)
+    _grava(NOVOS, {"hora": datetime.now().strftime("%Y-%m-%d %H:%M"), "novos": novos})
+    if novos and not sem_telegram:
+        avisar(novos)
+    if novos and not sem_espelho:
+        espelhar(novos)
+    print(f"{len(novos)} registrados ({sum(1 for m in novos if m['chars'])} com texto); índice com {len(indice)}")
+    return 0
+
+
 def main() -> int:
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")      # as saídas JSON (--novos, --conhecidos) vão para arquivo via redirecionamento
+    except Exception:
+        pass
     ap = argparse.ArgumentParser()
     ap.add_argument("--login", action="store_true", help="abre janela para você fazer login no portal")
+    ap.add_argument("--novos", metavar="LISTA.json", help="modo Chrome: lista do portal -> imprime os novos")
+    ap.add_argument("--registrar", metavar="METAS.json", help="modo Chrome: fecha a passada (índice, novos.json, Telegram, espelho)")
+    ap.add_argument("--conhecidos", action="store_true", help="modo Chrome: imprime ids já indexados (recentes)")
+    ap.add_argument("--clip", action="store_true", help="modo Chrome: grava os textos que a página copiou para a área de transferência")
     ap.add_argument("--dias", type=int, default=3, help="só relatórios publicados nos últimos N dias (padrão 3)")
     ap.add_argument("--max", type=int, default=40, help="máximo de PDFs por passada")
     ap.add_argument("--headed", action="store_true", help="mostra a janela do navegador")
@@ -129,9 +220,17 @@ def main() -> int:
 
     if args.login:
         return 0 if btg.login_interativo() else 1
-
     for d in (PDF, TXT):
         d.mkdir(parents=True, exist_ok=True)
+    if args.conhecidos:
+        return modo_conhecidos(args.dias)
+    if args.clip:
+        return modo_clip()
+    if args.novos:
+        return modo_novos(args.novos, args.dias)
+    if args.registrar:
+        return modo_registrar(args.registrar, args.sem_telegram, args.sem_espelho)
+
     indice = _carrega(INDICE, {})
     limite = (date.today() - timedelta(days=args.dias)).isoformat()
     novos: list[dict] = []
@@ -143,12 +242,8 @@ def main() -> int:
         cand = [d for d in docs if str(d.get("document_id")) not in indice and (d.get("publish_date") or "")[:10] >= limite]
         print(f"{len(docs)} listados, {len(cand)} novos (últimos {args.dias} dias)")
         for d in sorted(cand, key=lambda d: d["publish_date"])[-args.max:]:       # do mais antigo ao mais novo
-            id_ = int(d["document_id"])
-            meta = {"id": id_, "data": d["publish_date"][:10], "empresa": _limpa(d.get("company_sector")),
-                    "titulo": _limpa(d.get("title")), "analista": _limpa(d.get("main_analyst")), "rating": d.get("rating"),
-                    "kb": int(d.get("file_size") or 0), "paginas": None, "chars": 0, "erro": None,
-                    "coletado": datetime.now().strftime("%Y-%m-%d %H:%M")}
-            meta["destaque"] = bool(DESTAQUE.search(meta["empresa"] + " " + meta["titulo"]))
+            meta = _meta(d)
+            id_ = meta["id"]
             try:
                 dados = p.pdf(id_)
                 (PDF / f"{id_}.pdf").write_bytes(dados)
