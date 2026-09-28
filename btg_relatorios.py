@@ -156,12 +156,18 @@ def modo_conhecidos(dias: int) -> int:
 MARCA = re.compile(r"<<<BTG (\d{3,8})>>>\n")
 
 
-def modo_clip() -> int:
-    """Modo Chrome: a página copiou para a área de transferência blocos '<<<BTG id>>>\\ntexto'; grava txt/<id>.txt."""
-    tmp = DIR / "_clip.txt"
-    ps = f"[IO.File]::WriteAllText('{tmp}', [string](Get-Clipboard -Raw), [Text.Encoding]::UTF8)"
-    subprocess.run(["powershell", "-NoProfile", "-Command", ps], capture_output=True, text=True, timeout=60)
-    bruto = tmp.read_text(encoding="utf-8") if tmp.exists() else ""
+def modo_clip(arquivo: str | None = None) -> int:
+    """Modo Chrome: blocos '<<<BTG id>>>\\ntexto' vindos da área de transferência (padrão) ou de um arquivo (--arquivo,
+    quando o clipboard falha: tela bloqueada, Chrome sem foco); grava txt/<id>.txt e imprime os ids gravados."""
+    if arquivo:
+        import pathlib
+        bruto = pathlib.Path(arquivo).read_text(encoding="utf-8")
+        tmp = DIR / "_nao_apagar"
+    else:
+        tmp = DIR / "_clip.txt"
+        ps = f"[IO.File]::WriteAllText('{tmp}', [string](Get-Clipboard -Raw), [Text.Encoding]::UTF8)"
+        subprocess.run(["powershell", "-NoProfile", "-Command", ps], capture_output=True, text=True, timeout=60)
+        bruto = tmp.read_text(encoding="utf-8") if tmp.exists() else ""
     partes = MARCA.split(bruto)          # ['', id1, txt1, id2, txt2, ...]
     n = 0
     for i in range(1, len(partes) - 1, 2):
@@ -211,6 +217,7 @@ def main() -> int:
     ap.add_argument("--registrar", metavar="METAS.json", help="modo Chrome: fecha a passada (índice, novos.json, Telegram, espelho)")
     ap.add_argument("--conhecidos", action="store_true", help="modo Chrome: imprime ids já indexados (recentes)")
     ap.add_argument("--clip", action="store_true", help="modo Chrome: grava os textos que a página copiou para a área de transferência")
+    ap.add_argument("--arquivo", metavar="BLOCOS.txt", help="com --clip: lê os blocos deste arquivo em vez da área de transferência")
     ap.add_argument("--dias", type=int, default=3, help="só relatórios publicados nos últimos N dias (padrão 3)")
     ap.add_argument("--max", type=int, default=40, help="máximo de PDFs por passada")
     ap.add_argument("--headed", action="store_true", help="mostra a janela do navegador")
@@ -225,7 +232,7 @@ def main() -> int:
     if args.conhecidos:
         return modo_conhecidos(args.dias)
     if args.clip:
-        return modo_clip()
+        return modo_clip(args.arquivo)
     if args.novos:
         return modo_novos(args.novos, args.dias)
     if args.registrar:
