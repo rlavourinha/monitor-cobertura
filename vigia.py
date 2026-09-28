@@ -84,6 +84,17 @@ def avaliar(snap: dict) -> dict:
             "ibov": _ibov_proxy(papeis, S, frac)}
 
 
+def _fech_anterior_ibov() -> float | None:
+    """Último fechamento diário do Ibovespa anterior a hoje (barra D1 do MT5; o feed diário do índice funciona)."""
+    try:
+        from datetime import timedelta
+        d = mt5.historico_diario("IBOV", datetime.now() - timedelta(days=15))
+        d = [r for r in d if str(r.get("data", ""))[:10] < date.today().isoformat() and r.get("fechamento")]
+        return float(d[-1]["fechamento"]) if d else None
+    except Exception:
+        return None
+
+
 def _ibov_proxy(papeis: dict, S: dict, frac: float) -> dict:
     """Ibovespa do dia a partir da própria carteira (pesos oficiais de data/ibov_comp.json): variação = média dos retornos
     ponderada pelo peso; volume relativo = soma do volume de hoje ÷ soma das médias de 21 pregões × fração do pregão
@@ -105,7 +116,18 @@ def _ibov_proxy(papeis: dict, S: dict, frac: float) -> dict:
         qtd = [r[2] for r in s][-21:]
         if p.get("vol_hoje") and len(qtd) >= 21 and frac >= 30 / 420:
             vh += p["vol_hoje"]; vm += (sum(qtd) / 21) * frac
-    return {"r1": (sr / sw) if sw else None, "vrel": (vh / vm) if vm else None, "n": n, "cobertura": round(sw, 1)}
+    out = {"r1": (sr / sw) if sw else None, "vrel": (vh / vm) if vm else None, "n": n, "cobertura": round(sw, 1), "fonte_r1": "carteira"}
+    # variação do dia preferencialmente pelo BOVA11 (ETF negociado na mesma sessão): um preço de mercado, sem o atraso das
+    # últimas negociações de papéis ilíquidos; a carteira ponderada fica como reserva e para o volume
+    try:
+        q = mt5.intraday("BOVA11")
+        if q and q.get("preco") and q.get("fech_anterior") and q["hora"][:10] == date.today().isoformat():
+            out["r1_carteira"] = out["r1"]
+            out["r1"] = q["preco"] / q["fech_anterior"] - 1
+            out["fonte_r1"] = "BOVA11"
+    except Exception:
+        pass
+    return out
 
 
 def _linha_ibov(res: dict) -> str:
@@ -153,10 +175,21 @@ def exportar_intraday() -> int:
         return [[b["hora"], float(b["fechamento"])] for b in bars if b.get("hora") and str(b["hora"])[:10] == d and b.get("fechamento")]
     for tk in TICKERS_INTRADAY:
         pts = barras(tk)
-        if not pts and tk == "IBOV":            # o índice à vista às vezes não tem barras no MT5 da Genial: usa o futuro cheio
-            pts = barras("IND$")
-            if pts:
-                proxy[tk] = "IND$"
+        if not pts and tk == "IBOV":
+            # O símbolo IBOV da Genial não tem tick/barras intraday (feed parado). Proxy à vista: BOVA11 (ETF do índice,
+            # mesma sessão, sem base de futuro), reescalado para pontos pelo fechamento diário anterior do índice; se o
+            # ETF também faltar, o futuro cheio IND$.
+            b = barras("BOVA11")
+            q = mt5.intraday("BOVA11")
+            fech_ibov = _fech_anterior_ibov()
+            if b and q and q.get("fech_anterior") and fech_ibov:
+                k = fech_ibov / q["fech_anterior"]
+                pts = [[h, round(v * k, 0)] for h, v in b]
+                proxy[tk] = "BOVA11"
+            else:
+                pts = barras("IND$")
+                if pts:
+                    proxy[tk] = "IND$"
         if pts:
             series[tk] = pts
     if series:

@@ -139,7 +139,9 @@ def _nota_intraday_hoje() -> str:
         return ""
     nota = f" · última barra {J.get('hora', '')[11:]}"
     if (J.get("proxy") or {}).get("IBOV"):
-        nota += f" · Ibovespa de hoje = futuro {J['proxy']['IBOV']} (o índice à vista não tem barras no MT5)"
+        px = J["proxy"]["IBOV"]
+        nota += (" · Ibovespa de hoje = BOVA11 reescalado em pontos (o índice à vista não tem barras no MT5)" if px == "BOVA11"
+                 else f" · Ibovespa de hoje = futuro {px} (o índice à vista não tem barras no MT5)")
     return nota
 
 
