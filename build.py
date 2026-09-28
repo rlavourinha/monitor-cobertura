@@ -145,6 +145,63 @@ def _nota_intraday_hoje() -> str:
     return nota
 
 
+def _comp_tempo_real(C: dict) -> dict:
+    """Sobrepõe ao ibov_comp.json os preços do vigia (data/alertas_tempo_real.json, a cada 5 min no pregão): viram o
+    último ponto intraday de cada papel (C["intraday"]), que a decomposição, os setores e o painel de papéis usam como
+    ponto provisório de hoje. Só quando o arquivo é de hoje e mais novo que a cotação já gravada (Yahoo, com atraso)."""
+    ptr = config.DATA / "alertas_tempo_real.json"
+    if not ptr.exists():
+        return C
+    try:
+        TR = json.loads(ptr.read_text(encoding="utf-8"))
+    except Exception:
+        return C
+    if TR.get("hora", "")[:10] != date.today().isoformat():
+        return C
+    intr = C.setdefault("intraday", {})
+    n = 0
+    for cod, q in (TR.get("papeis") or {}).items():
+        if not q.get("preco") or not q.get("hora"):
+            continue
+        atual = intr.get(cod) or {}
+        if atual.get("hora", "") < q["hora"]:
+            intr[cod] = {"preco": q["preco"], "data": q["hora"][:10], "hora": q["hora"], "fonte": "vigia"}
+            n += 1
+    C["tempo_real"] = TR["hora"] if n else C.get("tempo_real")
+    return C
+
+
+def _macro_tempo_real(M: dict) -> dict:
+    """Ibovespa de hoje pelo vigia (data/intraday_hoje.json: BOVA11 reescalado ou IND$) sobre o macro.json: "Último",
+    variação do dia e ponto provisório de hoje na série diária (gráfico do Painel, tabela e coluna Janela)."""
+    ph = config.DATA / "intraday_hoje.json"
+    if not ph.exists():
+        return M
+    try:
+        J = json.loads(ph.read_text(encoding="utf-8"))
+    except Exception:
+        return M
+    if J.get("data") != date.today().isoformat():
+        return M
+    bars = (J.get("series") or {}).get("IBOV") or []
+    if not bars:
+        return M
+    hora, preco = bars[-1][0], float(bars[-1][1])
+    hist = M.setdefault("hist", {}).get("Ibovespa") or []
+    ant = [v for d, v in hist if d < J["data"] and v is not None]
+    fech_ant = ant[-1] if ant else None
+    mk = M.setdefault("mercado", {})
+    q = dict(mk.get("Ibovespa") or {})
+    q.update({"preco": preco, "hora": hora, "fech_anterior": fech_ant, "var_dia": (preco / fech_ant - 1) if fech_ant else q.get("var_dia"),
+              "fonte": "vigia/" + ((J.get("proxy") or {}).get("IBOV") or "IBOV")})
+    mk["Ibovespa"] = q
+    if hist and hist[-1][0] < J["data"]:
+        M["hist"]["Ibovespa"] = hist + [[J["data"], preco]]
+    elif hist and hist[-1][0] == J["data"]:
+        M["hist"]["Ibovespa"][-1] = [J["data"], preco]
+    return M
+
+
 def _mescla_intraday_hoje(ticker: str, res: dict | None, escala: float = 1.0) -> dict | None:
     """Sobrepõe as barras de 1 min de HOJE publicadas pelo vigia (data/intraday_hoje.json, a cada 5 min no pregão) ao
     extrato: substitui o dia nas séries "1 min" e "5 min" (o extrato do MT5 só é regravado pela janela mt5)."""
@@ -745,11 +802,11 @@ def decomp_ibov(M: dict) -> dict | None:
     p = config.DATA / "ibov_comp.json"
     if not p.exists():
         return None
-    C = json.loads(p.read_text(encoding="utf-8"))
+    C = _comp_tempo_real(json.loads(p.read_text(encoding="utf-8")))
     hist, itens = C.get("hist", {}), C.get("itens", [])
     if not hist or not itens:
         return None
-    for cod, q in (C.get("intraday") or {}).items():          # último ponto intraday (Yahoo) sobre o fechamento oficial (B3)
+    for cod, q in (C.get("intraday") or {}).items():          # último ponto intraday (vigia ou Yahoo) sobre o fechamento oficial (B3)
         h = hist.get(cod)
         if h and q.get("data") and q["data"] > h[-1][0]:
             hist[cod] = h + [[q["data"], q["preco"]]]
@@ -1025,7 +1082,7 @@ def linha_ibov_painel(D: dict, M: dict) -> str:
                 f'<div class="pbox"><h2>Ibovespa · decomposição</h2><div class="empty small">Rode <code>python coletar.py --janela diario</code>.</div></div></div>')
     ABREV = {"Consumo não cíclico": "Cons. não cíclico", "Consumo cíclico": "Cons. cíclico", "Utilidade pública": "Utilidade públ.", "Materiais básicos": "Mat. básicos", "Bens industriais": "Bens indust."}
     # dados para o clique: carteira, histórico (com o último ponto intraday), proventos, fotografias, índice, calendário, rebalanceamentos
-    C = json.loads((config.DATA / "ibov_comp.json").read_text(encoding="utf-8"))
+    C = _comp_tempo_real(json.loads((config.DATA / "ibov_comp.json").read_text(encoding="utf-8")))
     hist = C.get("hist", {})
     for cod, q in (C.get("intraday") or {}).items():
         h = hist.get(cod)
@@ -3566,7 +3623,7 @@ def secao_macro(mercado_micro: dict) -> list[tuple[str, str]]:
     p = config.DATA / "macro.json"
     if not p.exists():
         return [slide("Macro", "capa", "Monitor de Cobertura", '<div class="empty">Sem dados macro. Rode <code>python coletar.py --so-macro</code>.</div>', cls="cover")]
-    M = json.loads(p.read_text(encoding="utf-8"))
+    M = _macro_tempo_real(json.loads(p.read_text(encoding="utf-8")))
     a0, a1 = M["anos"]
     focus, sgs = M.get("focus", {}), M.get("sgs", {})
     S1, S2 = "var(--s1)", "var(--s2)"
