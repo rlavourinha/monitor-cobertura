@@ -80,7 +80,43 @@ def avaliar(snap: dict) -> dict:
         if flags:
             alertas.append({"cod": cod, "txt": " e ".join(flags), "score": (abs(z) if z else 0) + (vrel or 0), "z": z, "vrel": vrel, "r1": r1})
     alertas.sort(key=lambda a: -a["score"])
-    return {"hora": agora.strftime("%Y-%m-%d %H:%M"), "fracao_pregao": round(frac, 3), "papeis": papeis, "alertas": alertas}
+    return {"hora": agora.strftime("%Y-%m-%d %H:%M"), "fracao_pregao": round(frac, 3), "papeis": papeis, "alertas": alertas,
+            "ibov": _ibov_proxy(papeis, S, frac)}
+
+
+def _ibov_proxy(papeis: dict, S: dict, frac: float) -> dict:
+    """Ibovespa do dia a partir da própria carteira (pesos oficiais de data/ibov_comp.json): variação = média dos retornos
+    ponderada pelo peso; volume relativo = soma do volume de hoje ÷ soma das médias de 21 pregões × fração do pregão
+    (o índice à vista não vem confiável do MT5 da Genial). Devolve {r1, vrel, n, cobertura} — cobertura = % do peso usado."""
+    try:
+        C = json.loads((config.DATA / "ibov_comp.json").read_text(encoding="utf-8"))
+        peso = {i["cod"]: float(i.get("peso") or 0) for i in C.get("itens", [])}
+    except Exception:
+        peso = {}
+    sw = sr = 0.0
+    vh = vm = 0.0
+    n = 0
+    for cod, p in papeis.items():
+        w = peso.get(cod, 0)
+        if not w or p.get("r1") is None:
+            continue
+        sw += w; sr += w * p["r1"]; n += 1
+        s = [r for r in S.get(cod, []) if r[1]]
+        qtd = [r[2] for r in s][-21:]
+        if p.get("vol_hoje") and len(qtd) >= 21 and frac >= 30 / 420:
+            vh += p["vol_hoje"]; vm += (sum(qtd) / 21) * frac
+    return {"r1": (sr / sw) if sw else None, "vrel": (vh / vm) if vm else None, "n": n, "cobertura": round(sw, 1)}
+
+
+def _linha_ibov(res: dict) -> str:
+    """'Ibov −0,3% · volume 1,2× a média' (proxy pela carteira); vazio se não deu para calcular."""
+    ib = res.get("ibov") or {}
+    partes = []
+    if ib.get("r1") is not None:
+        partes.append(f"Ibov {_num(ib['r1'] * 100, 1, True)}%")
+    if ib.get("vrel") is not None:
+        partes.append(f"volume {_num(ib['vrel'], 1)}× a média")
+    return " · ".join(partes)
 
 
 def notificar(res: dict) -> int:
@@ -97,7 +133,8 @@ def notificar(res: dict) -> int:
             novos.append(a); est["enviados"][chave] = nivel
     if novos and telegram.disponivel():
         linhas = [f"<b>{a['cod']}</b> {_num(a['r1'] * 100, 1, True)}% · {a['txt']}" for a in novos[:12]]
-        telegram.enviar(f"<b>Monitor · fora do padrão</b> ({res['hora'][11:]})\n" + "\n".join(linhas))
+        ib = _linha_ibov(res)
+        telegram.enviar(f"<b>Monitor · fora do padrão</b> ({res['hora'][11:]})" + (f"\n<i>{ib}</i>" if ib else "") + "\n" + "\n".join(linhas))
     ESTADO.write_text(json.dumps(est, ensure_ascii=False), encoding="utf-8")
     return len(novos)
 
