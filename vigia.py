@@ -198,6 +198,24 @@ def exportar_intraday() -> int:
     return len(series)
 
 
+DIARIO = config.DATA / "vigia_diario.csv"
+
+
+def registrar_diario(res: dict) -> None:
+    """Uma linha por dia (a última passada sobrescreve a do mesmo dia): Ibov do dia (BOVA11), volume relativo do mercado,
+    quantidade total negociada nos papéis do índice e nº de alertas. O alertas_tempo_real.json é sobrescrito a cada
+    passada; este CSV é o registro que fica (o volume financeiro oficial continua vindo do COTAHIST na janela diária)."""
+    ib = res.get("ibov") or {}
+    tot = sum((p.get("vol_hoje") or 0) for p in res["papeis"].values())
+    linha = [res["hora"][:10], res["hora"][11:], f"{res['fracao_pregao']:.2f}", f"{ib['r1'] * 100:.2f}" if ib.get("r1") is not None else "",
+             f"{ib['vrel']:.2f}" if ib.get("vrel") is not None else "", str(int(tot)), str(len(res["papeis"])), str(len(res["alertas"])),
+             ";".join(a["cod"] for a in res["alertas"])]
+    cab = "data,hora,fracao_pregao,ibov_var_pct,ibov_vol_rel,qtd_negociada_indice,papeis,alertas,codigos\n"
+    antigas = DIARIO.read_text(encoding="utf-8").splitlines()[1:] if DIARIO.exists() else []
+    antigas = [l for l in antigas if not l.startswith(linha[0] + ",")]
+    DIARIO.write_text(cab + "\n".join(antigas + [",".join(linha)]) + "\n", encoding="utf-8")
+
+
 def publicar(res: dict) -> None:
     """Commit + push do JSON de alertas (+ intraday de hoje); o push dispara o build no GitHub (exceção em `paths`)."""
     raiz = str(config.RAIZ)
@@ -206,6 +224,8 @@ def publicar(res: dict) -> None:
     git("add", str(ARQ.relative_to(config.RAIZ)))
     if INTRADAY.exists():
         git("add", str(INTRADAY.relative_to(config.RAIZ)))
+    if DIARIO.exists():
+        git("add", str(DIARIO.relative_to(config.RAIZ)))
     if git("diff", "--cached", "--quiet").returncode == 0:
         return
     git("commit", "-q", "-m", f"vigia: alertas em tempo real {res['hora']}")
@@ -230,6 +250,7 @@ def main() -> int:
     ARQ.write_text(json.dumps(res, ensure_ascii=False), encoding="utf-8")
     n = notificar(res)
     ni = exportar_intraday()
+    registrar_diario(res)
     print(f"{res['hora']}: {len(res['papeis'])} papéis, {len(res['alertas'])} alertas, {n} enviados; pregão {res['fracao_pregao']:.0%}; intraday {ni} séries")
     if "--sem-push" not in sys.argv and "--forcar" not in sys.argv:
         publicar(res)
