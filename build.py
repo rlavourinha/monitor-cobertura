@@ -103,15 +103,16 @@ def mt5_intraday(ticker: str, dias_1m: int = 5, dias_5m: int = 21, escala: float
     p = config.DATA / "mt5" / "m1" / f"{ticker}_{date.today().year}.csv.gz"
     if not p.exists():                       # fora deste PC (GitHub Actions): usa o extrato publicado pela janela mt5
         pj = config.DATA / "mt5_intraday.json"
+        res = None
         if pj.exists():
             J = json.loads(pj.read_text(encoding="utf-8"))
             if ticker in J:
-                return {k: [[h, v * escala] for h, v in pts] for k, pts in J[ticker].items()}
-        return None
+                res = {k: [[h, v * escala] for h, v in pts] for k, pts in J[ticker].items()}
+        return _mescla_intraday_hoje(ticker, res, escala)
     with gzip.open(p, "rt", encoding="utf-8", newline="") as fh:
         rows = [(r["hora"], float(r["fechamento"]) * escala) for r in csv.DictReader(fh) if r.get("hora")]
     if not rows:
-        return None
+        return _mescla_intraday_hoje(ticker, None, escala)
     dias = sorted({h[:10] for h, _ in rows})
     d1, d5 = set(dias[-dias_1m:]), set(dias[-dias_5m:])
     m1 = [[h, v] for h, v in rows if h[:10] in d1]
@@ -124,6 +125,46 @@ def mt5_intraday(ticker: str, dias_1m: int = 5, dias_5m: int = 21, escala: float
             m5[-1] = [h, v]
         else:
             m5.append([h, v]); ult = chave
+    return _mescla_intraday_hoje(ticker, {"5 min": m5, "1 min": m1}, escala)
+
+
+def _nota_intraday_hoje() -> str:
+    """Complemento do tooltip do chip 'hoje': hora da última barra e, se o Ibovespa de hoje veio do futuro (IND$), avisa."""
+    ph = config.DATA / "intraday_hoje.json"
+    if not ph.exists():
+        return ""
+    try:
+        J = json.loads(ph.read_text(encoding="utf-8"))
+    except Exception:
+        return ""
+    nota = f" · última barra {J.get('hora', '')[11:]}"
+    if (J.get("proxy") or {}).get("IBOV"):
+        nota += f" · Ibovespa de hoje = futuro {J['proxy']['IBOV']} (o índice à vista não tem barras no MT5)"
+    return nota
+
+
+def _mescla_intraday_hoje(ticker: str, res: dict | None, escala: float = 1.0) -> dict | None:
+    """Sobrepõe as barras de 1 min de HOJE publicadas pelo vigia (data/intraday_hoje.json, a cada 5 min no pregão) ao
+    extrato: substitui o dia nas séries "1 min" e "5 min" (o extrato do MT5 só é regravado pela janela mt5)."""
+    ph = config.DATA / "intraday_hoje.json"
+    if not ph.exists():
+        return res
+    try:
+        bars = (json.loads(ph.read_text(encoding="utf-8")).get("series") or {}).get(ticker)
+    except Exception:
+        bars = None
+    if not bars:
+        return res
+    dd = str(bars[-1][0])[:10]
+    res = res or {"5 min": [], "1 min": []}
+    m1 = [p for p in res.get("1 min", []) if str(p[0])[:10] != dd] + [[h, v * escala] for h, v in bars]
+    m5, ult = [p for p in res.get("5 min", []) if str(p[0])[:10] != dd], None
+    for h, v in bars:
+        chave = h[:14] + str(int(h[14:16]) // 5)
+        if chave == ult:
+            m5[-1] = [h, v * escala]
+        else:
+            m5.append([h, v * escala]); ult = chave
     return {"5 min": m5, "1 min": m1}
 
 
@@ -354,7 +395,9 @@ def svg_linhas(cid: str, series: list[tuple[str, str, list[list]]], dec=1, pref=
     ini = ini if (ini and ini < anos_total) else 0        # janela inicial (anos); 0 = máx
     chips = "".join(f'<button data-a="{a}"{" disabled" if a >= anos_total else ""}{" class=on" if a == ini else ""}>{a}a</button>' for a in ((2, 3, 5, 10) if curtas else (1, 2, 3, 5, 10)))
     if curtas:   # pregões (1, 5, 21), mês corrente, ano corrente e 12 meses (o Painel liga a decomposição do Ibovespa a esta mesma janela)
-        chips = '<button data-d="1">1 d</button><button data-d="5">5 d</button><button data-d="21">21 d</button><button data-mtd="1">MTD</button><button data-ytd="1">YTD</button><button data-m="12">12 m</button>' + chips
+        # "hoje" (só onde há barras de 1 min): o gráfico vira o intraday do último pregão e a janela dos demais passa a 1 d
+        chips = ((f'<button data-hoje="1" title="Barras de 1 minuto do último pregão (atualizadas pelo vigia a cada 5 min no pregão); os outros gráficos e a coluna Janela passam a 1 d{_nota_intraday_hoje()}">hoje</button>' if resol and "1 min" in resol else "")
+                 + '<button data-d="1">1 d</button><button data-d="5">5 d</button><button data-d="21">21 d</button><button data-mtd="1">MTD</button><button data-ytd="1">YTD</button><button data-m="12">12 m</button>' + chips)
     sel_res = (f'<div class="resol" data-for="{cid}"><span>preço</span><button data-r="" class="on">diário</button>'
                + "".join(f'<button data-r="{k}">{k}</button>' for k in resol) + "</div>") if resol else ""
     if ativos:   # lista de ativos: o JS troca a 1ª série pelo escolhido (alts embutidos ou hist do #ibov-dados)
@@ -3158,9 +3201,20 @@ JS = r"""
       bl.style.display=(window.__sel&&window.__sel.t0)?'':'none';bl.addEventListener('click',function(ev){ev.stopPropagation();window.__selecionar(null);});chips.appendChild(bl);}
     hit.addEventListener('dblclick',function(){if(!svg.dataset.nosel)window.__selecionar(null);});
     function marca(b){if(!chips)return;chips.querySelectorAll('button:not(.limpar-sel)').forEach(function(x){x.classList.remove('on');});if(b)b.classList.add('on');}
-    if(chips)chips.querySelectorAll('button:not(.limpar-sel)').forEach(function(b){b.addEventListener('click',function(){marca(b);render(anosDoChip(b));
+    if(chips)chips.querySelectorAll('button:not(.limpar-sel)').forEach(function(b){b.addEventListener('click',function(){marca(b);
+      // saindo do modo "hoje" (intraday) por outro chip: volta à série diária e ao seletor "diário"
+      if(svg._intraday&&!b.dataset.hoje){data.series=data._orig||data.series;svg._intraday=false;if(res)res.querySelectorAll('button').forEach(function(x){x.classList.toggle('on',!x.dataset.r);});}
+      if(b.dataset.hoje){var alt=(data.resol||{})['1 min'];if(!alt||!alt.length)return;var dd=String(alt[alt.length-1][0]).slice(0,10),dia=alt.filter(function(p){return String(p[0]).slice(0,10)===dd;});
+        data._orig=data._orig||data.series;var s0=data._orig[0];
+        data.series=[{n:s0.n+' · '+dd.slice(8)+'/'+dd.slice(5,7)+' (1 min)',cor:s0.cor,pts:dia,o:dia.map(function(p,i){return i;})}];
+        svg._intraday=true;svg._anosDia=svg._anos;if(res)res.querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x.dataset.r==='1 min');});
+        render(0);
+        // base = último fechamento diário ANTES do dia mostrado: a decomposição, os setores e a coluna Janela viram "1 d"
+        var so=s0.o,k=so.length-1,od=ord(dd);while(k>0&&so[k]>=od)k--;svg._d0=so[k];
+        svg.dispatchEvent(new CustomEvent('janela',{bubbles:true,detail:{anos:1/365.25,d0:so[k],d1:od}}));}
+      else render(anosDoChip(b));
       // a janela do gráfico do Ibovespa do Painel comanda todos os outros gráficos de linha (mesmo chip; senão o equivalente em anos)
-      if(svg.id==='painel-ibov'){var ds={};['d','mtd','ytd','m','a'].forEach(function(k){if(b.dataset[k]!==undefined)ds[k]=b.dataset[k];});
+      if(svg.id==='painel-ibov'){var ds={};['d','mtd','ytd','m','a'].forEach(function(k){if(b.dataset[k]!==undefined)ds[k]=b.dataset[k];});if(b.dataset.hoje)ds={d:'1'};
         document.querySelectorAll('.lin svg.chart').forEach(function(o){if(o===svg||!o._render||o.dataset.nosel||o._intraday)return;
           var ch=o.parentNode.querySelector('.janela'),alvo=null;
           if(ch)ch.querySelectorAll('button').forEach(function(x){x.classList.remove('on');var ok=Object.keys(ds).length>0;Object.keys(ds).forEach(function(k){if(x.dataset[k]!==ds[k])ok=false;});['d','mtd','ytd','m','a'].forEach(function(k){if(ds[k]===undefined&&x.dataset[k]!==undefined)ok=false;});if(ok&&!x.disabled)alvo=x;});

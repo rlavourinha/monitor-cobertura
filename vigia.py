@@ -22,6 +22,8 @@ from fontes import b3, mt5, telegram
 
 ARQ = config.DATA / "alertas_tempo_real.json"
 ESTADO = config.DATA / "alertas_estado.json"
+INTRADAY = config.DATA / "intraday_hoje.json"                 # barras de 1 min de hoje: chip "hoje" do gráfico do Ibovespa
+TICKERS_INTRADAY = ["IBOV", "WDO$", "RDOR3", "SAUD3"]
 ABRE, FECHA = time(10, 0), time(17, 0)
 
 
@@ -100,12 +102,40 @@ def notificar(res: dict) -> int:
     return len(novos)
 
 
+def exportar_intraday() -> int:
+    """Barras de 1 min de hoje (Ibovespa, dólar futuro e cobertura) em data/intraday_hoje.json; o build mescla no
+    extrato intraday e o chip "hoje" do Painel mostra o dia ao vivo (atraso = cadência do vigia). Devolve nº de séries."""
+    hoje = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    d = hoje.strftime("%Y-%m-%d")
+    series, proxy = {}, {}
+    def barras(tk):
+        try:
+            bars = mt5.historico_m1(tk, hoje.replace(hour=9))
+        except Exception:
+            bars = []
+        return [[b["hora"], float(b["fechamento"])] for b in bars if b.get("hora") and str(b["hora"])[:10] == d and b.get("fechamento")]
+    for tk in TICKERS_INTRADAY:
+        pts = barras(tk)
+        if not pts and tk == "IBOV":            # o índice à vista às vezes não tem barras no MT5 da Genial: usa o futuro cheio
+            pts = barras("IND$")
+            if pts:
+                proxy[tk] = "IND$"
+        if pts:
+            series[tk] = pts
+    if series:
+        INTRADAY.write_text(json.dumps({"data": d, "hora": datetime.now().strftime("%Y-%m-%d %H:%M"), "series": series, "proxy": proxy},
+                                       ensure_ascii=False), encoding="utf-8")
+    return len(series)
+
+
 def publicar(res: dict) -> None:
-    """Commit + push do JSON e disparo do build no GitHub (o push em data/ não dispara sozinho)."""
+    """Commit + push do JSON de alertas (+ intraday de hoje); o push dispara o build no GitHub (exceção em `paths`)."""
     raiz = str(config.RAIZ)
     def git(*a):
         return subprocess.run(["git", *a], cwd=raiz, capture_output=True, text=True, timeout=120)
     git("add", str(ARQ.relative_to(config.RAIZ)))
+    if INTRADAY.exists():
+        git("add", str(INTRADAY.relative_to(config.RAIZ)))
     if git("diff", "--cached", "--quiet").returncode == 0:
         return
     git("commit", "-q", "-m", f"vigia: alertas em tempo real {res['hora']}")
@@ -129,7 +159,8 @@ def main() -> int:
     res = avaliar(snap)
     ARQ.write_text(json.dumps(res, ensure_ascii=False), encoding="utf-8")
     n = notificar(res)
-    print(f"{res['hora']}: {len(res['papeis'])} papéis, {len(res['alertas'])} alertas, {n} enviados; pregão {res['fracao_pregao']:.0%}")
+    ni = exportar_intraday()
+    print(f"{res['hora']}: {len(res['papeis'])} papéis, {len(res['alertas'])} alertas, {n} enviados; pregão {res['fracao_pregao']:.0%}; intraday {ni} séries")
     if "--sem-push" not in sys.argv and "--forcar" not in sys.argv:
         publicar(res)
     mt5.desligar()
