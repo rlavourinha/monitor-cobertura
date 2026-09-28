@@ -109,8 +109,12 @@ def publicar(res: dict) -> None:
     if git("diff", "--cached", "--quiet").returncode == 0:
         return
     git("commit", "-q", "-m", f"vigia: alertas em tempo real {res['hora']}")
-    git("pull", "--rebase", "-q", "origin", "main"); git("push", "-q", "origin", "main")
-    subprocess.run(["gh", "workflow", "run", "atualizar.yml", "-f", "janela=intraday"], cwd=raiz, capture_output=True, text=True, timeout=60)
+    git("pull", "--rebase", "-q", "origin", "main"); push = git("push", "-q", "origin", "main")
+    # O build do site é disparado pelo próprio push (o workflow tem exceção para data/alertas_tempo_real.json). Não usar
+    # `gh workflow run` aqui: o Python do Python Install Manager (MSIX) virtualiza o AppData dos processos filhos e o gh
+    # não enxerga o login (diz "not logged in") quando chamado de dentro do Python.
+    with open(config.DATA / "vigia.log", "a", encoding="utf-8") as f:
+        f.write(f"{res['hora']} push rc={push.returncode} {push.stderr.strip()[:160]}\n")
 
 
 def main() -> int:
