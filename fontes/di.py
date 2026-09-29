@@ -137,12 +137,13 @@ def vertices(cs: list[dict], alvos=ALVOS, min_negocios: int = MIN_NEGOCIOS, hoje
     """{'1a': {'taxa', 'extrapolado', 'entre': [cod, cod]}, ...} a partir dos contratos líquidos (negócios do dia e tick
     de hoje). Com menos de 2 líquidos, usa todos os que têm taxa (e avisa em 'base')."""
     hoje = hoje or date.today().isoformat()
-    # líquido = tick de hoje e (negócios no dia >= corte OU bid/ask apertado): o feed da Genial às vezes zera os negócios
-    # de um contrato líquido (ex.: DI1F28), e sem ele o vértice de 1 ano sai torto
+    # líquido = tick de hoje e (negócios no dia >= corte OU contrato de janeiro com bid/ask de 1 bp): o feed da Genial
+    # zera os negócios do DI1F28 mesmo com preço andando, e sem ele o vértice de 1 ano sai torto. Os meses fora de
+    # janeiro (J, N, V) e os janeiros longos com spread largo ficam de fora — cotação parada/indicativa.
     def liquido(c):
         if not c.get("taxa") or (c.get("hora") or "")[:10] != hoje:
             return False
-        apertado = c.get("bid") and c.get("ask") and 0 < (c["ask"] - c["bid"]) <= 0.03
+        apertado = c.get("bid") and c.get("ask") and 0 < (c["ask"] - c["bid"]) <= 0.0101 and c["cod"][3] == "F"
         return c.get("negocios", 0) >= min_negocios or bool(apertado)
     liq = [c for c in cs if liquido(c)]
     base = "liquidos"
