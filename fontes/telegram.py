@@ -22,10 +22,19 @@ def _cfg() -> dict:
 
 
 def _chama(metodo: str, dados: dict | None = None) -> dict:
+    """POST na API; a rede desta máquina às vezes devolve 'connection reset' na 1ª tentativa — tenta de novo até 3 vezes."""
+    import time
     import requests
     c = _cfg()
-    r = requests.post(API.format(token=c["token"], metodo=metodo), data=dados or {}, timeout=30, headers={"User-Agent": "Mozilla/5.0"})
-    return r.json()
+    erro = None
+    for tent in range(3):
+        try:
+            r = requests.post(API.format(token=c["token"], metodo=metodo), data=dados or {}, timeout=30, headers={"User-Agent": "Mozilla/5.0"})
+            return r.json()
+        except requests.exceptions.ConnectionError as e:
+            erro = e
+            time.sleep(2 + 3 * tent)
+    raise erro
 
 
 def disponivel() -> bool:
