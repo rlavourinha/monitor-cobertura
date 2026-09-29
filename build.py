@@ -297,6 +297,63 @@ def _mercado_tickers_tempo_real(mercado: dict) -> dict:
     return mercado
 
 
+_DI_CACHE: dict = {}
+
+
+def _di_dados() -> dict:
+    """Curva DI do vigia (data/di_curva.json) + séries diárias dos vértices de 10 e 1 ano (data/di_hist.json) com o ponto
+    provisório de hoje pela fotografia. {snap, v, s10, s1}; vazio se não há dados."""
+    if _DI_CACHE:
+        return _DI_CACHE
+    from fontes import di as _di
+    snap = {}
+    if _di.ARQ.exists():
+        try:
+            snap = json.loads(_di.ARQ.read_text(encoding="utf-8"))
+        except Exception:
+            snap = {}
+    v = snap.get("vertices") or {}
+    s10, s1 = _di.serie_vertice(10), _di.serie_vertice(1)
+    hoje = (snap.get("hora") or "")[:10]
+    for s, k in ((s10, "10a"), (s1, "1a")):
+        if v.get(k) and hoje and (not s or s[-1][0] < hoje):
+            s.append([hoje, v[k]["taxa"]])
+        elif v.get(k) and hoje and s and s[-1][0] == hoje:
+            s[-1] = [hoje, v[k]["taxa"]]
+    _DI_CACHE.update({"snap": snap, "v": v, "s10": s10, "s1": s1})
+    return _DI_CACHE
+
+
+def _graficos_di(S1: str, S2: str, MUT: str) -> tuple[str, str]:
+    """(curva DI de hoje vs ANBIMA, DI 10 anos e 1 ano no tempo) para a grade do Painel."""
+    from fontes import di as _di
+    D = _di_dados()
+    snap, v = D["snap"], D["v"]
+    cs = snap.get("contratos") or []
+    liq = set(v.get("_contratos") or [])
+    pts = [[c["venc"], c["taxa"], c.get("negocios")] for c in cs if c.get("taxa") and c["cod"] in liq]
+    series = []
+    if pts:
+        series.append((f"DI {snap.get('hora', '')[11:]}", S1, pts))
+    da, pre = _di.anbima_pre()
+    if pre:
+        hoje = date.today()
+        series.append((f"ANBIMA {da[8:]}/{da[5:7]}", MUT, [[(hoje + timedelta(days=round(d * 365.25 / 252))).isoformat(), t, None] for d, t in sorted(pre) if d <= 3400]))
+    if series:
+        g = svg_linhas("painel-di-curva", series, 2, suf="%", W=260, H=130,
+                       titulo=f"Curva DI (MT5, contratos com ≥ {snap.get('min_negocios', _di.MIN_NEGOCIOS)} negócios ou spread apertado) vs ANBIMA (pré)", extras=["negócios"])
+        g = g.replace('<div class="janela" data-for="painel-di-curva">', '<div class="janela" data-for="painel-di-curva" style="display:none">')
+        g = g.replace('id="painel-di-curva"', 'id="painel-di-curva" data-nosel="1"')   # eixo x = vencimentos
+    else:
+        g = '<div class="empty small">Curva DI: o vigia grava data/di_curva.json no pregão (MT5).</div>'
+    if D["s10"]:
+        g10 = svg_linhas("painel-di10", [("DI 10 anos", S1, D["s10"]), ("DI 1 ano", S2, D["s1"])], 2, suf="%", W=260, H=130, ini=5,
+                         titulo="DI 10 anos e 1 ano (MT5; vértices de prazo constante, flat-forward)")
+    else:
+        g10 = '<div class="empty small">Histórico do DI: rode <code>python coletar.py --janela mt5</code>.</div>'
+    return g, g10
+
+
 def _mescla_intraday_hoje(ticker: str, res: dict | None, escala: float = 1.0) -> dict | None:
     """Sobrepõe as barras de 1 min de HOJE publicadas pelo vigia (data/intraday_hoje.json, a cada 5 min no pregão) ao
     extrato: substitui o dia nas séries "1 min" e "5 min" (o extrato do MT5 só é regravado pela janela mt5)."""
@@ -1163,8 +1220,9 @@ def linha_variaveis_painel(M: dict) -> str:
         fx = fx + [[q["hora"][:10], q["preco"]]]
     g_fx = svg_linhas("painel-fx", [("USD/BRL", S1, fx)], 2, W=260, H=130, ini=5, titulo="USD/BRL (PTAX venda; último ponto intraday)" if len(ptax) > 2000 else "USD/BRL (Yahoo)",
                       resol=mt5_intraday("WDO$", escala=0.001)) if fx else '<div class="empty small">Sem histórico do câmbio.</div>'
-    return (f'<div class="pgrid pg6" style="grid-template-columns:repeat(4,1fr);margin-top:10px">'
-            + "".join(f'<div class="pbox">{g}</div>' for g in (g_br, g_us, g_prem, g_fx, g_brent, g_curva, g_fluxo, g_ativo)) + '</div>')
+    g_di_curva, g_di10 = _graficos_di(S1, S2, MUT)     # curva DI de hoje (vigia/MT5) vs ANBIMA; DI 10 anos e 1 ano no tempo
+    return (f'<div class="pgrid pg6" style="grid-template-columns:repeat(5,1fr);margin-top:10px">'
+            + "".join(f'<div class="pbox">{g}</div>' for g in (g_br, g_di10, g_us, g_prem, g_fx, g_brent, g_curva, g_di_curva, g_fluxo, g_ativo)) + '</div>')
 
 
 def linha_ibov_painel(D: dict, M: dict) -> str:
@@ -1763,6 +1821,16 @@ def slide_painel(M: dict, sgs: dict, mercado_micro: dict, minhas: list[dict], co
     qt = mk.get("Treasury 10a (%)") or {}
     linha("Treasury 10 anos", hist.get("Treasury 10a (%)", []), [qt["hora"][:10], qt["preco"]] if qt.get("preco") and qt.get("hora") else None, taxa=True, suf="%", svg="painel-tnx")
     linha("Pré 10 anos (Tesouro)", pre10, taxa=True, suf="%", svg="painel-pre10")
+    try:                                                     # DI (MT5): vértices interpolados; "Último" = fotografia do vigia
+        DI = _di_dados()
+        for rot, k, s in (("DI 10 anos (MT5)", "10a", DI["s10"]), ("DI 1 ano (MT5)", "1a", DI["s1"])):
+            if s:
+                hoje = (DI["snap"].get("hora") or "")[:10]
+                ult = [hoje, DI["v"][k]["taxa"]] if DI["v"].get(k) and hoje else None
+                base = [p for p in s if p[0] != hoje] if ult else s
+                linha(rot, base, ult, taxa=True, suf="%", svg="painel-di10")
+    except Exception as e:
+        print(f"  DI na tabela: {e}", file=sys.stderr)
     med35 = (sum(v for _, v in n35) / len(n35)) if n35 else None
     linha("NTN-B 2035 (real)", n35, taxa=True, suf="%", obs=f"média hist. {num(med35, 2, suf='%')}", svg="ntnb35")
     cab_m = ('<thead><tr><th>Variável</th><th>Último</th><th>Mín 12 m</th><th>Máx 12 m</th><th>1 d</th><th>5 d</th><th>MTD</th><th>YTD</th><th>12 m</th>'

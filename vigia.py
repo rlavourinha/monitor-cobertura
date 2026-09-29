@@ -18,7 +18,7 @@ import sys
 from datetime import date, datetime, time
 
 import config
-from fontes import b3, mt5, telegram
+from fontes import b3, di, mt5, telegram
 
 ARQ = config.DATA / "alertas_tempo_real.json"
 ESTADO = config.DATA / "alertas_estado.json"
@@ -202,6 +202,18 @@ def exportar_intraday() -> int:
 DIARIO = config.DATA / "vigia_diario.csv"
 
 
+def exportar_di() -> None:
+    """Curva DI: fotografia dos contratos e vértices (data/di_curva.json) a cada passada; histórico diário (D1) dos
+    contratos de janeiro (data/di_hist.json) no máximo uma vez por hora. Falha do MT5 não derruba o vigia."""
+    try:
+        di.snapshot()
+        idade = (datetime.now().timestamp() - di.HIST.stat().st_mtime) / 60 if di.HIST.exists() else 1e9
+        if idade > 60:
+            di.atualiza_historico()
+    except Exception as e:
+        print(f"  DI: {e}", file=sys.stderr)
+
+
 def registrar_diario(res: dict) -> None:
     """Uma linha por dia (a última passada sobrescreve a do mesmo dia): Ibov do dia (BOVA11), volume relativo do mercado,
     quantidade total negociada nos papéis do índice e nº de alertas. O alertas_tempo_real.json é sobrescrito a cada
@@ -227,6 +239,9 @@ def publicar(res: dict) -> None:
         git("add", str(INTRADAY.relative_to(config.RAIZ)))
     if DIARIO.exists():
         git("add", str(DIARIO.relative_to(config.RAIZ)))
+    for p in (di.ARQ, di.HIST):
+        if p.exists():
+            git("add", str(p.relative_to(config.RAIZ)))
     if git("diff", "--cached", "--quiet").returncode == 0:
         return
     git("commit", "-q", "-m", f"vigia: alertas em tempo real {res['hora']}")
@@ -251,6 +266,7 @@ def main() -> int:
     ARQ.write_text(json.dumps(res, ensure_ascii=False), encoding="utf-8")
     n = notificar(res)
     ni = exportar_intraday()
+    exportar_di()
     registrar_diario(res)
     print(f"{res['hora']}: {len(res['papeis'])} papéis, {len(res['alertas'])} alertas, {n} enviados; pregão {res['fracao_pregao']:.0%}; intraday {ni} séries")
     if "--sem-push" not in sys.argv and "--forcar" not in sys.argv:
