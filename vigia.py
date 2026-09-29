@@ -37,7 +37,8 @@ def snapshot() -> dict | None:
     if not mt5.disponivel():
         return None
     C = json.loads((config.DATA / "ibov_comp.json").read_text(encoding="utf-8"))
-    cods = sorted({i["cod"] for i in C.get("itens", [])} | set(getattr(config, "BDRS", [])))
+    # carteira do Ibovespa + BDRs acompanhados + cobertura (SAUD3 saiu do índice e precisa continuar no vigia)
+    cods = sorted({i["cod"] for i in C.get("itens", [])} | set(getattr(config, "BDRS", [])) | set(getattr(config, "UNIVERSO", {})))
     out = {}
     hoje = date.today().isoformat()
     for cod in cods:

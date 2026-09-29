@@ -199,7 +199,102 @@ def _macro_tempo_real(M: dict) -> dict:
         M["hist"]["Ibovespa"] = hist + [[J["data"], preco]]
     elif hist and hist[-1][0] == J["data"]:
         M["hist"]["Ibovespa"][-1] = [J["data"], preco]
+    # demais variáveis do Painel (S&P, câmbio, Brent, VIX, Treasury): cotação do Yahoo na hora do build (o build roda a cada
+    # 5 min no pregão pelo push do vigia), com ponto provisório de hoje na série diária; falha de rede = mantém o que havia
+    try:
+        _mercado_yahoo_tempo_real(M)
+    except Exception as e:
+        print(f"  tempo real (Yahoo): {e}", file=sys.stderr)
     return M
+
+
+def _mercado_yahoo_tempo_real(M: dict, budget_s: float = 12.0) -> None:
+    from concurrent.futures import ThreadPoolExecutor, wait
+    from fontes import yahoo
+    hoje = date.today().isoformat()
+    alvos = {n: s for n, s in getattr(config, "MERCADO", {}).items() if n != "Ibovespa" and n in M.get("hist", {})}
+    if not alvos:
+        return
+    with ThreadPoolExecutor(max_workers=len(alvos)) as ex:
+        futs = {ex.submit(yahoo.intraday, s): n for n, s in alvos.items()}
+        wait(futs, timeout=budget_s)
+        for f, n in futs.items():
+            if not f.done():
+                continue
+            try:
+                q = f.result()
+            except Exception:
+                continue
+            if not q or not q.get("preco") or not q.get("hora") or q["hora"][:10] != hoje:
+                continue
+            hist = M["hist"].get(n) or []
+            ant = [v for d, v in hist if d < hoje and v is not None]
+            fech_ant = q.get("fech_anterior") or (ant[-1] if ant else None)
+            mk = M.setdefault("mercado", {})
+            qq = dict(mk.get(n) or {})
+            qq.update({"preco": q["preco"], "hora": q["hora"], "fech_anterior": fech_ant,
+                       "var_dia": (q["preco"] / fech_ant - 1) if fech_ant else qq.get("var_dia"), "fonte": "yahoo/build"})
+            mk[n] = qq
+            if hist and hist[-1][0] < hoje:
+                M["hist"][n] = hist + [[hoje, float(q["preco"])]]
+            elif hist and hist[-1][0] == hoje:
+                M["hist"][n][-1] = [hoje, float(q["preco"])]
+
+
+def _tempo_real_papeis() -> dict:
+    """{cod: {preco, hora}} do vigia (data/alertas_tempo_real.json) se for de hoje; senão {}."""
+    ptr = config.DATA / "alertas_tempo_real.json"
+    if not ptr.exists():
+        return {}
+    try:
+        TR = json.loads(ptr.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+    if TR.get("hora", "")[:10] != date.today().isoformat():
+        return {}
+    out = {c: {"preco": q["preco"], "hora": q["hora"]} for c, q in (TR.get("papeis") or {}).items() if q.get("preco") and q.get("hora")}
+    # reserva: última barra de 1 min de data/intraday_hoje.json (cobertura fora do índice, ex.: SAUD3)
+    ph = config.DATA / "intraday_hoje.json"
+    if ph.exists():
+        try:
+            J = json.loads(ph.read_text(encoding="utf-8"))
+            if J.get("data") == date.today().isoformat():
+                for c, bars in (J.get("series") or {}).items():
+                    if bars and c not in out and c not in ("IBOV", "WDO$"):
+                        out[c] = {"preco": float(bars[-1][1]), "hora": bars[-1][0]}
+        except Exception:
+            pass
+    return out
+
+
+def _serie_com_hoje(tk: str, serie: list) -> list:
+    """Série diária [[data, fechamento], ...] com o ponto provisório de hoje (preço do vigia), se houver e for mais novo."""
+    q = _tempo_real_papeis().get(tk)
+    pts = [[d, v] for d, v in serie]
+    if q and pts and q["hora"][:10] > pts[-1][0]:
+        pts.append([q["hora"][:10], float(q["preco"])])
+    return pts
+
+
+def _mercado_tickers_tempo_real(mercado: dict) -> dict:
+    """Cotação intraday dos papéis da cobertura pelo vigia (mais nova que a do Yahoo agendado): preço, hora e fechamento
+    anterior (COTAHIST) — alimenta o preço/variação do dia e o ponto de hoje no gráfico de preço (svg_preco)."""
+    TR = _tempo_real_papeis()
+    if not TR:
+        return mercado
+    from fontes import b3 as _b3
+    for tk in config.UNIVERSO:
+        q = TR.get(tk)
+        if not q:
+            continue
+        t = mercado.setdefault("tickers", {}).setdefault(tk, {})
+        atual = t.get("intraday") or {}
+        if (atual.get("hora") or "") >= q["hora"]:
+            continue
+        s = _b3.serie(tk)
+        ant = [v for d, v in s if d < q["hora"][:10]]
+        t["intraday"] = {**atual, "preco": q["preco"], "hora": q["hora"], "fech_anterior": ant[-1] if ant else atual.get("fech_anterior"), "fonte": "vigia"}
+    return mercado
 
 
 def _mescla_intraday_hoje(ticker: str, res: dict | None, escala: float = 1.0) -> dict | None:
@@ -1047,8 +1142,8 @@ def linha_variaveis_painel(M: dict) -> str:
     ativos = sorted(set(config.UNIVERSO) | set(cods_ibov))
     tk0 = next(iter(config.UNIVERSO), ativos[0] if ativos else None)
     if tk0:
-        s0 = [[d, v] for d, v in _b3.serie(tk0)]
-        alts = {tk: [[d, v] for d, v in _b3.serie(tk)] for tk in config.UNIVERSO if tk != tk0}   # os demais vêm do #ibov-dados
+        s0 = _serie_com_hoje(tk0, _b3.serie(tk0))
+        alts = {tk: _serie_com_hoje(tk, _b3.serie(tk)) for tk in config.UNIVERSO if tk != tk0}   # os demais vêm do #ibov-dados
         g_ativo = svg_linhas("painel-ativo", [(tk0, S1, s0)], 2, pref="R$ ", W=260, H=130, ini=5, titulo=f"{tk0} · fechamento (R$)",
                              ativos=ativos, alts=alts, titulo_base="fechamento (R$)")
     else:
@@ -3911,6 +4006,7 @@ def _acum12(mensal: list[list]) -> list[list]:
 
 def build() -> None:
     mercado = json.loads((config.DATA / "mercado.json").read_text(encoding="utf-8")) if (config.DATA / "mercado.json").exists() else {"tickers": {}}
+    mercado = _mercado_tickers_tempo_real(mercado)      # cobertura: preço do vigia (hoje) sobre a cotação agendada do Yahoo
     minhas, cons = le_csv(MINHAS), le_csv(CONS)
     from fontes import b3
     hoje = date.today().isoformat()
