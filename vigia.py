@@ -57,32 +57,85 @@ def avaliar(snap: dict) -> dict:
     agora = datetime.now()
     frac = min(1.0, max(0.0, ((agora.hour * 60 + agora.minute) - (ABRE.hour * 60)) / ((FECHA.hour - ABRE.hour) * 60)))
     zlim, vlim = getattr(config, "ALERTA_Z", 2.0), getattr(config, "ALERTA_VOL", 2.0)
+    # Ibovespa: fechamentos diários (para o beta de 60 pregões) e retorno de hoje (BOVA11) para o alfa do dia
+    ib_hist = _ibov_diario()
+    rm_hoje = _ibov_r1_hoje()
     papeis, alertas = {}, []
     for cod, q in snap.items():
         s = [r for r in S.get(cod, []) if r[1]]
         if len(s) < 25:
             continue
-        fech = [r[1] for r in s]; qtd = [r[2] for r in s]
         if s[-1][0] >= q["hora"][:10]:            # o COTAHIST de hoje já saiu: o fechamento "anterior" é o de ontem
-            fech, qtd = fech[:-1], qtd[:-1]
+            s = s[:-1]
+        fech = [r[1] for r in s]; qtd = [r[2] for r in s]
         r1 = q["preco"] / fech[-1] - 1
         rets = [math.log(fech[i] / fech[i - 1]) for i in range(max(1, len(fech) - 60), len(fech)) if fech[i - 1]]
         mu = sum(rets) / len(rets)
         sig = (sum((x - mu) ** 2 for x in rets) / (len(rets) - 1)) ** 0.5 if len(rets) > 10 else None
         z = (math.log(1 + r1) / sig) if (sig and r1 > -1) else None
+        # alfa vs Ibovespa: beta e volatilidade residual em 60 pregões (datas comuns); alfa do dia = r1 − β·r_ibov
+        beta, sig_a, alpha, za = _beta_residual(s, ib_hist)
+        if beta is not None and sig_a and rm_hoje is not None and r1 > -1:
+            alpha = math.log(1 + r1) - beta * math.log(1 + rm_hoje)
+            za = alpha / sig_a
         qmed = sum(qtd[-21:]) / 21 if len(qtd) >= 21 else None
         vrel = (q["vol_hoje"] / (qmed * frac)) if (qmed and q.get("vol_hoje") and frac >= 30 / 420) else None   # projetado p/ o pregão inteiro
         flags = []
         if z is not None and abs(z) >= zlim:
-            flags.append(f"oscilação {_num(r1 * 100, 1, True)}% = {_num(abs(z), 1)}σ")
+            txt = f"oscilação {_num(r1 * 100, 1, True)}% = {_num(abs(z), 1)}σ"
+            if za is not None:
+                txt += f" (α {_num(alpha * 100, 1, True)}% = {_num(abs(za), 1)}σ, β {_num(beta, 1)})"
+            flags.append(txt)
         if vrel is not None and vrel >= vlim:
             flags.append(f"volume {_num(vrel, 1)}× a média (projetado)")
-        papeis[cod] = {"preco": q["preco"], "hora": q["hora"], "r1": r1, "z": z, "sig": sig, "vol_hoje": q.get("vol_hoje"), "vrel": vrel, "flags": flags}
+        papeis[cod] = {"preco": q["preco"], "hora": q["hora"], "r1": r1, "z": z, "sig": sig, "vol_hoje": q.get("vol_hoje"), "vrel": vrel, "flags": flags,
+                       "beta": beta, "alpha": alpha, "z_alpha": za}
         if flags:
-            alertas.append({"cod": cod, "txt": " e ".join(flags), "score": (abs(z) if z else 0) + (vrel or 0), "z": z, "vrel": vrel, "r1": r1})
+            alertas.append({"cod": cod, "txt": " e ".join(flags), "score": (abs(z) if z else 0) + (vrel or 0), "z": z, "vrel": vrel, "r1": r1,
+                            "alpha": alpha, "z_alpha": za, "beta": beta})
     alertas.sort(key=lambda a: -a["score"])
     return {"hora": agora.strftime("%Y-%m-%d %H:%M"), "fracao_pregao": round(frac, 3), "papeis": papeis, "alertas": alertas,
             "ibov": _ibov_proxy(papeis, S, frac)}
+
+
+def _ibov_diario() -> dict:
+    """{data: fechamento} do Ibovespa (data/macro.json, série diária do Yahoo) para o beta."""
+    try:
+        M = json.loads((config.DATA / "macro.json").read_text(encoding="utf-8"))
+        return {d: v for d, v in (M.get("hist", {}).get("Ibovespa") or []) if v}
+    except Exception:
+        return {}
+
+
+def _ibov_r1_hoje() -> float | None:
+    """Retorno do Ibovespa hoje pelo BOVA11 (ETF, mesma sessão); None se não houver tick de hoje."""
+    try:
+        q = mt5.intraday("BOVA11")
+        if q and q.get("preco") and q.get("fech_anterior") and q["hora"][:10] == date.today().isoformat():
+            return q["preco"] / q["fech_anterior"] - 1
+    except Exception:
+        pass
+    return None
+
+
+def _beta_residual(s: list, ib_hist: dict, n: int = 60):
+    """Beta e desvio-padrão residual dos últimos n pregões com data comum entre o papel (s = [(data, fech, ...)]) e o
+    Ibovespa. Devolve (beta, sig_residual, None, None) — alfa e z_alfa são preenchidos pelo chamador."""
+    fech = {r[0]: r[1] for r in s if r[1]}
+    datas = sorted(d for d in fech if d in ib_hist)[-(n + 1):]
+    if len(datas) < 30:
+        return None, None, None, None
+    rs = [math.log(fech[b] / fech[a]) for a, b in zip(datas, datas[1:])]
+    rm = [math.log(ib_hist[b] / ib_hist[a]) for a, b in zip(datas, datas[1:])]
+    ms, mm = sum(rs) / len(rs), sum(rm) / len(rm)
+    var = sum((x - mm) ** 2 for x in rm)
+    if var <= 0:
+        return None, None, None, None
+    beta = sum((x - ms) * (y - mm) for x, y in zip(rs, rm)) / var
+    res = [x - beta * y for x, y in zip(rs, rm)]
+    mr = sum(res) / len(res)
+    sig_a = (sum((x - mr) ** 2 for x in res) / (len(res) - 1)) ** 0.5
+    return beta, sig_a, None, None
 
 
 def _fech_anterior_ibov() -> float | None:
