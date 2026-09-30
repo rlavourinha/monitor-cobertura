@@ -60,6 +60,15 @@ def _extrai(dados: bytes, tickers: set[str]) -> list[tuple]:
 CABECALHO = ["data", "ticker", "fechamento", "quantidade", "volume"]
 
 
+def _volume_total(dados: bytes) -> None:
+    """Soma o volume de TODA a B3 do arquivo (value traded diário) em data/b3_volume_diario.csv; nunca derruba a coleta."""
+    try:
+        from fontes import b3_volume
+        b3_volume.acrescenta(dados)
+    except Exception as e:
+        print(f"  volume total B3: ERRO ({e})", file=sys.stderr)
+
+
 def tickers_alvo() -> set[str]:
     """Universo coberto + papéis da carteira do Ibovespa (do cache data/ibov_comp.json ou direto da B3)."""
     t = set(config.UNIVERSO) | set(getattr(config, "BDRS", []))
@@ -107,6 +116,7 @@ def atualiza_cotahist(force_ano_corrente: bool = True) -> None:
         dados = _baixa_zip(ano)
         if dados is None:
             continue
+        _volume_total(dados)
         linhas = sorted(_extrai(dados, tickers))
         with f.open("w", newline="", encoding="utf-8") as fh:
             w = csv.writer(fh)
@@ -150,6 +160,7 @@ def atualiza_cotahist_diario(max_dias: int = 40) -> int:
                     blob = r.read()
                 with zipfile.ZipFile(io.BytesIO(blob)) as zf:
                     dados = zf.read(zf.namelist()[0])
+                _volume_total(dados)
                 regs = _extrai(dados, tickers)
                 if regs:
                     linhas += regs

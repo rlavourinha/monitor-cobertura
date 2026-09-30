@@ -1439,7 +1439,36 @@ def analise_volume(M: dict) -> dict | None:
     conc = sum(r["vol"] for r in top5) / (tot[hoje] / 1e6) if tot.get(hoje) else None
     return {"data": hoje, "hoje": tot[hoje] / 1e9, "med21": med21, "med63": med63, "razao": (tot[hoje] / 1e9 / med21) if med21 else None,
             "serie": serie_tot, "mm21": mm21, "papeis": papeis, "top5": top5, "conc5": conc,
-            "anormais": [r for r in papeis if (r["razao"] or 0) >= 1.5], "fracos": [r for r in papeis if r["razao"] is not None and r["razao"] <= 0.5]}
+            "anormais": [r for r in papeis if (r["razao"] or 0) >= 1.5], "fracos": [r for r in papeis if r["razao"] is not None and r["razao"] <= 0.5],
+            "mercado": _volume_mercado(tot)}
+
+
+def _volume_mercado(tot_ibov: dict) -> dict | None:
+    """Value traded de TODA a B3 à vista (fontes.b3_volume, série diária desde 2019): total, classes, média de 21 pregões,
+    ADTV por ano e a fatia dos papéis do Ibovespa no total. None se a série não existe."""
+    try:
+        from fontes import b3_volume
+        B = b3_volume.serie()
+    except Exception:
+        return None
+    if len(B) < 30:
+        return None
+    serie = [[d, r["total"] / 1e9] for d, r in B]
+    mm21 = []
+    for i in range(len(serie)):
+        jan = [v for _, v in serie[max(0, i - 20):i + 1]]
+        mm21.append([serie[i][0], sum(jan) / len(jan)])
+    fatia = [[d, tot_ibov[d] / r["total"] * 100] for d, r in B if tot_ibov.get(d) and r["total"]]
+    por_ano: dict[str, list] = {}
+    for d, v in serie:
+        por_ano.setdefault(d[:4], []).append(v)
+    d_ult, ult = B[-1]
+    med21 = sum(v for _, v in serie[-22:-1]) / 21
+    return {"data": d_ult, "hoje": ult["total"] / 1e9, "acoes": ult["acoes"] / 1e9, "bdr": ult["bdr"] / 1e9, "etf": ult["etf"] / 1e9,
+            "fii": ult["fii"] / 1e9, "fracionario": ult["fracionario"] / 1e9, "negocios": int(ult["negocios"]), "papeis": int(ult["papeis"]),
+            "med21": med21, "razao": (ult["total"] / 1e9 / med21) if med21 else None, "serie": serie, "mm21": mm21, "fatia": fatia,
+            "fatia_hoje": fatia[-1][1] if fatia else None, "fatia_data": fatia[-1][0] if fatia else None,
+            "adtv_ano": {a: sum(v) / len(v) for a, v in por_ano.items()}}
 
 
 def slide_volume(M: dict) -> tuple[str, str] | None:
@@ -1448,7 +1477,11 @@ def slide_volume(M: dict) -> tuple[str, str] | None:
     if not V:
         return None
     S1, S2, MUT = "var(--s1)", "var(--s2)", "var(--axis)"
-    tiles = "".join(f'<div class="tile"><div class="l">{l}</div><div class="v">{v}</div><div class="d">{s}</div></div>' for l, v, s in (
+    Mk = V.get("mercado")
+    tile_b3 = ((f"Toda a B3 à vista ({Mk['data'][8:]}/{Mk['data'][5:7]})", f"R$ {num(Mk['hoje'], 1)} bi",
+                f"{num(Mk['razao'], 2, suf='x')} a média 21 · Ibov = {num(Mk['fatia_hoje'], 0, suf='%')} do total"
+                + (f" ({Mk['fatia_data'][8:]}/{Mk['fatia_data'][5:7]})" if Mk.get("fatia_data") and Mk["fatia_data"] != Mk["data"] else "")),) if Mk else ()
+    tiles = "".join(f'<div class="tile"><div class="l">{l}</div><div class="v">{v}</div><div class="d">{s}</div></div>' for l, v, s in tile_b3 + (
         (f"Volume hoje ({V['data'][8:]}/{V['data'][5:7]})", f"R$ {num(V['hoje'], 1)} bi", f"papéis do Ibovespa, {len(V['papeis'])} negociados"),
         ("× média 21 pregões", num(V["razao"], 2, suf="x"), f"média R$ {num(V['med21'], 1)} bi · 63 pregões R$ {num(V['med63'], 1)} bi"),
         ("Papéis com volume anormal", str(len(V["anormais"])), "≥ 1,5× a própria média de 21 pregões"),
@@ -1458,15 +1491,26 @@ def slide_volume(M: dict) -> tuple[str, str] | None:
     def tab(lst, tit):
         tr = "".join(f'<tr><td class="tk">{r["cod"]}<small>{r["setor"][:14]}</small></td><td>{num(r["vol"], 0)}</td><td>{num(r["razao"], 1, suf="x")}</td><td class="{dlt_cls(r["var"])}">{pct(r["var"])}</td></tr>' for r in lst)
         return f'<table class="mini" style="width:100%"><thead><tr><th>{tit}</th><th>R$ mi</th><th>× méd. 21</th><th>Dia</th></tr></thead><tbody>{tr}</tbody></table>'
-    corpo = (f'<div class="tiles strip" style="grid-template-columns:repeat(4,1fr);margin-bottom:10px">{tiles}</div>'
-             f'<div class="panel" style="padding:10px 14px 4px"><div class="legend"><span><i style="background:{MUT}"></i>volume diário</span><span><i style="background:{S1}"></i>média 21 pregões</span></div>{g}</div>'
+    g_b3 = ""
+    if Mk:
+        adtv = " · ".join(f"{a}: R$ {num(v, 1)} bi" for a, v in sorted(Mk["adtv_ano"].items()))
+        g2 = svg_linhas("volume-b3", [("Volume diário", MUT, [[d, v] for d, v in Mk["serie"]]), ("Média 21 pregões", S2, [[d, v] for d, v in Mk["mm21"]])],
+                        1, pref="R$ ", suf=" bi", W=1080, H=165, ini=2, titulo="Volume financeiro diário de toda a B3 à vista (R$ bi) e média móvel de 21 pregões")
+        g3 = svg_linhas("volume-fatia", [("Fatia do Ibovespa", S1, [[d, v] for d, v in Mk["fatia"]])], 0, suf="%", W=1080, H=110, ini=2,
+                        titulo="Fatia dos papéis do Ibovespa no volume à vista da B3 (%)")
+        g_b3 = (f'<div class="panel" style="padding:10px 14px 4px;margin-top:10px"><div class="legend"><span><i style="background:{MUT}"></i>toda a B3 à vista</span>'
+                f'<span><i style="background:{S2}"></i>média 21 pregões</span><span style="margin-left:auto;color:var(--muted)">média diária por ano — {adtv}</span></div>{g2}'
+                f'<div class="legend" style="margin-top:6px"><span><i style="background:{S1}"></i>fatia dos papéis do Ibovespa</span>'
+                f'<span style="margin-left:auto;color:var(--muted)">hoje: ações R$ {num(Mk["acoes"], 1)} bi · BDR {num(Mk["bdr"], 2)} · ETF {num(Mk["etf"], 2)} · FII {num(Mk["fii"], 2)} · {num(Mk["negocios"] / 1e6, 2)} mi negócios · {Mk["papeis"]} códigos</span></div>{g3}</div>')
+    corpo = (f'<div class="tiles strip" style="grid-template-columns:repeat({5 if Mk else 4},1fr);margin-bottom:10px">{tiles}</div>'
+             f'<div class="panel" style="padding:10px 14px 4px"><div class="legend"><span><i style="background:{MUT}"></i>volume diário</span><span><i style="background:{S1}"></i>média 21 pregões</span></div>{g}</div>{g_b3}'
              f'<div class="grid3" style="margin-top:10px;align-items:start"><div><h2 style="font-size:13px;margin:0 0 4px">Volume mais forte que o normal</h2>{tab(V["papeis"][:7], "Papel")}</div>'
              f'<div><h2 style="font-size:13px;margin:0 0 4px">Volume mais fraco que o normal</h2>{tab(V["papeis"][-7:][::-1], "Papel")}</div>'
              f'<div><h2 style="font-size:13px;margin:0 0 4px">Mais negociados hoje</h2>{tab(V["top5"] + sorted(V["papeis"], key=lambda r: -r["vol"])[5:7], "Papel")}</div></div>')
     return slide("Macro", "volume", "Volume · quem está sendo negociado", corpo,
                  "O mercado está mais líquido ou mais parado que o normal, e em quais papéis o volume destoa da média própria.",
                  "B3 COTAHIST (volume financeiro do mercado à vista, tipo 010) dos papéis da carteira atual do Ibovespa, desde 2019. A média de 21 pregões exclui o dia. "
-                 "O total é dos constituintes, não de toda a B3; a B3 divulga o total do mercado no Boletim Diário, sem histórico aberto.")
+                 "Toda a B3 = soma de todos os registros à vista do COTAHIST (lote-padrão + fracionário: ações, units, BDRs, ETFs, FIIs), série diária em data/b3_volume_diario.csv.")
 
 
 def fluxo_tiles(M: dict) -> tuple[str, str] | None:
