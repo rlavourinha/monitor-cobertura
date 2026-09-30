@@ -21,7 +21,8 @@ on:
       - "data/intraday_hoje.json"
   schedule:
     - cron: "0 13,15,17,19,21 * * 1-5"   # intraday
-    - cron: "45 22 * * 1-5"              # diario
+    - cron: "45 22 * * 1-5"              # diario (19:45 BRT; o COTAHIST_D às vezes ainda não saiu)
+    - cron: "30 11 * * 1-5"              # diario de manhã (08:30 BRT): pega o COTAHIST da véspera antes do vigia abrir às 10h
     - cron: "45 11 * * 1"                # semanal
     - cron: "0 11 * * *"                 # mensal
   workflow_dispatch:
@@ -64,6 +65,7 @@ jobs:
           case "${{ github.event.schedule }}" in
             "0 13,15,17,19,21 * * 1-5") j=intraday ;;
             "45 22 * * 1-5") j=diario ;;
+            "30 11 * * 1-5") j=diario ;;
             "45 11 * * 1") j=semanal ;;
             "0 11 * * *") j=mensal ;;
             *) j="${{ github.event.inputs.janela || 'diario' }}" ;;
