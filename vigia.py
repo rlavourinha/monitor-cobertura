@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import json
 import math
+import shutil
 import subprocess
 import sys
 from datetime import date, datetime, time, timedelta
@@ -300,6 +301,14 @@ def publicar(res: dict) -> None:
     raiz = str(config.RAIZ)
     def git(*a):
         return subprocess.run(["git", *a], cwd=raiz, capture_output=True, text=True, timeout=120)
+    # Saneamento: um `pull --rebase` que parou em conflito (ex.: 30/09/2026 13:45, contra o commit mensal do GitHub) deixa
+    # o repositório em rebase com HEAD solto; commits seguintes caem fora de main e todo push é rejeitado. Aborta e reata.
+    for d in (".git/rebase-merge", ".git/rebase-apply"):
+        if (config.RAIZ / d).exists():
+            if git("rebase", "--abort").returncode != 0:
+                shutil.rmtree(config.RAIZ / d, ignore_errors=True)
+    if git("symbolic-ref", "-q", "HEAD").returncode != 0:          # HEAD solto: reata main aqui (mantém os commits locais)
+        git("checkout", "-q", "-B", "main")
     git("add", str(ARQ.relative_to(config.RAIZ)))
     if INTRADAY.exists():
         git("add", str(INTRADAY.relative_to(config.RAIZ)))
@@ -311,7 +320,13 @@ def publicar(res: dict) -> None:
     if git("diff", "--cached", "--quiet").returncode == 0:
         return
     git("commit", "-q", "-m", f"vigia: alertas em tempo real {res['hora']}")
-    git("pull", "--rebase", "-q", "origin", "main"); push = git("push", "-q", "origin", "main")
+    # Rebase favorecendo os commits locais (-X theirs = o que está sendo reaplicado); se ainda assim travar, aborta e
+    # funde origin/main preferindo a versão local dos arquivos gerados (nunca fica em rebase pela metade).
+    if git("pull", "--rebase", "-X", "theirs", "-q", "origin", "main").returncode != 0:
+        git("rebase", "--abort")
+        git("fetch", "-q", "origin", "main")
+        git("merge", "-q", "-X", "ours", "--no-edit", "origin/main")
+    push = git("push", "-q", "origin", "main")
     # O build do site é disparado pelo próprio push (o workflow tem exceção para data/alertas_tempo_real.json). Não usar
     # `gh workflow run` aqui: o Python do Python Install Manager (MSIX) virtualiza o AppData dos processos filhos e o gh
     # não enxerga o login (diz "not logged in") quando chamado de dentro do Python.
