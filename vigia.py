@@ -15,7 +15,7 @@ import json
 import math
 import subprocess
 import sys
-from datetime import date, datetime, time
+from datetime import date, datetime, time, timedelta
 
 import config
 from fontes import b3, di, mt5, telegram
@@ -47,7 +47,8 @@ def snapshot() -> dict | None:
             continue
         if q["hora"][:10] != hoje and "--forcar" not in sys.argv:   # sem negócio hoje ainda (ou pregão fechado): ignora
             continue
-        out[cod] = {"preco": q["preco"], "hora": q["hora"], "vol_hoje": q.get("volume")}   # volume = quantidade de ações do dia (barra D1)
+        out[cod] = {"preco": q["preco"], "hora": q["hora"], "vol_hoje": q.get("volume"),   # volume = quantidade de ações do dia (barra D1)
+                    "fech_ant": q.get("fech_anterior")}                                       # fechamento da sessão anterior (barra D1 do MT5)
     return out
 
 
@@ -61,6 +62,13 @@ def avaliar(snap: dict) -> dict:
     ib_hist = _ibov_diario()
     rm_hoje = _ibov_r1_hoje()
     papeis, alertas = {}, []
+    # base do retorno do dia: fechamento da sessão anterior. Se o COTAHIST está atrasado (não saiu ou a coleta falhou,
+    # como na queda de rede de 29/09/2026), usa a barra D1 do MT5 — senão o "retorno de hoje" vira um retorno de 2 dias.
+    ontem_util = agora.date() - timedelta(days=1)
+    while ontem_util.weekday() >= 5:
+        ontem_util -= timedelta(days=1)
+    cotahist_ate = max((S[c][-1][0] for c in S if S[c]), default=None)
+    base_mt5 = 0
     for cod, q in snap.items():
         s = [r for r in S.get(cod, []) if r[1]]
         if len(s) < 25:
@@ -68,7 +76,10 @@ def avaliar(snap: dict) -> dict:
         if s[-1][0] >= q["hora"][:10]:            # o COTAHIST de hoje já saiu: o fechamento "anterior" é o de ontem
             s = s[:-1]
         fech = [r[1] for r in s]; qtd = [r[2] for r in s]
-        r1 = q["preco"] / fech[-1] - 1
+        base = fech[-1]
+        if q.get("fech_ant") and s[-1][0] < ontem_util.isoformat():
+            base = q["fech_ant"]; base_mt5 += 1
+        r1 = q["preco"] / base - 1
         rets = [math.log(fech[i] / fech[i - 1]) for i in range(max(1, len(fech) - 60), len(fech)) if fech[i - 1]]
         mu = sum(rets) / len(rets)
         sig = (sum((x - mu) ** 2 for x in rets) / (len(rets) - 1)) ** 0.5 if len(rets) > 10 else None
@@ -94,8 +105,10 @@ def avaliar(snap: dict) -> dict:
             alertas.append({"cod": cod, "txt": " e ".join(flags), "score": (abs(z) if z else 0) + (vrel or 0), "z": z, "vrel": vrel, "r1": r1,
                             "alpha": alpha, "z_alpha": za, "beta": beta})
     alertas.sort(key=lambda a: -a["score"])
+    if base_mt5:
+        print(f"aviso: COTAHIST só até {cotahist_ate}; base do retorno de hoje pela barra D1 do MT5 em {base_mt5} papéis")
     return {"hora": agora.strftime("%Y-%m-%d %H:%M"), "fracao_pregao": round(frac, 3), "papeis": papeis, "alertas": alertas,
-            "ibov": _ibov_proxy(papeis, S, frac)}
+            "ibov": _ibov_proxy(papeis, S, frac), "cotahist_ate": cotahist_ate, "base_mt5": base_mt5}
 
 
 def _ibov_diario() -> dict:
