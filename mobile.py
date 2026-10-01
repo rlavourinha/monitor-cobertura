@@ -111,7 +111,8 @@ def svg_hbar(linhas: list[tuple[str, float]], W=400, RH=22, ML=132, dec=2, suf="
         x = x0 if v >= 0 else x0 - w
         o.append(f'<text class="lab" x="{ML - 6}" y="{y + RH - 8}" text-anchor="end">{html.escape(lab)}</text>')
         o.append(f'<rect x="{x:.1f}" y="{y + 3}" width="{max(w, 1):.1f}" height="{RH - 9}" rx="3" style="fill:{"var(--up)" if v >= 0 else "var(--dn)"}"/>')
-        o.append(f'<text class="tick" x="{(x0 + w + 5) if v >= 0 else (x0 - w - 5):.1f}" y="{y + RH - 8}" text-anchor="{"start" if v >= 0 else "end"}">{("+" if v > 0 else "") + B.num(v, dec)}{suf}</text>')
+        # valor sempre do lado direito do eixo: depois da barra (positivo) ou logo à direita do eixo (negativo), sem invadir o rótulo
+        o.append(f'<text class="tick" x="{(x0 + w + 5) if v >= 0 else (x0 + 5):.1f}" y="{y + RH - 8}" text-anchor="start">{("+" if v > 0 else "") + B.num(v, dec)}{suf}</text>')
     o.append("</svg>")
     return "".join(o)
 
