@@ -56,12 +56,12 @@ SETORES = [
     ("Consumo cíclico", r"retail|varejo|consumer|Magazine|Magalu|Mercado Livre|Lojas Renner|\bAzzas\b|\bC&A\b|Natura|Vivara|Smart ?Fit|educa|Cogna|Yduqs|Localiza|Movida|\bVamos\b|Azul|Gol\b|Embraer|CVC"),
     ("Consumo não cíclico", r"\bfood\b|aliment|\bJBS\b|\bBRF\b|Marfrig|Minerva|Ambev|beverage|bebida|Carrefour|Assa[íi]|supermarket|\bagri|Brasil ?Agro|SLC|3tentos|protein"),
     ("Imobiliário", r"real estate|homebuild|constru|imobili|Cyrela|\bCury\b|\bMRV\b|Tenda|Direcional|\bEztec\b|Multiplan|Iguatemi|\bAllos\b|shopping|\bFII|LOG\b"),
-    ("Saúde", r"health|sa[úu]de|hospital|Rede D.?Or|Hapvida|Bradsa[úu]de|Fleury|\bRaia|Drogasil|Hypera|pharma|farm[áa]c|Oncocl"),
+    ("Saúde", r"health|sa[úu]de|hospital|Rede D[’']?Or|Hapvida|Bradsa[úu]de|Fleury|\bRaia|Drogasil|Hypera|pharma|farm[áa]c|Oncocl"),
     ("Bens industriais", r"capital goods|industrial|\bWEG\b|Iochpe|Randon|Marcopolo|transport|logist|\bRumo\b|\bCCR\b|Motiva|Ecorodovias|Santos Brasil"),
     ("Telecom", r"telecom|\bVivo\b|Telef[ôo]nica|\bTIM\b|Brisanet|Desktop|Unifique"),
     ("Tecnologia", r"\btech|software|Totvs|Locaweb|Positivo|Intelbras|Bemobi|\bAI\b"),
 ]
-COBERTURA = {"RDOR3": r"Rede D.?Or|RDOR3", "SAUD3": r"Bradsa[úu]de|SAUD3|Bradesco Sa[úu]de|Odontoprev", "RENT3": r"Localiza|RENT3",
+COBERTURA = {"RDOR3": r"Rede D[’']?Or|RDOR3", "SAUD3": r"Bradsa[úu]de|SAUD3|Bradesco Sa[úu]de|Odontoprev", "RENT3": r"Localiza|RENT3",
              "CYRE3": r"Cyrela|CYRE3", "CURY3": r"\bCury\b|CURY3"}
 EXCLUI = r"LatAm ex-Brasil|Latam Talking Points|\bChile\b|Argentin|Colombia|\bPeru\b|\bMexico\b|M[ée]xico|Paraguay|Uruguay|Global Earlybird|Daily Roadmap|Daily Fuel|Daily Briefing|Week Ahead|Market Data Monitor|BanRep|IMACEC|Falabella|Alpek|Mallplaza|CABA\b|Buenos Aires"
 GRAFICO_POR_TEMA = {"fiscal": "fiscal", "inflacao": "inflacao", "juros": "juros", "atividade": "atividade", "emprego": "emprego",

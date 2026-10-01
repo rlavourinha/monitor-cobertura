@@ -32,7 +32,7 @@ INDICE, NOVOS = DIR / "indice.json", DIR / "novos.json"
 ESPELHO = config.RAIZ.parent / "btg-research"
 SUB = "bba"
 
-DESTAQUE = re.compile(r"Rede D'?Or|RDOR|Hapvida|SAUD3|Localiza|RENT3|Cyrela|CYRE3|Cury|Equity Strategy|Ibovespa|Bovespa|"
+DESTAQUE = re.compile(r"Rede D[’']?Or|RDOR|Hapvida|SAUD3|Localiza|RENT3|Cyrela|CYRE3|Cury|Equity Strategy|Ibovespa|Bovespa|"
                       r"Health ?care|Real Estate|Homebuilder|Construction|Brasil|Brazil|Copom|IPCA|Selic|fiscal|Petrobras|"
                       r"Vale\b|B3\b|Scenario Review", re.I)
 # fora: outros países, dailies, e as versões em português dos relatórios macro (o mesmo conteúdo sai em inglês)

@@ -31,7 +31,7 @@ INDICE, NOVOS, ESTADO = DIR / "indice.json", DIR / "novos.json", DIR / "estado.j
 ESPELHO = config.RAIZ.parent / "btg-research"          # repo privado opcional (lido pela rotina na nuvem)
 
 # O que merece estrela no aviso: cobertura, carteira 10SIM, estratégia/macro Brasil, setores acompanhados.
-DESTAQUE = re.compile(r"10SIM|Rede D'?Or|RDOR|Hapvida|SAUD3|Localiza|RENT3|Cyrela|CYRE3|Cury|Brazil Strategy|Ibovespa|"
+DESTAQUE = re.compile(r"10SIM|Rede D[’']?Or|RDOR|Hapvida|SAUD3|Localiza|RENT3|Cyrela|CYRE3|Cury|Brazil Strategy|Ibovespa|"
                       r"Bovespa|Health ?care|Real Estate|Homebuilder|Macroeconomic Research\s*-\s*Brazil|Brazil Macro|"
                       r"Equity Strategy|Petrobras|Vale\b|Itaú|Itau", re.I)
 EXCLUI = re.compile(r"FIBRA|Mexico|Mexican|Chile|Argentin|Colombia|Peru", re.I)     # relatórios de outros países nunca são destaque
