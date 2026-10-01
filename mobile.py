@@ -274,7 +274,7 @@ def bloco_setores(C: dict, IB: dict) -> str:
             r1, r5, ry = jan(it)
             rows += (f'<tr><td>{it["cod"]}</td><td>{B.num(float(it.get("peso") or 0), 1)}%</td><td class="{B.dlt_cls(r1)}">{B.pct(r1)}</td>'
                      f'<td class="{B.dlt_cls(r5)}">{B.pct(r5)}</td><td class="{B.dlt_cls(ry)}">{B.pct(ry)}</td><td>{("+" if (float(it.get("peso") or 0) * r1) > 0 else "")}{B.num(float(it.get("peso") or 0) * r1, 2)}</td></tr>')
-        det.append(f'<details data-setor="{html.escape(setor)}"><summary><span>{html.escape(setor)}</span><small>{len(its)} papéis</small><b class="{B.dlt_cls(c)}">{("+" if c > 0 else "")}{B.num(c, 2)} p.p.</b></summary>'
+        det.append(f'<details data-setor="{html.escape(setor)}"><summary><span>{html.escape(setor)}</span><small>{len(its)} {'papel' if len(its) == 1 else 'papéis'}</small><b class="{B.dlt_cls(c)}">{("+" if c > 0 else "")}{B.num(c, 2)} p.p.</b></summary>'
                    f'<table><thead><tr><th>Papel</th><th>Peso</th><th>Dia</th><th>5 d</th><th>Ano</th><th>p.p.</th></tr></thead><tbody>{rows}</tbody></table></details>')
     js = ("<script>document.querySelectorAll('svg g[data-setor]').forEach(function(g){g.addEventListener('click',function(){"
           "var d=[].slice.call(document.querySelectorAll('details[data-setor]')).filter(function(x){return x.dataset.setor===g.dataset.setor;})[0];if(!d)return;"
