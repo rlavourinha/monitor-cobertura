@@ -427,8 +427,10 @@ def _html(digest: dict, pngs: dict) -> str:
 def enviar(arq: str, sem_telegram: bool = False, sem_push: bool = False) -> dict:
     digest = json.loads(Path(arq).read_text(encoding="utf-8"))
     digest.setdefault("data", date.today().isoformat())
+    digest.setdefault("edicao", "manhã" if datetime.now().hour < 13 else "noite")   # duas edições por dia, arquivos separados
+    nome = f"{digest['data']}-{'manha' if digest['edicao'].startswith('manh') else 'noite'}"
     pngs, enviados, falhas = {}, 0, []
-    cab = f"<b>Leitura do dia · {digest['data'][8:]}/{digest['data'][5:7]}</b>\n{digest.get('cabecalho', '')}".strip()
+    cab = f"<b>Leitura da {digest['edicao']} · {digest['data'][8:]}/{digest['data'][5:7]}</b>\n{digest.get('cabecalho', '')}".strip()
     if not sem_telegram and not telegram.enviar(cab):
         falhas.append("cabeçalho")
     for i, b in enumerate(digest["blocos"]):
@@ -445,19 +447,19 @@ def enviar(arq: str, sem_telegram: bool = False, sem_push: bool = False) -> dict
         if not ok:
             falhas.append(b["titulo"])
     LEIT.mkdir(parents=True, exist_ok=True)
-    (LEIT / f"{digest['data']}.html").write_text(_html(digest, pngs), encoding="utf-8")
-    (LEIT / f"{digest['data']}.json").write_text(json.dumps(digest, ensure_ascii=False, indent=1), encoding="utf-8")
+    (LEIT / f"{nome}.html").write_text(_html(digest, pngs), encoding="utf-8")
+    (LEIT / f"{nome}.json").write_text(json.dumps(digest, ensure_ascii=False, indent=1), encoding="utf-8")
     ESTADO.write_text(json.dumps({"ultima": datetime.now().strftime("%Y-%m-%d %H:%M"), "data": digest["data"]}), encoding="utf-8")
     push = "pulado"
     if not sem_push:
         def git(*a):
             return subprocess.run(["git", *a], cwd=str(RES), capture_output=True, text=True, timeout=180)
         git("add", "leituras")
-        git("commit", "-q", "-m", f"leitura do dia {digest['data']}")
+        git("commit", "-q", "-m", f"leitura da {digest['edicao']} {digest['data']}")
         git("pull", "--rebase", "-q", "origin", "main")
         r = git("push", "-q", "origin", "main")
         push = "ok" if r.returncode == 0 else "falhou: " + r.stderr.strip()[:120]
-    return {"blocos": len(digest["blocos"]), "enviados": enviados, "falhas": falhas, "html": str(LEIT / f"{digest['data']}.html"), "push": push}
+    return {"blocos": len(digest["blocos"]), "enviados": enviados, "falhas": falhas, "html": str(LEIT / f"{nome}.html"), "push": push}
 
 
 if __name__ == "__main__":
