@@ -306,7 +306,7 @@ def g_atividade() -> Path:
 def g_emprego() -> Path:
     s = _sgs(28763)
     dif = [(s[i][0], (s[i][1] - s[i - 1][1]) / 1e3) for i in range(1, len(s))]
-    fig, ax = _fig("CAGED: saldo mensal de empregos formais (mil) e estoque", "Ministério do Trabalho via BCB SGS 28763")
+    fig, ax = _fig("CAGED: saldo mensal de empregos formais (mil) e média de 3 meses", "Ministério do Trabalho via BCB SGS 28763")
     xs = [_dt(d) for d, _ in dif]; ys = [v for _, v in dif]
     ax.bar(xs, ys, width=20, color=[COR[2] if v >= 0 else COR[1] for v in ys]); _ultimo(ax, xs, ys, "{:+.0f} mil", COR[0])
     mm = [sum(ys[max(0, i - 2):i + 1]) / len(ys[max(0, i - 2):i + 1]) for i in range(len(ys))]
@@ -365,7 +365,7 @@ def _ultimo_csv(arq: Path, ticker: str, campo: str = "target") -> float | None:
 def g_papel(ticker: str) -> Path:
     from fontes import b3
     s = [p for p in b3.serie(ticker) if p[0] >= "2019-01-01"]
-    fig, ax = _fig(f"{ticker}: fechamento (R$), preço-alvo do consenso e minha estimativa", "B3 COTAHIST; consenso (Bloomberg/Yahoo); estimativas/minhas.csv")
+    fig, ax = _fig(f"{ticker}: fechamento (R$), preço-alvo do consenso e minha estimativa", "B3 COTAHIST (fechamento sem ajuste por proventos/desdobramentos); consenso (Bloomberg/Yahoo); estimativas/minhas.csv")
     xs = [_dt(d) for d, _ in s]; ys = [v for _, v in s]
     ax.plot(xs, ys, color=COR[0], lw=1.4, label="fechamento"); _ultimo(ax, xs, ys, "R$ {:.2f}", COR[0])
     for arq, nome, c in ((config.CONSENSO / "consenso.csv", "alvo consenso", COR[1]), (config.ESTIMATIVAS / "minhas.csv", "meu alvo", COR[2])):
@@ -378,7 +378,7 @@ def g_papel(ticker: str) -> Path:
 
 def g_papeis(tickers: list[str]) -> Path:
     from fontes import b3
-    fig, ax = _fig("Papéis, base 100 em jan/2019", "B3 COTAHIST (fechamentos)")
+    fig, ax = _fig("Papéis, base 100 em jan/2019", "B3 COTAHIST (fechamento sem ajuste por proventos/desdobramentos: saltos = eventos societários)")
     for tk, c in zip(tickers[:6], COR):
         s = [p for p in b3.serie(tk) if p[0] >= "2019-01-01"]
         if not s:
