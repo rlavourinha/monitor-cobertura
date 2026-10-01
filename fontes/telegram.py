@@ -55,6 +55,43 @@ def enviar(texto: str, silencioso: bool = False) -> bool:
         return False
 
 
+def enviar_foto(caminho, legenda: str = "", silencioso: bool = False) -> bool:
+    """Envia uma imagem (PNG/JPG) com legenda em HTML (até 1024 caracteres; o excedente vai numa mensagem seguinte)."""
+    if not disponivel():
+        print("  Telegram: sem token/chat_id em .secrets/telegram.json", file=sys.stderr)
+        return False
+    import time
+    import requests
+    c = _cfg()
+    cap, resto = (legenda[:1024], "") if len(legenda) <= 1024 else _corta(legenda, 1000)
+    erro = None
+    for tent in range(3):
+        try:
+            with open(caminho, "rb") as fh:
+                r = requests.post(API.format(token=c["token"], metodo="sendPhoto"),
+                                  data={"chat_id": c["chat_id"], "caption": cap, "parse_mode": "HTML",
+                                        "disable_notification": "true" if silencioso else "false"},
+                                  files={"photo": fh}, timeout=60, headers={"User-Agent": "Mozilla/5.0"})
+            ok = bool(r.json().get("ok"))
+            if not ok:
+                print(f"  Telegram sendPhoto: {r.text[:200]}", file=sys.stderr)
+            if ok and resto:
+                ok = enviar(resto, silencioso=True)
+            return ok
+        except requests.exceptions.ConnectionError as e:
+            erro = e
+            time.sleep(2 + 3 * tent)
+    print(f"  Telegram: {erro}", file=sys.stderr)
+    return False
+
+
+def _corta(texto: str, n: int) -> tuple[str, str]:
+    """Divide num limite de paragrafo antes de n caracteres, sem partir tags HTML simples."""
+    i = texto.rfind(chr(10), 0, n)
+    i = i if i > n // 2 else n
+    return texto[:i].rstrip(), texto[i:].lstrip()
+
+
 def descobrir_chat() -> str | None:
     """Lê getUpdates e grava o chat_id do último remetente em .secrets/telegram.json (mande uma mensagem ao bot antes)."""
     c = _cfg()
