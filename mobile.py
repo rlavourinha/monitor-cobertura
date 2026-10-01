@@ -116,23 +116,45 @@ def svg_hbar(linhas: list[tuple[str, float]], W=400, RH=22, ML=132, dec=2, suf="
     return "".join(o)
 
 
-def svg_curva_di(vert: dict, W=400, H=120) -> str:
+def svg_curva_di(vert: dict, ant: dict | None = None, W=400, H=150) -> str:
+    """Curva de hoje (cheia) e a do pregão anterior (tracejada) nos mesmos vértices; rótulos = taxa de hoje."""
     pts = [(float(k[:-1]), v["taxa"]) for k, v in vert.items() if not k.startswith("_") and isinstance(v, dict) and v.get("taxa")]
     pts.sort()
     if len(pts) < 3:
         return ""
-    ML, MR, MT, MB = 40, 16, 12, 22
-    lo, hi = min(v for _, v in pts), max(v for _, v in pts); pad = (hi - lo) * 0.25 or 0.2; lo, hi = lo - pad, hi + pad
+    pa = sorted((float(k[:-1]), v) for k, v in (ant or {}).items() if v)
+    ML, MR, MT, MB = 40, 16, 16, 22
+    ys = [v for _, v in pts] + [v for _, v in pa]
+    lo, hi = min(ys), max(ys); pad = (hi - lo) * 0.25 or 0.2; lo, hi = lo - pad, hi + pad
     X = lambda a: ML + a / 10 * (W - ML - MR); Y = lambda v: MT + (hi - v) / (hi - lo) * (H - MT - MB)
     path = " ".join(f"{'M' if i == 0 else 'L'}{X(a):.1f},{Y(v):.1f}" for i, (a, v) in enumerate(pts))
     o = [f'<svg class="chart" viewBox="0 0 {W} {H}">']
     for a in (1, 2, 3, 5, 7, 10):
         o.append(f'<text class="tick" x="{X(a):.1f}" y="{H - 6}" text-anchor="middle">{a}a</text>')
+    if len(pa) >= 2:
+        pth = " ".join(f"{'M' if i == 0 else 'L'}{X(a):.1f},{Y(v):.1f}" for i, (a, v) in enumerate(pa))
+        o.append(f'<path class="line ref" style="stroke:var(--mut);stroke-width:1.5" d="{pth}"/>')
     o.append(f'<path class="line" style="stroke:var(--s1)" d="{path}"/>')
     for a, v in pts:
         o.append(f'<circle cx="{X(a):.1f}" cy="{Y(v):.1f}" r="3" style="fill:var(--s1)"/><text class="tick" x="{X(a):.1f}" y="{Y(v) - 7:.1f}" text-anchor="middle">{B.num(v, 2)}</text>')
     o.append("</svg>")
     return "".join(o)
+
+
+def tabela_di(vert: dict, ant: dict, d_ant: str | None) -> str:
+    """Vértice · hoje · ontem · Δ em bps."""
+    linhas = []
+    for k, v in vert.items():
+        if k.startswith("_") or not isinstance(v, dict) or not v.get("taxa"):
+            continue
+        t, o = v["taxa"], (ant or {}).get(k)
+        d = (t - o) * 100 if o else None
+        linhas.append(f'<tr><td>{k[:-1].replace(".", ",")} ano{"s" if float(k[:-1]) > 1 else ""}</td><td>{B.num(t, 2)}</td><td>{B.num(o, 2)}</td>'
+                      f'<td class="{B.dlt_cls(-d) if d is not None else ""}">{("+" if d > 0 else "") + B.num(d, 0) if d is not None else "—"}</td></tr>')
+    if not linhas:
+        return ""
+    cab = f'{d_ant[8:10]}/{d_ant[5:7]}' if d_ant else "ontem"
+    return f'<table><thead><tr><th>Vértice</th><th>Hoje</th><th>{cab}</th><th>Δ bps</th></tr></thead><tbody>{"".join(linhas)}</tbody></table>'
 
 
 # ----------------------------------------------------------------------------------------------------- blocos
@@ -270,7 +292,11 @@ def bloco_di(DI: dict) -> str:
     vert = DI.get("vertices") or {}
     if not vert:
         return ""
-    return _card("Curva DI", svg_curva_di(vert) + f'<p class="nota">Vértices interpolados dos contratos líquidos (B3 via MT5), {DI.get("hora", "")}.</p>', "% a.a.")
+    from fontes import di
+    d_ant, ant = di.vertices_anterior((DI.get("hora") or "")[:10] or None, contratos_base=vert.get("_contratos"))
+    sub = f'{(DI.get("hora") or "")[11:16]} · tracejado = {d_ant[8:10]}/{d_ant[5:7]}' if d_ant else "% a.a."
+    return _card("Curva DI", svg_curva_di(vert, ant) + tabela_di(vert, ant, d_ant)
+                 + '<p class="nota">Vértices de prazo constante interpolados (flat-forward) dos contratos líquidos (B3 via MT5). Ontem = fechamento D1 dos mesmos contratos. Δ em pontos-base; verde = taxa caiu.</p>', sub)
 
 
 # ----------------------------------------------------------------------------------------------------- página

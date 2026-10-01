@@ -220,6 +220,47 @@ def serie_vertice(anos: float) -> list[list]:
     return out
 
 
+def vertices_em(d: str, alvos=ALVOS, contratos_base: list[str] | None = None) -> dict:
+    """{'1a': taxa, ...} de uma data do histórico (fechamentos D1 em data/di_hist.json). Com `contratos_base`, usa só
+    esses contratos (os líquidos da fotografia de hoje), para a curva de ontem ser comparável à de hoje."""
+    if not HIST.exists():
+        return {}
+    H = json.loads(HIST.read_text(encoding="utf-8"))
+    if d not in H:
+        return {}
+    dd = date.fromisoformat(d)
+    pts = []
+    for cod, taxa in H[d].items():
+        if contratos_base and cod not in contratos_base:
+            continue
+        v = vencimento(cod)
+        if v and v > dd and taxa:
+            pts.append((du(dd, v), float(taxa)))
+    if len(pts) < 2 and contratos_base:                       # ontem não tem os líquidos de hoje: usa todos
+        return vertices_em(d, alvos, None)
+    pts.sort()
+    out = {}
+    for a in alvos:
+        du_a = round(a * 252)
+        if len(pts) >= 2 and pts[0][0] <= du_a * 1.25 and pts[-1][0] >= du_a * 0.8:
+            taxa, _ = _interp(pts, du_a)
+            out[_rot(a)] = round(taxa, 4)
+    return out
+
+
+def vertices_anterior(hoje: str | None = None, contratos_base: list[str] | None = None) -> tuple[str | None, dict]:
+    """(data, {'1a': taxa, ...}) do último pregão anterior a `hoje` com histórico; (None, {}) se não há."""
+    hoje = hoje or date.today().isoformat()
+    if not HIST.exists():
+        return None, {}
+    H = json.loads(HIST.read_text(encoding="utf-8"))
+    ds = [d for d in H if d < hoje]
+    if not ds:
+        return None, {}
+    d = max(ds)
+    return d, vertices_em(d, contratos_base=contratos_base)
+
+
 def anbima_pre(d: str | None = None) -> tuple[str | None, list[tuple[int, float]]]:
     """(data, [(du, taxa pré % a.a.), ...]) da última ETTJ ANBIMA em cache (ou da data pedida)."""
     pasta = config.DATA / "ettj"

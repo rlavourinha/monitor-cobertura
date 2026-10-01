@@ -335,13 +335,27 @@ def _graficos_di(S1: str, S2: str, MUT: str) -> tuple[str, str]:
     series = []
     if pts:
         series.append((f"DI {snap.get('hora', '')[11:]}", S1, pts))
+        # pregão anterior: fechamento D1 dos mesmos contratos (data/di_hist.json) e Δ por vértice no título
+        d_ant, v_ant = _di.vertices_anterior((snap.get("hora") or "")[:10] or None, contratos_base=list(liq))
+        if d_ant and _di.HIST.exists():
+            try:
+                Hd = json.loads(_di.HIST.read_text(encoding="utf-8")).get(d_ant) or {}
+            except Exception:
+                Hd = {}
+            pts_ant = [[c["venc"], Hd.get(c["cod"]), None] for c in cs if c["cod"] in liq and Hd.get(c["cod"])]
+            if len(pts_ant) >= 2:
+                series.append((f"DI {d_ant[8:10]}/{d_ant[5:7]}", S2, pts_ant))
+        deltas = [f"{k[:-1]}a {'+' if (v['taxa'] - v_ant[k]) >= 0 else ''}{(v['taxa'] - v_ant[k]) * 100:.0f}" for k, v in v.items()
+                  if not k.startswith("_") and isinstance(v, dict) and v_ant.get(k) and k in ("1a", "2a", "5a", "10a")]
+    else:
+        deltas = []
     da, pre = _di.anbima_pre()
     if pre:
         hoje = date.today()
         series.append((f"ANBIMA {da[8:]}/{da[5:7]}", MUT, [[(hoje + timedelta(days=round(d * 365.25 / 252))).isoformat(), t, None] for d, t in sorted(pre) if d <= 3400]))
     if series:
         g = svg_linhas("painel-di-curva", series, 2, suf="%", W=260, H=130,
-                       titulo=f"Curva DI (MT5, contratos com ≥ {snap.get('min_negocios', _di.MIN_NEGOCIOS)} negócios ou spread apertado) vs ANBIMA (pré)", extras=["negócios"])
+                       titulo=f"Curva DI (MT5, contratos líquidos) vs pregão anterior e ANBIMA (pré)" + (f" · Δ bps: {' · '.join(deltas)}" if deltas else ""), extras=["negócios"])
         g = g.replace('<div class="janela" data-for="painel-di-curva">', '<div class="janela" data-for="painel-di-curva" style="display:none">')
         g = g.replace('id="painel-di-curva"', 'id="painel-di-curva" data-nosel="1"')   # eixo x = vencimentos
     else:
