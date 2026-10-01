@@ -329,7 +329,19 @@ def publicar(res: dict) -> None:
     git("commit", "-q", "-m", f"vigia: alertas em tempo real {res['hora']}")
     # Rebase favorecendo os commits locais (-X theirs = o que está sendo reaplicado); se ainda assim travar, aborta e
     # funde origin/main preferindo a versão local dos arquivos gerados (nunca fica em rebase pela metade).
-    if git("pull", "--rebase", "-X", "theirs", "-q", "origin", "main").returncode != 0:
+    pull = git("pull", "--rebase", "-X", "theirs", "-q", "origin", "main")
+    if pull.returncode != 0 and "would be overwritten" in (pull.stderr or ""):
+        # arquivo de cache criado localmente (ex.: coletar.py rodado à mão) que o GitHub passou a versionar: apaga a cópia
+        # local não rastreada e tenta de novo (01/10/2026: data/cda/*.json travou os pushes das 13h às 17h35)
+        for ln in pull.stderr.splitlines():
+            ln = ln.strip()
+            if ln and not ln.startswith(("error", "Please", "Aborting", "fatal")) and (config.RAIZ / ln).exists():
+                try:
+                    (config.RAIZ / ln).unlink()
+                except OSError:
+                    pass
+        pull = git("pull", "--rebase", "-X", "theirs", "-q", "origin", "main")
+    if pull.returncode != 0:
         git("rebase", "--abort")
         git("fetch", "-q", "origin", "main")
         git("merge", "-q", "-X", "ours", "--no-edit", "origin/main")
