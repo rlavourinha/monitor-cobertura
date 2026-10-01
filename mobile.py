@@ -163,9 +163,11 @@ def tabela_di(vert: dict, ant: dict, d_ant: str | None) -> str:
 # ----------------------------------------------------------------------------------------------------- blocos
 def bloco_hoje(M: dict, IB: dict, DI: dict) -> str:
     mk = M.get("mercado", {})
-    def mkt(nome, dec=2, pref="", suf=""):
+    def mkt(nome, dec=2, pref="", suf="", rotulo=None):
         q = mk.get(nome) or {}
-        return _tile(nome, B.num(q.get("preco"), dec, pref, suf), f'{B.pct(q.get("var_dia"))} · {(q.get("hora") or "")[11:16]}', B.dlt_cls(q.get("var_dia")))
+        f = q.get("fonte") or ""
+        tag = (" · " + f.split("/")[1]) if f.startswith("vigia/") else (" · Yahoo" if "yahoo" in f else "")
+        return _tile(rotulo or nome, B.num(q.get("preco"), dec, pref, suf), f'{B.pct(q.get("var_dia"))} · {(q.get("hora") or "")[11:16]}{tag}', B.dlt_cls(q.get("var_dia")))
     ib = IB.get("ibov") or {}
     if IB.get("hoje") and ib.get("r1") is not None:
         v = IB.get("ultimo"); r1 = IB.get("r1_pontos", ib["r1"])
@@ -177,10 +179,14 @@ def bloco_hoje(M: dict, IB: dict, DI: dict) -> str:
         v = (vert.get(k) or {}).get("taxa")
         return B.num(v, 2, suf="%")
     n35 = M.get("ntnb_2035") or []
-    tiles = (t_ib + mkt("S&P 500", 0) + mkt("USD/BRL", 3) + mkt("Brent (US$)", 1)
+    dap = mk.get("Juro real 2035 (DAP)") or {}
+    if dap.get("preco"):
+        t_real = _tile("Juro real 2035", B.num(dap["preco"], 2, suf="%"), f'{("+" if (dap.get("preco") - (dap.get("fech_anterior") or dap["preco"])) * 100 >= 0 else "")}{B.num((dap["preco"] - (dap.get("fech_anterior") or dap["preco"])) * 100, 0)} bps · {(dap.get("hora") or "")[11:16]} · DAP K35', "")
+    else:
+        t_real = _tile("NTN-B 2035", B.num(n35[-1][1], 2, suf="%") if n35 else "—", f'real · Tesouro {n35[-1][0][8:10] + "/" + n35[-1][0][5:7] if n35 else ""}')
+    tiles = (t_ib + mkt("S&P 500", 0, rotulo="S&P 500 (futuro)") + mkt("USD/BRL", 3, rotulo="Dólar (futuro)") + mkt("Brent (US$)", 1)
              + _tile("DI 1 ano", di("1a"), f'DI 10 anos {di("10a")} · {(DI.get("hora") or "")[11:16]}')
-             + _tile("NTN-B 2035", B.num(n35[-1][1], 2, suf="%") if n35 else "—", f'real · {n35[-1][0][8:10] + "/" + n35[-1][0][5:7] if n35 else ""}')
-             + mkt("VIX", 1) + mkt("Treasury 10a (%)", 2, suf="%"))
+             + t_real + mkt("VIX", 1) + mkt("Treasury 10a (%)", 2, suf="%"))
     return _card("Hoje", f'<div class="tiles">{tiles}</div>', f'vigia {IB["hora"][11:]}' if IB.get("hoje") else "último fechamento")
 
 
@@ -378,7 +384,7 @@ PAGE = """<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
 
 
 def build_mobile() -> None:
-    M = _j("macro.json", {}) or {}
+    M = B._macro_tempo_real(_j("macro.json", {}) or {})       # Ibov, dólar, S&P e juro real pelo vigia (MT5); Brent/VIX/Treasury pelo Yahoo
     mercado = B._mercado_tickers_tempo_real(_j("mercado.json", {"tickers": {}}) or {"tickers": {}})
     minhas, cons = B.le_csv(B.MINHAS), B.le_csv(B.CONS)
     C = _j("ibov_comp.json", {}) or {}

@@ -24,7 +24,7 @@ from fontes import b3, di, mt5, telegram
 ARQ = config.DATA / "alertas_tempo_real.json"
 ESTADO = config.DATA / "alertas_estado.json"
 INTRADAY = config.DATA / "intraday_hoje.json"                 # barras de 1 min de hoje: chip "hoje" do gráfico do Ibovespa
-TICKERS_INTRADAY = ["IBOV", "WDO$", "RDOR3", "SAUD3"]
+TICKERS_INTRADAY = ["IBOV", "WDO$", "WSP$", "DAPK35", "DAPK29", "RDOR3", "SAUD3"]   # futuros B3 com feed na Genial: dólar mini, micro S&P 500, cupom IPCA (juro real 2035/2029)
 ABRE, FECHA = time(10, 0), time(17, 0)
 
 
@@ -234,7 +234,7 @@ def exportar_intraday() -> int:
     extrato intraday e o chip "hoje" do Painel mostra o dia ao vivo (atraso = cadência do vigia). Devolve nº de séries."""
     hoje = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
     d = hoje.strftime("%Y-%m-%d")
-    series, proxy = {}, {}
+    series, proxy, fech = {}, {}, {}
     def barras(tk):
         try:
             bars = mt5.historico_m1(tk, hoje.replace(hour=9))
@@ -260,8 +260,15 @@ def exportar_intraday() -> int:
                     proxy[tk] = "IND$"
         if pts:
             series[tk] = pts
+            if tk != "IBOV":                                   # fechamento da sessão anterior (barra D1) para a variação do dia
+                try:
+                    q = mt5.intraday(tk)
+                    if q and q.get("fech_anterior"):
+                        fech[tk] = q["fech_anterior"]
+                except Exception:
+                    pass
     if series:
-        INTRADAY.write_text(json.dumps({"data": d, "hora": datetime.now().strftime("%Y-%m-%d %H:%M"), "series": series, "proxy": proxy},
+        INTRADAY.write_text(json.dumps({"data": d, "hora": datetime.now().strftime("%Y-%m-%d %H:%M"), "series": series, "proxy": proxy, "fech_ant": fech},
                                        ensure_ascii=False), encoding="utf-8")
     return len(series)
 

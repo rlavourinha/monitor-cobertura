@@ -199,8 +199,35 @@ def _macro_tempo_real(M: dict) -> dict:
         M["hist"]["Ibovespa"] = hist + [[J["data"], preco]]
     elif hist and hist[-1][0] == J["data"]:
         M["hist"]["Ibovespa"][-1] = [J["data"], preco]
-    # demais variáveis do Painel (S&P, câmbio, Brent, VIX, Treasury): cotação do Yahoo na hora do build (o build roda a cada
-    # 5 min no pregão pelo push do vigia), com ponto provisório de hoje na série diária; falha de rede = mantém o que havia
+    # Futuros da B3 pelo vigia (MT5, barras de 1 min): dólar mini (WDO$, pontos/1000 = R$/US$ do contrato), micro S&P 500
+    # (WSP$) e cupom IPCA 2035 (DAPK35 = juro real, equivalente à NTN-B 2035). Variação do dia contra o D1 anterior do
+    # próprio contrato. Entram no lugar do Yahoo (atrasado 15 min) enquanto a B3 estiver aberta.
+    S, F = J.get("series") or {}, J.get("fech_ant") or {}
+    mt5_ok = set()
+    for sym, nome, esc in (("WDO$", "USD/BRL", 1 / 1000), ("WSP$", "S&P 500", 1.0), ("DAPK35", "Juro real 2035 (DAP)", 1.0)):
+        bars = S.get(sym) or []
+        if not bars:
+            continue
+        h, v = bars[-1][0], float(bars[-1][1]) * esc
+        fa = F.get(sym)
+        fa = float(fa) * esc if fa else None
+        q = dict(mk.get(nome) or {})
+        q.update({"preco": v, "hora": h, "fech_anterior": fa, "var_dia": (v / fa - 1) if fa else q.get("var_dia"), "fonte": "vigia/" + sym})
+        mk[nome] = q
+        mt5_ok.add(nome)
+        hs = M["hist"].get(nome)
+        if hs:
+            if hs[-1][0] < J["data"]:
+                M["hist"][nome] = hs + [[J["data"], v]]
+            elif hs[-1][0] == J["data"]:
+                M["hist"][nome][-1] = [J["data"], v]
+        if sym == "DAPK35":
+            n35 = M.get("ntnb_2035") or []
+            if n35 and n35[-1][0] < J["data"]:
+                M["ntnb_2035"] = n35 + [[J["data"], v]]
+    M["_mt5_ok"] = sorted(mt5_ok)
+    # demais variáveis do Painel (Brent, VIX, Treasury e o que o MT5 não cobriu): cotação do Yahoo na hora do build (o build
+    # roda a cada 5 min no pregão pelo push do vigia), com ponto provisório de hoje na série diária; falha de rede = mantém o que havia
     try:
         _mercado_yahoo_tempo_real(M)
     except Exception as e:
@@ -212,7 +239,7 @@ def _mercado_yahoo_tempo_real(M: dict, budget_s: float = 12.0) -> None:
     from concurrent.futures import ThreadPoolExecutor, wait
     from fontes import yahoo
     hoje = date.today().isoformat()
-    alvos = {n: s for n, s in getattr(config, "MERCADO", {}).items() if n != "Ibovespa" and n in M.get("hist", {})}
+    alvos = {n: s for n, s in getattr(config, "MERCADO", {}).items() if n != "Ibovespa" and n in M.get("hist", {}) and n not in set(M.get("_mt5_ok") or [])}
     if not alvos:
         return
     with ThreadPoolExecutor(max_workers=len(alvos)) as ex:
