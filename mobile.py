@@ -97,7 +97,7 @@ def svg_spark(pts: list[list], cor: str, dec: int, W=150, H=40) -> str:
     return f'<svg class="spark" viewBox="0 0 {W} {H}"><path class="line" style="stroke:{cor}" d="{path}"/><circle cx="{X(n - 1):.1f}" cy="{Y(pts[-1][1]):.1f}" r="2.5" style="fill:{cor}"/></svg>'
 
 
-def svg_hbar(linhas: list[tuple[str, float]], W=400, RH=22, ML=132, dec=2, suf=" p.p.") -> str:
+def svg_hbar(linhas: list[tuple[str, float]], W=400, RH=22, ML=132, dec=2, suf=" p.p.", chaves: list[str] | None = None) -> str:
     if not linhas:
         return ""
     vmax = max(abs(v) for _, v in linhas) or 1
@@ -109,10 +109,12 @@ def svg_hbar(linhas: list[tuple[str, float]], W=400, RH=22, ML=132, dec=2, suf="
         y = i * RH + 3
         w = abs(v) / vmax * (W - ML - 60) / 2
         x = x0 if v >= 0 else x0 - w
+        ds = f' data-setor="{html.escape(chaves[i])}"' if chaves else ""
+        o.append(f'<g{ds} class="{"row" if chaves else ""}"><rect x="0" y="{y}" width="{W}" height="{RH}" style="fill:transparent"/>')
         o.append(f'<text class="lab" x="{ML - 6}" y="{y + RH - 8}" text-anchor="end">{html.escape(lab)}</text>')
         o.append(f'<rect x="{x:.1f}" y="{y + 3}" width="{max(w, 1):.1f}" height="{RH - 9}" rx="3" style="fill:{"var(--up)" if v >= 0 else "var(--dn)"}"/>')
         # valor sempre do lado direito do eixo: depois da barra (positivo) ou logo à direita do eixo (negativo), sem invadir o rótulo
-        o.append(f'<text class="tick" x="{(x0 + w + 5) if v >= 0 else (x0 + 5):.1f}" y="{y + RH - 8}" text-anchor="start">{("+" if v > 0 else "") + B.num(v, dec)}{suf}</text>')
+        o.append(f'<text class="tick" x="{(x0 + w + 5) if v >= 0 else (x0 + 5):.1f}" y="{y + RH - 8}" text-anchor="start">{("+" if v > 0 else "") + B.num(v, dec)}{suf}</text></g>')
     o.append("</svg>")
     return "".join(o)
 
@@ -254,7 +256,32 @@ def bloco_setores(C: dict, IB: dict) -> str:
     movs.sort(key=lambda x: -x[2])
     top = "".join(f'<li><b>{c}</b><span class="{B.dlt_cls(r)}">{B.pct(r)}</span><small>{("+" if k > 0 else "")}{B.num(k, 2)} p.p.</small></li>' for c, r, k in movs[:4] + movs[-4:][::-1])
     tot = sum(contrib.values())
-    return _card("Ibov por setor hoje", svg_hbar(linhas) + f'<ul class="lista dupla">{top}</ul><p class="nota">Contribuição = peso × variação do papel; soma {("+" if tot > 0 else "")}{B.num(tot, 2)} p.p. com {B.num(peso_ok, 0)}% da carteira cotada. Maiores contribuições para cima e para baixo.</p>', IB["hora"][11:])
+    # papéis de cada setor: dia (vigia), 5 pregões e ano (COTAHIST) — acordeão nativo, sem JS obrigatório
+    hoje = date.today().isoformat(); ano0 = f"{date.today().year}-01-01"
+    def jan(it):
+        q = P.get(it["cod"]) or {}
+        preco, r1 = q.get("preco"), q.get("r1")
+        s = [(d, v) for d, v in b3.serie(it["cod"]) if d < hoje and v]
+        r5 = (preco / s[-5][1] - 1) if (preco and len(s) >= 5) else None
+        base = next((v for d, v in reversed(s) if d < ano0), None)
+        ry = (preco / base - 1) if (preco and base) else None
+        return r1, r5, ry
+    det = []
+    for setor, c in linhas:
+        its = sorted([it for it in itens if it["setor"] == setor and (P.get(it["cod"]) or {}).get("r1") is not None], key=lambda i: -float(i.get("peso") or 0))
+        rows = ""
+        for it in its:
+            r1, r5, ry = jan(it)
+            rows += (f'<tr><td>{it["cod"]}</td><td>{B.num(float(it.get("peso") or 0), 1)}%</td><td class="{B.dlt_cls(r1)}">{B.pct(r1)}</td>'
+                     f'<td class="{B.dlt_cls(r5)}">{B.pct(r5)}</td><td class="{B.dlt_cls(ry)}">{B.pct(ry)}</td><td>{("+" if (float(it.get("peso") or 0) * r1) > 0 else "")}{B.num(float(it.get("peso") or 0) * r1, 2)}</td></tr>')
+        det.append(f'<details data-setor="{html.escape(setor)}"><summary><span>{html.escape(setor)}</span><small>{len(its)} papéis</small><b class="{B.dlt_cls(c)}">{("+" if c > 0 else "")}{B.num(c, 2)} p.p.</b></summary>'
+                   f'<table><thead><tr><th>Papel</th><th>Peso</th><th>Dia</th><th>5 d</th><th>Ano</th><th>p.p.</th></tr></thead><tbody>{rows}</tbody></table></details>')
+    js = ('<script>document.querySelectorAll("svg g[data-setor]").forEach(function(g){g.addEventListener("click",function(){'
+          'var d=document.querySelector("details[data-setor=\""+g.dataset.setor.replace(/"/g,"\\\"")+"\"]");if(!d)return;'
+          'document.querySelectorAll("details[data-setor]").forEach(function(x){if(x!==d)x.open=false;});d.open=true;d.scrollIntoView({behavior:"smooth",block:"center"});});});</script>')
+    return _card("Ibov por setor hoje", svg_hbar(linhas, chaves=[s for s, _ in linhas]) + f'<ul class="lista dupla">{top}</ul>'
+                 + f'<p class="nota">Contribuição = peso × variação do papel; soma {("+" if tot > 0 else "")}{B.num(tot, 2)} p.p. com {B.num(peso_ok, 0)}% da carteira cotada. Toque num setor (barra ou lista) para ver os papéis.</p>'
+                 + "".join(det) + js, IB["hora"][11:])
 
 
 def bloco_fluxo() -> str:
@@ -333,6 +360,10 @@ ul.cob{list-style:none;margin:0;padding:0}ul.cob li{padding:9px 0;border-top:1px
 .cob .r1 .px{font-weight:600}.cob .r2{display:flex;gap:10px;align-items:center;margin-top:4px}.cob .r2 small{color:var(--ink2);font-size:12.5px}
 table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;font-size:14px}th{font-weight:500;color:var(--mut);text-align:right;padding:4px 0;border-bottom:1px solid var(--grid)}th:first-child,td:first-child{text-align:left}td{text-align:right;padding:6px 0;border-top:1px solid var(--grid)}tr.tot td{font-weight:600;border-top:0}
 .nota{font-size:12px;color:var(--mut);margin:8px 0 2px;line-height:1.35}.empty{color:var(--mut);margin:6px 0}
+svg g.row{cursor:pointer}svg g.row:active rect:first-child{fill:var(--chip)}
+details{border-top:1px solid var(--grid)}details summary{list-style:none;display:flex;align-items:baseline;gap:8px;padding:10px 0;cursor:pointer;font-variant-numeric:tabular-nums;-webkit-tap-highlight-color:transparent}
+details summary::-webkit-details-marker{display:none}details summary::before{content:"›";color:var(--mut);width:10px;display:inline-block;transition:transform .15s}details[open] summary::before{transform:rotate(90deg)}
+details summary span{flex:1;font-weight:600}details summary small{color:var(--mut);font-size:12px}details summary b{font-weight:600}details table{margin:0 0 8px;font-size:13.5px}details td,details th{padding:4px 0}
 footer{font-size:12px;color:var(--mut);padding:8px 2px 0;line-height:1.4}footer a{color:var(--s1)}
 """
 
