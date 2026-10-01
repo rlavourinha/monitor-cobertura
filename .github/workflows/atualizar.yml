@@ -98,7 +98,7 @@ jobs:
           git push origin HEAD:"${{ github.ref_name }}"
 
       - name: Publicar no GitHub Pages
-        run: mkdir -p site && cp output/monitor.html site/index.html
+        run: mkdir -p site && cp output/monitor.html site/index.html && cp output/mobile.html site/m.html
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

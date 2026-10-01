@@ -4244,6 +4244,11 @@ def build() -> None:
             .replace("/*DATA*/", carimbo_build()).replace("/*RAIL*/", "".join(rail)).replace("/*SLIDES*/", "".join(h for h, _ in S)))
     SAIDA.write_text(html, encoding="utf-8")
     print(f"ok -> {SAIDA} ({len(html) // 1024} KB)")
+    try:                                     # versão celular (output/mobile.html -> m.html no GitHub Pages)
+        import mobile
+        mobile.build_mobile()
+    except Exception as e:
+        print(f"versão celular: ERRO ({e})")
 
 
 if __name__ == "__main__":
