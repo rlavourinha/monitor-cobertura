@@ -244,6 +244,121 @@
     "ibov_desde_out2009": 188.4,
     "ibrx50_desde_out2009": 246.2
    }
+  },
+  {
+   "mes": "2026-10",
+   "data": "2026-10-01",
+   "titulo": "With a few days to go, it is all about the election",
+   "tese": "Carteira atravessa os dois turnos sem poder mudar; mantida balanceada. Juros longos e bolsa já embutem boa parte do risco fiscal, o câmbio não: exposição a juros longos (50% utilities/infra/longa duração: Axia, Eneva, Sabesp, Motiva, Rede D'Or) e a câmbio (Embraer, Gerdau 20%; Petrobras 15%), Itaú 10%, Cury 5%. Cenários: Bolsonaro vence → bolsa volta à média (P/L ex-Petro&Vale de 10,1x para 11,1–11,9x, +11% a +20%; +32% a +45% a 1 desvio acima), real +5%; Lula reeleito → Ibov ~170 mil (−10%, 9x), real −10–15% (5,7–6,0). Odds favorecem o incumbente: 1º turno Lula 40,3% x 37,5% (média 5 d), 2º turno empate técnico. Set/26: Ibov +5,0% (BRL e USD), +15,6% no ano; estrangeiro +R$ 6,3 bi no mês (R$ 12,5 bi de 21/08 a 10/09, depois secou). Juro real longo IPCA+7,4%; Treasury real 10a 2,89%, gap 4,5 pp.",
+   "trocas": [],
+   "carteira": [
+    {
+     "ticker": "PETR4",
+     "empresa": "Petrobras",
+     "setor": "Oil & Gas",
+     "peso": 15,
+     "upside": 25,
+     "pl26": 4.0,
+     "mcap": 668445,
+     "adtv": 2092.0
+    },
+    {
+     "ticker": "ITUB4",
+     "empresa": "Itau Unibanco",
+     "setor": "Banks",
+     "peso": 10,
+     "upside": 22,
+     "pl26": 9.5,
+     "mcap": 492404,
+     "adtv": 983.1
+    },
+    {
+     "ticker": "AXIA3",
+     "empresa": "Axia",
+     "setor": "Utilities",
+     "peso": 10,
+     "upside": 26,
+     "pl26": 16.2,
+     "mcap": 156175,
+     "adtv": 691.4
+    },
+    {
+     "ticker": "SBSP3",
+     "empresa": "Sabesp",
+     "setor": "Utilities",
+     "peso": 10,
+     "upside": 13,
+     "pl26": 20.6,
+     "mcap": 95374,
+     "adtv": 560.5
+    },
+    {
+     "ticker": "RDOR3",
+     "empresa": "Rede D'Or",
+     "setor": "Healthcare",
+     "peso": 10,
+     "upside": 51,
+     "pl26": 16.8,
+     "mcap": 83480,
+     "adtv": 259.1
+    },
+    {
+     "ticker": "EMBJ3",
+     "empresa": "Embraer",
+     "setor": "Capital Goods",
+     "peso": 10,
+     "upside": 34,
+     "pl26": 23.9,
+     "mcap": 71511,
+     "adtv": 481.1
+    },
+    {
+     "ticker": "ENEV3",
+     "empresa": "Eneva",
+     "setor": "Utilities",
+     "peso": 10,
+     "upside": 11,
+     "pl26": 85.5,
+     "mcap": 53520,
+     "adtv": 289.3
+    },
+    {
+     "ticker": "GGBR4",
+     "empresa": "Gerdau",
+     "setor": "Metal & Mining",
+     "peso": 10,
+     "upside": 15,
+     "pl26": 8.5,
+     "mcap": 44963,
+     "adtv": 243.8
+    },
+    {
+     "ticker": "MOTV3",
+     "empresa": "Motiva",
+     "setor": "Transportation",
+     "peso": 10,
+     "upside": 19,
+     "pl26": 13.1,
+     "mcap": 33666,
+     "adtv": 247.8
+    },
+    {
+     "ticker": "CURY3",
+     "empresa": "Cury",
+     "setor": "Real Estate",
+     "peso": 5,
+     "upside": 51,
+     "pl26": 7.0,
+     "mcap": 8545,
+     "adtv": 122.8
+    }
+   ],
+   "desempenho": {
+    "mes_anterior": null,
+    "ibov_mes_anterior": 5.0,
+    "ibov_ytd": 15.6,
+    "_nota": "retorno do 10SIM em setembro não constava nas 9 primeiras páginas extraídas"
+   }
   }
  ],
  "historico": [
@@ -3264,6 +3379,72 @@
    "acum_2009_ibov": 188.4,
    "acum_2009_ibrx50": 246.2,
    "nota": null
+  },
+  {
+   "mes": "2026-10",
+   "data": "1 October 2026",
+   "carteira": [
+    {
+     "ticker": "PETR4",
+     "peso": 15,
+     "upside": 25,
+     "pl26": 4.0
+    },
+    {
+     "ticker": "ITUB4",
+     "peso": 10,
+     "upside": 22,
+     "pl26": 9.5
+    },
+    {
+     "ticker": "AXIA3",
+     "peso": 10,
+     "upside": 26,
+     "pl26": 16.2
+    },
+    {
+     "ticker": "SBSP3",
+     "peso": 10,
+     "upside": 13,
+     "pl26": 20.6
+    },
+    {
+     "ticker": "RDOR3",
+     "peso": 10,
+     "upside": 51,
+     "pl26": 16.8
+    },
+    {
+     "ticker": "EMBJ3",
+     "peso": 10,
+     "upside": 34,
+     "pl26": 23.9
+    },
+    {
+     "ticker": "ENEV3",
+     "peso": 10,
+     "upside": 11,
+     "pl26": 85.5
+    },
+    {
+     "ticker": "GGBR4",
+     "peso": 10,
+     "upside": 15,
+     "pl26": 8.5
+    },
+    {
+     "ticker": "MOTV3",
+     "peso": 10,
+     "upside": 19,
+     "pl26": 13.1
+    },
+    {
+     "ticker": "CURY3",
+     "peso": 5,
+     "upside": 51,
+     "pl26": 7.0
+    }
+   ]
   }
  ],
  "_nota_historico": "historico: carteira de cada mês (Table 1 do relatório: peso, upside e P/L do ano corrente estimados pelo BTG) e desempenho citado no relatório (retorno do mês anterior; YTD 10SIM e Ibovespa; acumulado desde out/2009 de 10SIM, Ibovespa e IBrX-50). Extraído do visor do portal (pdf.js, sem download) em 26/09/2026; ago/25 não estava listado; meses com 'nota' têm tabela parcial (9 linhas) ou reconstruída."
