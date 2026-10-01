@@ -35,6 +35,7 @@ PNG = LEIT / "png"
 ESTADO = LEIT / "estado.json"
 MATERIAL_MD = config.OUTPUT / "leitura_material.md"
 MATERIAL_JSON = config.OUTPUT / "leitura_material.json"
+BOT = "sellside"   # bot Resumo_Sellside (fontes/telegram.py, "bots"); cai no bot padrão do Monitor se não configurado
 
 TEMAS = [
     ("fiscal", r"fiscal|primary (deficit|result|balance|surplus)|public sector|d[ií]vida|\bdebt\b|tesouro|treasury|or[çc]ament"),
@@ -415,13 +416,66 @@ def _html(digest: dict, pngs: dict) -> str:
             return ""
         b64 = base64.b64encode(Path(p).read_bytes()).decode()
         return f'<img src="data:image/png;base64,{b64}" style="width:100%;max-width:1000px;display:block;margin:8px 0 14px">'
-    blocos = "".join(f'<section><h2>{b["titulo"]}</h2><p>{b["texto"].replace(chr(10), "<br>")}</p>{img(pngs.get(i))}</section>'
+    blocos = "".join(f'<section><h2>{b["titulo"]}</h2><p>{(b["texto"] + _fontes(b)).replace(chr(10), "<br>")}</p>{img(pngs.get(i))}</section>'
                      for i, b in enumerate(digest["blocos"]))
+    lista = digest.get("_lista") or ""
+    if lista:
+        blocos += f'<section><p style="font-size:14px">{lista.replace(chr(10), "<br>")}</p></section>'
     return (f'<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Leitura do dia {digest["data"]}</title>'
             '<style>body{font-family:"Segoe UI",system-ui,sans-serif;max-width:1040px;margin:24px auto;padding:0 16px;color:#222;line-height:1.45}'
             'h1{font-size:22px}h2{font-size:17px;margin:26px 0 6px}p{white-space:normal}section{border-top:1px solid #e5e5e5;padding-top:8px}</style></head>'
             f'<body><h1>Leitura do dia · {digest["data"]}</h1><p>{digest.get("cabecalho", "").replace(chr(10), "<br>")}</p>{blocos}'
             '<p style="color:#777;font-size:12px">Uso privado. Resumos próprios a partir dos relatórios do BTG Research e do Itaú BBA; gráficos de dados primários.</p></body></html>')
+
+
+def _bot() -> str | None:
+    return BOT if telegram.disponivel(BOT) else None
+
+
+def _itens_material() -> list[dict]:
+    try:
+        return json.loads(MATERIAL_JSON.read_text(encoding="utf-8")).get("itens", [])
+    except Exception:
+        return []
+
+
+def _titulo(it: dict) -> str:
+    import html
+    return html.escape(f"[{it.get('fonte')}] {it.get('empresa', '')} — {it.get('titulo', '')}".strip())
+
+
+def _fontes(b: dict) -> str:
+    """Linha 'Fontes:' do bloco a partir dos ids dos relatórios usados (campo "ids" do digest)."""
+    ids = {str(i) for i in (b.get("ids") or [])}
+    its = [it for it in _itens_material() if str(it.get("id")) in ids] if ids else []
+    return ("\n<i>Fontes:</i> " + "; ".join(_titulo(it)[:110] for it in its)) if its else ""
+
+
+def _lista_relatorios(digest: dict) -> str:
+    """Mensagem com TODOS os relatórios do período: usados na análise (✅), vistos sem entrar (▫️) e fora do escopo (⛔),
+    por título, para o leitor conferir o que ficou de fora."""
+    its = _itens_material()
+    if not its:
+        return ""
+    usados = {str(i) for b in digest.get("blocos", []) for i in (b.get("ids") or [])}
+    if not usados:
+        usados = {str(it.get("id")) for it in its if it.get("destaque")}
+    grupos: dict[str, list] = {"✅": [], "▫️": [], "⛔": []}
+    for it in its:
+        k = "✅" if str(it.get("id")) in usados else ("⛔" if it.get("fora") else "▫️")
+        grupos[k].append(it)
+    try:
+        M = json.loads(MATERIAL_JSON.read_text(encoding="utf-8"))
+        per = f"{M.get('desde', '')[5:]} → {M.get('ate', '')[5:]}"
+    except Exception:
+        per = ""
+    linhas = [f"<b>Relatórios do período</b> ({per}): {len(its)} novos · ✅ {len(grupos['✅'])} na análise · "
+              f"▫️ {len(grupos['▫️'])} vistos, sem entrar · ⛔ {len(grupos['⛔'])} fora do escopo"]
+    for k, nome in (("✅", "Entraram na análise"), ("▫️", "Vistos, não entraram"), ("⛔", "Fora do escopo (LatAm ex-Brasil, diários, renda fixa)")):
+        if grupos[k]:
+            linhas.append(f"\n<b>{nome}</b>")
+            linhas += [f"{k} {_titulo(it)}" + (f" <i>({it.get('analista')})</i>" if it.get("analista") else "") for it in grupos[k]]
+    return "\n".join(linhas)
 
 
 def enviar(arq: str, sem_telegram: bool = False, sem_push: bool = False) -> dict:
@@ -431,18 +485,21 @@ def enviar(arq: str, sem_telegram: bool = False, sem_push: bool = False) -> dict
     nome = f"{digest['data']}-{'manha' if digest['edicao'].startswith('manh') else 'noite'}"
     pngs, enviados, falhas = {}, 0, []
     cab = f"<b>Leitura da {digest['edicao']} · {digest['data'][8:]}/{digest['data'][5:7]}</b>\n{digest.get('cabecalho', '')}".strip()
-    if not sem_telegram and not telegram.enviar(cab):
+    if not sem_telegram and not telegram.enviar(cab, bot=_bot()):
         falhas.append("cabeçalho")
+    lista = _lista_relatorios(digest); digest["_lista"] = lista
+    if not sem_telegram and lista and not telegram.enviar(lista, silencioso=True, bot=_bot()):
+        falhas.append("lista de relatórios")
     for i, b in enumerate(digest["blocos"]):
         try:
             p = grafico(b.get("grafico"))
         except Exception as e:
             p = None; falhas.append(f"gráfico {b.get('titulo')}: {str(e)[:80]}")
         pngs[i] = str(p) if p else None
-        legenda = f"<b>{b['titulo']}</b>\n{b['texto']}"
+        legenda = f"<b>{b['titulo']}</b>\n{b['texto']}" + _fontes(b)
         if sem_telegram:
             continue
-        ok = telegram.enviar_foto(p, legenda, silencioso=True) if p else telegram.enviar(legenda, silencioso=True)
+        ok = telegram.enviar_foto(p, legenda, silencioso=True, bot=_bot()) if p else telegram.enviar(legenda, silencioso=True, bot=_bot())
         enviados += bool(ok)
         if not ok:
             falhas.append(b["titulo"])
@@ -459,7 +516,7 @@ def enviar(arq: str, sem_telegram: bool = False, sem_push: bool = False) -> dict
         git("pull", "--rebase", "-q", "origin", "main")
         r = git("push", "-q", "origin", "main")
         push = "ok" if r.returncode == 0 else "falhou: " + r.stderr.strip()[:120]
-    return {"blocos": len(digest["blocos"]), "enviados": enviados, "falhas": falhas, "html": str(LEIT / f"{nome}.html"), "push": push}
+    return {"bot": _bot() or "padrão", "blocos": len(digest["blocos"]), "enviados": enviados, "falhas": falhas, "html": str(LEIT / f"{nome}.html"), "push": push}
 
 
 if __name__ == "__main__":
