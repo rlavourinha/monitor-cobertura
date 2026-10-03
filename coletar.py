@@ -162,11 +162,22 @@ def diario_tips():
     return f"{len(s)} pontos, último {s[-1][0]} {s[-1][1]}%"
 
 
+def _sgs_segura(sgs: dict, cod: int, desde: str) -> list[list]:
+    """Série SGS nova, mas sem regredir: se o BCB vier fora do ar/parcial (menos pontos que a série já guardada), mantém a
+    anterior. Em 03/10/2026 12:12 a atualização mensal no runner zerou as 10 séries do macro.json (gráficos de juros/dívida sumiram)."""
+    nova = bcb.sgs(cod, desde)
+    antiga = (sgs.get(str(cod)) or {}).get("serie") or []
+    if len(nova) < len(antiga):
+        print(f"  SGS {cod}: veio {len(nova)} pontos, mantendo os {len(antiga)} anteriores", file=sys.stderr)
+        return antiga
+    return nova
+
+
 def diario_sgs():
     sgs = _le_json(MACRO, {}).get("sgs", {})
     for cod in (432, 1, 12):
         rotulo, desde = config.SGS_SERIES[cod]
-        sgs[str(cod)] = {"rotulo": rotulo, "serie": bcb.sgs(cod, desde)}
+        sgs[str(cod)] = {"rotulo": rotulo, "serie": _sgs_segura(sgs, cod, desde)}
     _atualiza_macro(sgs=sgs)
     return "Selic meta, PTAX e CDI diário"
 
@@ -397,7 +408,7 @@ def mensal_sgs():
     for cod, (rotulo, desde) in config.SGS_SERIES.items():
         if cod in (432, 1):
             continue
-        sgs[str(cod)] = {"rotulo": rotulo, "serie": bcb.sgs(cod, desde)}
+        sgs[str(cod)] = {"rotulo": rotulo, "serie": _sgs_segura(sgs, cod, desde)}
     _atualiza_macro(sgs=sgs)
     return ", ".join(f"{c} {len(sgs[str(c)]['serie'])}" for c in config.SGS_SERIES if c not in (432, 1))
 
