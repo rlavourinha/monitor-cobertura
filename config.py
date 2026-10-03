@@ -108,7 +108,14 @@ MERCADO = {
 # Papéis avulsos para o quadro de movimentos recentes (fora da cobertura).
 MOVIMENTOS = {"ENEV3": "ENEV3.SA", "PRIO3": "PRIO3.SA", "NVDA": "NVDA", "NU": "NU"}
 # BDRs acompanhados no painel de papéis (negociam na B3; entram no COTAHIST junto com o Ibovespa)
-BDRS = ["ROXO34", "MELI34", "STOC34", "AURA33", "INBR32", "JBSS32", "IVVB11", "BOVA11"]
+# BDRs acompanhados (peso 0 no índice: entram no vigia, no painel de papéis e no COTAHIST, não na decomposição do Ibov).
+# Critério 03/10/2026: Brasil listado fora + leitura global/setorial com liquidez na B3 (COTAHIST 29/09: XPBR31 R$ 114 mi/dia,
+# NVDC34 85, MUTC34 123, SPCX34 84, M1TA34 49, TSLA34 45, GOGL34 42, ORCL34 38, AAPL34 38, ITLC34 37, MSFT34 25, AMZO34 20;
+# LILY34 (GLP-1), FCXO34 (cobre), CHVX34 (petróleo), JPMC34 e BERK34 (financeiro EUA) menos líquidos, mas com tick).
+BDRS = ["ROXO34", "MELI34", "STOC34", "AURA33", "INBR32", "JBSS32", "XPBR31",                      # Brasil lá fora
+        "IVVB11", "BOVA11",                                                                       # ETFs de referência
+        "NVDC34", "MUTC34", "SPCX34", "M1TA34", "TSLA34", "GOGL34", "ORCL34", "AAPL34", "ITLC34", "MSFT34", "AMZO34",   # mega caps / semis
+        "LILY34", "FCXO34", "CHVX34", "JPMC34", "BERK34"]                                           # leitura setorial
 # painel de papéis: limites dos alertas
 ALERTA_Z = 2.0            # |retorno do dia| ≥ 2 desvios-padrão dos retornos diários (60 pregões)
 ALERTA_VOL = 2.0          # volume financeiro do dia ≥ 2× a média de 21 pregões
