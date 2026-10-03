@@ -1,0 +1,281 @@
+{
+  "fundo": "Opportunity Total",
+  "gestora": "Opportunity Asset Management (Opportunity Macro: Opp Total, Total Evolution, Market, previdências; Opp Income na renda fixa ativa)",
+  "tipo": "Multimercado macro, Brasil e internacional (NTN-B, DI, ações domésticas e globais, juros e moedas de G10 e emergentes). FIC desde 08/05/2003; série de cotas acompanhada a partir de 2024.",
+  "inicio": "2024-01-01",
+  "inicio_fundo": "2003-05-08",
+  "cnpj": "05.448.587/0001-10",
+  "cnpj_fonte": "CVM, registro_fundo_classe (classe OPPORTUNITY TOTAL FIC DE FUNDOS DE INVESTIMENTO FINANCEIRO MULTIMERCADO, em funcionamento normal)",
+  "fontes": [
+    {
+      "nome": "Carta de Gestão, setembro/2026 (publicada 02/10/2026)",
+      "url": "https://www.opportunity.com.br/content/pdf/carta_gestor/CartaGestao_202609.pdf"
+    },
+    {
+      "nome": "Agosto/2026",
+      "url": "https://www.opportunity.com.br/content/pdf/carta_gestor/CartaGestao_202608.pdf"
+    },
+    {
+      "nome": "Julho/2026",
+      "url": "https://www.opportunity.com.br/content/pdf/carta_gestor/CartaGestao_202607.pdf"
+    },
+    {
+      "nome": "Junho/2026",
+      "url": "https://www.opportunity.com.br/content/pdf/carta_gestor/CartaGestao_202606.pdf"
+    },
+    {
+      "nome": "Maio/2026",
+      "url": "https://www.opportunity.com.br/content/pdf/carta_gestor/CartaGestao_202605.pdf"
+    },
+    {
+      "nome": "Abril/2026",
+      "url": "https://www.opportunity.com.br/content/pdf/carta_gestor/CartaGestao_202604.pdf"
+    },
+    {
+      "nome": "Março/2026",
+      "url": "https://www.opportunity.com.br/content/pdf/carta_gestor/CartaGestao_202603.pdf"
+    },
+    {
+      "nome": "Fevereiro/2026",
+      "url": "https://www.opportunity.com.br/content/pdf/carta_gestor/CartaGestao_202602.pdf"
+    },
+    {
+      "nome": "Janeiro/2026",
+      "url": "https://www.opportunity.com.br/content/pdf/carta_gestor/CartaGestao_202601.pdf"
+    },
+    {
+      "nome": "Dezembro/2025",
+      "url": "https://www.opportunity.com.br/content/pdf/carta_gestor/CartaGestao_202512.pdf"
+    },
+    {
+      "nome": "Índice das cartas (site)",
+      "url": "https://www.opportunity.com.br/Home/Destaques"
+    }
+  ],
+  "data": "2026-09-30",
+  "nota_fontes": "Carta mensal de 7 páginas (Cenário Macro Atual, Posicionamento, Atribuição de Performance por fundo), publicada no site da gestora nos primeiros dias do mês seguinte (setembro/26 saiu em 02/10/2026); PDFs em /content/pdf/carta_gestor/CartaGestao_AAAAMM.pdf, e CartaGestao_Total.pdf é sempre a mais recente. Dez/25 a set/26 lidas na íntegra.",
+  "cenario": {
+    "global": [
+      "Setembro: curva de juros dos EUA deslocada para cima por crescimento global firme e energia cara; juro neutro percebido maior. Movimento em juros reais, inflação implícita parada perto das metas; bolsas aguentaram.",
+      "Fed e ECB subiram juros com tom hawkish e depois sinalizaram altas espaçadas; juros longos em níveis históricos impõem trade-offs à política econômica.",
+      "Dólar mais forte e volatilidade maior em juros e câmbio reduziram a atratividade das moedas emergentes.",
+      "Fio condutor desde março: guerra EUA-Irã e Hormuz (petróleo +60% em março, -20% em junho, estável ~20% acima do pré-conflito desde então) em cima de uma economia global resiliente; inflação 'contratada' levou BoJ, ECB, CNB, SARB e, em setembro, o Fed a subir juros.",
+      "IA: inflação de bens eletrônicos já é realidade, deflação por produtividade ainda é hipótese; ciclo de capex financiado por dívida pressiona juros de equilíbrio para cima (junho)."
+    ],
+    "brasil": [
+      "BCB cortou 25 bps em agosto e setembro, dependente de dados; sinais de fraqueza cíclica (crédito desacelerando, inadimplência piorando) e inflação melhor na margem.",
+      "Eleição é o fator central da curva desde dezembro/25: o acirramento da disputa elevou a probabilidade de compromisso fiscal e os juros reais longos recuaram (agosto e setembro), ainda acima da banda do início do ano.",
+      "Junho foi o mês ruim da renda fixa local: percepção de expansão fiscal por fora das regras do orçamento.",
+      "Posição estrutural desde dezembro/25: comprado em NTN-B e em ações domésticas que ganham com fechamento de curva e têm carrego; DI operado taticamente (curto em março-maio, intermediário com viés aplicador desde agosto)."
+    ],
+    "tese_longa": [
+      "Juro real brasileiro longo é a posição-âncora da casa há pelo menos dez meses, independentemente do ruído mensal; a tese é fiscal pós-eleição mais ciclo de cortes.",
+      "No exterior, saiu do 'risk parity' (S&P + juros reais EUA, dez/25 a mai/26) para ações selecionadas de semicondutores, financeiro e mídia (jun/26 em diante) e tomado em juros nos EUA: aceitou que o mundo tem juro neutro maior.",
+      "Emergentes são posição tática, não estrutural: México entrou e saiu várias vezes; Chile, Tcheca, Suécia, Polônia e Reino Unido aparecem como relativos de curta duração."
+    ]
+  },
+  "posicoes": {
+    "brasil_juros": "Comprado em NTN-B longa (todas as cartas desde dez/25); DI com viés aplicador no trecho intermediário, tamanho sensível ao prêmio (set/26).",
+    "brasil_bolsa": "Exposição seletiva a ações domésticas que combinam potencial de valorização com fechamento de curva e carrego; protegida com venda de índice em fevereiro.",
+    "exterior": "Ações de semicondutores, serviços financeiros e mídia (desde jun/26); antes, risk parity com S&P 500 e juros reais americanos.",
+    "moedas": "Set/26: vendido euro e dólar canadense contra o dólar (ganho, encerrada). Income: comprado USDMXN como hedge e vendido USDBRL via opções.",
+    "emergentes": "Aplicado no juro mexicano (perda em set/26, encerrada); Tcheca intermediário aplicado em julho; Chile tomado em abr-jun.",
+    "income_renda_fixa": "Aplicado em NTN-B longa, nominal intermediário Brasil, México e África do Sul; tomado em juros nos EUA; relativos Reino Unido vs. Zona do Euro e steepening Polônia encerrados em setembro."
+  },
+  "desempenho": {
+    "ano": {
+      "fundo": 7.59,
+      "pct_cdi": 72.2
+    },
+    "12m": {
+      "fundo": 11.71,
+      "pct_cdi": 80.84
+    },
+    "mes": {
+      "fundo": 1.24,
+      "cdi": 1.08,
+      "ref": "2026-09"
+    },
+    "anos": {
+      "2025": {
+        "fundo": 13.5,
+        "cdi": 14.9
+      },
+      "2026 (até set)": {
+        "fundo": 7.59,
+        "cdi": 10.51
+      }
+    },
+    "atribuicao_mes_set26": [
+      [
+        "Juros Brasil",
+        0.61
+      ],
+      [
+        "Câmbio G10",
+        0.4
+      ],
+      [
+        "Bolsa G10",
+        0.3
+      ],
+      [
+        "Bolsa Brasil",
+        0.21
+      ],
+      [
+        "Câmbio Brasil",
+        0.01
+      ],
+      [
+        "Câmbio emergentes",
+        -0.12
+      ],
+      [
+        "Custos",
+        -0.19
+      ],
+      [
+        "Juros G10",
+        -0.5
+      ],
+      [
+        "Juros emergentes",
+        -0.56
+      ]
+    ],
+    "pl_medio_12m_mi": 171,
+    "outros_fundos_set26": {
+      "Opp Total Evolution": [
+        1.59,
+        6.15,
+        10.98
+      ],
+      "Opp Market": [
+        1.05,
+        8.66,
+        12.42
+      ],
+      "Opp Income": [
+        1.77,
+        7.51,
+        11.29
+      ],
+      "Opp Icatu Previdência": [
+        1.36,
+        6.18,
+        10.47
+      ],
+      "Opp BTG Previdência": [
+        1.12,
+        5.81,
+        9.98
+      ]
+    },
+    "nota": "Retornos como publicados na carta (mês, ano e 12 meses em % e em % do CDI). Série diária e retornos mensais vêm da cota CVM (data/inf_diario). Sem atribuição acumulada no ano publicada; a atribuição mensal de setembro está em atribuicao_mes_set26.",
+    "mensal_2026": [
+      [
+        "01",
+        1.8
+      ],
+      [
+        "02",
+        0.93
+      ],
+      [
+        "03",
+        -0.94
+      ],
+      [
+        "04",
+        2.12
+      ],
+      [
+        "05",
+        0.48
+      ],
+      [
+        "06",
+        0.3
+      ],
+      [
+        "07",
+        0.45
+      ],
+      [
+        "08",
+        0.99
+      ],
+      [
+        "09",
+        1.24
+      ],
+      [
+        "10",
+        -0.07
+      ]
+    ],
+    "anos_cota_cvm": {
+      "2025": 13.5,
+      "2026": 7.51
+    }
+  },
+  "leitura": [
+    "A casa está dentro do consenso de véspera de eleição (NTN-B comprada na tese de ajuste fiscal), não contra ele; a carta de setembro não discute o cenário em que o governo abre vantagem.",
+    "A perda de 2026 veio de fora: tomado/aplicado errado em G10 e emergentes num ano em que o juro neutro subiu; o 'tomado em EUA' mantido é o hedge coerente da posição Brasil.",
+    "Guardar a frase de setembro: juros longos em níveis históricos impõem trade-offs ao Fed e ao ECB. Se virar cautela, ajuda a NTN-B; se não virar, emergentes seguem o elo fraco, como em setembro.",
+    "Ano a 72% do CDI com uma posição-âncora correta no Brasil: o problema foi o livro internacional, não a tese doméstica."
+  ],
+  "periodos_cartas": [
+    {
+      "ini": "2025-10-01",
+      "fim": "2025-12-31",
+      "rotulo": "4T25",
+      "cor": "#e0662b",
+      "carta": "Carta mensal, dez/25",
+      "tipo": "primária",
+      "cenario": "Global resiliente com inflação controlada; Fed no terceiro corte seguido; BCB sinaliza cortes a partir de março; eleição de 2026 vira fator central e eleva a volatilidade da curva.",
+      "resultado": "Comprado em NTN-B e ações domésticas de carrego; risk parity nos EUA (S&P + juros aplicados); aplicado no México (reduzido). Income: NTN-B longa, tomado Europa e Austrália."
+    },
+    {
+      "ini": "2026-01-01",
+      "fim": "2026-03-31",
+      "rotulo": "1T26",
+      "cor": "#bf3a2f",
+      "carta": "Cartas mensais jan, fev, mar/26",
+      "tipo": "primária",
+      "cenario": "Warsh escolhido para o Fed; commodities fortes; guerra EUA-Irã começa em 28/2 e Hormuz fecha: petróleo e gás +60% em março, juros nominais e implícitas disparam na Europa e contaminam emergentes.",
+      "resultado": "Manteve NTN-B e risk parity; aplicou DI curto em março e carregou petróleo comprado; Income reduziu África do Sul, encerrou Chile e Austrália, abriu tomado em EUA. Março negativo (Opp Total -1,5%)."
+    },
+    {
+      "ini": "2026-04-01",
+      "fim": "2026-06-30",
+      "rotulo": "2T26",
+      "cor": "#1a8fa8",
+      "carta": "Cartas mensais abr, mai, jun/26",
+      "tipo": "primária",
+      "cenario": "Inflação 'contratada' com economia resiliente; Fed hawkish em maio; petróleo cai 20% em junho e os prêmios de inflação descomprimem; no Brasil, junho ruim na renda fixa por risco fiscal fora das regras.",
+      "resultado": "Aplicado no DI curto (contribuiu em junho); saiu do risk parity para ações de IA; tomado em Chile; zerou México. Income: juro real Zona do Euro e relativo Suécia; tomado EUA passa a real."
+    },
+    {
+      "ini": "2026-07-01",
+      "fim": "2026-09-30",
+      "rotulo": "3T26",
+      "cor": "#1baf7a",
+      "carta": "Cartas mensais jul, ago, set/26",
+      "tipo": "primária",
+      "cenario": "Steepening nos EUA, Warsh em Jackson Hole, Fed e ECB sobem em setembro; BCB corta 25 bps em agosto e setembro; eleição acirrada derruba o juro real longo.",
+      "resultado": "NTN-B segue; DI intermediário com viés aplicador; ações de semis, financeiro e mídia; ganhou vendido em EUR e CAD, perdeu aplicado em MXN. Setembro +1,24% (115% do CDI); ano 72% do CDI."
+    },
+    {
+      "ini": "2026-10-01",
+      "fim": "2026-12-31",
+      "rotulo": "4T26",
+      "cor": "#8a8d92",
+      "carta": "Carta de out/26 sai no início de novembro",
+      "tipo": "lacuna",
+      "cenario": "Eleição (4 e 25/10), Copom 4/11 e 9/12, Fed com viés de alta.",
+      "resultado": "A preencher com as cartas de outubro a dezembro."
+    }
+  ]
+}
