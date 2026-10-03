@@ -557,6 +557,12 @@ def montar_jornais(novos: bool = False) -> dict:
     except Exception:
         col = "?"
     L = [f"# Jornais · coleta {col} · {len(its)} matérias{' NOVAS desde a edição da manhã' if novos else ''} (sem teto; colunas de opinião entram, marcadas)", ""]
+    try:
+        ag, prox = agenda(), agenda(dias=8)
+        L += ["Agenda de hoje (BCB/IBGE/eleição): " + ("; ".join(ag) if ag else "nada marcado"),
+              "Próximos 7 dias: " + ("; ".join(prox) if prox else "nada marcado"), ""]
+    except Exception:
+        pass
     for it in its:
         tag = " (OPINIÃO/COLUNA)" if it["opiniao"] else (" (provável fora do escopo)" if it["fora"] else "")
         L += [f"### [{it['id']}] {it['jornal']}{tag} | {it['titulo']}", f"URL: {it['url']}", f"Linha-fina: {it['descricao']}", "",
@@ -665,8 +671,9 @@ def evento_hoje() -> dict:
     ev = []
     try:
         cal = json.loads(CALENDARIO.read_text(encoding="utf-8")) if CALENDARIO.exists() else {}
-        if cal.get(hoje):
-            ev.append(cal[hoje])
+        extra = cal.get("extra") or {k: v for k, v in cal.items() if not k.startswith("_")}
+        if extra.get(hoje):
+            ev.append(extra[hoje])
     except Exception:
         pass
     for cod, nome in ((433, "IPCA"), (7478, "IPCA-15")):
@@ -679,7 +686,72 @@ def evento_hoje() -> dict:
             ant = ((_macro().get("sgs", {}).get(str(cod)) or {}).get("serie") or [])
             if not ant or ant[-1][0] < s[-1][0]:
                 ev.append(f"{nome} de {s[-1][0][:7]} divulgado")
-    return {"data": hoje, "evento": "; ".join(ev) if ev else None}
+    return {"data": hoje, "evento": "; ".join(ev) if ev else None, "agenda": agenda(), "proximos_7d": agenda(dias=8)}
+
+
+
+
+# ---------------------------------------------------------------------------------------------- calendário do BCB
+CAL_BCB = config.DATA / "calendario_bcb.json"
+BCB_API = "https://www.bcb.gov.br/api/servico/sitebcb/calendario/anual?inicioAgenda=%27{a}%27&fimAgenda=%27{b}%27&lista={l}"
+BCB_LISTAS = ["Reuniões do Copom", "Atas e Comunicados do Copom", "Relatório de Política Monetária", "Focus"]
+
+
+def atualiza_calendario_bcb(forcar: bool = False) -> dict:
+    """Copom (dias de reunião), atas, Relatório de Política Monetária e Focus dos próximos 15 meses, pela API pública que a
+    própria página do BCB usa (www.bcb.gov.br responde; api.bcb.gov.br não resolve nesta rede). Cache de 7 dias."""
+    import urllib.request, urllib.parse
+    try:
+        C = json.loads(CAL_BCB.read_text(encoding="utf-8")) if CAL_BCB.exists() else {}
+    except Exception:
+        C = {}
+    if not forcar and C.get("atualizado") and (date.today() - date.fromisoformat(C["atualizado"][:10])).days < 7:
+        return C
+    a, b = date.today().isoformat(), (date.today() + timedelta(days=456)).isoformat()
+    ev = []
+    for l in BCB_LISTAS:
+        try:
+            req = urllib.request.Request(BCB_API.format(a=a, b=b, l=urllib.parse.quote(l)), headers={"User-Agent": "Mozilla/5.0", "accept": "application/json"})
+            J = json.loads(urllib.request.urlopen(req, timeout=30).read().decode("utf-8"))
+        except Exception as e:
+            print(f"  calendário BCB {l}: {e}", file=sys.stderr)
+            continue
+        for e in J.get("conteudo") or []:
+            d = (e.get("dataEvento") or "")[:10]
+            if not d:
+                continue
+            h = (e.get("dataEvento") or "")[11:16]
+            hora = "" if e.get("diaInteiro") == "Sim" or h in ("03:00", "00:00") else f"{(int(h[:2]) - 3) % 24:02d}:{h[3:]}"   # UTC -> Brasília
+            nome = e.get("evento") or l
+            if l == "Reuniões do Copom":
+                nome = "Copom (1º dia)" if not any(x["data"] == (date.fromisoformat(d) - timedelta(days=1)).isoformat() and x["lista"] == l for x in ev) else "Copom: decisão (18h30)"
+            ev.append({"data": d, "hora": hora, "evento": nome, "lista": l})
+    if ev:
+        C = {"atualizado": datetime.now().strftime("%Y-%m-%d %H:%M"), "fonte": "www.bcb.gov.br/api/servico/sitebcb/calendario/anual", "eventos": sorted(ev, key=lambda x: (x["data"], x["hora"]))}
+        CAL_BCB.write_text(json.dumps(C, ensure_ascii=False, indent=1), encoding="utf-8")
+    return C
+
+
+def agenda(d: str | None = None, dias: int = 1) -> list[str]:
+    """Eventos do dia d (ou de hoje) e dos próximos `dias`-1 dias: BCB (cache) + calendário manual (IBGE, eleição)."""
+    d0 = date.fromisoformat(d) if d else date.today()
+    ds = {(d0 + timedelta(days=i)).isoformat() for i in range(dias)}
+    out = []
+    try:
+        for e in atualiza_calendario_bcb().get("eventos", []):
+            if e["data"] in ds:
+                out.append(f"{e['data'][8:]}/{e['data'][5:7]} {e['evento']}" + (f" ({e['hora']})" if e["hora"] else ""))
+    except Exception:
+        pass
+    try:
+        cal = json.loads(CALENDARIO.read_text(encoding="utf-8")) if CALENDARIO.exists() else {}
+        for k, v in (cal.get("extra") or {}).items():
+            if k in ds:
+                out.append(f"{k[8:]}/{k[5:7]} {v}")
+    except Exception:
+        pass
+    return sorted(set(out))
+
 
 
 def _vistos_hoje() -> set:
@@ -705,6 +777,9 @@ if __name__ == "__main__":
         print(json.dumps(montar_jornais(novos="--novos" in a), ensure_ascii=False))
     elif "--evento-hoje" in a:
         print(json.dumps(evento_hoje(), ensure_ascii=False))
+    elif "--calendario-bcb" in a:
+        C = atualiza_calendario_bcb(forcar=True)
+        print(json.dumps({"atualizado": C.get("atualizado"), "eventos": len(C.get("eventos", [])), "proximos": agenda(dias=60)}, ensure_ascii=False))
     elif "--enviar-jornais" in a:
         r = enviar_jornais(a[a.index("--enviar-jornais") + 1], sem_telegram="--sem-telegram" in a, sem_push="--sem-push" in a)
         print(json.dumps(r, ensure_ascii=False))

@@ -1,0 +1,294 @@
+{
+ "atualizado": "2026-10-03 19:00",
+ "fonte": "www.bcb.gov.br/api/servico/sitebcb/calendario/anual",
+ "eventos": [
+  {
+   "data": "2026-10-05",
+   "hora": "08:30",
+   "evento": "Relatório Focus",
+   "lista": "Focus"
+  },
+  {
+   "data": "2026-10-13",
+   "hora": "08:30",
+   "evento": "Relatório Focus",
+   "lista": "Focus"
+  },
+  {
+   "data": "2026-10-19",
+   "hora": "08:30",
+   "evento": "Relatório Focus",
+   "lista": "Focus"
+  },
+  {
+   "data": "2026-10-26",
+   "hora": "08:30",
+   "evento": "Relatório Focus",
+   "lista": "Focus"
+  },
+  {
+   "data": "2026-11-03",
+   "hora": "",
+   "evento": "Copom (1º dia)",
+   "lista": "Reuniões do Copom"
+  },
+  {
+   "data": "2026-11-03",
+   "hora": "08:30",
+   "evento": "Relatório Focus",
+   "lista": "Focus"
+  },
+  {
+   "data": "2026-11-04",
+   "hora": "",
+   "evento": "Copom: decisão (18h30)",
+   "lista": "Reuniões do Copom"
+  },
+  {
+   "data": "2026-11-09",
+   "hora": "08:30",
+   "evento": "Relatório Focus",
+   "lista": "Focus"
+  },
+  {
+   "data": "2026-11-10",
+   "hora": "08:00",
+   "evento": "Ata da Reunião do Copom",
+   "lista": "Atas e Comunicados do Copom"
+  },
+  {
+   "data": "2026-11-16",
+   "hora": "08:30",
+   "evento": "Relatório Focus",
+   "lista": "Focus"
+  },
+  {
+   "data": "2026-11-23",
+   "hora": "08:30",
+   "evento": "Relatório Focus",
+   "lista": "Focus"
+  },
+  {
+   "data": "2026-11-30",
+   "hora": "08:30",
+   "evento": "Relatório Focus",
+   "lista": "Focus"
+  },
+  {
+   "data": "2026-12-07",
+   "hora": "08:30",
+   "evento": "Relatório Focus",
+   "lista": "Focus"
+  },
+  {
+   "data": "2026-12-08",
+   "hora": "",
+   "evento": "Copom (1º dia)",
+   "lista": "Reuniões do Copom"
+  },
+  {
+   "data": "2026-12-09",
+   "hora": "",
+   "evento": "Copom: decisão (18h30)",
+   "lista": "Reuniões do Copom"
+  },
+  {
+   "data": "2026-12-14",
+   "hora": "08:30",
+   "evento": "Relatório Focus",
+   "lista": "Focus"
+  },
+  {
+   "data": "2026-12-15",
+   "hora": "08:00",
+   "evento": "Ata da Reunião do Copom",
+   "lista": "Atas e Comunicados do Copom"
+  },
+  {
+   "data": "2026-12-17",
+   "hora": "08:00",
+   "evento": "Relatório de Política Monetária",
+   "lista": "Relatório de Política Monetária"
+  },
+  {
+   "data": "2026-12-21",
+   "hora": "08:30",
+   "evento": "Relatório Focus",
+   "lista": "Focus"
+  },
+  {
+   "data": "2026-12-28",
+   "hora": "08:30",
+   "evento": "Relatório Focus",
+   "lista": "Focus"
+  },
+  {
+   "data": "2027-01-26",
+   "hora": "",
+   "evento": "Copom (1º dia)",
+   "lista": "Reuniões do Copom"
+  },
+  {
+   "data": "2027-01-27",
+   "hora": "",
+   "evento": "Copom: decisão (18h30)",
+   "lista": "Reuniões do Copom"
+  },
+  {
+   "data": "2027-02-02",
+   "hora": "08:00",
+   "evento": "Ata da Reunião do Copom",
+   "lista": "Atas e Comunicados do Copom"
+  },
+  {
+   "data": "2027-03-16",
+   "hora": "",
+   "evento": "Copom (1º dia)",
+   "lista": "Reuniões do Copom"
+  },
+  {
+   "data": "2027-03-17",
+   "hora": "",
+   "evento": "Copom: decisão (18h30)",
+   "lista": "Reuniões do Copom"
+  },
+  {
+   "data": "2027-03-23",
+   "hora": "08:00",
+   "evento": "Ata da Reunião do Copom",
+   "lista": "Atas e Comunicados do Copom"
+  },
+  {
+   "data": "2027-03-25",
+   "hora": "08:00",
+   "evento": "Relatório de Política Monetária",
+   "lista": "Relatório de Política Monetária"
+  },
+  {
+   "data": "2027-04-27",
+   "hora": "",
+   "evento": "Copom (1º dia)",
+   "lista": "Reuniões do Copom"
+  },
+  {
+   "data": "2027-04-28",
+   "hora": "",
+   "evento": "Copom: decisão (18h30)",
+   "lista": "Reuniões do Copom"
+  },
+  {
+   "data": "2027-05-04",
+   "hora": "08:00",
+   "evento": "Ata da Reunião do Copom",
+   "lista": "Atas e Comunicados do Copom"
+  },
+  {
+   "data": "2027-06-15",
+   "hora": "",
+   "evento": "Copom (1º dia)",
+   "lista": "Reuniões do Copom"
+  },
+  {
+   "data": "2027-06-16",
+   "hora": "",
+   "evento": "Copom: decisão (18h30)",
+   "lista": "Reuniões do Copom"
+  },
+  {
+   "data": "2027-06-22",
+   "hora": "08:00",
+   "evento": "Ata da Reunião do Copom",
+   "lista": "Atas e Comunicados do Copom"
+  },
+  {
+   "data": "2027-06-24",
+   "hora": "08:00",
+   "evento": "Relatório de Política Monetária",
+   "lista": "Relatório de Política Monetária"
+  },
+  {
+   "data": "2027-08-03",
+   "hora": "",
+   "evento": "Copom (1º dia)",
+   "lista": "Reuniões do Copom"
+  },
+  {
+   "data": "2027-08-04",
+   "hora": "",
+   "evento": "Copom: decisão (18h30)",
+   "lista": "Reuniões do Copom"
+  },
+  {
+   "data": "2027-08-10",
+   "hora": "08:00",
+   "evento": "Ata da Reunião do Copom",
+   "lista": "Atas e Comunicados do Copom"
+  },
+  {
+   "data": "2027-09-21",
+   "hora": "",
+   "evento": "Copom (1º dia)",
+   "lista": "Reuniões do Copom"
+  },
+  {
+   "data": "2027-09-22",
+   "hora": "",
+   "evento": "Copom: decisão (18h30)",
+   "lista": "Reuniões do Copom"
+  },
+  {
+   "data": "2027-09-28",
+   "hora": "08:00",
+   "evento": "Ata da Reunião do Copom",
+   "lista": "Atas e Comunicados do Copom"
+  },
+  {
+   "data": "2027-09-30",
+   "hora": "08:00",
+   "evento": "Relatório de Política Monetária",
+   "lista": "Relatório de Política Monetária"
+  },
+  {
+   "data": "2027-10-26",
+   "hora": "",
+   "evento": "Copom (1º dia)",
+   "lista": "Reuniões do Copom"
+  },
+  {
+   "data": "2027-10-27",
+   "hora": "",
+   "evento": "Copom: decisão (18h30)",
+   "lista": "Reuniões do Copom"
+  },
+  {
+   "data": "2027-11-03",
+   "hora": "08:00",
+   "evento": "Ata da Reunião do Copom",
+   "lista": "Atas e Comunicados do Copom"
+  },
+  {
+   "data": "2027-12-07",
+   "hora": "",
+   "evento": "Copom (1º dia)",
+   "lista": "Reuniões do Copom"
+  },
+  {
+   "data": "2027-12-08",
+   "hora": "",
+   "evento": "Copom: decisão (18h30)",
+   "lista": "Reuniões do Copom"
+  },
+  {
+   "data": "2027-12-14",
+   "hora": "08:00",
+   "evento": "Ata da Reunião do Copom",
+   "lista": "Atas e Comunicados do Copom"
+  },
+  {
+   "data": "2027-12-16",
+   "hora": "08:00",
+   "evento": "Relatório de Política Monetária",
+   "lista": "Relatório de Política Monetária"
+  }
+ ]
+}
