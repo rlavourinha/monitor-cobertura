@@ -527,7 +527,7 @@ JORNAIS = config.RAIZ.parent / "jornais-resumo-diario"
 JORNAIS_COLETA = JORNAIS / "state" / "coleta.json"
 JORNAIS_MD = config.OUTPUT / "jornais_material.md"
 JORNAL_CURTO = {"O Estado de S.Paulo": "Estadão", "Valor Econômico": "Valor", "O Globo": "Globo", "The Verge": "Verge"}
-OPINIAO_RX = re.compile(r"/opiniao/|/coluna|/colunas/|/blogs?/|/celso-ming/|/fabio-graner/|/rodrigo-da-silva/|/column/|/editorial", re.I)
+OPINIAO_RX = re.compile(r"/opiniao/|braziljournal\.com/opiniao-|/coluna|/colunas/|/blogs?/|/celso-ming/|/fabio-graner/|/rodrigo-da-silva/|/column/|/editorial", re.I)
 FORA_RX = re.compile(r"/cultura/|/esporte|/play/|/novelas?/|/vida-boa/|/entertainment/|/educacao/|/rio/noticia|/eu-e/|/games/|/gadgets/|/receitas?/|/horoscopo", re.I)
 
 
