@@ -410,22 +410,22 @@ def grafico(spec) -> Path | None:
 
 
 # ----------------------------------------------------------------------------------------------------- envio
-def _html(digest: dict, pngs: dict) -> str:
+def _html(digest: dict, pngs: dict, titulo: str = "Leitura do dia") -> str:
     def img(p):
         if not p or not Path(p).exists():
             return ""
         b64 = base64.b64encode(Path(p).read_bytes()).decode()
         return f'<img src="data:image/png;base64,{b64}" style="width:100%;max-width:1000px;display:block;margin:8px 0 14px">'
-    blocos = "".join(f'<section><h2>{b["titulo"]}</h2><p>{(b["texto"] + _fontes(b)).replace(chr(10), "<br>")}</p>{img(pngs.get(i))}</section>'
+    blocos = "".join(f'<section><h2>{"🗣 " if b.get("opiniao") else ""}{b["titulo"]}</h2><p>{(b["texto"] + (b.get("_fontes") if "_fontes" in b else _fontes(b))).replace(chr(10), "<br>")}</p>{img(pngs.get(i))}</section>'
                      for i, b in enumerate(digest["blocos"]))
     lista = digest.get("_lista") or ""
     if lista:
         blocos += f'<section><p style="font-size:14px">{lista.replace(chr(10), "<br>")}</p></section>'
-    return (f'<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>Leitura do dia {digest["data"]}</title>'
+    return (f'<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><title>{titulo} {digest["data"]}</title>'
             '<style>body{font-family:"Segoe UI",system-ui,sans-serif;max-width:1040px;margin:24px auto;padding:0 16px;color:#222;line-height:1.45}'
             'h1{font-size:22px}h2{font-size:17px;margin:26px 0 6px}p{white-space:normal}section{border-top:1px solid #e5e5e5;padding-top:8px}</style></head>'
-            f'<body><h1>Leitura do dia · {digest["data"]}</h1><p>{digest.get("cabecalho", "").replace(chr(10), "<br>")}</p>{blocos}'
-            '<p style="color:#777;font-size:12px">Uso privado. Resumos próprios a partir dos relatórios do BTG Research e do Itaú BBA; gráficos de dados primários.</p></body></html>')
+            f'<body><h1>{titulo} · {digest["data"]}</h1><p>{digest.get("cabecalho", "").replace(chr(10), "<br>")}</p>{blocos}'
+            '<p style="color:#777;font-size:12px">Uso privado. Resumos próprios a partir dos relatórios do BTG Research e do Itaú BBA (Leitura) ou dos jornais assinados (Jornais); gráficos de dados primários.</p></body></html>')
 
 
 def _bot() -> str | None:
@@ -519,6 +519,126 @@ def enviar(arq: str, sem_telegram: bool = False, sem_push: bool = False) -> dict
     return {"bot": _bot() or "padrão", "blocos": len(digest["blocos"]), "enviados": enviados, "falhas": falhas, "html": str(LEIT / f"{nome}.html"), "push": push}
 
 
+# ----------------------------------------------------------------------------------------------- jornais (Leitura da manhã)
+# A rotina jornais-resumo-diario (tarefa do Windows, 06:00) só COLETA: state/coleta.json com todas as matérias lidas (texto
+# integral). Aqui: material para a sessão Claude (sem teto de itens; colunas de opinião marcadas, não excluídas) e envio do
+# digest escrito por ela, no mesmo formato da Leitura (blocos + gráficos de dado primário + lista de TUDO o que foi lido).
+JORNAIS = config.RAIZ.parent / "jornais-resumo-diario"
+JORNAIS_COLETA = JORNAIS / "state" / "coleta.json"
+JORNAIS_MD = config.OUTPUT / "jornais_material.md"
+JORNAL_CURTO = {"O Estado de S.Paulo": "Estadão", "Valor Econômico": "Valor", "O Globo": "Globo", "The Verge": "Verge"}
+OPINIAO_RX = re.compile(r"/opiniao/|/coluna|/colunas/|/blogs?/|/celso-ming/|/fabio-graner/|/rodrigo-da-silva/|/column/|/editorial", re.I)
+FORA_RX = re.compile(r"/cultura/|/esporte|/play/|/novelas?/|/vida-boa/|/entertainment/|/educacao/|/rio/noticia|/eu-e/|/games/|/gadgets/|/receitas?/|/horoscopo", re.I)
+
+
+def _itens_jornais() -> list[dict]:
+    try:
+        C = json.loads(JORNAIS_COLETA.read_text(encoding="utf-8"))
+    except Exception:
+        return []
+    out = []
+    for i, a in enumerate(C):
+        u = a.get("url") or ""
+        out.append({"id": i, "jornal": a.get("jornal") or "", "titulo": re.sub(r"\s+", " ", a.get("titulo") or "").strip(), "url": u,
+                    "descricao": a.get("descricao") or "", "texto": a.get("texto") or "",
+                    "opiniao": bool(OPINIAO_RX.search(u)), "fora": bool(FORA_RX.search(u))})
+    return out
+
+
+def montar_jornais() -> dict:
+    """Material dos jornais do dia para a sessão Claude: TODAS as matérias coletadas, texto integral, colunas marcadas."""
+    its = _itens_jornais()
+    try:
+        col = datetime.fromtimestamp(JORNAIS_COLETA.stat().st_mtime).strftime("%Y-%m-%d %H:%M")
+    except Exception:
+        col = "?"
+    L = [f"# Jornais · coleta {col} · {len(its)} matérias (sem teto; colunas de opinião entram, marcadas)", ""]
+    for it in its:
+        tag = " (OPINIÃO/COLUNA)" if it["opiniao"] else (" (provável fora do escopo)" if it["fora"] else "")
+        L += [f"### [{it['id']}] {it['jornal']}{tag} | {it['titulo']}", f"URL: {it['url']}", f"Linha-fina: {it['descricao']}", "",
+              re.sub(r"\s+", " ", it["texto"]).strip(), ""]
+    JORNAIS_MD.write_text("\n".join(L), encoding="utf-8")
+    por = {}
+    for it in its:
+        por[it["jornal"]] = por.get(it["jornal"], 0) + 1
+    return {"coleta": col, "n": len(its), "por_jornal": por, "opiniao": sum(it["opiniao"] for it in its), "material": str(JORNAIS_MD)}
+
+
+def _link_jornal(it: dict, n: int = 95) -> str:
+    import html
+    t = it["titulo"][:n] + ("…" if len(it["titulo"]) > n else "")
+    return f'<a href="{html.escape(it["url"], quote=True)}">[{JORNAL_CURTO.get(it["jornal"], it["jornal"])}] {html.escape(t)}</a>'
+
+
+def _fontes_jornais(b: dict, its: list[dict]) -> str:
+    ids = {str(i) for i in (b.get("ids") or [])}
+    us = [it for it in its if str(it["id"]) in ids]
+    return ("\n<i>Fontes:</i> " + " · ".join(_link_jornal(it, 70) for it in us)) if us else ""
+
+
+def _lista_jornais(digest: dict, its: list[dict]) -> str:
+    """Mensagem com TODAS as matérias lidas: na leitura (✅), vistas sem entrar (▫️), fora do escopo (⛔)."""
+    if not its:
+        return ""
+    usados = {str(i) for b in digest.get("blocos", []) for i in (b.get("ids") or [])}
+    fora = {str(i) for i in (digest.get("fora") or [])}
+    g = {"✅": [], "▫️": [], "⛔": []}
+    for it in its:
+        k = "✅" if str(it["id"]) in usados else ("⛔" if (str(it["id"]) in fora or it["fora"]) else "▫️")
+        g[k].append(it)
+    L = [f"<b>Matérias do dia</b>: {len(its)} lidas · ✅ {len(g['✅'])} na leitura · ▫️ {len(g['▫️'])} vistas, sem entrar · ⛔ {len(g['⛔'])} fora do escopo"]
+    for k, nome in (("✅", "Entraram na leitura"), ("▫️", "Vistas, não entraram"), ("⛔", "Fora do escopo (cultura, esporte, lazer, variedades)")):
+        if g[k]:
+            L.append(f"\n<b>{nome}</b>")
+            L += [f"{k} {_link_jornal(it)}" + (" <i>(opinião)</i>" if it["opiniao"] else "") for it in g[k]]
+    return "\n".join(L)
+
+
+def enviar_jornais(arq: str, sem_telegram: bool = False, sem_push: bool = False) -> dict:
+    """Envia o digest dos jornais (JSON escrito pela sessão Claude) pelo bot da Leitura e salva HTML/JSON em btg-research/leituras.
+    Formato: {data, cabecalho, blocos:[{titulo, texto, grafico?, ids:[...], opiniao?:true}], fora:[ids]}."""
+    its = _itens_jornais()
+    digest = json.loads(Path(arq).read_text(encoding="utf-8"))
+    digest.setdefault("data", date.today().isoformat())
+    nome = f"{digest['data']}-jornais"
+    pngs, enviados, falhas = {}, 0, []
+    cab = f"<b>Jornais · {digest['data'][8:]}/{digest['data'][5:7]}</b>\n{digest.get('cabecalho', '')}".strip()
+    if not sem_telegram and not telegram.enviar(cab, bot=_bot()):
+        falhas.append("cabeçalho")
+    for i, b in enumerate(digest["blocos"]):
+        try:
+            p = grafico(b.get("grafico"))
+        except Exception as e:
+            p = None; falhas.append(f"gráfico {b.get('titulo')}: {str(e)[:80]}")
+        pngs[i] = str(p) if p else None
+        pref = "🗣 " if b.get("opiniao") else ""
+        legenda = f"<b>{pref}{b['titulo']}</b>\n{b['texto']}" + _fontes_jornais(b, its)
+        if sem_telegram:
+            continue
+        ok = telegram.enviar_foto(p, legenda, silencioso=True, bot=_bot()) if p else telegram.enviar(legenda, silencioso=True, bot=_bot())
+        enviados += bool(ok)
+        if not ok:
+            falhas.append(b["titulo"])
+    lista = _lista_jornais(digest, its); digest["_lista"] = lista
+    if not sem_telegram and lista and not telegram.enviar(lista, silencioso=True, bot=_bot()):
+        falhas.append("lista de matérias")
+    for b in digest["blocos"]:
+        b["_fontes"] = _fontes_jornais(b, its)
+    LEIT.mkdir(parents=True, exist_ok=True)
+    (LEIT / f"{nome}.html").write_text(_html(digest, pngs, titulo="Jornais"), encoding="utf-8")
+    (LEIT / f"{nome}.json").write_text(json.dumps(digest, ensure_ascii=False, indent=1), encoding="utf-8")
+    push = "pulado"
+    if not sem_push:
+        def git(*a):
+            return subprocess.run(["git", *a], cwd=str(RES), capture_output=True, text=True, timeout=180)
+        git("add", "leituras")
+        git("commit", "-q", "-m", f"jornais {digest['data']}")
+        git("pull", "--rebase", "-q", "origin", "main")
+        r = git("push", "-q", "origin", "main")
+        push = "ok" if r.returncode == 0 else "falhou: " + r.stderr.strip()[:120]
+    return {"bot": _bot() or "padrão", "blocos": len(digest["blocos"]), "enviados": enviados, "falhas": falhas, "html": str(LEIT / f"{nome}.html"), "push": push}
+
+
 if __name__ == "__main__":
     sys.stdout.reconfigure(encoding="utf-8")
     a = sys.argv[1:]
@@ -529,6 +649,11 @@ if __name__ == "__main__":
         print(json.dumps(r, ensure_ascii=False)); print("material:", MATERIAL_MD)
     elif "--enviar" in a:
         r = enviar(a[a.index("--enviar") + 1], sem_telegram="--sem-telegram" in a, sem_push="--sem-push" in a)
+        print(json.dumps(r, ensure_ascii=False))
+    elif "--montar-jornais" in a:
+        print(json.dumps(montar_jornais(), ensure_ascii=False))
+    elif "--enviar-jornais" in a:
+        r = enviar_jornais(a[a.index("--enviar-jornais") + 1], sem_telegram="--sem-telegram" in a, sem_push="--sem-push" in a)
         print(json.dumps(r, ensure_ascii=False))
     elif "--grafico" in a:
         nome = a[a.index("--grafico") + 1]
