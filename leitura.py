@@ -545,14 +545,18 @@ def _itens_jornais() -> list[dict]:
     return out
 
 
-def montar_jornais() -> dict:
-    """Material dos jornais do dia para a sessão Claude: TODAS as matérias coletadas, texto integral, colunas marcadas."""
+def montar_jornais(novos: bool = False) -> dict:
+    """Material dos jornais do dia para a sessão Claude: TODAS as matérias coletadas, texto integral, colunas marcadas.
+    novos=True (edição extra): só o que não entrou na edição da manhã (urls em output/jornais_vistos.json)."""
     its = _itens_jornais()
+    if novos:
+        vistos = _vistos_hoje()
+        its = [it for it in its if it["url"] not in vistos]
     try:
         col = datetime.fromtimestamp(JORNAIS_COLETA.stat().st_mtime).strftime("%Y-%m-%d %H:%M")
     except Exception:
         col = "?"
-    L = [f"# Jornais · coleta {col} · {len(its)} matérias (sem teto; colunas de opinião entram, marcadas)", ""]
+    L = [f"# Jornais · coleta {col} · {len(its)} matérias{' NOVAS desde a edição da manhã' if novos else ''} (sem teto; colunas de opinião entram, marcadas)", ""]
     for it in its:
         tag = " (OPINIÃO/COLUNA)" if it["opiniao"] else (" (provável fora do escopo)" if it["fora"] else "")
         L += [f"### [{it['id']}] {it['jornal']}{tag} | {it['titulo']}", f"URL: {it['url']}", f"Linha-fina: {it['descricao']}", "",
@@ -561,7 +565,7 @@ def montar_jornais() -> dict:
     por = {}
     for it in its:
         por[it["jornal"]] = por.get(it["jornal"], 0) + 1
-    return {"coleta": col, "n": len(its), "por_jornal": por, "opiniao": sum(it["opiniao"] for it in its), "material": str(JORNAIS_MD)}
+    return {"coleta": col, "n": len(its), "novos": novos, "por_jornal": por, "opiniao": sum(it["opiniao"] for it in its), "material": str(JORNAIS_MD)}
 
 
 def _link_jornal(it: dict, n: int = 95) -> str:
@@ -600,9 +604,13 @@ def enviar_jornais(arq: str, sem_telegram: bool = False, sem_push: bool = False)
     its = _itens_jornais()
     digest = json.loads(Path(arq).read_text(encoding="utf-8"))
     digest.setdefault("data", date.today().isoformat())
-    nome = f"{digest['data']}-jornais"
+    extra = digest.get("edicao") == "evento"            # edição extra (12h30) em dia de evento: só o que é novo
+    if extra:
+        vistos = _vistos_hoje()
+        its = [it for it in its if it["url"] not in vistos]
+    nome = f"{digest['data']}-jornais" + ("-evento" if extra else "")
     pngs, enviados, falhas = {}, 0, []
-    cab = f"<b>Jornais · {digest['data'][8:]}/{digest['data'][5:7]}</b>\n{digest.get('cabecalho', '')}".strip()
+    cab = f"<b>Jornais · {digest['data'][8:]}/{digest['data'][5:7]}{' · edição extra' if extra else ''}</b>\n{digest.get('cabecalho', '')}".strip()
     if not sem_telegram and not telegram.enviar(cab, bot=_bot()):
         falhas.append("cabeçalho")
     for i, b in enumerate(digest["blocos"]):
@@ -625,6 +633,11 @@ def enviar_jornais(arq: str, sem_telegram: bool = False, sem_push: bool = False)
     for b in digest["blocos"]:
         b["_fontes"] = _fontes_jornais(b, its)
     LEIT.mkdir(parents=True, exist_ok=True)
+    try:                                               # registra o que esta edição leu (a edição extra do dia só pega o resto)
+        ja = _vistos_hoje()
+        VISTOS.write_text(json.dumps({"data": digest["data"], "urls": sorted(ja | {it["url"] for it in its})}), encoding="utf-8")
+    except Exception:
+        pass
     (LEIT / f"{nome}.html").write_text(_html(digest, pngs, titulo="Jornais"), encoding="utf-8")
     (LEIT / f"{nome}.json").write_text(json.dumps(digest, ensure_ascii=False, indent=1), encoding="utf-8")
     push = "pulado"
@@ -639,6 +652,44 @@ def enviar_jornais(arq: str, sem_telegram: bool = False, sem_push: bool = False)
     return {"bot": _bot() or "padrão", "blocos": len(digest["blocos"]), "enviados": enviados, "falhas": falhas, "html": str(LEIT / f"{nome}.html"), "push": push}
 
 
+# ----------------------------------------------------------------------------------- jornais: edição extra em dia de evento
+CALENDARIO = config.DATA / "calendario_eventos.json"     # {"2026-10-05": "resultado do 1º turno", ...} (manual)
+VISTOS = config.OUTPUT / "jornais_vistos.json"             # urls já lidas na edição da manhã do dia: {"data": ..., "urls": [...]}
+
+
+def evento_hoje() -> dict:
+    """Há evento que justifique a edição extra (12h30)? IPCA ou IPCA-15 publicados hoje (ponto novo no SGS 433/7478) ou data
+    marcada em data/calendario_eventos.json. Copom/FOMC/eleição saem à noite: a edição da manhã seguinte cobre."""
+    from fontes import bcb
+    hoje = date.today().isoformat()
+    ev = []
+    try:
+        cal = json.loads(CALENDARIO.read_text(encoding="utf-8")) if CALENDARIO.exists() else {}
+        if cal.get(hoje):
+            ev.append(cal[hoje])
+    except Exception:
+        pass
+    for cod, nome in ((433, "IPCA"), (7478, "IPCA-15")):
+        try:
+            s = bcb.sgs(cod, (date.today() - timedelta(days=45)).isoformat())
+        except Exception:
+            s = []
+        if s and s[-1][0][:7] == hoje[:7]:      # série mensal: o ponto do mês anterior aparece no dia da divulgação
+            # SGS não traz a data de divulgação; só conta se o ponto ainda não existia no macro.json do build anterior
+            ant = ((_macro().get("sgs", {}).get(str(cod)) or {}).get("serie") or [])
+            if not ant or ant[-1][0] < s[-1][0]:
+                ev.append(f"{nome} de {s[-1][0][:7]} divulgado")
+    return {"data": hoje, "evento": "; ".join(ev) if ev else None}
+
+
+def _vistos_hoje() -> set:
+    try:
+        v = json.loads(VISTOS.read_text(encoding="utf-8"))
+        return set(v.get("urls") or []) if v.get("data") == date.today().isoformat() else set()
+    except Exception:
+        return set()
+
+
 if __name__ == "__main__":
     sys.stdout.reconfigure(encoding="utf-8")
     a = sys.argv[1:]
@@ -651,7 +702,9 @@ if __name__ == "__main__":
         r = enviar(a[a.index("--enviar") + 1], sem_telegram="--sem-telegram" in a, sem_push="--sem-push" in a)
         print(json.dumps(r, ensure_ascii=False))
     elif "--montar-jornais" in a:
-        print(json.dumps(montar_jornais(), ensure_ascii=False))
+        print(json.dumps(montar_jornais(novos="--novos" in a), ensure_ascii=False))
+    elif "--evento-hoje" in a:
+        print(json.dumps(evento_hoje(), ensure_ascii=False))
     elif "--enviar-jornais" in a:
         r = enviar_jornais(a[a.index("--enviar-jornais") + 1], sem_telegram="--sem-telegram" in a, sem_push="--sem-push" in a)
         print(json.dumps(r, ensure_ascii=False))
