@@ -43,8 +43,20 @@ def _ibov_hoje(M: dict) -> dict:
     A = _j("alertas_tempo_real.json", {}) or {}
     I = _j("intraday_hoje.json", {}) or {}
     hoje = date.today().isoformat()
-    out = {"hoje": A.get("hora", "")[:10] == hoje, "hora": A.get("hora", ""), "ibov": A.get("ibov") or {}, "alertas": A.get("alertas") or [],
-           "papeis": A.get("papeis") or {}, "frac": A.get("fracao_pregao"), "barras": [], "proxy": (I.get("proxy") or {}).get("IBOV")}
+    sessao = A.get("hora", "")[:10]
+    try:
+        from fontes import di
+        d = date.today() - timedelta(days=1)
+        while not di.util(d):
+            d -= timedelta(days=1)
+        ult_util = d.isoformat()
+    except Exception:
+        ult_util = ""
+    # "hoje" = passada do vigia de hoje; "ultimo" = fora do pregão (fim de semana, feriado, antes das 10h): mostra o último pregão
+    out = {"hoje": sessao == hoje, "ultimo": sessao != hoje and sessao == ult_util, "sessao": sessao, "hora": A.get("hora", ""),
+           "ibov": A.get("ibov") or {}, "alertas": A.get("alertas") or [], "papeis": A.get("papeis") or {}, "frac": A.get("fracao_pregao"),
+           "barras": [], "proxy": (I.get("proxy") or {}).get("IBOV")}
+    out["rotulo"] = f'vigia {out["hora"][11:]}' if out["hoje"] else (f'fechamento {sessao[8:10]}/{sessao[5:7]}' if out["ultimo"] else "último fechamento")
     if I.get("data") == hoje:
         out["barras"] = (I.get("series") or {}).get("IBOV") or []
     h = [p for p in (M.get("hist", {}).get("Ibovespa") or []) if p[1] and p[0] < hoje]
@@ -187,7 +199,7 @@ def bloco_hoje(M: dict, IB: dict, DI: dict) -> str:
     tiles = (t_ib + mkt("S&P 500", 0, rotulo="S&P 500 (futuro)") + mkt("USD/BRL", 3, rotulo="Dólar (futuro)") + mkt("Brent (US$)", 1)
              + _tile("DI 1 ano", di("1a"), f'DI 10 anos {di("10a")} · {(DI.get("hora") or "")[11:16]}')
              + t_real + mkt("VIX", 1) + mkt("Treasury 10a (%)", 2, suf="%"))
-    return _card("Hoje", f'<div class="tiles">{tiles}</div>', f'vigia {IB["hora"][11:]}' if IB.get("hoje") else "último fechamento")
+    return _card("Hoje" if IB.get("hoje") else "Último pregão", f'<div class="tiles">{tiles}</div>', IB["rotulo"])
 
 
 def bloco_intraday(IB: dict) -> str:
@@ -199,15 +211,15 @@ def bloco_intraday(IB: dict) -> str:
 
 
 def bloco_alertas(IB: dict) -> str:
-    if not IB.get("hoje"):
+    if not (IB.get("hoje") or IB.get("ultimo")):
         return _card("Fora do padrão", '<p class="empty">Sem passada do vigia hoje.</p>')
     al = IB.get("alertas") or []
     ib = IB.get("ibov") or {}
     lin = f'Ibov {B.pct(ib.get("r1"))} · vol {B.num(ib.get("vrel"), 2, suf="x")} · {B.num((IB.get("frac") or 0) * 100, 0)}% do pregão'
     if not al:
-        return _card("Fora do padrão", f'<p class="empty">Nenhum papel fora do padrão às {IB["hora"][11:]}.</p><p class="nota">{lin}</p>', IB["hora"][11:])
+        return _card("Fora do padrão", f'<p class="empty">Nenhum papel fora do padrão às {IB["hora"][11:]}.</p><p class="nota">{lin}</p>', IB["rotulo"])
     rows = "".join(f'<li><b>{a["cod"]}</b><span class="{B.dlt_cls(a.get("r1"))}">{B.pct(a.get("r1"))}</span><small>{html.escape(a.get("txt", ""))}</small></li>' for a in al[:14])
-    return _card("Fora do padrão", f'<ul class="lista">{rows}</ul><p class="nota">{lin}. Oscilação ≥ 2σ (60 pregões) ou volume projetado ≥ 2× a média de 21.</p>', f'{len(al)} · {IB["hora"][11:]}')
+    return _card("Fora do padrão", f'<ul class="lista">{rows}</ul><p class="nota">{lin}. Oscilação ≥ 2σ (60 pregões) ou volume projetado ≥ 2× a média de 21.</p>', f'{len(al)} · {IB["rotulo"]}')
 
 
 def bloco_cobertura(mercado: dict, minhas: list, cons: list, IB: dict) -> str:
@@ -244,7 +256,7 @@ def bloco_cobertura(mercado: dict, minhas: list, cons: list, IB: dict) -> str:
 
 def bloco_setores(C: dict, IB: dict) -> str:
     itens = C.get("itens") or []
-    if not itens or not IB.get("hoje"):
+    if not itens or not (IB.get("hoje") or IB.get("ultimo")):
         return ""
     P = IB.get("papeis") or {}
     contrib: dict[str, float] = {}; peso_ok = 0.0; movs = []
@@ -285,9 +297,9 @@ def bloco_setores(C: dict, IB: dict) -> str:
     js = ("<script>document.querySelectorAll('svg g[data-setor]').forEach(function(g){g.addEventListener('click',function(){"
           "var d=[].slice.call(document.querySelectorAll('details[data-setor]')).filter(function(x){return x.dataset.setor===g.dataset.setor;})[0];if(!d)return;"
           "document.querySelectorAll('details[data-setor]').forEach(function(x){if(x!==d)x.open=false;});d.open=true;d.scrollIntoView({behavior:'smooth',block:'center'});});});</script>")
-    return _card("Ibov por setor hoje", svg_hbar(linhas, chaves=[s for s, _ in linhas]) + f'<ul class="lista dupla">{top}</ul>'
+    return _card("Ibov por setor" + (" hoje" if IB.get("hoje") else f' · {IB["sessao"][8:10]}/{IB["sessao"][5:7]}'), svg_hbar(linhas, chaves=[s for s, _ in linhas]) + f'<ul class="lista dupla">{top}</ul>'
                  + f'<p class="nota">Contribuição = peso × variação do papel; soma {("+" if tot > 0 else "")}{B.num(tot, 2)} p.p. com {B.num(peso_ok, 0)}% da carteira cotada. Toque num setor (barra ou lista) para ver os papéis.</p>'
-                 + "".join(det) + js, IB["hora"][11:])
+                 + "".join(det) + js, IB["rotulo"])
 
 
 def bloco_fluxo() -> str:
