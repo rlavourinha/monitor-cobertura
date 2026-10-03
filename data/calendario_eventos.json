@@ -1,4 +1,13 @@
 {
  "2026-10-05": "resultado do 1º turno (eleição de 04/10)",
- "2026-10-26": "resultado do 2º turno (eleição de 25/10)"
+ "2026-10-09": "IPCA de setembro (IBGE, 9h)",
+ "2026-10-14": "PMS de agosto (IBGE)",
+ "2026-10-15": "PMC de agosto (IBGE)",
+ "2026-10-23": "IPCA-15 de outubro (IBGE, 9h)",
+ "2026-10-26": "resultado do 2º turno (eleição de 25/10)",
+ "2026-10-30": "PNAD Contínua mensal (IBGE)",
+ "2026-11-05": "PIM-PF de setembro (IBGE)",
+ "2026-12-02": "PIB do 3º trimestre (IBGE, 9h)",
+ "2026-12-23": "IPCA-E / IPCA-15 de dezembro (IBGE)",
+ "_fonte": "ibge.gov.br/calendario/conjunturais.html lido em 03/10/2026 (só a próxima divulgação de cada indicador); completar IPCA de nov/dez e IPCA-15 de nov quando o IBGE listar"
 }
