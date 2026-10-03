@@ -676,6 +676,12 @@ def evento_hoje() -> dict:
             ev.append(extra[hoje])
     except Exception:
         pass
+    try:
+        for e in atualiza_calendario_bcb().get("eventos", []):
+            if e["data"] == hoje and e["lista"] in BCB_EXTRA:
+                ev.append(e["evento"] + (f" ({e['hora']})" if e["hora"] else ""))
+    except Exception:
+        pass
     for cod, nome in ((433, "IPCA"), (7478, "IPCA-15")):
         try:
             s = bcb.sgs(cod, (date.today() - timedelta(days=45)).isoformat())
@@ -694,7 +700,12 @@ def evento_hoje() -> dict:
 # ---------------------------------------------------------------------------------------------- calendário do BCB
 CAL_BCB = config.DATA / "calendario_bcb.json"
 BCB_API = "https://www.bcb.gov.br/api/servico/sitebcb/calendario/anual?inicioAgenda=%27{a}%27&fimAgenda=%27{b}%27&lista={l}"
-BCB_LISTAS = ["Reuniões do Copom", "Atas e Comunicados do Copom", "Relatório de Política Monetária", "Focus"]
+BCB_LISTAS = ["Reuniões do Copom", "Atas e Comunicados do Copom", "Relatório de Política Monetária", "Focus",
+              "Estatísticas monetárias e de crédito", "Estatísticas fiscais", "Estatísticas do setor externo",
+              "Índice de atividade econômica (IBC-Br)", "Índice de Commodities – Brasil (IC-Br)",
+              "Relatório de Estabilidade Financeira", "Reuniões do Comef", "Atas e Comunicados do Comef", "Reuniões do CMN e COMOC"]
+# notas das 8h30 que a coleta das 6h não alcança: disparam a edição extra das 12h33 (as demais só entram na agenda)
+BCB_EXTRA = {"Estatísticas monetárias e de crédito", "Estatísticas fiscais", "Índice de atividade econômica (IBC-Br)", "Relatório de Estabilidade Financeira"}
 
 
 def atualiza_calendario_bcb(forcar: bool = False) -> dict:
