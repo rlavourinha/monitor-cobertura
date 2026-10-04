@@ -1,0 +1,262 @@
+{
+  "fundo": "Squadra Long-Biased",
+  "gestora": "Squadra Investimentos (ações Brasil, long-biased com book short bottom-up; Rio, desde 2008)",
+  "tipo": "Fundo de ações concentrado em empresas brasileiras de qualidade a valuation descontado, com portfólio short bottom-up de tamanho variável, hedges e pair trades. Benchmark IPCA + X (7,3% em 2026).",
+  "inicio": "2024-01-01",
+  "cnpj": "09.285.146/0001-03",
+  "cnpj_fonte": "CVM registro_fundo_classe (SQUADRA LONG-BIASED FIC FIM)",
+  "fontes": [
+    {
+      "nome": "Carta aos cotistas 1S26 (23/08/2026)",
+      "url": "https://www.squadrainvest.com.br/wp-content/uploads/2026/08/Squadra_Carta_1S26.pdf"
+    },
+    {
+      "nome": "Carta aos cotistas 1S25 (21/08/2025)",
+      "url": "https://www.squadrainvest.com.br/wp-content/uploads/2025/08/Squadra_Carta_1S25.pdf"
+    },
+    {
+      "nome": "Cartas (site)",
+      "url": "https://www.squadrainvest.com.br/cartas/"
+    }
+  ],
+  "data": "2026-08-23",
+  "nota_fontes": "Carta semestral de 14-18 páginas (performance, portfólio long por categoria, teses, erros), publicada em agosto (1S) e às vezes em fevereiro/março (ano). 1S25 e 1S26 lidas; não há carta do 2S25 no site. Cota CVM cobre os meses.",
+  "cenario": {
+    "global": [
+      "1S26: SpaceX vs Nubank como alegoria: em bull market paga-se prêmio pelo sonho, em bear market exige-se desconto do negócio atual. Correlação de MELI e Nu com baskets 'perdedores de IA' é vista como oportunidade; ambas aceleram receita com IA.",
+      "Amazon Brasil: R$ 27 bi de aumentos de capital desde 2021 e GMV < 1/3 do MELI; Shopee lidera ticket baixo mas o MELI inverteu a dinâmica com frete grátis a partir de R$ 19 (GMV +39% a/a no 2T26)."
+    ],
+    "brasil": [
+      "'O fundamento macro, no Brasil, segue difícil'; investir porque o Brasil é 'o menos pior' não é tese. Fluxo gringo do início de 2026 reverteu. A indústria de gestão ativa vive uma das maiores ondas de resgates da história, com vendas forçadas.",
+      "Ke implícito de ~13% real em empresas previsíveis; valor justo caminha ao Ke + alfa, logo ações paradas ficam mais baratas (delayed recognition). Energisa: retorno implícito ~16% real, upside > 50%, dobro se os juros moderarem.",
+      "Hapvida: 'o maior erro de investimento da nossa história'; posição reduzida, indicaram conselheiros independentes. 'Postura de guerra' internamente; zero turnover na equipe."
+    ],
+    "tese_longa": [
+      "Carteira long em jun/25: distribuidoras de energia 26% (Equatorial, Energisa: maior alocação histórica), Financials 20% (Inter, Stone; 11x lucro, ROE 22%), shoppings 7% (Multiplan, Iguatemi; 9% FCF yield), PRIO 9% (FCF yield ~35% com Peregrino), diversificados 25% (GPS, Mateus, Ultra, Hapvida). Total long 87%.",
+      "Mudança em 2026: Mercado Livre e Nubank entraram entre os quatro maiores longs; book short 'de tamanho importante' pela primeira vez em quatro anos. Equatorial e Energisa seguem 'centro de gravidade'.",
+      "Recompras como criador de valor: Stone (13,5% das ações em 12 meses a R$ 62 médio), Multiplan (16% comprados do fundo canadense com cessão de preferência de Peres), GPS (GRSA)."
+    ]
+  },
+  "posicoes": {
+    "long_1s25": {
+      "Distribuidoras de energia": 26,
+      "Financials": 20,
+      "Commercial properties": 7,
+      "Produtora de petróleo (PRIO)": 9,
+      "Diversificados": 25
+    },
+    "top_2026": "Equatorial, Energisa, Mercado Livre, Nubank (quatro maiores); PRIO; Multiplan; Inter; Stone; GPS; Hapvida reduzida.",
+    "short": "Portfólio short bottom-up 'de tamanho importante' em ago/26 (sem nomes)."
+  },
+  "desempenho": {
+    "mes": {
+      "fundo": 5.16,
+      "cdi": 1.17,
+      "ref": "2026-09"
+    },
+    "ano": {
+      "fundo": 1.48,
+      "cdi": 10.5,
+      "pct_cdi": 14.1
+    },
+    "anos": {
+      "2025": {
+        "fundo": 29.38,
+        "cdi": 14.31
+      },
+      "2026 (até set)": {
+        "fundo": 1.48,
+        "cdi": 10.5
+      }
+    },
+    "mensal_2026": [
+      [
+        "01",
+        7.08
+      ],
+      [
+        "02",
+        -3.0
+      ],
+      [
+        "03",
+        -1.8
+      ],
+      [
+        "04",
+        1.2
+      ],
+      [
+        "05",
+        -6.63
+      ],
+      [
+        "06",
+        -1.49
+      ],
+      [
+        "07",
+        2.56
+      ],
+      [
+        "08",
+        -0.89
+      ],
+      [
+        "09",
+        5.16
+      ]
+    ],
+    "mensal_2025": [
+      [
+        "01",
+        7.02
+      ],
+      [
+        "02",
+        -1.76
+      ],
+      [
+        "03",
+        4.35
+      ],
+      [
+        "04",
+        10.96
+      ],
+      [
+        "05",
+        5.44
+      ],
+      [
+        "06",
+        1.79
+      ],
+      [
+        "07",
+        -5.72
+      ],
+      [
+        "08",
+        8.6
+      ],
+      [
+        "09",
+        2.32
+      ],
+      [
+        "10",
+        -1.88
+      ],
+      [
+        "11",
+        -1.32
+      ],
+      [
+        "12",
+        -2.38
+      ]
+    ],
+    "pl_mi": 712,
+    "nota": "Retornos mensais e anuais calculados pela cota diária da CVM (inf_diario, último dado 2026-10-01); PL de R$ 712 mi.",
+    "anos_carta": {
+      "2023": 40.8,
+      "2024": -20.5,
+      "2025": 29.4,
+      "1S26": -5.1
+    },
+    "benchmark": {
+      "Ibovespa 2025": 34.0,
+      "Ibovespa 1S26": 6.8,
+      "IPCA+X 2025": 11.5
+    }
+  },
+  "leitura": [
+    "A casa mais explícita em dizer que o macro do Brasil é ruim e que investe apesar dele. Útil como contraponto às macro (K10, Genoa, Legacy) que compram Brasil pela eleição: Squadra não acha que 'menos pior' seja tese.",
+    "Tese de distribuidoras (Equatorial/Energisa a 12-16% real) e de Energisa 'crescimento = um M&A por ano sem leilão' é a leitura setorial mais profunda da amostra; conversa com o estudo do setor elétrico.",
+    "Hapvida como maior erro da história da casa e a redução da posição são dado relevante para a cobertura de saúde (RDOR3/HAPV3).",
+    "2025 +29,4% abaixo do Ibovespa (+34,0%); 1S26 -5,1% contra +6,8%; pela cota, 2026 até setembro em +1,5% com set +5,2%."
+  ],
+  "periodos_cartas": [
+    {
+      "ini": "2025-01-01",
+      "fim": "2025-03-31",
+      "rotulo": "1T25",
+      "cor": "#2457c5",
+      "carta": "Sem carta (1S25 cobre jul/24-jun/25)",
+      "tipo": "lacuna",
+      "cenario": "Recuperação da bolsa após o 2S24; carteira concentrada em distribuidoras, financials, shoppings, PRIO.",
+      "resultado": "1T25: +9,7% pela cota (jan +7,0%, fev -1,8%, mar +4,4%)."
+    },
+    {
+      "ini": "2025-04-01",
+      "fim": "2025-06-30",
+      "rotulo": "2T25",
+      "cor": "#7b4fb8",
+      "carta": "Carta 1S25 (21/08/2025)",
+      "tipo": "primária",
+      "cenario": "Jul/24-jun/25 +9,5%; 2024 -20,5% e 1S25 +30,7%; recompras (Stone, Multiplan, GPS) como criador de valor; book short moderado de volta; tabela por categoria com múltiplos.",
+      "resultado": "2T25: +19,1% (abr +11,0%, mai +5,4%, jun +1,8%)."
+    },
+    {
+      "ini": "2025-07-01",
+      "fim": "2025-09-30",
+      "rotulo": "3T25",
+      "cor": "#1a8fa8",
+      "carta": "Sem carta (cota CVM)",
+      "tipo": "lacuna",
+      "cenario": "",
+      "resultado": "3T25: +4,6% (jul -5,7%, ago +8,6%, set +2,3%)."
+    },
+    {
+      "ini": "2025-10-01",
+      "fim": "2025-12-31",
+      "rotulo": "4T25",
+      "cor": "#e0662b",
+      "carta": "Sem carta (cota CVM)",
+      "tipo": "lacuna",
+      "cenario": "Ibovespa 13 altas seguidas em outubro; fundo caiu nos três meses.",
+      "resultado": "4T25: -5,5% (out -1,9%, nov -1,3%, dez -2,4%); ano +29,4% vs Ibovespa +34,0%."
+    },
+    {
+      "ini": "2026-01-01",
+      "fim": "2026-03-31",
+      "rotulo": "1T26",
+      "cor": "#bf3a2f",
+      "carta": "Sem carta (cota CVM)",
+      "tipo": "lacuna",
+      "cenario": "Fluxo gringo em janeiro, depois guerra.",
+      "resultado": "1T26: +1,9% (jan +7,1%, fev -3,0%, mar -1,8%)."
+    },
+    {
+      "ini": "2026-04-01",
+      "fim": "2026-06-30",
+      "rotulo": "2T26",
+      "cor": "#1a8fa8",
+      "carta": "Sem carta (cota CVM)",
+      "tipo": "lacuna",
+      "cenario": "Saída de fluxo em maio (Ibovespa -7,2%).",
+      "resultado": "2T26: -6,9% (abr +1,2%, mai -6,6%, jun -1,5%); 1S26 -5,1%."
+    },
+    {
+      "ini": "2026-07-01",
+      "fim": "2026-09-30",
+      "rotulo": "3T26",
+      "cor": "#1baf7a",
+      "carta": "Carta 1S26 (23/08/2026)",
+      "tipo": "primária",
+      "cenario": "'Vale de performance', Hapvida como maior erro, postura de guerra; macro difícil e 'menos pior não é tese'; Ke 13% real e delayed recognition; Energisa 16% real; MELI e Nu entre os 4 maiores; short importante.",
+      "resultado": "3T26: +6,8% (jul +2,6%, ago -0,9%, set +5,2%)."
+    },
+    {
+      "ini": "2026-10-01",
+      "fim": "2026-12-31",
+      "rotulo": "4T26",
+      "cor": "#8a8d92",
+      "carta": "Próxima carta ~fev-mar/27 ou ago/27",
+      "tipo": "lacuna",
+      "cenario": "",
+      "resultado": "A preencher."
+    }
+  ]
+}

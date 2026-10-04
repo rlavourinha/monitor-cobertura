@@ -1,0 +1,257 @@
+{
+  "fundo": "Dynamo Cougar",
+  "gestora": "Dynamo (ações Brasil, value investing com engajamento; fundo desde 1993)",
+  "tipo": "Fundo de ações long-only concentrado em companhias brasileiras, horizonte longo, participação ativa em governança. Cartas trimestrais são ensaios temáticos, raramente falam de carteira ou macro.",
+  "inicio": "2024-01-01",
+  "cnpj": "73.232.530/0001-39",
+  "cnpj_fonte": "CVM registro_fundo_classe (DYNAMO COUGAR FIA)",
+  "fontes": [
+    {
+      "nome": "Carta Dynamo 128 (4T25, abr/26): Os Serendipitistas",
+      "url": "https://www.dynamo.com.br/pt/cartas"
+    },
+    {
+      "nome": "Carta Dynamo 127 (3T25, jan/26): Quando Desígnios Desviam",
+      "url": "https://www.dynamo.com.br/pt/cartas"
+    },
+    {
+      "nome": "Carta Dynamo 126 (2T25, jul/25): Proxymidade",
+      "url": "https://www.dynamo.com.br/pt/cartas"
+    },
+    {
+      "nome": "Carta Dynamo 125 (1T25, mai/25): Anatomia da Rede",
+      "url": "https://www.dynamo.com.br/pt/cartas"
+    },
+    {
+      "nome": "Carta Dynamo 124 (4T24, fev/25): Propósitos Passivos",
+      "url": "https://www.dynamo.com.br/pt/cartas"
+    },
+    {
+      "nome": "Carta Dynamo 123 (3T24, fev/25): Partículas e Propósitos",
+      "url": "https://www.dynamo.com.br/pt/cartas"
+    }
+  ],
+  "data": "2026-04-06",
+  "nota_fontes": "Carta Dynamo trimestral (8-11 páginas, ensaio), publicada com 1-4 meses de atraso em dynamo.com.br/pt/cartas (PDFs em wp-content/uploads). Cartas 123 a 128 lidas; a 129 (1T26) deve sair até julho/26 e ainda não estava no site em 3/10. Sem tabela de carteira ou atribuição nas cartas: números só pela cota CVM.",
+  "cenario": {
+    "global": [
+      "Cartas 123-124 (fev/25): o ecossistema de mercado está sendo tomado por HFTs (70% das negociações nos EUA, 50% do volume da B3 via co-location), fatores e passivos (US$ 13,3 tri, já maiores que os ativos). Passivos são inelásticos a preço: inflam valuations, aumentam correlação e concentração (Mag 7 = 35% do S&P), e fire sales de quants derrubam preços 5x mais.",
+      "Carta 126 (jul/25): proxy advisors (ISS, Glass Lewis, 90% do mercado) votam sem diálogo; caso Eletrobras x ISS como exemplo de 'ligeireza'; sugestões de governança.",
+      "Cartas 127-128: consequências não intencionais e serendipity nas companhias; seis exemplos brasileiros anonimizados de M&A/estratégia que viraram 'tiro pela culatra'."
+    ],
+    "brasil": [
+      "Carta 125 (mai/25): Rede D'Or é 'uma das maiores posições do portfólio'. Tese: hospital como núcleo de uma plataforma (dominância local + escala nacional), cultura coesa (qualidade técnica, qualidade percebida, retorno), família com 47,5% após pouca diluição, triunvirato Jorge Moll/Heráclito/Paulo Moll na alocação de capital; investimento desde o IPO (2020), planilhas desde 2007.",
+      "Leitura implícita sobre o mercado local: a casa vê a chegada dos padrões quant/passivos à B3 como fonte de distorções que o investidor de longo prazo deve explorar; não discute Selic, eleição ou fluxo."
+    ],
+    "tese_longa": [
+      "Value investing clássico com engajamento: preços expressam intenções (recompra, controlador, insider), não partículas; crises são a hora de entrar. A carta serve mais para entender como a casa pensa companhias do que para ler macro.",
+      "Relevante para a cobertura: a tese Dynamo de Rede D'Or (RDOR3) é a mais detalhada publicada por um gestor e dialoga com o dossiê CVM da RDOR e com o Monitor de Cobertura."
+    ]
+  },
+  "posicoes": {
+    "conhecidas": "Rede D'Or (uma das maiores posições, carta 125). As cartas não listam a carteira; a composição pode ser obtida na CDA mensal da CVM (defasagem de 3 meses)."
+  },
+  "desempenho": {
+    "mes": {
+      "fundo": 4.52,
+      "cdi": 1.17,
+      "ref": "2026-09"
+    },
+    "ano": {
+      "fundo": 11.19,
+      "cdi": 10.5,
+      "pct_cdi": 106.6
+    },
+    "anos": {
+      "2025": {
+        "fundo": 38.72,
+        "cdi": 14.31
+      },
+      "2026 (até set)": {
+        "fundo": 11.19,
+        "cdi": 10.5
+      }
+    },
+    "mensal_2026": [
+      [
+        "01",
+        6.46
+      ],
+      [
+        "02",
+        0.94
+      ],
+      [
+        "03",
+        2.27
+      ],
+      [
+        "04",
+        0.7
+      ],
+      [
+        "05",
+        -5.86
+      ],
+      [
+        "06",
+        0.54
+      ],
+      [
+        "07",
+        0.75
+      ],
+      [
+        "08",
+        0.79
+      ],
+      [
+        "09",
+        4.52
+      ]
+    ],
+    "mensal_2025": [
+      [
+        "01",
+        5.49
+      ],
+      [
+        "02",
+        -2.16
+      ],
+      [
+        "03",
+        -0.86
+      ],
+      [
+        "04",
+        12.2
+      ],
+      [
+        "05",
+        5.39
+      ],
+      [
+        "06",
+        -0.06
+      ],
+      [
+        "07",
+        -7.41
+      ],
+      [
+        "08",
+        9.64
+      ],
+      [
+        "09",
+        3.26
+      ],
+      [
+        "10",
+        3.32
+      ],
+      [
+        "11",
+        6.06
+      ],
+      [
+        "12",
+        -0.12
+      ]
+    ],
+    "pl_mi": 5832,
+    "nota": "Retornos mensais e anuais calculados pela cota diária da CVM (inf_diario, último dado 2026-10-01); PL de R$ 5,832 mi.",
+    "benchmark": {
+      "Ibovespa 2025": 34.0,
+      "Ibovespa 1S26": 6.8
+    }
+  },
+  "leitura": [
+    "Cougar +38,7% em 2025 (Ibovespa +34,0%) e +11,8% em 2026 até setembro pela cota, com maio -5,9% e setembro +4,5%. Dentro da amostra é o fundo de ações com melhor 2025 e o mais consistente em 2026.",
+    "Não há como extrair 'consenso macro' da Dynamo: a casa escreve sobre microestrutura, governança e processo de decisão. Para o quadro de consenso entra só como 'ações Brasil, comprado, concentrado'.",
+    "O ensaio sobre passivos (carta 124) é a melhor explicação disponível em português para o 'fluxo gringo via ETF' que Verde e Legacy descrevem em jan-fev/26: inelástico na entrada e na saída."
+  ],
+  "periodos_cartas": [
+    {
+      "ini": "2025-01-01",
+      "fim": "2025-03-31",
+      "rotulo": "1T25",
+      "cor": "#2457c5",
+      "carta": "Cartas 123 e 124 (fev/25)",
+      "tipo": "primária",
+      "cenario": "HFTs, fatores, social trading e a 'take over' dos passivos: inelasticidade, correlação, concentração; o que isso muda para um value investor no Brasil.",
+      "resultado": "1T25: +2,3% pela cota (jan +5,5%, fev -2,2%, mar -0,9%)."
+    },
+    {
+      "ini": "2025-04-01",
+      "fim": "2025-06-30",
+      "rotulo": "2T25",
+      "cor": "#7b4fb8",
+      "carta": "Carta 125 (mai/25): Anatomia da Rede",
+      "tipo": "primária",
+      "cenario": "Rede D'Or: do diagnóstico setorial desanimador à confiança em uma das maiores posições do fundo; cultura, família, plataforma hospitalar, Heráclito e Paulo Moll.",
+      "resultado": "2T25: +18,2% pela cota (abr +12,2%, mai +5,4%, jun -0,1%)."
+    },
+    {
+      "ini": "2025-07-01",
+      "fim": "2025-09-30",
+      "rotulo": "3T25",
+      "cor": "#1a8fa8",
+      "carta": "Carta 126 (jul/25): Proxymidade",
+      "tipo": "primária",
+      "cenario": "Proxy advisors e o caso Eletrobras x ISS; dever fiduciário, robo-voting, sugestões para o Brasil.",
+      "resultado": "3T25: +4,8% (jul -7,4%, ago +9,6%, set +3,3%)."
+    },
+    {
+      "ini": "2025-10-01",
+      "fim": "2025-12-31",
+      "rotulo": "4T25",
+      "cor": "#e0662b",
+      "carta": "Carta 127 (jan/26): Quando Desígnios Desviam",
+      "tipo": "primária",
+      "cenario": "Consequências não intencionais negativas: Merton, complexidade, seis casos brasileiros anonimizados de M&A e estratégia; como detectar antes.",
+      "resultado": "4T25: +9,5% (out +3,3%, nov +6,1%, dez -0,1%); ano +38,7% vs Ibovespa +34,0%."
+    },
+    {
+      "ini": "2026-01-01",
+      "fim": "2026-03-31",
+      "rotulo": "1T26",
+      "cor": "#bf3a2f",
+      "carta": "Carta 128 (abr/26): Os Serendipitistas",
+      "tipo": "primária",
+      "cenario": "Consequências não intencionais positivas: serendipity organizacional (3M, Slack, Honda; Vale, Weg, Localiza), desenhos que facilitam descobertas.",
+      "resultado": "1T26: +9,9% (jan +6,5%, fev +0,9%, mar +2,3%): atravessou a guerra positivo, único da amostra."
+    },
+    {
+      "ini": "2026-04-01",
+      "fim": "2026-06-30",
+      "rotulo": "2T26",
+      "cor": "#1a8fa8",
+      "carta": "Carta 129 (1T26) ainda não publicada",
+      "tipo": "lacuna",
+      "cenario": "Esperada até jul/26; não estava no site em 3/10.",
+      "resultado": "2T26: -4,7% (abr +0,7%, mai -5,9%, jun +0,5%)."
+    },
+    {
+      "ini": "2026-07-01",
+      "fim": "2026-09-30",
+      "rotulo": "3T26",
+      "cor": "#1baf7a",
+      "carta": "Carta 130 (2T26) esperada ~out/26",
+      "tipo": "lacuna",
+      "cenario": "",
+      "resultado": "3T26: +6,1% (jul +0,8%, ago +0,8%, set +4,5%)."
+    },
+    {
+      "ini": "2026-10-01",
+      "fim": "2026-12-31",
+      "rotulo": "4T26",
+      "cor": "#8a8d92",
+      "carta": "",
+      "tipo": "lacuna",
+      "cenario": "",
+      "resultado": "A preencher."
+    }
+  ]
+}

@@ -8,32 +8,84 @@
   "cnpj_fonte": "Carta mensal (Informações gerais do Radar FIC FIM)",
   "fontes": [
     {
-      "nome": "Carta Mensal, agosto/2026 (publicada 09/09/2026)",
+      "nome": "Carta mensal Ago/2026",
       "url": "https://www.genoacapital.com.br/docs/CartaMensalGenoaCapital_Ago26.pdf"
     },
     {
-      "nome": "Julho/2026",
+      "nome": "Carta mensal Jul/2026",
       "url": "https://www.genoacapital.com.br/docs/CartaMensalGenoaCapital_Jul26.pdf"
     },
     {
-      "nome": "Junho/2026",
+      "nome": "Carta mensal Jun/2026",
       "url": "https://www.genoacapital.com.br/docs/CartaMensalGenoaCapital_Jun26.pdf"
     },
     {
-      "nome": "Maio/2026",
+      "nome": "Carta mensal Mai/2026",
       "url": "https://www.genoacapital.com.br/docs/CartaMensalGenoaCapital_Mai26.pdf"
     },
     {
-      "nome": "Abril/2026",
+      "nome": "Carta mensal Abr/2026",
       "url": "https://www.genoacapital.com.br/docs/CartaMensalGenoaCapital_Abr26.pdf"
     },
     {
-      "nome": "Março/2026",
+      "nome": "Carta mensal Mar/2026",
       "url": "https://www.genoacapital.com.br/docs/CartaMensalGenoaCapital_Mar26.pdf"
     },
     {
-      "nome": "Fevereiro/2026",
+      "nome": "Carta mensal Fev/2026",
       "url": "https://www.genoacapital.com.br/docs/CartaMensalGenoaCapital_Fev26.pdf"
+    },
+    {
+      "nome": "Carta mensal Jan/2026",
+      "url": "https://www.genoacapital.com.br/docs/CartaMensalGenoaCapital_Jan26.pdf"
+    },
+    {
+      "nome": "Carta mensal Dez/2025",
+      "url": "https://www.genoacapital.com.br/docs/CartaMensalGenoaCapital_Dez25.pdf"
+    },
+    {
+      "nome": "Carta mensal Nov/2025",
+      "url": "https://www.genoacapital.com.br/docs/CartaMensalGenoaCapital_Nov25.pdf"
+    },
+    {
+      "nome": "Carta mensal Out/2025",
+      "url": "https://www.genoacapital.com.br/docs/CartaMensalGenoaCapital_Out25.pdf"
+    },
+    {
+      "nome": "Carta mensal Set/2025",
+      "url": "https://www.genoacapital.com.br/docs/CartaMensalGenoaCapital_Set25.pdf"
+    },
+    {
+      "nome": "Carta mensal Ago/2025",
+      "url": "https://www.genoacapital.com.br/docs/CartaMensalGenoaCapital_Ago25.pdf"
+    },
+    {
+      "nome": "Carta mensal Jul/2025",
+      "url": "https://www.genoacapital.com.br/docs/CartaMensalGenoaCapital_Jul25.pdf"
+    },
+    {
+      "nome": "Carta mensal Jun/2025",
+      "url": "https://www.genoacapital.com.br/docs/CartaMensalGenoaCapital_Jun25.pdf"
+    },
+    {
+      "nome": "Carta mensal Mai/2025",
+      "url": "https://www.genoacapital.com.br/docs/CartaMensalGenoaCapital_Mai25.pdf"
+    },
+    {
+      "nome": "Carta mensal Abr/2025",
+      "url": "https://www.genoacapital.com.br/docs/CartaMensalGenoaCapital_Abr25.pdf"
+    },
+    {
+      "nome": "Carta mensal Mar/2025",
+      "url": "https://www.genoacapital.com.br/docs/CartaMensalGenoaCapital_Mar25.pdf"
+    },
+    {
+      "nome": "Carta mensal Fev/2025",
+      "url": "https://www.genoacapital.com.br/docs/CartaMensalGenoaCapital_Fev25.pdf"
+    },
+    {
+      "nome": "Carta mensal Jan/2025",
+      "url": "https://www.genoacapital.com.br/docs/CartaMensalGenoaCapital_Jan25.pdf"
     },
     {
       "nome": "Índice das cartas (site)",
@@ -41,7 +93,7 @@
     }
   ],
   "data": "2026-08-31",
-  "nota_fontes": "Carta mensal de 8 páginas (Cenário, atribuição por estratégia do Radar, posicionamento do Arpa, Sagres, tabelas mensais), publicada no site por volta do dia 9 do mês seguinte em /docs/CartaMensalGenoaCapital_<Mes><AA>.pdf. Setembro/26 ainda não publicada em 03/10. Só agosto/26 lida na íntegra; fev-jul/26 disponíveis para preencher os períodos.",
+  "nota_fontes": "Carta mensal de 8-9 páginas (Cenário, atribuição por estratégia do Radar, posicionamento do Arpa, Sagres, tabelas), publicada por volta do dia 9 do mês seguinte em /docs/CartaMensalGenoaCapital_<Mes><AA>.pdf. Jan/25 a ago/26 (20 cartas) lidas na íntegra.",
   "cenario": {
     "global": [
       "EUA sólidos: consumo surpreende, desemprego cai por demografia e imigração (menos vagas necessárias para estabilizar), núcleos acima da meta; Fed mais preocupado com inflação e menos com emprego: risco de alta de juros ainda em 2026.",
@@ -55,7 +107,8 @@
     ],
     "tese_longa": [
       "Alpha do Radar vem do internacional (32,4 p.p. desde o início contra 8,2 de juros Brasil e 3,0 de câmbio Brasil): a casa é macro global com sotaque brasileiro, não um fundo de DI.",
-      "Ações macro e micro nunca pagaram no Radar (-0,05 e -0,90 p.p. desde 2020); o risco de bolsa vive no Arpa (long bias, 95% líquido, 120% bruto)."
+      "Ações macro e micro nunca pagaram no Radar (-0,05 e -0,90 p.p. desde 2020); o risco de bolsa vive no Arpa (long bias, 95% líquido, 120% bruto).",
+      "Divergência estrutural com o BCB em 2026: a casa não vê hiato aberto, projeta IPCA 5% e 4,5% e achava em maio que o BC deveria parar; ainda assim espera que o ciclo vá além do que o mercado supõe porque a função de reação do BC é leniente. Aposta: aplicado por leitura do BC, não por convicção na inflação."
     ]
   },
   "posicoes": {
@@ -186,7 +239,57 @@
     "anos_cota_cvm": {
       "2025": 12.99,
       "2026": 13.03
-    }
+    },
+    "mensal_2025": [
+      [
+        "01",
+        0.01
+      ],
+      [
+        "02",
+        1.12
+      ],
+      [
+        "03",
+        -0.8
+      ],
+      [
+        "04",
+        3.37
+      ],
+      [
+        "05",
+        0.26
+      ],
+      [
+        "06",
+        2.31
+      ],
+      [
+        "07",
+        -0.35
+      ],
+      [
+        "08",
+        1.74
+      ],
+      [
+        "09",
+        1.66
+      ],
+      [
+        "10",
+        0.78
+      ],
+      [
+        "11",
+        1.86
+      ],
+      [
+        "12",
+        0.4
+      ]
+    ]
   },
   "leitura": [
     "É a casa mais explícita sobre a eleição: cenário-base de derrota do governo, com o próprio risco baixista das projeções (real mais forte, desinflação) dependendo disso.",
@@ -196,14 +299,64 @@
   ],
   "periodos_cartas": [
     {
+      "ini": "2025-01-01",
+      "fim": "2025-03-31",
+      "rotulo": "1T25",
+      "cor": "#2457c5",
+      "carta": "Cartas mensais jan, fev, mar/25",
+      "tipo": "primária",
+      "cenario": "Tese-mãe da casa: demanda doméstica sobreaquecida, hiato inflacionário, IPCA perto de 6%, fiscal neutro em 2025 e muito expansionista em 2026 (R$ 200-250 bi); BCB sem disposição de ir muito acima de 15%. Tarifaço de abril derruba juros globais.",
+      "resultado": "Jan +0,01%, fev +1,12%, mar -0,80% (juros e câmbio locais e internacional detratores). Sem real nem juros nominais em janeiro; comprou real e nominais em fevereiro; Arpa reduziu líquido a 40% em março."
+    },
+    {
+      "ini": "2025-04-01",
+      "fim": "2025-06-30",
+      "rotulo": "2T25",
+      "cor": "#7b4fb8",
+      "carta": "Cartas mensais abr, mai, jun/25",
+      "tipo": "primária",
+      "cenario": "Tarifas como imposto, Fed só reage com piora do emprego; Brasil surpreende com PIB ex-agro +0,8%, desemprego abaixo de 6,5%, NUCI acima de 83%: economia acima do potencial; Selic a 15% em junho e sinal de fim de ciclo; tarifa de 50% ao Brasil vista como choque limitado.",
+      "resultado": "Abril +3,37% (internacional +1,7 p.p., câmbio Brasil +0,56), maio +0,26%, junho +2,31% (juros e real locais). Alpha do semestre quase todo do internacional."
+    },
+    {
+      "ini": "2025-07-01",
+      "fim": "2025-09-30",
+      "rotulo": "3T25",
+      "cor": "#1a8fa8",
+      "carta": "Cartas mensais jul, ago, set/25",
+      "tipo": "primária",
+      "cenario": "Payroll fraco e Fed volta a cortar em setembro; Brasil com tarifa de 50% cheia de exceções, massa salarial +13% nominal, inflação cedendo por câmbio e deflação de bens; BCB mais duro que o mercado; em setembro a casa via Lula como 'ligeiramente favorito' pela fraqueza da oposição.",
+      "resultado": "Julho -0,35% (internacional e juros locais), agosto +1,74% (moedas), setembro +1,66% (real e bolsa). Projeções: IPCA 4,5% em 2025 e 2026, PIB 2,3% e 1,7%."
+    },
+    {
+      "ini": "2025-10-01",
+      "fim": "2025-12-31",
+      "rotulo": "4T25",
+      "cor": "#e0662b",
+      "carta": "Cartas mensais out, nov, dez/25",
+      "tipo": "primária",
+      "cenario": "Shutdown nos EUA e Fed dividido cortando; Brasil: câmbio +15% derruba IPCA projetado de 6% para 4,5%, expectativas longas reancoram e a casa muda de ceticismo para 'o BCB pode cortar no início de 2026'; dezembro: pré-candidatura de Flávio, Lula ainda com probabilidade majoritária, ciclo de 250-300 bps esperado para 2026.",
+      "resultado": "Outubro +0,78%, novembro +1,86% (juros locais e globais), dezembro +0,40% (juros locais -0,78 p.p.). Ano 12,99% contra CDI 14,31%: alpha de 1,24 p.p. antes de custos de 2,56."
+    },
+    {
       "ini": "2026-01-01",
+      "fim": "2026-03-31",
+      "rotulo": "1T26",
+      "cor": "#bf3a2f",
+      "carta": "Cartas jan, fev, mar/26",
+      "tipo": "primária",
+      "cenario": "Janeiro: BCB sinaliza corte em março, mas a desinflação dependeu do real e da deflação chinesa, sem hiato; fevereiro: choque do petróleo (+75% no ano), núcleos de serviços em 5,5-6%; março: cessar-fogo, BCB corta 25 bps com tom cauteloso e fala em neutro de 5%.",
+      "resultado": "Jan +1,94% (real +0,77 p.p.), fev +1,72% (real e global), mar -1,34% (internacional -1,60, juros locais -0,52). Arpa -3,69% em março com 85% líquido."
+    },
+    {
+      "ini": "2026-04-01",
       "fim": "2026-06-30",
-      "rotulo": "1S26",
-      "cor": "#8a8d92",
-      "carta": "Cartas fev-jun/26 disponíveis, não lidas",
-      "tipo": "lacuna",
-      "cenario": "Guerra no Irã (março -1,34%), petróleo, Fed hawkish.",
-      "resultado": "A preencher com as cartas de fevereiro a junho."
+      "rotulo": "2T26",
+      "cor": "#1a8fa8",
+      "carta": "Cartas abr, mai, jun/26",
+      "tipo": "primária",
+      "cenario": "Abril: PIB do 1T a ~6% anualizado, NUCI +3 pontos, estímulos de 1,3% do PIB; a casa diverge dos quatro pontos do BCB. Maio: inflação 5,5% projetada, PEC 6x1 (+30-80 bps), El Niño; 'o BC deveria interromper o ciclo'. Junho: petróleo a 70, IPCA revisado a 5,2%; déficit nominal de 9-10% do PIB 'claramente insustentável'; BCB corta apesar da piora.",
+      "resultado": "Abr +1,65% (juros e câmbio locais), mai +0,89% (global), jun +1,74% (juros local e global). Tese: BCB prolonga o afrouxamento com hiato revisado para cima pelo 19º trimestre."
     },
     {
       "ini": "2026-07-01",
@@ -212,8 +365,8 @@
       "cor": "#1baf7a",
       "carta": "Carta mensal, ago/26",
       "tipo": "primária",
-      "cenario": "EUA fortes e Fed com viés de alta; Brasil desacelerando com crédito estrangulado; eleição apertada vira cenário-base de alternância.",
-      "resultado": "Agosto +1,37% (126% do CDI): juros e moedas globais pagaram, juros Brasil pouco, câmbio e bolsa Brasil tiraram. Ano em 99% do CDI."
+      "cenario": "Julho: desaceleração mais visível, PIB perto de zero no 2S, dívida +4 p.p./ano com parafiscais e arrecadação cíclica; Copom a 14%, barra alta para parar antes da eleição. Agosto: Fed com viés de alta; crédito piorando; cenário-base de derrota de Lula.",
+      "resultado": "Jul +0,99% (global e juros locais; real e bolsa detratores; Arpa -4,47%), ago +1,37% (126% do CDI). Setembro +3,34% pela cota CVM."
     },
     {
       "ini": "2026-10-01",

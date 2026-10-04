@@ -2580,7 +2580,12 @@ def slides_opiniao(M: dict | None = None, sgs: dict | None = None) -> list[tuple
     dirp = config.RAIZ / "cartas"
     if not dirp.exists():
         return out
+    cs = slide_consenso_cartas(dirp)
+    if cs:
+        out.append(cs)
     for f in sorted(dirp.glob("*.json")):
+        if f.name.startswith("_"):
+            continue
         C = json.loads(f.read_text(encoding="utf-8"))
         nome = C.get("fundo", f.stem)
         d = C.get("desempenho", {})
@@ -2588,15 +2593,17 @@ def slides_opiniao(M: dict | None = None, sgs: dict | None = None) -> list[tuple
             return "".join(f"<li>{x}</li>" for x in xs)
         cen = C.get("cenario", {})
         pos = C.get("posicoes", {})
-        # slide 1: cenário e posições
-        corpo1 = (f'<div class="grid2"><div><h2 style="font-size:14px;margin:0 0 6px">Cenário global</h2><ul class="note" style="font-size:13.5px;padding-left:18px">{li(cen.get("global", []))}</ul>'
-                  f'<h2 style="font-size:14px;margin:10px 0 6px">Brasil</h2><ul class="note" style="font-size:13.5px;padding-left:18px">{li(cen.get("brasil", []))}</ul></div>'
-                  f'<div><h2 style="font-size:14px;margin:0 0 6px">Posições</h2><table class="compact"><tbody>' +
-                  "".join(f'<tr><td class="tk" style="white-space:nowrap">{k.replace("_", " ").capitalize()}</td><td style="text-align:left;white-space:normal;font-size:13px">{v}</td></tr>' for k, v in pos.items()) +
-                  f'</tbody></table></div></div>')
-        out.append(slide("Opinião qualificada", f"carta-{f.stem}", f"{nome} · cenário e posições", corpo1,
-                         f'{C.get("gestora", "")} · {C.get("tipo", "")}. Última leitura: {C.get("data", "—")}.',
-                         " · ".join(f'<a href="{s["url"]}" style="color:inherit">{s["nome"]}</a>' for s in C.get("fontes", []))))
+        _completa_desempenho_cvm(C, d, sgs)
+        # slide 1: cenário e posições (fundos sem carta pública não têm o que mostrar aqui)
+        if cen.get("global") or cen.get("brasil") or pos:
+            corpo1 = (f'<div class="grid2"><div><h2 style="font-size:14px;margin:0 0 6px">Cenário global</h2><ul class="note" style="font-size:13.5px;padding-left:18px">{li(cen.get("global", []))}</ul>'
+                      f'<h2 style="font-size:14px;margin:10px 0 6px">Brasil</h2><ul class="note" style="font-size:13.5px;padding-left:18px">{li(cen.get("brasil", []))}</ul></div>'
+                      f'<div><h2 style="font-size:14px;margin:0 0 6px">Posições</h2><table class="compact"><tbody>' +
+                      "".join(f'<tr><td class="tk" style="white-space:nowrap">{k.replace("_", " ").capitalize()}</td><td style="text-align:left;white-space:normal;font-size:13px">{v if not isinstance(v, dict) else ", ".join(f"{a} {b}%" for a, b in v.items())}</td></tr>' for k, v in pos.items()) +
+                      f'</tbody></table></div></div>')
+            out.append(slide("Opinião qualificada", f"carta-{f.stem}", f"{nome} · cenário e posições", corpo1,
+                             f'{C.get("gestora", "")} · {C.get("tipo", "")}. Última leitura: {C.get("data", "—")}.',
+                             " · ".join(f'<a href="{s["url"]}" style="color:inherit">{s["nome"]}</a>' for s in C.get("fontes", []))))
         # slide 2: tese longa, leitura e desempenho
         anos = d.get("anos", {})
         tr = "".join(f'<tr><td class="tk">{a}</td><td>{num(v["fundo"], 2, suf="%")}</td><td>{num(v["cdi"], 2, suf="%")}</td><td class="{dlt_cls(v["fundo"] - v["cdi"])}">{num(v["fundo"] - v["cdi"], 2, "+" if v["fundo"] > v["cdi"] else "", " p.p.")}</td></tr>' for a, v in anos.items())
@@ -2626,6 +2633,81 @@ def slides_opiniao(M: dict | None = None, sgs: dict | None = None) -> list[tuple
             out.append(lt)
     out += slides_carteiras_cvm(M)
     return out
+
+
+def _completa_desempenho_cvm(C: dict, d: dict, sgs: dict) -> None:
+    """Preenche '12m' e 'inicio' (fundo, CDI, % do CDI) pela cota diária da CVM quando a ficha não traz esses números."""
+    if (d.get("12m") and d.get("inicio")) or not C.get("cnpj"):
+        return
+    from fontes import cvm_inf_diario
+    f = cvm_inf_diario.CACHE / f"{cvm_inf_diario._limpo(C['cnpj'])}.json"
+    if not f.exists():
+        return
+    serie = [[dd, v] for dd, v, *_ in json.loads(f.read_text(encoding="utf-8")).get("serie", [])]
+    cdi = sgs.get("12", {}).get("serie") or []
+    if len(serie) < 30 or not cdi:
+        return
+    cdi_d = {dd: v for dd, v in cdi}
+    def tramo(ini: str):
+        pts = [p for p in serie if p[0] >= ini]
+        ant = [p for p in serie if p[0] < ini]
+        base = ant[-1] if ant else pts[0]
+        rf = (pts[-1][1] / base[1] - 1) * 100
+        acc = 1.0
+        for dd, _ in pts:
+            acc *= 1 + cdi_d.get(dd, 0) / 100
+        rc = (acc - 1) * 100
+        return {"fundo": round(rf, 2), "cdi": round(rc, 2), "pct_cdi": round(rf / rc * 100, 1) if rc else None}
+    fim = serie[-1][0]
+    um_ano = f"{int(fim[:4]) - 1}{fim[4:]}"
+    d.setdefault("12m", tramo(um_ano))
+    ini = C.get("inicio") or serie[0][0]
+    t0 = tramo(ini)
+    anos = max((datetime.fromisoformat(fim) - datetime.fromisoformat(max(ini, serie[0][0]))).days / 365.25, 0.1)
+    t0["excesso_aa"] = round(((1 + t0["fundo"] / 100) ** (1 / anos) - (1 + t0["cdi"] / 100) ** (1 / anos)) * 100, 2)
+    d.setdefault("inicio", t0)
+
+
+def slide_consenso_cartas(dirp) -> tuple[str, str] | None:
+    """Consenso e discordância entre as casas: matriz tema × casa (sinal + nota curta) a partir de cartas/_consenso.json,
+    mais as listas 'onde concordam' e 'onde discordam'."""
+    f = dirp / "_consenso.json"
+    if not f.exists():
+        return None
+    K = json.loads(f.read_text(encoding="utf-8"))
+    casas = K.get("casas", [])
+    temas = K.get("temas", [])
+    COR = {"+": ("var(--up)", "comprado / aplicado"), "-": ("var(--dn)", "vendido / tomado"), "0": ("var(--axis)", "zerado / neutro"), "~": ("var(--s2)", "tático / reduzindo")}
+    VER = {"consenso": ("var(--up)", "consenso"), "maioria": ("var(--s1)", "maioria"), "dividido": ("var(--s2)", "dividido"), "discordância": ("var(--dn)", "discordância")}
+    def badge(txt, cor):
+        return f'<span style="display:inline-block;padding:1px 7px;border-radius:9px;background:{cor};color:#fff;font-size:10.5px;font-weight:600;white-space:nowrap">{txt}</span>'
+    tr = []
+    for t in temas:
+        cells = []
+        for c in casas:
+            s, txt = (t.get("pos", {}).get(c) or ["", ""])[:2]
+            cor = COR.get(s, (None, ""))[0]
+            dot = f'<span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:{cor};vertical-align:-1px;margin-right:4px"></span>' if cor else ""
+            cells.append(f'<td style="text-align:left;white-space:normal;font-size:10.6px;line-height:1.2;padding:3px 5px;vertical-align:top;color:{"var(--ink)" if s else "var(--mut)"}">{dot}{txt or ("" if s else "—")}</td>')
+        vc, vt = VER.get(t.get("veredito", ""), ("var(--axis)", t.get("veredito", "")))
+        tr.append(f'<tr><td class="tk" style="white-space:nowrap;padding:3px 6px;vertical-align:top;font-size:11.5px"><b>{t["tema"]}</b><br>{badge(vt, vc)}</td>{"".join(cells)}'
+                  f'<td style="text-align:left;white-space:normal;font-size:10.6px;line-height:1.22;padding:3px 6px;vertical-align:top;color:var(--mut)">{t.get("nota", "")}</td></tr>')
+    cab = "".join(f'<th style="text-align:left;padding:3px 5px">{c}</th>' for c in casas)
+    tab = (f'<table class="compact" style="table-layout:fixed;width:100%"><colgroup><col style="width:11%">{"".join("<col style=\"width:11%\">" for _ in casas)}<col></colgroup>'
+           f'<thead><tr><th style="text-align:left;padding:3px 6px">Tema</th>{cab}<th style="text-align:left;padding:3px 6px">Leitura</th></tr></thead><tbody>{"".join(tr)}</tbody></table>')
+    leg = " · ".join(f'<span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:{c};vertical-align:-1px;margin-right:3px"></span>{l}' for c, l in COR.values())
+    n_c = sum(1 for t in temas if t.get("veredito") in ("consenso", "maioria"))
+    n_d = sum(1 for t in temas if t.get("veredito") in ("dividido", "discordância"))
+    li = lambda xs: "".join(f"<li>{x}</li>" for x in xs)
+    baixo = (f'<div class="grid2" style="margin-top:8px"><div><h2 style="font-size:13px;margin:0 0 4px;color:var(--up)">Onde concordam ({n_c} temas)</h2>'
+             f'<ul class="note" style="font-size:11.6px;line-height:1.32;padding-left:16px;margin:0">{li(K.get("consensos", []))}</ul></div>'
+             f'<div><h2 style="font-size:13px;margin:0 0 4px;color:var(--dn)">Onde discordam ({n_d} temas)</h2>'
+             f'<ul class="note" style="font-size:11.6px;line-height:1.32;padding-left:16px;margin:0">{li(K.get("discordancias", []))}</ul></div></div>'
+             f'<p class="note" style="font-size:11px;margin:6px 0 0;color:var(--mut)">{K.get("equities", "")}</p>')
+    corpo = f'<div style="font-size:10.5px;color:var(--mut);margin-bottom:4px">{leg}</div>{tab}{baixo}'
+    return slide("Opinião qualificada", "cartas-consenso", "Consenso e discordância entre as casas", corpo,
+                 f'O que as cartas mais recentes dizem sobre os mesmos temas, lado a lado. {K.get("ref", "")}.',
+                 f'Montado a partir das fichas em cartas/*.json (última atualização {K.get("data", "—")}). Sinal e nota são a posição ou a visão declarada na última carta; vazio = a carta não trata do tema.')
 
 
 def svg_perf_periodos(cid: str, fundo: list[list], cdi: list[list], periodos: list[dict], W=1080, H=300) -> str:

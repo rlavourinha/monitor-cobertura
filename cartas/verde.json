@@ -8,8 +8,84 @@
   "cnpj_fonte": "Relatório de gestão (Resumo Gerencial) e registro_fundo_classe da CVM",
   "fontes": [
     {
-      "nome": "Relatório de Gestão, agosto/2026",
+      "nome": "Relatório de Gestão 2026/08",
       "url": "https://www.verdeasset.com.br/public/files/rel_gestao/158094/Verde-REL-2026_08.pdf"
+    },
+    {
+      "nome": "Relatório de Gestão 2026/07",
+      "url": "https://www.verdeasset.com.br/public/files/rel_gestao/158094/Verde-REL-2026_07.pdf"
+    },
+    {
+      "nome": "Relatório de Gestão 2026/06",
+      "url": "https://www.verdeasset.com.br/public/files/rel_gestao/158094/Verde-REL-2026_06.pdf"
+    },
+    {
+      "nome": "Relatório de Gestão 2026/05",
+      "url": "https://www.verdeasset.com.br/public/files/rel_gestao/158094/Verde-REL-2026_05.pdf"
+    },
+    {
+      "nome": "Relatório de Gestão 2026/04",
+      "url": "https://www.verdeasset.com.br/public/files/rel_gestao/158094/Verde-REL-2026_04.pdf"
+    },
+    {
+      "nome": "Relatório de Gestão 2026/03",
+      "url": "https://www.verdeasset.com.br/public/files/rel_gestao/158094/Verde-REL-2026_03.pdf"
+    },
+    {
+      "nome": "Relatório de Gestão 2026/02",
+      "url": "https://www.verdeasset.com.br/public/files/rel_gestao/158094/Verde-REL-2026_02.pdf"
+    },
+    {
+      "nome": "Relatório de Gestão 2026/01",
+      "url": "https://www.verdeasset.com.br/public/files/rel_gestao/158094/Verde-REL-2026_01.pdf"
+    },
+    {
+      "nome": "Relatório de Gestão 2025/12",
+      "url": "https://www.verdeasset.com.br/public/files/rel_gestao/158094/Verde-REL-2025_12.pdf"
+    },
+    {
+      "nome": "Relatório de Gestão 2025/11",
+      "url": "https://www.verdeasset.com.br/public/files/rel_gestao/158094/Verde-REL-2025_11.pdf"
+    },
+    {
+      "nome": "Relatório de Gestão 2025/10",
+      "url": "https://www.verdeasset.com.br/public/files/rel_gestao/158094/Verde-REL-2025_10.pdf"
+    },
+    {
+      "nome": "Relatório de Gestão 2025/09",
+      "url": "https://www.verdeasset.com.br/public/files/rel_gestao/158094/Verde-REL-2025_09.pdf"
+    },
+    {
+      "nome": "Relatório de Gestão 2025/08",
+      "url": "https://www.verdeasset.com.br/public/files/rel_gestao/158094/Verde-REL-2025_08.pdf"
+    },
+    {
+      "nome": "Relatório de Gestão 2025/07",
+      "url": "https://www.verdeasset.com.br/public/files/rel_gestao/158094/Verde-REL-2025_07.pdf"
+    },
+    {
+      "nome": "Relatório de Gestão 2025/06",
+      "url": "https://www.verdeasset.com.br/public/files/rel_gestao/158094/Verde-REL-2025_06.pdf"
+    },
+    {
+      "nome": "Relatório de Gestão 2025/05",
+      "url": "https://www.verdeasset.com.br/public/files/rel_gestao/158094/Verde-REL-2025_05.pdf"
+    },
+    {
+      "nome": "Relatório de Gestão 2025/04",
+      "url": "https://www.verdeasset.com.br/public/files/rel_gestao/158094/Verde-REL-2025_04.pdf"
+    },
+    {
+      "nome": "Relatório de Gestão 2025/03",
+      "url": "https://www.verdeasset.com.br/public/files/rel_gestao/158094/Verde-REL-2025_03.pdf"
+    },
+    {
+      "nome": "Relatório de Gestão 2025/02",
+      "url": "https://www.verdeasset.com.br/public/files/rel_gestao/158094/Verde-REL-2025_02.pdf"
+    },
+    {
+      "nome": "Relatório de Gestão 2025/01",
+      "url": "https://www.verdeasset.com.br/public/files/rel_gestao/158094/Verde-REL-2025_01.pdf"
     },
     {
       "nome": "Performance e relatórios por fundo (site)",
@@ -17,7 +93,7 @@
     }
   ],
   "data": "2026-08-31",
-  "nota_fontes": "Relatório de gestão mensal de 4 páginas (texto de 1,5 página, breakdown por book ex-CDI, resumo gerencial com tabela mensal desde 1997), publicado no site em /public/files/rel_gestao/158094/Verde-REL-AAAA_MM.pdf perto do dia 10 do mês seguinte. Setembro/26 ainda não publicado em 03/10. Só agosto/26 lido na íntegra. O site não bloqueia download pelo navegador; curl simples é recusado.",
+  "nota_fontes": "Relatório de Gestão mensal (4-6 páginas, texto denso), publicado por volta do dia 10 em verdeasset.com.br/public/files/rel_gestao/158094/Verde-REL-AAAA_MM.pdf (curl recusado; baixar via navegador). Jan/25 a ago/26 (20 relatórios) lidos na íntegra.",
   "cenario": {
     "global": [
       "Quatro forças: conflito EUA-Irã e petróleo; Warsh no Fed (tom duro em Jackson Hole); pressão fiscal e de demanda por capital nos juros longos desenvolvidos; ciclo de capex em IA e derivadas.",
@@ -32,7 +108,8 @@
     "tese_longa": [
       "Verde evita duration no DI em ano eleitoral e expressa a tese Brasil via bolsa com opções (assimetria, não direção), ao contrário de Opportunity e Genoa, que estão em NTN-B e DI.",
       "Ouro e prata como hedge estrutural contra repressão financeira: é a casa que mais fala de fiscal global como risco de regime, não de ciclo.",
-      "Ano em 111% do CDI com o livro de ações (+1,79 p.p.) e moedas (+0,87) pagando e crédito tirando (-1,12)."
+      "Ano em 111% do CDI com o livro de ações (+1,79 p.p.) e moedas (+0,87) pagando e crédito tirando (-1,12).",
+      "Ao longo de 2025-26 a casa oscilou em bolsa Brasil (vendida jan/25, zerada, comprada via opções desde jul/25) e manteve o fio: diversificação do dólar (ouro, cesta de moedas, cripto até dez/25), inflação e juro real americanos, crédito HY."
     ]
   },
   "posicoes": {
@@ -145,7 +222,75 @@
     "anos_cota_cvm": {
       "2025": 15.94,
       "2026": 11.06
-    }
+    },
+    "mensal_2025": [
+      [
+        "01",
+        1.64
+      ],
+      [
+        "02",
+        0.55
+      ],
+      [
+        "03",
+        0.58
+      ],
+      [
+        "04",
+        1.9
+      ],
+      [
+        "05",
+        1.31
+      ],
+      [
+        "06",
+        0.97
+      ],
+      [
+        "07",
+        0.22
+      ],
+      [
+        "08",
+        2.27
+      ],
+      [
+        "09",
+        1.99
+      ],
+      [
+        "10",
+        1.41
+      ],
+      [
+        "11",
+        1.06
+      ],
+      [
+        "12",
+        1.01
+      ]
+    ],
+    "atribuicao_2025": [
+      [
+        "Renda fixa (DI, inflação, global, crédito)",
+        2.38
+      ],
+      [
+        "Ações",
+        -0.16
+      ],
+      [
+        "Moedas",
+        -0.39
+      ],
+      [
+        "Custos",
+        -1.52
+      ]
+    ]
   },
   "leitura": [
     "A Verde é o contraponto útil às outras cartas: não compra NTN-B nem DI para a eleição, compra opções de bolsa. Se Lula abrir vantagem, perde o prêmio da opção, não a duration.",
@@ -154,30 +299,80 @@
   ],
   "periodos_cartas": [
     {
+      "ini": "2025-01-01",
+      "fim": "2025-03-31",
+      "rotulo": "1T25",
+      "cor": "#2457c5",
+      "carta": "Relatórios jan, fev, mar/25",
+      "tipo": "primária",
+      "cenario": "Trump: ruído vs. sinal; popularidade de Lula cai e antecipa o trade eleitoral (fev); Liberation Day comparado a Smoot-Hawley; 'renda fixa em Vênus, bolsa em Marte' no Brasil.",
+      "resultado": "Jan +1,64% (DI pré e global rates), fev +0,55% (risco reduzido), mar +0,58%. Vendido em bolsa Brasil em janeiro, depois zerou; comprado inflação EUA; juro real BR pequeno; cripto, petróleo e crédito HY."
+    },
+    {
+      "ini": "2025-04-01",
+      "fim": "2025-06-30",
+      "rotulo": "2T25",
+      "cor": "#7b4fb8",
+      "carta": "Relatórios abr, mai, jun/25",
+      "tipo": "primária",
+      "cenario": "Início do fim da hegemonia do dólar: realocação estrutural de capital; ouro e cripto; Brasil 'passageiro' das turbulências, fiscal deteriorando, IOF; guerra de 12 dias Israel-Irã sem impacto macro.",
+      "resultado": "Abr +1,90%, mai +1,31%, jun +0,97%. Comprado em juro real BR, inflação EUA trocada por juro real EUA, euro, ouro, real; voltou a comprar bolsa Brasil em junho."
+    },
+    {
+      "ini": "2025-07-01",
+      "fim": "2025-09-30",
+      "rotulo": "3T25",
+      "cor": "#1a8fa8",
+      "carta": "Relatórios jul, ago, set/25",
+      "tipo": "primária",
+      "cenario": "Tarifa de 50% e Magnitsky dão narrativa nacionalista a Lula; Fed volta a cortar sob pressão política; 'acelerador fiscal com freio monetário' (isenção de IR até R$ 5 mil).",
+      "resultado": "Jul +0,22% (NTN-B e bolsa local perderam), ago +2,27%, set +1,99%. Comprou bolsa Brasil via opções longas no stress de julho; reduziu juro real curto; comprado euro, ouro, real, renminbi; diversificação do dólar."
+    },
+    {
+      "ini": "2025-10-01",
+      "fim": "2025-12-31",
+      "rotulo": "4T25",
+      "cor": "#e0662b",
+      "carta": "Relatórios out, nov, dez/25",
+      "tipo": "primária",
+      "cenario": "Shutdown e Fed dividido; ouro a US$ 4.400 e debasement; Ibovespa 13 altas seguidas com fluxo gringo, depois Flávio candidato (dez) e real -3%; 'consenso minimiza o downside da continuidade'.",
+      "resultado": "Out +1,41%, nov +1,06%, dez +1,01%; ano +15,94% (111% do CDI). Hedges em bolsa BR em outubro, opções longas em novembro; vendeu Vale perpétua; zerou cripto em dezembro; comprado real via opções."
+    },
+    {
       "ini": "2026-01-01",
+      "fim": "2026-03-31",
+      "rotulo": "1T26",
+      "cor": "#bf3a2f",
+      "carta": "Relatórios jan, fev, mar/26",
+      "tipo": "primária",
+      "cenario": "Fluxo gringo recorde para a bolsa (Petrobras +22%, Vale +17%), 'ou o Brasil resolve o fiscal ou o ciclo não se sustenta'; guerra no Irã e WTI +36%; mundo mais estagflacionário.",
+      "resultado": "Jan +3,03% (ações +1,38 p.p., real), fev +1,44%, mar +0,05% (crédito -0,44, bolsa global). Zerou juro real BR nos leilões do Tesouro em março; prata adicionada; proteção de crédito Arábia Saudita."
+    },
+    {
+      "ini": "2026-04-01",
       "fim": "2026-06-30",
-      "rotulo": "1S26",
-      "cor": "#8a8d92",
-      "carta": "Relatórios jan-jun/26 disponíveis, não lidos",
-      "tipo": "lacuna",
-      "cenario": "Guerra no Irã, Warsh, petróleo; junho -0,69%.",
-      "resultado": "A preencher com os relatórios de janeiro a junho."
+      "rotulo": "2T26",
+      "cor": "#1a8fa8",
+      "carta": "Relatórios abr, mai, jun/26",
+      "tipo": "primária",
+      "cenario": "Cessar-fogo e boom de IA (Claude Code, Codex): volta do excepcionalismo americano e dólar forte; Ibovespa -7,2% em maio com saída de fluxo; curva tira cortes e põe altas; Warsh estreia duro (jun).",
+      "resultado": "Abr +2,71% (ações +1,64 p.p.), mai +0,33%, jun -0,69% (metais, juro real EUA). Zerou real em maio por disciplina; sem juros BR; ouro e prata; convexidade em bolsa."
     },
     {
       "ini": "2026-07-01",
       "fim": "2026-09-30",
       "rotulo": "3T26",
       "cor": "#1baf7a",
-      "carta": "Relatório de gestão, ago/26",
+      "carta": "Relatórios jul, ago/26 (set/26 sai ~10/10)",
       "tipo": "primária",
-      "cenario": "Bessent intervém na ponta longa; Warsh duro em Jackson Hole; eleição mais competitiva reprecifica a bolsa.",
-      "resultado": "Agosto +1,98% (182% do CDI): ouro, prata, bolsa global e trading; crédito e juro real americano tiraram pouco. Ano 111% do CDI."
+      "cenario": "Correção de IA (Kospi -22%, SOX -21%) com técnico limpo; Warsh não sobe apesar de três dissensos; Bessent intervém na ponta longa (repressão financeira?); eleição mais competitiva reprecifica a bolsa.",
+      "resultado": "Jul +1,09%, ago +1,98%; set +0,26% pela cota CVM. Comprado bolsa BR via opções, bolsa global, juro real EUA, ouro e prata; sem DI; crédito local pesando no ano (-1,1 p.p.)."
     },
     {
       "ini": "2026-10-01",
       "fim": "2026-12-31",
       "rotulo": "4T26",
-      "cor": "#a9acb2",
+      "cor": "#8a8d92",
       "carta": "Set/26 sai ~10/10",
       "tipo": "lacuna",
       "cenario": "Eleição, Copom.",

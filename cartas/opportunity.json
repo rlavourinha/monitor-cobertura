@@ -12,40 +12,84 @@
       "url": "https://www.opportunity.com.br/content/pdf/carta_gestor/CartaGestao_202609.pdf"
     },
     {
-      "nome": "Agosto/2026",
+      "nome": "Carta de Gestão 2026/08",
       "url": "https://www.opportunity.com.br/content/pdf/carta_gestor/CartaGestao_202608.pdf"
     },
     {
-      "nome": "Julho/2026",
+      "nome": "Carta de Gestão 2026/07",
       "url": "https://www.opportunity.com.br/content/pdf/carta_gestor/CartaGestao_202607.pdf"
     },
     {
-      "nome": "Junho/2026",
+      "nome": "Carta de Gestão 2026/06",
       "url": "https://www.opportunity.com.br/content/pdf/carta_gestor/CartaGestao_202606.pdf"
     },
     {
-      "nome": "Maio/2026",
+      "nome": "Carta de Gestão 2026/05",
       "url": "https://www.opportunity.com.br/content/pdf/carta_gestor/CartaGestao_202605.pdf"
     },
     {
-      "nome": "Abril/2026",
+      "nome": "Carta de Gestão 2026/04",
       "url": "https://www.opportunity.com.br/content/pdf/carta_gestor/CartaGestao_202604.pdf"
     },
     {
-      "nome": "Março/2026",
+      "nome": "Carta de Gestão 2026/03",
       "url": "https://www.opportunity.com.br/content/pdf/carta_gestor/CartaGestao_202603.pdf"
     },
     {
-      "nome": "Fevereiro/2026",
+      "nome": "Carta de Gestão 2026/02",
       "url": "https://www.opportunity.com.br/content/pdf/carta_gestor/CartaGestao_202602.pdf"
     },
     {
-      "nome": "Janeiro/2026",
+      "nome": "Carta de Gestão 2026/01",
       "url": "https://www.opportunity.com.br/content/pdf/carta_gestor/CartaGestao_202601.pdf"
     },
     {
-      "nome": "Dezembro/2025",
+      "nome": "Carta de Gestão 2025/12",
       "url": "https://www.opportunity.com.br/content/pdf/carta_gestor/CartaGestao_202512.pdf"
+    },
+    {
+      "nome": "Carta de Gestão 2025/11",
+      "url": "https://www.opportunity.com.br/content/pdf/carta_gestor/CartaGestao_202511.pdf"
+    },
+    {
+      "nome": "Carta de Gestão 2025/10",
+      "url": "https://www.opportunity.com.br/content/pdf/carta_gestor/CartaGestao_202510.pdf"
+    },
+    {
+      "nome": "Carta de Gestão 2025/09",
+      "url": "https://www.opportunity.com.br/content/pdf/carta_gestor/CartaGestao_202509.pdf"
+    },
+    {
+      "nome": "Carta de Gestão 2025/08",
+      "url": "https://www.opportunity.com.br/content/pdf/carta_gestor/CartaGestao_202508.pdf"
+    },
+    {
+      "nome": "Carta de Gestão 2025/07",
+      "url": "https://www.opportunity.com.br/content/pdf/carta_gestor/CartaGestao_202507.pdf"
+    },
+    {
+      "nome": "Carta de Gestão 2025/06",
+      "url": "https://www.opportunity.com.br/content/pdf/carta_gestor/CartaGestao_202506.pdf"
+    },
+    {
+      "nome": "Carta de Gestão 2025/05",
+      "url": "https://www.opportunity.com.br/content/pdf/carta_gestor/CartaGestao_202505.pdf"
+    },
+    {
+      "nome": "Carta de Gestão 2025/04",
+      "url": "https://www.opportunity.com.br/content/pdf/carta_gestor/CartaGestao_202504.pdf"
+    },
+    {
+      "nome": "Carta de Gestão 2025/03",
+      "url": "https://www.opportunity.com.br/content/pdf/carta_gestor/CartaGestao_202503.pdf"
+    },
+    {
+      "nome": "Carta de Gestão 2025/02",
+      "url": "https://www.opportunity.com.br/content/pdf/carta_gestor/CartaGestao_202502.pdf"
+    },
+    {
+      "nome": "Carta de Gestão 2025/01",
+      "url": "https://www.opportunity.com.br/content/pdf/carta_gestor/CartaGestao_202501.pdf"
     },
     {
       "nome": "Índice das cartas (site)",
@@ -53,7 +97,7 @@
     }
   ],
   "data": "2026-09-30",
-  "nota_fontes": "Carta mensal de 7 páginas (Cenário Macro Atual, Posicionamento, Atribuição de Performance por fundo), publicada no site da gestora nos primeiros dias do mês seguinte (setembro/26 saiu em 02/10/2026); PDFs em /content/pdf/carta_gestor/CartaGestao_AAAAMM.pdf, e CartaGestao_Total.pdf é sempre a mais recente. Dez/25 a set/26 lidas na íntegra.",
+  "nota_fontes": "Carta mensal de 7 páginas (Cenário Macro Atual, Posicionamento, Atribuição de Performance por fundo), publicada no site da gestora nos primeiros dias do mês seguinte (setembro/26 saiu em 02/10/2026); PDFs em /content/pdf/carta_gestor/CartaGestao_AAAAMM.pdf, e CartaGestao_Total.pdf é sempre a mais recente. Jan/25 a set/26 (21 cartas) lidas na íntegra.",
   "cenario": {
     "global": [
       "Setembro: curva de juros dos EUA deslocada para cima por crescimento global firme e energia cara; juro neutro percebido maior. Movimento em juros reais, inflação implícita parada perto das metas; bolsas aguentaram.",
@@ -218,7 +262,57 @@
     "anos_cota_cvm": {
       "2025": 13.5,
       "2026": 7.51
-    }
+    },
+    "mensal_2025": [
+      [
+        "01",
+        0.96
+      ],
+      [
+        "02",
+        0.79
+      ],
+      [
+        "03",
+        0.38
+      ],
+      [
+        "04",
+        3.35
+      ],
+      [
+        "05",
+        -1.13
+      ],
+      [
+        "06",
+        0.7
+      ],
+      [
+        "07",
+        0.45
+      ],
+      [
+        "08",
+        1.56
+      ],
+      [
+        "09",
+        1.95
+      ],
+      [
+        "10",
+        1.59
+      ],
+      [
+        "11",
+        1.9
+      ],
+      [
+        "12",
+        0.3
+      ]
+    ]
   },
   "leitura": [
     "A casa está dentro do consenso de véspera de eleição (NTN-B comprada na tese de ajuste fiscal), não contra ele; a carta de setembro não discute o cenário em que o governo abre vantagem.",
@@ -228,14 +322,44 @@
   ],
   "periodos_cartas": [
     {
+      "ini": "2025-01-01",
+      "fim": "2025-03-31",
+      "rotulo": "1T25",
+      "cor": "#2457c5",
+      "carta": "Cartas mensais jan, fev, mar/25",
+      "tipo": "primária",
+      "cenario": "Trump toma posse: tarifas como instrumento de tudo; EUA desacelerando, Europa com ReArm e pacote alemão (mudança de paradigma), China pressionada; Brasil com rali de janeiro lido como temporário, déficit em conta corrente de 3,5% do PIB e BCB ainda subindo.",
+      "resultado": "Risco baixo: aplicado em juro real americano e Tcheca (zerada em fev), vendido em yuan, comprado em euro; NTN-B comprada desde fevereiro. Na virada de março, aplicado grande em juros americanos. Jan +0,9%, fev +0,8%, mar +0,4% (abaixo do CDI)."
+    },
+    {
+      "ini": "2025-04-01",
+      "fim": "2025-06-30",
+      "rotulo": "2T25",
+      "cor": "#7b4fb8",
+      "carta": "Cartas mensais abr, mai, jun/25",
+      "tipo": "primária",
+      "cenario": "Liberation Day e recuo; desaceleração americana como tese central; dólar fraco, ouro em alta; BCB sinaliza fim do ciclo de alta em junho (15%); Banxico cortando 50 bps.",
+      "resultado": "Abril +3,35% (câmbio +2,35 p.p., NTN-B +0,45); maio -1,0% (juros G10 -2,0 p.p.: aplicado em EUA sofreu com a alta da curva); junho +0,7%. Income: México, Polônia, Reino Unido aplicados; NTN-B longa aumentada e diversificada."
+    },
+    {
+      "ini": "2025-07-01",
+      "fim": "2025-09-30",
+      "rotulo": "3T25",
+      "cor": "#1a8fa8",
+      "carta": "Cartas mensais jul, ago, set/25",
+      "tipo": "primária",
+      "cenario": "Tarifa de 50% ao Brasil e sanções a ministros antecipam o debate eleitoral; Powell dovish em Jackson Hole e corte de 25 bps em setembro; BCB mantém 15% com tom austero; México e África do Sul cortando (SARB muda meta para 3%).",
+      "resultado": "Julho +0,45% (NTN-B -0,75 p.p. no stress, aproveitado para aumentar a posição); agosto +1,56% e setembro +1,95% com juros G10 e emergentes. Risk parity nos EUA (S&P + juros) montado; voltou ao juro nominal americano em julho."
+    },
+    {
       "ini": "2025-10-01",
       "fim": "2025-12-31",
       "rotulo": "4T25",
       "cor": "#e0662b",
-      "carta": "Carta mensal, dez/25",
+      "carta": "Cartas mensais out, nov, dez/25",
       "tipo": "primária",
-      "cenario": "Global resiliente com inflação controlada; Fed no terceiro corte seguido; BCB sinaliza cortes a partir de março; eleição de 2026 vira fator central e eleva a volatilidade da curva.",
-      "resultado": "Comprado em NTN-B e ações domésticas de carrego; risk parity nos EUA (S&P + juros aplicados); aplicado no México (reduzido). Income: NTN-B longa, tomado Europa e Austrália."
+      "cenario": "Fed corta mas deixa dezembro em aberto; correção de tech em novembro revertida; Brasil com carry atrativo, cortes precificados para jan/mar e eleição virando o fator central; México em fim de ciclo; Austrália começa a precificar alta.",
+      "resultado": "Outubro +1,59%, novembro e dezembro positivos: NTN-B longa, S&P, aplicado no México (reduzido). Income abre aplicado curto no Reino Unido e tomado na Austrália, tomado na Zona do Euro."
     },
     {
       "ini": "2026-01-01",

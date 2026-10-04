@@ -1,0 +1,93 @@
+{
+  "fundo": "Kapitalo K10",
+  "gestora": "Kapitalo Investimentos (K10: macro global com livros de juros, moedas, bolsa e commodities)",
+  "tipo": "Multimercado macro global. K10 FIC desde 05/2018; irmão do Kappa/Zeta. Livros: juros (aplicados seletivos), moedas (cesta contra o dólar), bolsa (tech EUA, emergentes), commodities (petróleo, grãos, metais).",
+  "inicio": "2024-01-01",
+  "inicio_fundo": "2018-05-02",
+  "cnpj": "29.726.133/0001-21",
+  "cnpj_fonte": "CVM registro_fundo_classe (KAPITALO K10 FIF EM QUOTAS DE FUNDOS DE INVESTIMENTO MULTIMERCADO)",
+  "fontes": [
+    {"nome": "Carta do Gestor K10, agosto/2026 (publicada 11/09/2026)", "url": "https://www.kapitalo.com.br/wp-content/uploads/2022/09/kapitalo_cartamensal_K10_agosto_V9.pdf"},
+    {"nome": "Julho/2026", "url": "https://www.kapitalo.com.br/wp-content/uploads/2022/09/Carta-do-Gestor_K10-Julho2026.pdf"},
+    {"nome": "Junho/2026", "url": "https://www.kapitalo.com.br/wp-content/uploads/2022/09/Carta-do-Gestor_K10-Junho2026.pdf"},
+    {"nome": "Maio/2026 (Colômbia)", "url": "https://www.kapitalo.com.br/wp-content/uploads/2022/09/Carta-do-Gestor_K10-Maio2026-V2.pdf"},
+    {"nome": "Abril/2026", "url": "https://www.kapitalo.com.br/wp-content/uploads/2022/09/Carta-do-Gestor-K10-Abril2026-1.pdf"},
+    {"nome": "Março/2026", "url": "https://www.kapitalo.com.br/wp-content/uploads/2022/09/Carta-do-Gestor_K10-Mar%C3%A7o2026.pdf"},
+    {"nome": "Fevereiro/2026", "url": "https://www.kapitalo.com.br/wp-content/uploads/2022/09/Carta-do-Gestor_K10-Fevereiro2026-1.pdf"},
+    {"nome": "Janeiro/2026 (ouro e prata)", "url": "https://www.kapitalo.com.br/wp-content/uploads/2022/09/Carta-do-Gestor-K10_Janeiro-2026-VF.pdf"},
+    {"nome": "Dezembro/2025 (balanço do ano e eleição)", "url": "https://www.kapitalo.com.br/wp-content/uploads/2022/09/Carta-do-Gestor_K10-Dezembro2025-1.pdf"},
+    {"nome": "Junho/2025 (Colômbia)", "url": "https://www.kapitalo.com.br/wp-content/uploads/2022/09/Carta-K10-Junho-2025.pdf"},
+    {"nome": "Índice das cartas (site, 2019-2026)", "url": "https://www.kapitalo.com.br/carta-do-gestor/k10"}
+  ],
+  "data": "2026-08-31",
+  "nota_fontes": "Carta do Gestor mensal (4 a 10 páginas: Cenário, Posições por livro, VaR por fator, atribuição mensal/ano/12m/24m/60m), publicada entre os dias 6 e 15 do mês seguinte em kapitalo.com.br/carta-do-gestor/k10 (PDFs em wp-content/uploads/2022/09/). Jan/25 a ago/26 (20 cartas) lidas na íntegra. Setembro/26 sai por volta de 10/10.",
+  "cenario": {
+    "global": [
+      "Agosto/26: Warsh descreve crescimento robusto e inflação persistente e difusa; comunicação consistente com altas de juros nas próximas reuniões. K10 adicionou tomado na parte curta dos EUA.",
+      "Petróleo apertado mesmo com o fluxo do Golfo parcialmente restabelecido: China comprando mais em vez de usar reserva estratégica. Posição de desinclinação (comprado no curto, vendido nos contratos longos: excesso de oferta em 2027).",
+      "Ensaio sobre juros longos globais: alta puxada por juros reais com implícita e term premium estáveis; hipóteses de perda de credibilidade do Fed, risco de solvência e competição por capital da IA não se sustentam nos dados; ficam crescimento nominal e produtividade mais altos. Sem posição na ponta longa, preferem bolsa.",
+      "Tech EUA: compraram a queda de julho (desalavancagem de varejo asiático, ETFs alavancados na Coreia) em memória e fibra óptica; consenso precifica ciclo curto, dados sugerem ciclo mais longo."
+    ],
+    "brasil": [
+      "Condições financeiras restritivas, comprometimento de renda das famílias e exaustão dos impulsos fiscais do 1º semestre devem desacelerar a economia; núcleos de inflação desaceleraram; BCB a 14% com espaço para seguir cortando, salvo crise de confiança que deprecie o câmbio.",
+      "Eleição em empate técnico; fiscal 'não sustentável' (dívida 83% do PIB, +4 p.p. ao ano). Se o próximo governo endereçar o fiscal: fiscal mais restritivo, juro mais baixo e câmbio MAIS DEPRECIADO, combinação boa para os ativos locais. 'Aumentamos a nossa exposição aos ativos locais' (comprado em real e em bolsa Brasil, aplicado em juros).",
+      "Dezembro/25: a eleição cria 'caminhos totalmente dicotômicos'; prêmios de risco (câmbio, implícita, crédito, equity) subestimam a continuidade; juros reais a termo baratos devem reprecificar com alternância: apostas positivas concentradas em NTN-B.",
+      "Maio/26: 'condições para o ciclo de cortes se exaurindo' (crescimento e emprego acelerando, estímulo fiscal, inflação e expectativas subindo), reduziu aplicados; julho/26: inflação abaixo do esperado, voltou a aumentar o aplicado curto."
+    ],
+    "tese_longa": [
+      "Fundo de ciclo global: aplicado em juros onde há capacidade ociosa (Canadá, Suécia, Reino Unido, África do Sul, México), vendido no dólar contra emergentes quando o Fed afrouxa, comprado em tech EUA e em casos de alternância política (Argentina 2025, Colômbia 2026, Brasil 2026).",
+      "Commodities como livro de alpha e de risco: short petróleo por excesso de oferta (2025), virou comprado em derivados na guerra (mar/26) e desinclinação depois; short prata em jan/26 contra a mania chinesa; short café e açúcar.",
+      "No Brasil, a tese é binária e eleitoral: NTN-B (dez/25), short Ibov nos momentos de otimismo precoce (fev/25, jan/26, mar/26) e compra de bolsa e real quando a alternância vira cenário (abr/26 e ago/26)."
+    ]
+  },
+  "posicoes": {
+    "moedas": "Ago/26: comprado em peso chileno, lira turca e real; vendido em euro, dólar e franco suíço.",
+    "bolsa": "Comprado em tecnologia nos EUA (aumentado em julho: memória, fibra óptica); zerou Argentina; adicionou bolsa brasileira.",
+    "commodities": "Vendido em café e açúcar; desinclinação em petróleo (comprado curto, vendido longo); zerou milho, diesel, alumínio e cobre.",
+    "juros": "Aplicado no Brasil, Suécia e África do Sul; zerou Reino Unido; tomado na parte curta dos EUA.",
+    "var": "VaR 1d 95% médio de agosto: 0,98% do PL (bolsa 0,51, commodities 0,45, renda fixa 0,43, moedas 0,11)."
+  },
+  "desempenho": {
+    "mes": {"fundo": 3.50, "cdi": 1.09, "ref": "2026-08"},
+    "ano": {"fundo": 4.19, "cdi": 9.33, "pct_cdi": 44.9},
+    "12m": {"fundo": 10.09, "cdi": 14.63, "pct_cdi": 68.9},
+    "inicio": {"fundo": 182.54, "cdi": 108.0, "pct_cdi": 169.0},
+    "anos": {"2025": {"fundo": 20.59, "cdi": 14.31}, "2026 (até ago)": {"fundo": 4.19, "cdi": 9.33}},
+    "mensal_2026": [["01", 2.49], ["02", 2.30], ["03", -6.13], ["04", 3.12], ["05", 0.85], ["06", -1.12], ["07", -0.53], ["08", 3.50]],
+    "mensal_2025": [["01", 0.28], ["02", 1.67], ["03", -0.05], ["04", 6.03], ["05", 2.26], ["06", 2.30], ["07", -2.24], ["08", 3.30], ["09", 1.65], ["10", 1.56], ["11", 0.69], ["12", 1.64]],
+    "atribuicao_ano": [["Bolsa", 1.07], ["Moedas", -0.38], ["Juros", -0.81], ["Caixa e custos", -1.35], ["Commodities", -3.68]],
+    "atribuicao_2025": [["Commodities", 6.41], ["Bolsa", 2.49], ["Moedas", 1.10], ["Juros", 0.07], ["Caixa e custos", -3.78]],
+    "nota": "Retornos e atribuição como publicados nas cartas (mês, 2026, 12 m, desde o início em mai/18). 2025: +20,59% contra 14,31% do CDI, commodities (+6,4 p.p.) e tech; 2026 até agosto 45% do CDI, março (-6,13%, juros -2,62 e commodities -3,68) explica. Cota CVM desde 2024 em data/inf_diario."
+  },
+  "leitura": [
+    "A cabeça de 2026: começou com a tese dicotômica da eleição e NTN-B, apanhou na guerra (março), vendeu Ibov nos momentos de otimismo e virou comprado em Brasil (real, bolsa, juros) em abril e de novo em agosto, quando a alternância virou cenário.",
+    "Discordância relevante com Genoa e Opportunity: K10 espera câmbio MAIS depreciado no ajuste fiscal (juro baixo + fiscal restritivo), Genoa espera apreciação. Consenso entre as três: NTN-B e ciclo de cortes.",
+    "O ensaio sobre juros longos é a leitura mais útil do mês: eles descartam prêmio de solvência e crise de credibilidade, e por isso não compram a ponta longa global apesar da taxa; preferem o retorno marginal da bolsa. Se estiverem errados (term premium subindo), a bolsa cara é o elo fraco.",
+    "Ano em 45% do CDI com 320% do CDI em agosto: fundo de alta volatilidade de resultado (VaR 1% do PL), bom para ler o ciclo, não para comparar com carrego."
+  ],
+  "periodos_cartas": [
+    {"ini": "2025-01-01", "fim": "2025-03-31", "rotulo": "1T25", "cor": "#2457c5", "carta": "Cartas mensais jan, fev, mar/25", "tipo": "primária",
+     "cenario": "Trump e divergência de ciclos (EUA fortes, resto desacelerando): comprado em dólar contra cesta e em bolsas EUA; teses de ações (tech e bancos EUA, Canadá, China tech) e SHORT BRASIL (policy mix insustentável); Liberation Day lido como marco contra a globalização.",
+     "resultado": "Jan +0,28%, fev +1,67%, mar -0,05%. Grãos e petróleo: short soja, inclinação em petróleo (sanções do Irã e Rússia atrapalharam), aplicado Suécia, juro real Brasil, inclinações Europa e Suécia. Aumentou o short em Brasil e abriu short Europa em março."},
+    {"ini": "2025-04-01", "fim": "2025-06-30", "rotulo": "2T25", "cor": "#7b4fb8", "carta": "Cartas mensais abr, mai, jun/25", "tipo": "primária",
+     "cenario": "Bessent forçado a recuar nas tarifas; status quo de 30% China e 10% resto = inflação temporária e desaceleração sem recessão; aplicado em juros de países avançados no ciclo; vendido no dólar contra cesta; Colômbia como tese de alternância (jun/25).",
+     "resultado": "Abril +6,03% (4 livros positivos), maio +2,26%, junho +2,30%. Zerou short Brasil em abril e comprou bolsa Brasil em junho; short petróleo, soja, café; comprado gás natural 2026 e ouro; aplicado EUA, México, Canadá, juro real Brasil."},
+    {"ini": "2025-07-01", "fim": "2025-09-30", "rotulo": "3T25", "cor": "#1a8fa8", "carta": "Cartas mensais jul, ago, set/25", "tipo": "primária",
+     "cenario": "Desaceleração gradual dos desenvolvidos e Fed voltando a cortar; Argentina volta ao radar (ago/25: CDS +500 bps, comprado em crédito e ações); milho vendido; petróleo em superávit apesar da Rússia.",
+     "resultado": "Julho -2,24% (juros -1,77, commodities -1,19), agosto +3,30% (todos os livros), setembro +1,65% (ouro). Tomado na ponta longa dos EUA em agosto; short Brasil de volta em setembro; aplicado Brasil, Europa, Suécia."},
+    {"ini": "2025-10-01", "fim": "2025-12-31", "rotulo": "4T25", "cor": "#e0662b", "carta": "Cartas mensais out, nov, dez/25", "tipo": "primária",
+     "cenario": "Milei vence as legislativas (ago-out: 'oportunidade ímpar'); tech questionada em novembro, compraram a queda; Fed corta pela terceira vez; Brasil: eleição 'dicotômica', prêmios baixos demais, juro real a termo barato.",
+     "resultado": "Out +1,56%, nov +0,69%, dez +1,64%; ano +20,59% (144% do CDI). Aumentou aplicado Brasil em outubro e reduziu em novembro; comprado Argentina, Chile, China; short petróleo mantido; NTN-B como aposta eleitoral."},
+    {"ini": "2026-01-01", "fim": "2026-03-31", "rotulo": "1T26", "cor": "#bf3a2f", "carta": "Cartas mensais jan, fev, mar/26", "tipo": "primária",
+     "cenario": "Warsh nomeado (institucionalidade); ouro e a mania da prata (short prata com orçamento de perda, +0,61 p.p.); guerra EUA/Israel-Irã em 28/2, Hormuz a zero, time spreads recordes; curvas tiram cortes e põem altas.",
+     "resultado": "Jan +2,49%, fev +2,30%, MAR -6,13% (juros -2,62, commodities -3,68): zerou short petróleo e virou comprado em diesel; aplicado concentrado em Canadá, Suécia e Brasil; short Brasil e small caps EUA; short Ibov de janeiro zerado em fevereiro."},
+    {"ini": "2026-04-01", "fim": "2026-06-30", "rotulo": "2T26", "cor": "#1a8fa8", "carta": "Cartas mensais abr, mai, jun/26", "tipo": "primária",
+     "cenario": "Cessar-fogo e reprecificação de risco; petróleo frágil sem Hormuz; Fed mais hawkish (Waller); Brasil com ciclo se exaurindo (maio); Colômbia: Abelardo de la Espriella à frente no 1º turno, 'mudança de regime'; acordo EUA-Irã em junho derruba o petróleo.",
+     "resultado": "Abril +3,12% (comprou bolsa Brasil), maio +0,85% (dólar contra euro e libra; reduziu aplicados Brasil), junho -1,12% (commodities -1,48; virou vendido em petróleo). Aplicado Brasil, Suécia, Reino Unido, África do Sul."},
+    {"ini": "2026-07-01", "fim": "2026-09-30", "rotulo": "3T26", "cor": "#1baf7a", "carta": "Cartas mensais jul, ago/26 (set/26 sai ~10/10)", "tipo": "primária",
+     "cenario": "Tensões voltam e desinclinação em petróleo; Fed mantém com Warsh evasivo; inflação brasileira abaixo do esperado e aplicado curto aumentado; queda de tech comprada; agosto: Warsh duro, tomado curto EUA; eleição empatada e 'aumentamos a exposição aos ativos locais'.",
+     "resultado": "Julho -0,53% (bolsa e commodities), agosto +3,50% (320% do CDI: bolsa +0,99, commodities +1,66). Comprado em real e bolsa Brasil, aplicado Brasil/Suécia/ZA, tomado curto EUA, short café e açúcar."},
+    {"ini": "2026-10-01", "fim": "2026-12-31", "rotulo": "4T26", "cor": "#8a8d92", "carta": "Set/26 sai ~10/10; out/26 ~10/11", "tipo": "lacuna",
+     "cenario": "Eleição (4 e 25/10), Copom 4/11 e 9/12, Fed com viés de alta.", "resultado": "A preencher."}
+  ]
+}

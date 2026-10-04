@@ -58,7 +58,16 @@ def _mes_cvm(cnpj: str, aaaamm: str) -> list[list]:
                 out.append([row["DT_COMPTC"], float(row["VL_QUOTA"]), float(row.get("VL_PATRIM_LIQ") or 0)])
             except (KeyError, ValueError):
                 pass
-    return sorted(out)
+    return _um_por_dia(out)
+
+
+def _um_por_dia(pts: list[list]) -> list[list]:
+    """Um FIC pode aparecer com várias subclasses no mesmo dia (K10: 6 linhas/dia); fica a de maior PL."""
+    melhor: dict[str, list] = {}
+    for p in pts:
+        if p[0] not in melhor or p[2] > melhor[p[0]][2]:
+            melhor[p[0]] = p
+    return sorted(melhor.values())
 
 
 def serie(cnpj: str, desde: str) -> list[list]:
@@ -77,6 +86,6 @@ def serie(cnpj: str, desde: str) -> list[list]:
             mudou = True
             print(f"  INF_DIARIO {m}: {len(pts)} dias", file=sys.stderr)
     if mudou:
-        cache["serie"] = sorted(p for pts in cache["meses"].values() for p in pts if p[0] >= desde)
+        cache["serie"] = _um_por_dia([p for pts in cache["meses"].values() for p in pts if p[0] >= desde])
         f.write_text(json.dumps(cache), encoding="utf-8")
     return cache["serie"]

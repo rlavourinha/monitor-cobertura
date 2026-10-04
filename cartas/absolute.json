@@ -1,0 +1,222 @@
+{
+  "fundo": "Absolute Vertex",
+  "gestora": "Absolute Investimentos (macro; Fabiano Rios)",
+  "tipo": "Multimercado macro de baixa volatilidade (Vertex). Absolute Vertex FIC.",
+  "inicio": "2024-01-01",
+  "cnpj": "21.470.989/0001-77",
+  "cnpj_fonte": "CVM registro_fundo_classe",
+  "fontes": [
+    {
+      "nome": "Site da gestora (sem carta pública)",
+      "url": "https://www.absoluteinvestimentos.com.br"
+    }
+  ],
+  "data": "2026-09-30",
+  "nota_fontes": "A gestora não publica carta mensal aberta no site (checado em 3/10/2026: páginas de fundos, mídia e rentabilidade sem links de PDF). Ficha montada só com a cota diária da CVM; se a carta for obtida por outro canal, trocar para primária.",
+  "cenario": {
+    "global": [],
+    "brasil": [],
+    "tese_longa": [
+      "Sem texto público. A casa é lida pelo desempenho: a cota CVM dá direção mensal (sinal de risco Brasil e global), não as posições."
+    ]
+  },
+  "posicoes": {},
+  "desempenho": {
+    "mes": {
+      "fundo": 0.79,
+      "cdi": 1.17,
+      "ref": "2026-09"
+    },
+    "ano": {
+      "fundo": 7.31,
+      "cdi": 10.5,
+      "pct_cdi": 69.6
+    },
+    "anos": {
+      "2025": {
+        "fundo": 10.47,
+        "cdi": 14.31
+      },
+      "2026 (até set)": {
+        "fundo": 7.31,
+        "cdi": 10.5
+      }
+    },
+    "mensal_2026": [
+      [
+        "01",
+        1.97
+      ],
+      [
+        "02",
+        1.68
+      ],
+      [
+        "03",
+        -0.81
+      ],
+      [
+        "04",
+        2.04
+      ],
+      [
+        "05",
+        -0.22
+      ],
+      [
+        "06",
+        0.07
+      ],
+      [
+        "07",
+        0.9
+      ],
+      [
+        "08",
+        0.71
+      ],
+      [
+        "09",
+        0.79
+      ]
+    ],
+    "mensal_2025": [
+      [
+        "01",
+        0.4
+      ],
+      [
+        "02",
+        0.31
+      ],
+      [
+        "03",
+        0.19
+      ],
+      [
+        "04",
+        4.39
+      ],
+      [
+        "05",
+        0.03
+      ],
+      [
+        "06",
+        2.23
+      ],
+      [
+        "07",
+        -1.67
+      ],
+      [
+        "08",
+        1.26
+      ],
+      [
+        "09",
+        1.7
+      ],
+      [
+        "10",
+        0.57
+      ],
+      [
+        "11",
+        1.19
+      ],
+      [
+        "12",
+        -0.49
+      ]
+    ],
+    "pl_mi": 1533,
+    "nota": "Retornos mensais e anuais calculados pela cota diária da CVM (inf_diario, último dado 2026-10-01); PL de R$ 1,533 mi."
+  },
+  "leitura": [
+    "Sem carta pública; só cota CVM.",
+    "Entra no quadro de consenso apenas pelo retorno mensal (direção), sem posições."
+  ],
+  "periodos_cartas": [
+    {
+      "ini": "2025-01-01",
+      "fim": "2025-03-31",
+      "rotulo": "1T25",
+      "cor": "#2457c5",
+      "carta": "Sem carta",
+      "tipo": "lacuna",
+      "cenario": "",
+      "resultado": "1T25: +0.9% pela cota (+0.4%, +0.3%, +0.2%)."
+    },
+    {
+      "ini": "2025-04-01",
+      "fim": "2025-06-30",
+      "rotulo": "2T25",
+      "cor": "#7b4fb8",
+      "carta": "Sem carta",
+      "tipo": "lacuna",
+      "cenario": "",
+      "resultado": "2T25: +6.7% pela cota (+4.4%, +0.0%, +2.2%)."
+    },
+    {
+      "ini": "2025-07-01",
+      "fim": "2025-09-30",
+      "rotulo": "3T25",
+      "cor": "#1a8fa8",
+      "carta": "Sem carta",
+      "tipo": "lacuna",
+      "cenario": "",
+      "resultado": "3T25: +1.3% pela cota (-1.7%, +1.3%, +1.7%)."
+    },
+    {
+      "ini": "2025-10-01",
+      "fim": "2025-12-31",
+      "rotulo": "4T25",
+      "cor": "#e0662b",
+      "carta": "Sem carta",
+      "tipo": "lacuna",
+      "cenario": "",
+      "resultado": "4T25: +1.3% pela cota (+0.6%, +1.2%, -0.5%)."
+    },
+    {
+      "ini": "2026-01-01",
+      "fim": "2026-03-31",
+      "rotulo": "1T26",
+      "cor": "#bf3a2f",
+      "carta": "Sem carta",
+      "tipo": "lacuna",
+      "cenario": "",
+      "resultado": "1T26: +2.8% pela cota (+2.0%, +1.7%, -0.8%)."
+    },
+    {
+      "ini": "2026-04-01",
+      "fim": "2026-06-30",
+      "rotulo": "2T26",
+      "cor": "#1a8fa8",
+      "carta": "Sem carta",
+      "tipo": "lacuna",
+      "cenario": "",
+      "resultado": "2T26: +1.9% pela cota (+2.0%, -0.2%, +0.1%)."
+    },
+    {
+      "ini": "2026-07-01",
+      "fim": "2026-09-30",
+      "rotulo": "3T26",
+      "cor": "#1baf7a",
+      "carta": "Sem carta",
+      "tipo": "lacuna",
+      "cenario": "",
+      "resultado": "3T26: +2.4% pela cota (+0.9%, +0.7%, +0.8%)."
+    },
+    {
+      "ini": "2026-10-01",
+      "fim": "2026-12-31",
+      "rotulo": "4T26",
+      "cor": "#8a8d92",
+      "carta": "Sem carta",
+      "tipo": "lacuna",
+      "cenario": "",
+      "resultado": "A preencher."
+    }
+  ]
+}

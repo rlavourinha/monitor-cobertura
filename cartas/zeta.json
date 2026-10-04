@@ -1,0 +1,320 @@
+{
+  "fundo": "Kapitalo Zeta",
+  "gestora": "Kapitalo Investimentos (Kappa/Zeta: multimercado macro multi-mesa; Zeta é a versão alavancada do Kappa)",
+  "tipo": "Multimercado macro com várias mesas (juros, moedas, bolsa com valor relativo setorial, commodities). Zeta FIC roda ~2x o risco do Kappa; mesma carta.",
+  "inicio": "2024-01-01",
+  "cnpj": "12.105.992/0001-09",
+  "cnpj_fonte": "CVM registro_fundo_classe (KAPITALO ZETA FIC FIM)",
+  "fontes": [
+    {
+      "nome": "Carta do Gestor Kappa/Zeta Agosto/2026",
+      "url": "https://www.kapitalo.com.br/wp-content/uploads/2020/02/Carta-do-Gestor_Agosto-2026.pdf"
+    },
+    {
+      "nome": "Carta do Gestor Kappa/Zeta Julho/2026",
+      "url": "https://www.kapitalo.com.br/wp-content/uploads/2020/02/Carta-do-Gestor_Julho-2026.pdf"
+    },
+    {
+      "nome": "Carta do Gestor Kappa/Zeta Junho/2026",
+      "url": "https://www.kapitalo.com.br/wp-content/uploads/2020/02/Carta-do-Gestor_Junho-2026.pdf"
+    },
+    {
+      "nome": "Carta do Gestor Kappa/Zeta Maio/2026",
+      "url": "https://www.kapitalo.com.br/wp-content/uploads/2020/02/Carta-do-Gestor_Maio-2026.pdf"
+    },
+    {
+      "nome": "Carta do Gestor Kappa/Zeta Abril/2026",
+      "url": "https://www.kapitalo.com.br/wp-content/uploads/2020/02/Carta-do-Gestor_Abril-2026.pdf"
+    },
+    {
+      "nome": "Carta do Gestor Kappa/Zeta Marco/2026",
+      "url": "https://www.kapitalo.com.br/wp-content/uploads/2020/02/Carta-do-Gestor_Marco-2026.pdf"
+    },
+    {
+      "nome": "Carta do Gestor Kappa/Zeta Fevereiro/2026",
+      "url": "https://www.kapitalo.com.br/wp-content/uploads/2020/02/Carta-do-Gestor_Fevereiro-2026.pdf"
+    },
+    {
+      "nome": "Carta do Gestor Kappa/Zeta Janeiro/2026",
+      "url": "https://www.kapitalo.com.br/wp-content/uploads/2020/02/Carta-do-Gestor_Janeiro-2026.pdf"
+    },
+    {
+      "nome": "Carta do Gestor Kappa/Zeta Dezembro/2025",
+      "url": "https://www.kapitalo.com.br/wp-content/uploads/2020/02/Carta-do-Gestor_Dezembro-2025.pdf"
+    },
+    {
+      "nome": "Carta do Gestor Kappa/Zeta Novembro/2025",
+      "url": "https://www.kapitalo.com.br/wp-content/uploads/2020/02/Carta-do-Gestor_Novembro-2025.pdf"
+    },
+    {
+      "nome": "Carta do Gestor Kappa/Zeta Outubro/2025",
+      "url": "https://www.kapitalo.com.br/wp-content/uploads/2020/02/Carta-do-Gestor_Outubro-2025.pdf"
+    },
+    {
+      "nome": "Carta do Gestor Kappa/Zeta Setembro/2025",
+      "url": "https://www.kapitalo.com.br/wp-content/uploads/2020/02/Carta-do-Gestor_Setembro-2025.pdf"
+    },
+    {
+      "nome": "Carta do Gestor Kappa/Zeta Agosto/2025",
+      "url": "https://www.kapitalo.com.br/wp-content/uploads/2020/02/Carta-do-Gestor_Agosto-2025.pdf"
+    },
+    {
+      "nome": "Carta do Gestor Kappa/Zeta Julho/2025",
+      "url": "https://www.kapitalo.com.br/wp-content/uploads/2020/02/Carta-do-Gestor_Julho-2025.pdf"
+    },
+    {
+      "nome": "Carta do Gestor Kappa/Zeta Junho/2025",
+      "url": "https://www.kapitalo.com.br/wp-content/uploads/2020/02/Carta-do-Gestor_Junho-2025.pdf"
+    },
+    {
+      "nome": "Carta do Gestor Kappa/Zeta Maio/2025",
+      "url": "https://www.kapitalo.com.br/wp-content/uploads/2020/02/Carta-do-Gestor_Maio-2025.pdf"
+    },
+    {
+      "nome": "Carta do Gestor Kappa/Zeta Abril/2025",
+      "url": "https://www.kapitalo.com.br/wp-content/uploads/2020/02/Carta-do-Gestor_Abril-2025.pdf"
+    },
+    {
+      "nome": "Carta do Gestor Kappa/Zeta Marco/2025",
+      "url": "https://www.kapitalo.com.br/wp-content/uploads/2020/02/Carta-do-Gestor_Marco-2025.pdf"
+    },
+    {
+      "nome": "Carta do Gestor Kappa/Zeta Fevereiro/2025",
+      "url": "https://www.kapitalo.com.br/wp-content/uploads/2020/02/Carta-do-Gestor_Fevereiro-2025.pdf"
+    },
+    {
+      "nome": "Carta do Gestor Kappa/Zeta Janeiro/2025",
+      "url": "https://www.kapitalo.com.br/wp-content/uploads/2020/02/Carta-do-Gestor_Janeiro-2025.pdf"
+    },
+    {
+      "nome": "Índice das cartas (site)",
+      "url": "https://www.kapitalo.com.br/carta-do-gestor/kapa-e-zeta"
+    }
+  ],
+  "data": "2026-08-31",
+  "nota_fontes": "Carta do Gestor mensal de 5-6 páginas (Cenário EUA/Europa/China/Brasil, Posições por livro, Atribuição com tabela Kappa e Zeta), publicada entre os dias 3 e 9 do mês seguinte. Jan/25 a ago/26 (20 cartas) lidas; o extrator cortou o fim de algumas (posições de jan-mar/25 e jul/26 incompletas).",
+  "cenario": {
+    "global": [
+      "Agosto/26: Warsh em Jackson Hole mais duro do que na coletiva de julho: se o núcleo não convergir, o Fed sobe. Decisão de setembro apertada, depende do CPI de agosto; a casa projeta número baixo e manutenção.",
+      "Zona do Euro: inflação 3,3% puxada por energia, núcleo 2,4% benigno; alta de 25 bps em setembro é o cenário-base e o BCE deixa a porta aberta.",
+      "EUA-Irã sem avanço, bloqueio de Ormuz continua; EUA preferem pressão econômica a conflito maior. China sem novidade."
+    ],
+    "brasil": [
+      "Virada do semestre mais fraca que o esperado: PIB do 2T com desaceleração relevante do consumo, julho fraco, Caged abaixo do neutro, confiança FGV caindo. PLOA dentro do esperado, arrecadação forte.",
+      "Inflação corrente melhora (bens industriais), mas dois riscos de médio prazo entraram no balanço: fim da escala 6x1 (efeito líquido inflacionário em serviços) e El Niño forte (alimentos in natura já no 4T26; grãos e carnes a partir do 2S27).",
+      "Em agosto REDUZIRAM aplicados em juros reais e nominais no Brasil (depois de reduzir em maio); mantêm bolsa Brasil comprada com valor relativo e aumentaram comprado em real."
+    ],
+    "tese_longa": [
+      "Casa de muitas mesas, sem tese única: aplicado em juros desenvolvidos no ciclo (Euro, Suécia, Canadá, UK), carteira long/valor relativo em ações brasileiras permanente, moedas de carry contra dólar/euro/franco, commodities tático (vendido petróleo quase todo 2025, comprado ouro de ago/25 a mai/26, short prata em jan/26).",
+      "No Brasil 2025: aplicado em juro real desde abril e nominal desde agosto, 'nos aproxima do início de um ciclo de corte' (nov/25), IPCA 2026 projetado em 4,0% (dez/25) e abaixo de 4% (jan/26). 2026 virou: IPCA 5,1% (abr), núcleos incompatíveis com a meta, redução de aplicados em maio e agosto.",
+      "Zeta amplifica tudo: 2025 +20,6% com dezembro +6,5% (bolsa); março/26 -11,9% (guerra: juros e commodities) e agosto/26 +5,8% (bolsa). Fundo para ler direção, não para comparar com CDI mês a mês."
+    ]
+  },
+  "posicoes": {
+    "juros": "Reduziu aplicados no Reino Unido, Zona do Euro e em juros reais e nominais no Brasil (ago/26).",
+    "moedas": "Comprado em real e dólar canadense; táticas em peso mexicano e chileno; comprado rúpia indiana e won; vendido euro e renminbi; reduziu vendido em dólar australiano e libra.",
+    "commodities": "Comprado cobre; vendido açúcar, café e paládio; reduziu vendido em petróleo e ouro; zerou comprado em milho.",
+    "bolsa": "Comprado e valor relativo em ações brasileiras (+: Mineração & Siderurgia, Transporte & Logística, Saúde, Papel & Celulose; -: Bancos, Utilidade Pública, Consumo); reduziu ações globais.",
+    "atribuicao_ago26": "Kappa: bolsa +2,62 p.p., commodities +0,46, moedas +0,06, juros -0,37; Kappa +3,80% (348% do CDI), 2026 +6,36% (68% do CDI). Zeta +5,82% pela cota CVM."
+  },
+  "desempenho": {
+    "mes": {
+      "fundo": 1.69,
+      "cdi": 1.17,
+      "ref": "2026-09"
+    },
+    "ano": {
+      "fundo": 5.58,
+      "cdi": 10.5,
+      "pct_cdi": 53.1
+    },
+    "anos": {
+      "2025": {
+        "fundo": 20.56,
+        "cdi": 14.31
+      },
+      "2026 (até set)": {
+        "fundo": 5.58,
+        "cdi": 10.5
+      }
+    },
+    "mensal_2026": [
+      [
+        "01",
+        3.25
+      ],
+      [
+        "02",
+        4.7
+      ],
+      [
+        "03",
+        -11.93
+      ],
+      [
+        "04",
+        3.11
+      ],
+      [
+        "05",
+        2.97
+      ],
+      [
+        "06",
+        -1.39
+      ],
+      [
+        "07",
+        -1.55
+      ],
+      [
+        "08",
+        5.82
+      ],
+      [
+        "09",
+        1.69
+      ]
+    ],
+    "mensal_2025": [
+      [
+        "01",
+        -1.21
+      ],
+      [
+        "02",
+        -0.2
+      ],
+      [
+        "03",
+        1.3
+      ],
+      [
+        "04",
+        2.28
+      ],
+      [
+        "05",
+        3.94
+      ],
+      [
+        "06",
+        2.67
+      ],
+      [
+        "07",
+        0.48
+      ],
+      [
+        "08",
+        2.64
+      ],
+      [
+        "09",
+        0.62
+      ],
+      [
+        "10",
+        0.17
+      ],
+      [
+        "11",
+        -0.12
+      ],
+      [
+        "12",
+        6.54
+      ]
+    ],
+    "pl_mi": 567,
+    "nota": "Retornos mensais e anuais calculados pela cota diária da CVM (inf_diario, último dado 2026-10-01); PL de R$ 567 mi."
+  },
+  "leitura": [
+    "A casa saiu de 'ciclo de cortes vem aí' (nov/25-jan/26, IPCA < 4%) para 'núcleos incompatíveis com a meta' e cortou os aplicados no Brasil duas vezes em 2026 (maio e agosto). Está menos construtiva com juros BR do que Genoa e K10.",
+    "Na bolsa brasileira nunca saiu: carteira comprada com valor relativo setorial em todos os 20 meses; é o fundo macro que mais parece um long/short de ações.",
+    "Dois riscos que só a Kapitalo põe no radar com esse peso: 6x1 (inflação de serviços) e El Niño (alimentos no 4T26). Vale cruzar com a Fita de inflação.",
+    "Zeta -11,9% em março/26 é o pior mês da amostra de casas; mostra o custo da alavancagem num choque de oferta (juros tomados nos EUA zerados só em junho)."
+  ],
+  "periodos_cartas": [
+    {
+      "ini": "2025-01-01",
+      "fim": "2025-03-31",
+      "rotulo": "1T25",
+      "cor": "#2457c5",
+      "carta": "Cartas jan, fev, mar/25",
+      "tipo": "primária",
+      "cenario": "Trump e tarifas (México, Canadá, China; recíprocas em abril); BCE em piloto automático; Brasil: serviços subjacentes a 8%, Copom +100 em jan e mar, 'convergência cada vez mais distante'; consignado privado e 'intenção clara de evitar desaceleração'.",
+      "resultado": "Zeta jan -1,21%, fev -0,20%, mar +1,30% (cota CVM). Reduziu aplicados (BR, UK, CA, EUA) em janeiro; comprado iene, real, rand; vendido yuan e HKD."
+    },
+    {
+      "ini": "2025-04-01",
+      "fim": "2025-06-30",
+      "rotulo": "2T25",
+      "cor": "#7b4fb8",
+      "carta": "Cartas abr, mai, jun/25",
+      "tipo": "primária",
+      "cenario": "Recuo parcial de Trump (10% geral, 145% China → 30%); BCE a 2%; Brasil sem desaceleração, massa salarial ~5% real, IOF derrubado pelo Congresso; IPCA 2025 revisado a 5,2%; Copom +25 em junho e sinaliza fim do ciclo.",
+      "resultado": "Abr +2,28%, mai +3,94%, jun +2,67%. Tático México, juro real BR, nominal EUA; vendido soja, petróleo, café; comprado ouro e açúcar."
+    },
+    {
+      "ini": "2025-07-01",
+      "fim": "2025-09-30",
+      "rotulo": "3T25",
+      "cor": "#1a8fa8",
+      "carta": "Cartas jul, ago, set/25",
+      "tipo": "primária",
+      "cenario": "Tarifa de 50% ao Brasil com isenções (efeito pequeno); Fed revisa emprego e corta em setembro; Trump demite Lisa Cook; Brasil freia lentamente, IPCA 2025 a 4,7%, Selic 15% por período prolongado.",
+      "resultado": "Jul +0,48%, ago +2,64%, set +0,62% (51% do CDI; bolsa -0,84 p.p.). Agosto: aumentou aplicados Euro/Suécia/Canadá e BR real + nominal, comprado ouro, vendido petróleo/soja/milho, comprado ações BR e globais."
+    },
+    {
+      "ini": "2025-10-01",
+      "fim": "2025-12-31",
+      "rotulo": "4T25",
+      "cor": "#e0662b",
+      "carta": "Cartas out, nov, dez/25",
+      "tipo": "primária",
+      "cenario": "Shutdown e Fed dividido; acordo Trump-Xi; Brasil: desaceleração nos cíclicos, núcleos a 3,5-3,7%, IPCA 2025 ~4,3%, 2026 projetado 4,0%; Copom abre a porta para corte em janeiro mas RPM fecha parcialmente.",
+      "resultado": "Out +0,17%, nov -0,12%, DEZ +6,54% (bolsa +3,13 p.p. no Kappa); ano +20,56%. Aplicados NZ, EUA, Canadá, BR; comprado ouro, urânio, gás; vendido USD e EUR, comprado MXN, CNY, BRL (dez); vendido real em outubro, comprado de novo em dezembro."
+    },
+    {
+      "ini": "2026-01-01",
+      "fim": "2026-03-31",
+      "rotulo": "1T26",
+      "cor": "#bf3a2f",
+      "carta": "Cartas jan, fev, mar/26",
+      "tipo": "primária",
+      "cenario": "Copom sinaliza corte em março (IPCA < 4% projetado); Suprema Corte derruba tarifas IEEPA e Warsh é nomeado (fev); guerra EUA/Israel-Irã em 28/2: Fed sobe neutro para 3,1%, BCE projeta 2,6% e mercado põe altas no UK e Euro; Brasil reacelera em janeiro.",
+      "resultado": "Jan +3,25%, fev +4,70%, MAR -11,93% (pior mês da amostra). Comprado ouro, vendido prata/milho/zinco/café, vendido USD (jan); posições de março não capturadas pelo extrator."
+    },
+    {
+      "ini": "2026-04-01",
+      "fim": "2026-06-30",
+      "rotulo": "2T26",
+      "cor": "#1a8fa8",
+      "carta": "Cartas abr, mai, jun/26",
+      "tipo": "primária",
+      "cenario": "Fed com easing bias mas 3 dissidentes; BCE sobe em junho; China meta 4,5-5%; Brasil: IPCA 2026 revisado a 5,1%, comprometimento das famílias subindo, bloqueio maior no 2º bimestral, 'o BC deveria...' não dizem, mas Copom corta 25 com mercado dividido (jun); acordo EUA-Irã preliminar.",
+      "resultado": "Abr +3,11%, mai +2,97%, jun -1,39%. Maio: reduziu aplicados CA/SE/BR e tomados EUA, zerou ouro e o comprado em real, vendido AUD/GBP/EUR/MXN. Junho: abriu vendido em ouro, comprado USD e CLP, manteve juro real BR."
+    },
+    {
+      "ini": "2026-07-01",
+      "fim": "2026-09-30",
+      "rotulo": "3T26",
+      "cor": "#1baf7a",
+      "carta": "Cartas jul, ago/26 (set/26 sai ~6/10)",
+      "tipo": "primária",
+      "cenario": "Tensões voltam em Ormuz; Warsh dovish em julho e duro em Jackson Hole; Brasil: surpresas baixistas de inflação raras (16% do tempo desde 2002), Focus 5,3 → 5,0, casa 4,8%; agosto: PIB 2T fraco, Caged abaixo do neutro; riscos 6x1 e El Niño.",
+      "resultado": "Jul -1,55%, ago +5,82% (Kappa +3,80%, 348% do CDI, bolsa +2,62 p.p.), set +1,69% pela cota CVM. Reduziu aplicados UK/Euro/BR; comprado real e CAD; comprado cobre, vendido açúcar/café."
+    },
+    {
+      "ini": "2026-10-01",
+      "fim": "2026-12-31",
+      "rotulo": "4T26",
+      "cor": "#8a8d92",
+      "carta": "Set/26 sai ~6/10",
+      "tipo": "lacuna",
+      "cenario": "Eleição, Copom 4/11, Fed com viés de alta.",
+      "resultado": "A preencher."
+    }
+  ]
+}

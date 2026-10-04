@@ -1,0 +1,306 @@
+{
+  "fundo": "Legacy Capital",
+  "gestora": "Legacy Capital (macro global; Felipe Guerra, Gustavo Pessoa, Luiz Fernando Figueiredo)",
+  "tipo": "Multimercado macro global. Livros: juros (aplicado em ciclos de corte, México/Europa/Brasil), moedas (vendido USD contra cesta de carry), bolsa externa (long tech contra índices, depois diversificado em emergentes), commodities.",
+  "inicio": "2024-01-01",
+  "cnpj": "30.586.677/0001-14",
+  "cnpj_fonte": "CVM registro_fundo_classe (LEGACY CAPITAL FIC FIM; a classe B do relatório é 30.329.404/0001-94, mesmo master 29.236.556/0001-63)",
+  "fontes": [
+    {
+      "nome": "Carta Mensal 2026/08",
+      "url": "https://www.legacycapital.com.br/wp-content/uploads/202608_Carta-Mensal.pdf"
+    },
+    {
+      "nome": "Carta Mensal 2026/07",
+      "url": "https://www.legacycapital.com.br/wp-content/uploads/202607_Carta-Mensal.pdf"
+    },
+    {
+      "nome": "Carta Mensal 2026/06",
+      "url": "https://www.legacycapital.com.br/wp-content/uploads/202606_Carta-Mensal.pdf"
+    },
+    {
+      "nome": "Carta Mensal 2026/05",
+      "url": "https://www.legacycapital.com.br/wp-content/uploads/202605_Carta-Mensal.pdf"
+    },
+    {
+      "nome": "Carta Mensal 2026/04",
+      "url": "https://www.legacycapital.com.br/wp-content/uploads/202604_Carta-Mensal.pdf"
+    },
+    {
+      "nome": "Carta Mensal 2026/03",
+      "url": "https://www.legacycapital.com.br/wp-content/uploads/202603_Carta-Mensal.pdf"
+    },
+    {
+      "nome": "Carta Mensal 2026/02",
+      "url": "https://www.legacycapital.com.br/wp-content/uploads/202602_Carta-Mensal.pdf"
+    },
+    {
+      "nome": "Carta Mensal 2026/01",
+      "url": "https://www.legacycapital.com.br/wp-content/uploads/202601_Carta-Mensal.pdf"
+    },
+    {
+      "nome": "Carta Mensal 2025/11",
+      "url": "https://www.legacycapital.com.br/wp-content/uploads/202511_Carta-Mensal.pdf"
+    },
+    {
+      "nome": "Carta Mensal 2025/10",
+      "url": "https://www.legacycapital.com.br/wp-content/uploads/202510_Carta-Mensal.pdf"
+    },
+    {
+      "nome": "Carta Mensal 2025/08",
+      "url": "https://www.legacycapital.com.br/wp-content/uploads/202508_Carta-Mensal.pdf"
+    },
+    {
+      "nome": "Carta Mensal 2025/07",
+      "url": "https://www.legacycapital.com.br/wp-content/uploads/202507_Carta-Mensal.pdf"
+    },
+    {
+      "nome": "Carta Mensal 2025/06",
+      "url": "https://www.legacycapital.com.br/wp-content/uploads/202506_Carta-Mensal.pdf"
+    },
+    {
+      "nome": "Carta Mensal 2025/05",
+      "url": "https://www.legacycapital.com.br/wp-content/uploads/202505_Carta-Mensal.pdf"
+    },
+    {
+      "nome": "Carta Mensal 2025/01",
+      "url": "https://www.legacycapital.com.br/wp-content/uploads/202501_Carta-Mensal.pdf"
+    },
+    {
+      "nome": "Cartas (site)",
+      "url": "https://www.legacycapital.com.br/cartas/"
+    }
+  ],
+  "data": "2026-08-31",
+  "nota_fontes": "Carta Mensal de 8-12 páginas (painel de variação de preços, atribuição, cenário internacional, Brasil, posicionamento, lâmina com tabela de retornos), publicada nos dias 2-5 do mês seguinte em /wp-content/uploads/AAAAMM_Carta-Mensal.pdf. 15 cartas lidas (fev, mar, abr, set e dez/25 não estão no site; meses cobertos pela cota CVM).",
+  "cenario": {
+    "global": [
+      "Agosto/26: juros reais longos altos nos desenvolvidos por dois vetores estruturais, déficits/term premium e competição por capital do capex de IA (a casa ACEITA a tese que a K10 descarta); normalização do BoJ reduz demanda japonesa por Treasuries.",
+      "Warsh em Jackson Hole mais restritivo que a coletiva de julho; a casa espera alta de 25-50 bps no 2º semestre se os dados vierem como o mercado espera. Dados de curto prazo benignos (payroll -23 mil, núcleo perto da meta) mas tendência ainda não comprovada.",
+      "Petróleo bruto estável em US$ 80-90, pressão nos derivados e GNL (diesel, Europa); estoques caindo 5 mi b/d; sem negociação EUA-Irã."
+    ],
+    "brasil": [
+      "Agosto: saída de estrangeiro da bolsa, real testa R$ 5,25, curva abre. Ainda assim, 'o acirramento da disputa eleitoral combinado a uma dinâmica técnica mais construtiva tornou mais favorável a relação risco-retorno dos ativos brasileiros'.",
+      "Maio/26: IPCA 2026 revisado a 5,1% e 2027 a 4,8% incorporando El Niño (o mais intenso desde 1850 nas previsões), fim da 6x1 e estímulos eleitorais; mesmo assim o BCB mantém a calibração gradual. Fevereiro/26 a casa esperava corte de 50 bps e 350-400 bps no ano, IPCA 3,5%: a guerra virou tudo.",
+      "Cenário-base de 2025 até agora: vitória da oposição em outubro de 2026 (Tarcísio em ago/25, Flávio Bolsonaro favorito em mar/26)."
+    ],
+    "tese_longa": [
+      "2025 foi o ano do 'dólar fraco + cortes globais': vendido USD contra cesta de carry, aplicado em México/Europa/EUA, long tech; e entrada em Brasil (juros reais + nominais, bolsa) em junho/25 apostando em desaceleração, inflação caindo e governo impopular.",
+      "2026: janeiro e fevereiro ganhando com USD vendido e juros; março (-3,55%) 'mudança completa de cenário', cortou posições; abril a agosto ganhando em bolsa global, moedas e commodities; juros locais foram o detrator (março, junho).",
+      "Diferença de leitura sobre o Fed: em julho/26 viram Warsh 'priorizando discurso duro a ações' como possível erro de política; em agosto, Jackson Hole deslocou o balanço para alta. Convergem com K10 e Zeta no tomado curto EUA."
+    ]
+  },
+  "posicoes": {
+    "resumo_ago26": "Comprado em bolsas globais e em commodities (principais contribuições de agosto); moedas de carry e DM cíclicas contra dólar (reduzido após Warsh); valor relativo; Brasil com risco-retorno mais favorável após a reprecificação de agosto.",
+    "historico": "Jun/25 a fev/26: aplicado em juros reais e nominais BR + bolsa BR; long tech vs índices; vendido USD. Mar/26: redução significativa das posições. Abr-mai/26: bolsa global, moedas, commodities. Jun/26: moedas e valor relativo."
+  },
+  "desempenho": {
+    "mes": {
+      "fundo": 1.35,
+      "cdi": 1.17,
+      "ref": "2026-09"
+    },
+    "ano": {
+      "fundo": 5.6,
+      "cdi": 10.5,
+      "pct_cdi": 53.3
+    },
+    "anos": {
+      "2025": {
+        "fundo": 14.89,
+        "cdi": 14.31
+      },
+      "2026 (até set)": {
+        "fundo": 5.6,
+        "cdi": 10.5
+      }
+    },
+    "mensal_2026": [
+      [
+        "01",
+        1.56
+      ],
+      [
+        "02",
+        1.74
+      ],
+      [
+        "03",
+        -3.55
+      ],
+      [
+        "04",
+        2.54
+      ],
+      [
+        "05",
+        1.48
+      ],
+      [
+        "06",
+        0.8
+      ],
+      [
+        "07",
+        -1.16
+      ],
+      [
+        "08",
+        0.84
+      ],
+      [
+        "09",
+        1.35
+      ]
+    ],
+    "mensal_2025": [
+      [
+        "01",
+        2.25
+      ],
+      [
+        "02",
+        -2.15
+      ],
+      [
+        "03",
+        0.08
+      ],
+      [
+        "04",
+        3.2
+      ],
+      [
+        "05",
+        1.62
+      ],
+      [
+        "06",
+        2.71
+      ],
+      [
+        "07",
+        0.19
+      ],
+      [
+        "08",
+        1.24
+      ],
+      [
+        "09",
+        1.43
+      ],
+      [
+        "10",
+        1.49
+      ],
+      [
+        "11",
+        0.97
+      ],
+      [
+        "12",
+        1.03
+      ]
+    ],
+    "pl_mi": 107,
+    "nota": "Retornos mensais e anuais calculados pela cota diária da CVM (inf_diario, último dado 2026-10-01); PL de R$ 107 mi.",
+    "anos_carta": {
+      "2018": 5.17,
+      "2019": 15.0,
+      "2020": 13.74,
+      "2021": 1.32,
+      "2022": 23.56,
+      "2023": 7.85,
+      "2024": 3.96
+    }
+  },
+  "leitura": [
+    "Legacy é a casa mais 'macro de texto' da amostra: cada carta traz projeções próprias (PIB, IPCA, core PCE, petróleo). Em 2026 as projeções de inflação BR foram de 3,5% (fev) para 4,7% (mar-abr) e 5,1% (mai): bom termômetro do choque.",
+    "Divergência com K10 sobre juros longos globais: Legacy atribui a alta a fiscal + competição por capital da IA (estrutural); K10 vê crescimento nominal e produtividade e descarta prêmio de solvência.",
+    "Convergência de agosto/26 com K10 e Genoa: eleição mais acirrada + técnico limpo = aumentar Brasil. Três casas macro apontando o mesmo gatilho no mesmo mês.",
+    "Ano em ~55% do CDI pela cota; 12 meses +9,4%. Perdeu em juros locais em março e junho, ganhou o resto em bolsa global."
+  ],
+  "periodos_cartas": [
+    {
+      "ini": "2025-01-01",
+      "fim": "2025-03-31",
+      "rotulo": "1T25",
+      "cor": "#2457c5",
+      "carta": "Carta jan/25 (fev-abr só cota CVM)",
+      "tipo": "primária",
+      "cenario": "EUA robustos, Deepseek, tarifas a China/México/Canadá ('devem levar México e Canadá à recessão'); Brasil: núcleo a 8%, BC sobe 100 e sinaliza mais 100; 'não compartilhamos' a desaceleração que o BC espera; envolvimento com Brasil reduzido.",
+      "resultado": "Jan +2,25% (bolsa externa e juros México), fev -2,15%, mar +0,08%, abr +3,20% (cota CVM). Diminuiu bolsa EUA e tomado Japão; aplicado México e Europa; comprado USD."
+    },
+    {
+      "ini": "2025-04-01",
+      "fim": "2025-06-30",
+      "rotulo": "2T25",
+      "cor": "#7b4fb8",
+      "carta": "Cartas mai, jun/25",
+      "tipo": "primária",
+      "cenario": "Desescalada tarifária, recessão EUA descartada; déficit de 6% do PIB alimenta diversificação fora do USD; Brasil: PIB 2,5%, inflação 5,2% → 5,0%, IOF mal recebido, BC estável até consolidar; crédito agrícola como alerta (nota no LinkedIn).",
+      "resultado": "Mai +1,62% (juros, L/S bolsa externa), jun +2,71% (USD vendido, juros, L/S). Em junho AUMENTOU Brasil: aplicado real e nominal + comprado bolsa, mirando desaceleração e governo impopular em 2026."
+    },
+    {
+      "ini": "2025-07-01",
+      "fim": "2025-09-30",
+      "rotulo": "3T25",
+      "cor": "#1a8fa8",
+      "carta": "Cartas jul, ago/25 (set só cota)",
+      "tipo": "primária",
+      "cenario": "Revisão do payroll vira o cenário (Fed corta 100 bps ou mais em 2025); tarifa de 50% ao Brasil; inflação BR de 6,2% projetada em jan para 4,6%; Trump demite Lisa Cook; Tarcísio se articula, cenário-base vitória da oposição.",
+      "resultado": "Jul +0,19% (bolsa + / USD e juros -), ago +1,24% (juros e USD + / bolsa -), set +1,43%. Aplicado em juros BR reais e nominais, juros externos, vendido USD, long tech."
+    },
+    {
+      "ini": "2025-10-01",
+      "fim": "2025-12-31",
+      "rotulo": "4T25",
+      "cor": "#e0662b",
+      "carta": "Cartas out, nov/25 (dez só cota)",
+      "tipo": "primária",
+      "cenario": "Shutdown; produtividade EUA ~2% afasta recessão; Trump-Xi; Brasil desacelera lentamente, IPCA 4,2%/3,9%, corte entre jan e mar; segurança pública melhora a perspectiva de troca de governo; volatilidade de tech (OpenAI) em novembro.",
+      "resultado": "Out +1,49% (juros e bolsas externas; 13,2% no ano, 113% CDI), nov +0,97% (juros locais + / bolsa -), dez +1,03%; ano +14,89% (104% do CDI). Comprado carry contra DM, aplicado BR."
+    },
+    {
+      "ini": "2026-01-01",
+      "fim": "2026-03-31",
+      "rotulo": "1T26",
+      "cor": "#bf3a2f",
+      "carta": "Cartas jan, fev, mar/26",
+      "tipo": "primária",
+      "cenario": "Fluxo para fora do USD; Warsh 'reduz o temor de captura do Fed'; intervenções (Venezuela, Groenlândia, Irã) lidas como tentativa de baixar o petróleo; Brasil: corte de 50 em março, 350-400 bps no ano, IPCA 3,5%, Flávio empata com Lula. Março: guerra, petróleo +50%, 'mudança completa de cenário', recessão global se persistir.",
+      "resultado": "Jan +1,56% (USD vendido, juros; bolsa -), fev +1,74%, MAR -3,55% (juros locais e bolsa externa). Reduziu posições de forma significativa; IPCA 2026 revisado a 4,7%."
+    },
+    {
+      "ini": "2026-04-01",
+      "fim": "2026-06-30",
+      "rotulo": "2T26",
+      "cor": "#1a8fa8",
+      "carta": "Cartas abr, mai, jun/26",
+      "tipo": "primária",
+      "cenario": "Cenário binário em Ormuz (US$ 200 se fechado, US$ 90 no fim de 2026 no benigno); Fed não sobe por choque de oferta; BCE sobe 25-50; Brasil: IPCA 5,1% (El Niño, 6x1, estímulos), BCB mantém 25 bps; junho: Warsh duro surpreende, curva BR precifica pausa e até reversão, depois prêmio dissipa.",
+      "resultado": "Abr +2,54% (bolsa global, moedas, commodities), mai +1,48%, jun +0,80% (moedas e valor relativo). Ano +4,54% em junho."
+    },
+    {
+      "ini": "2026-07-01",
+      "fim": "2026-09-30",
+      "rotulo": "3T26",
+      "cor": "#1baf7a",
+      "carta": "Cartas jul, ago/26 (set/26 sai ~2/10)",
+      "tipo": "primária",
+      "cenario": "Julho: desalavancagem técnica (pods, ETFs alavancados) com fundamentos melhorando; Warsh brando na coletiva lido como possível erro; Brasil: curva abre, real e bolsa sobem com petróleo. Agosto: juros reais longos altos (fiscal + IA), Jackson Hole, Fed +25-50 no 2S; Brasil com risco-retorno mais favorável.",
+      "resultado": "Jul -1,16% (bolsas globais), ago +0,84% (bolsas globais e commodities; 4,2% no ano, 9,4% em 12 m), set +1,35% pela cota CVM."
+    },
+    {
+      "ini": "2026-10-01",
+      "fim": "2026-12-31",
+      "rotulo": "4T26",
+      "cor": "#8a8d92",
+      "carta": "Set/26 sai ~2/10",
+      "tipo": "lacuna",
+      "cenario": "Eleição, Copom, Fed.",
+      "resultado": "A preencher."
+    }
+  ]
+}
