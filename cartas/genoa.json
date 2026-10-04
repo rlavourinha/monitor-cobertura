@@ -81,29 +81,33 @@
       "pct_cdi": 132.6
     },
     "anos": {
+      "2020 (jul-dez)": {
+        "fundo": 3.05,
+        "cdi": 0.99
+      },
       "2021": {
+        "fundo": 8.82,
+        "cdi": 4.39
+      },
+      "2022": {
         "fundo": 21.39,
         "cdi": 12.37
       },
-      "2022": {
+      "2023": {
         "fundo": 12.71,
         "cdi": 13.05
       },
-      "2023": {
-        "fundo": 12.68,
-        "cdi": 10.87
-      },
       "2024": {
-        "fundo": 12.99,
+        "fundo": 12.68,
         "cdi": 10.87
       },
       "2025": {
         "fundo": 12.99,
-        "cdi": 14.9
+        "cdi": 14.31
       },
-      "2026 (até ago)": {
-        "fundo": 9.26,
-        "cdi": 9.33
+      "2026 (até set)": {
+        "fundo": 12.91,
+        "cdi": 10.5
       }
     },
     "mensal_2026": [
@@ -138,6 +142,10 @@
       [
         "08",
         1.37
+      ],
+      [
+        "09",
+        3.34
       ]
     ],
     "atribuicao_ano": [
@@ -174,7 +182,7 @@
     "vol": 3.69,
     "pl_medio_12m_mi": 448,
     "pl_master_mi": 4476,
-    "nota": "Tabela da carta de ago/26; 2025 conferido pela cota CVM (12.99%); 2024 = 12,99% (CDI 10,87%) e 2021-23 como na carta. Atribuição no ano (p.p., ex-CDI) como publicada.",
+    "nota": "Anos pela tabela da carta de ago/26 (linhas em ordem decrescente), 2025 conferido pela cota CVM (12,99%). Setembro/26 (+3,34%) e o acumulado 2026 vêm da cota CVM (carta de setembro ainda não publicada); CDI 2026 até set estimado. Atribuição no ano (p.p., ex-CDI) como publicada em ago/26.",
     "anos_cota_cvm": {
       "2025": 12.99,
       "2026": 13.03
@@ -182,7 +190,7 @@
   },
   "leitura": [
     "É a casa mais explícita sobre a eleição: cenário-base de derrota do governo, com o próprio risco baixista das projeções (real mais forte, desinflação) dependendo disso.",
-    "No ano, o Radar empata com o CDI (99%) e o alpha veio todo do internacional; juros Brasil quase zero apesar da tese de ciclo longo: ou o tamanho é pequeno, ou o mercado já precifica o que eles esperam.",
+    "Até agosto o Radar empatava com o CDI (99%); setembro rendeu +3,34% pela cota CVM, o melhor mês do ano, e levou o acumulado a ~13%: a aposta eleitoral e de juros começou a pagar antes da urna.",
     "A leitura de crédito (inadimplência piorando na margem apesar do Desenrola) é a mesma dos bancos médios na conferência do BTG e a mesma da nota do BCB: convergência de três fontes primárias.",
     "Arpa negativo no ano (-1,4%) com 95% líquido em Brasil: quem comprou a tese eleitoral via bolsa ainda não foi pago; o rali de agosto veio em utilities e industriais."
   ],
