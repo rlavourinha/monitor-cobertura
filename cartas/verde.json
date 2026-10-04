@@ -7,8 +7,14 @@
   "cnpj": "22.187.946/0001-41",
   "cnpj_fonte": "Relatório de gestão (Resumo Gerencial) e registro_fundo_classe da CVM",
   "fontes": [
-    {"nome": "Relatório de Gestão, agosto/2026", "url": "https://www.verdeasset.com.br/public/files/rel_gestao/158094/Verde-REL-2026_08.pdf"},
-    {"nome": "Performance e relatórios por fundo (site)", "url": "https://www.verdeasset.com.br/#/performance"}
+    {
+      "nome": "Relatório de Gestão, agosto/2026",
+      "url": "https://www.verdeasset.com.br/public/files/rel_gestao/158094/Verde-REL-2026_08.pdf"
+    },
+    {
+      "nome": "Performance e relatórios por fundo (site)",
+      "url": "https://www.verdeasset.com.br/#/performance"
+    }
   ],
   "data": "2026-08-31",
   "nota_fontes": "Relatório de gestão mensal de 4 páginas (texto de 1,5 página, breakdown por book ex-CDI, resumo gerencial com tabela mensal desde 1997), publicado no site em /public/files/rel_gestao/158094/Verde-REL-AAAA_MM.pdf perto do dia 10 do mês seguinte. Setembro/26 ainda não publicado em 03/10. Só agosto/26 lido na íntegra. O site não bloqueia download pelo navegador; curl simples é recusado.",
@@ -36,17 +42,110 @@
     "moedas_commodities": "Ouro e prata (ganhos em agosto); dólar rendeu 0,93 p.p. no ano; hedges estruturais mantidos."
   },
   "desempenho": {
-    "mes": {"fundo": 1.98, "cdi": 1.09, "ref": "2026-08"},
-    "ano": {"fundo": 10.33, "cdi": 9.33, "pct_cdi": 110.7},
-    "12m": {"fundo": 16.49},
-    "anos": {"2026 (até ago)": {"fundo": 10.33, "cdi": 9.33}},
-    "mensal_2026": [["01", 3.03], ["02", 1.44], ["03", 0.05], ["04", 2.71], ["05", 0.33], ["06", -0.69], ["07", 1.09], ["08", 1.98]],
-    "atribuicao_ano": [["Ações", 1.79], ["Moedas", 0.87], ["RF inflação", 0.08], ["DI pré", 0.07], ["Global rates", -0.06], ["Custos", -1.02], ["Crédito", -1.12]],
+    "mes": {
+      "fundo": 1.98,
+      "cdi": 1.09,
+      "ref": "2026-08"
+    },
+    "ano": {
+      "fundo": 10.33,
+      "cdi": 9.33,
+      "pct_cdi": 110.7
+    },
+    "12m": {
+      "fundo": 16.49
+    },
+    "anos": {
+      "2025": {
+        "fundo": 15.94,
+        "cdi": 14.31
+      },
+      "2026 (até set)": {
+        "fundo": 10.62,
+        "cdi": 10.5
+      }
+    },
+    "mensal_2026": [
+      [
+        "01",
+        3.03
+      ],
+      [
+        "02",
+        1.44
+      ],
+      [
+        "03",
+        0.05
+      ],
+      [
+        "04",
+        2.71
+      ],
+      [
+        "05",
+        0.33
+      ],
+      [
+        "06",
+        -0.69
+      ],
+      [
+        "07",
+        1.09
+      ],
+      [
+        "08",
+        1.98
+      ],
+      [
+        "09",
+        0.26
+      ],
+      [
+        "10",
+        0.4
+      ]
+    ],
+    "atribuicao_ano": [
+      [
+        "Ações",
+        1.79
+      ],
+      [
+        "Moedas",
+        0.87
+      ],
+      [
+        "RF inflação",
+        0.08
+      ],
+      [
+        "DI pré",
+        0.07
+      ],
+      [
+        "Global rates",
+        -0.06
+      ],
+      [
+        "Custos",
+        -1.02
+      ],
+      [
+        "Crédito",
+        -1.12
+      ]
+    ],
     "sharpe": 0.36,
     "vol": 8.47,
     "retorno_anualizado_desde_inicio": 21.95,
     "pl_medio_12m_mi": 899,
-    "nota": "Breakdown por book já ex-CDI, como a Verde publica. Mensal 2026 lido da tabela do Resumo Gerencial (jan 3,03; fev 1,44; mar 0,05; abr 2,71; mai 0,33; jun -0,69; jul 1,09; ago 1,98), a conferir na cota CVM. Sharpe e vol anualizada desde a constituição (1997)."
+    "nota": "Breakdown por book ex-CDI como a Verde publica. Mensal 2026 e anos pela cota CVM (jan-ago batem com a tabela do relatório); setembro/26 (0.26%) vem só da cota, relatório ainda não publicado. Sharpe e vol anualizada desde a constituição (1997).",
+    "anos_cota_cvm": {
+      "2025": 15.94,
+      "2026": 11.06
+    }
   },
   "leitura": [
     "A Verde é o contraponto útil às outras cartas: não compra NTN-B nem DI para a eleição, compra opções de bolsa. Se Lula abrir vantagem, perde o prêmio da opção, não a duration.",
@@ -54,12 +153,35 @@
     "Crédito local tirou 1,1 p.p. no ano: mesma piora de inadimplência que Genoa, BTG (bancos médios) e BCB descrevem; o Verde sente no book."
   ],
   "periodos_cartas": [
-    {"ini": "2026-01-01", "fim": "2026-06-30", "rotulo": "1S26", "cor": "#8a8d92", "carta": "Relatórios jan-jun/26 disponíveis, não lidos", "tipo": "lacuna",
-     "cenario": "Guerra no Irã, Warsh, petróleo; junho -0,69%.", "resultado": "A preencher com os relatórios de janeiro a junho."},
-    {"ini": "2026-07-01", "fim": "2026-09-30", "rotulo": "3T26", "cor": "#1baf7a", "carta": "Relatório de gestão, ago/26", "tipo": "primária",
-     "cenario": "Bessent intervém na ponta longa; Warsh duro em Jackson Hole; eleição mais competitiva reprecifica a bolsa.",
-     "resultado": "Agosto +1,98% (182% do CDI): ouro, prata, bolsa global e trading; crédito e juro real americano tiraram pouco. Ano 111% do CDI."},
-    {"ini": "2026-10-01", "fim": "2026-12-31", "rotulo": "4T26", "cor": "#a9acb2", "carta": "Set/26 sai ~10/10", "tipo": "lacuna",
-     "cenario": "Eleição, Copom.", "resultado": "A preencher."}
+    {
+      "ini": "2026-01-01",
+      "fim": "2026-06-30",
+      "rotulo": "1S26",
+      "cor": "#8a8d92",
+      "carta": "Relatórios jan-jun/26 disponíveis, não lidos",
+      "tipo": "lacuna",
+      "cenario": "Guerra no Irã, Warsh, petróleo; junho -0,69%.",
+      "resultado": "A preencher com os relatórios de janeiro a junho."
+    },
+    {
+      "ini": "2026-07-01",
+      "fim": "2026-09-30",
+      "rotulo": "3T26",
+      "cor": "#1baf7a",
+      "carta": "Relatório de gestão, ago/26",
+      "tipo": "primária",
+      "cenario": "Bessent intervém na ponta longa; Warsh duro em Jackson Hole; eleição mais competitiva reprecifica a bolsa.",
+      "resultado": "Agosto +1,98% (182% do CDI): ouro, prata, bolsa global e trading; crédito e juro real americano tiraram pouco. Ano 111% do CDI."
+    },
+    {
+      "ini": "2026-10-01",
+      "fim": "2026-12-31",
+      "rotulo": "4T26",
+      "cor": "#a9acb2",
+      "carta": "Set/26 sai ~10/10",
+      "tipo": "lacuna",
+      "cenario": "Eleição, Copom.",
+      "resultado": "A preencher."
+    }
   ]
 }
