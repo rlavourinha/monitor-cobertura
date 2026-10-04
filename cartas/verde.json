@@ -1,0 +1,65 @@
+{
+  "fundo": "Verde",
+  "gestora": "Verde Asset Management (Luis Stuhlberger)",
+  "tipo": "Multimercado macro flagship, 1997: ações, renda fixa e moedas, Brasil e internacional. VERDE FIF CIC MULTIMERCADO RL, cisão de 21/05/2015 do CSHG Verde (início 02/01/1997). Fechado para novas aplicações.",
+  "inicio": "2024-01-01",
+  "inicio_fundo": "2015-05-21",
+  "cnpj": "22.187.946/0001-41",
+  "cnpj_fonte": "Relatório de gestão (Resumo Gerencial) e registro_fundo_classe da CVM",
+  "fontes": [
+    {"nome": "Relatório de Gestão, agosto/2026", "url": "https://www.verdeasset.com.br/public/files/rel_gestao/158094/Verde-REL-2026_08.pdf"},
+    {"nome": "Performance e relatórios por fundo (site)", "url": "https://www.verdeasset.com.br/#/performance"}
+  ],
+  "data": "2026-08-31",
+  "nota_fontes": "Relatório de gestão mensal de 4 páginas (texto de 1,5 página, breakdown por book ex-CDI, resumo gerencial com tabela mensal desde 1997), publicado no site em /public/files/rel_gestao/158094/Verde-REL-AAAA_MM.pdf perto do dia 10 do mês seguinte. Setembro/26 ainda não publicado em 03/10. Só agosto/26 lido na íntegra. O site não bloqueia download pelo navegador; curl simples é recusado.",
+  "cenario": {
+    "global": [
+      "Quatro forças: conflito EUA-Irã e petróleo; Warsh no Fed (tom duro em Jackson Hole); pressão fiscal e de demanda por capital nos juros longos desenvolvidos; ciclo de capex em IA e derivadas.",
+      "Bessent anunciou intervenção para segurar a ponta longa americana; a Verde acha que não funciona (déficit, financiamento, emissões privadas para capex de IA). O mercado reagiu com dólar fraco e ouro e prata em alta.",
+      "Trajetória fiscal dos desenvolvidos leva a inflação ou repressão financeira; a intervenção de Bessent seria o primeiro sinal da segunda. Ouro e prata são ativos de portfólio para esse mundo."
+    ],
+    "brasil": [
+      "Ciclo eleitoral na fase mais aguda e caótica; pesquisas mais competitivas do que o consenso de um mês antes; bolsa começou a reprecificar a partir de meados de agosto.",
+      "Prêmio de risco ainda interessante em vários setores; posições compradas em opções para capturar a assimetria eleitoral.",
+      "Renda fixa local sem posição direcional; crédito local mantido (detrator no ano: -1,12 p.p.)."
+    ],
+    "tese_longa": [
+      "Verde evita duration no DI em ano eleitoral e expressa a tese Brasil via bolsa com opções (assimetria, não direção), ao contrário de Opportunity e Genoa, que estão em NTN-B e DI.",
+      "Ouro e prata como hedge estrutural contra repressão financeira: é a casa que mais fala de fiscal global como risco de regime, não de ciclo.",
+      "Ano em 111% do CDI com o livro de ações (+1,79 p.p.) e moedas (+0,87) pagando e crédito tirando (-1,12)."
+    ]
+  },
+  "posicoes": {
+    "acoes_brasil": "Aumentou a exposição em meados de agosto; compra de opções para capturar a assimetria eleitoral; prêmio setorial ainda interessante.",
+    "acoes_global": "Alocação global mantida (ganhos em agosto).",
+    "renda_fixa": "Sem direcional no DI; aplicado em juro real americano (perda marginal em agosto); crédito local mantido.",
+    "moedas_commodities": "Ouro e prata (ganhos em agosto); dólar rendeu 0,93 p.p. no ano; hedges estruturais mantidos."
+  },
+  "desempenho": {
+    "mes": {"fundo": 1.98, "cdi": 1.09, "ref": "2026-08"},
+    "ano": {"fundo": 10.33, "cdi": 9.33, "pct_cdi": 110.7},
+    "12m": {"fundo": 16.49},
+    "anos": {"2026 (até ago)": {"fundo": 10.33, "cdi": 9.33}},
+    "mensal_2026": [["01", 3.03], ["02", 1.44], ["03", 0.05], ["04", 2.71], ["05", 0.33], ["06", -0.69], ["07", 1.09], ["08", 1.98]],
+    "atribuicao_ano": [["Ações", 1.79], ["Moedas", 0.87], ["RF inflação", 0.08], ["DI pré", 0.07], ["Global rates", -0.06], ["Custos", -1.02], ["Crédito", -1.12]],
+    "sharpe": 0.36,
+    "vol": 8.47,
+    "retorno_anualizado_desde_inicio": 21.95,
+    "pl_medio_12m_mi": 899,
+    "nota": "Breakdown por book já ex-CDI, como a Verde publica. Mensal 2026 lido da tabela do Resumo Gerencial (jan 3,03; fev 1,44; mar 0,05; abr 2,71; mai 0,33; jun -0,69; jul 1,09; ago 1,98), a conferir na cota CVM. Sharpe e vol anualizada desde a constituição (1997)."
+  },
+  "leitura": [
+    "A Verde é o contraponto útil às outras cartas: não compra NTN-B nem DI para a eleição, compra opções de bolsa. Se Lula abrir vantagem, perde o prêmio da opção, não a duration.",
+    "A tese de repressão financeira (Bessent segurando a ponta longa) é a leitura mais estrutural que circulou em agosto; se estiver certa, juro real americano aplicado é a posição errada, e eles mesmos estão nela.",
+    "Crédito local tirou 1,1 p.p. no ano: mesma piora de inadimplência que Genoa, BTG (bancos médios) e BCB descrevem; o Verde sente no book."
+  ],
+  "periodos_cartas": [
+    {"ini": "2026-01-01", "fim": "2026-06-30", "rotulo": "1S26", "cor": "#8a8d92", "carta": "Relatórios jan-jun/26 disponíveis, não lidos", "tipo": "lacuna",
+     "cenario": "Guerra no Irã, Warsh, petróleo; junho -0,69%.", "resultado": "A preencher com os relatórios de janeiro a junho."},
+    {"ini": "2026-07-01", "fim": "2026-09-30", "rotulo": "3T26", "cor": "#1baf7a", "carta": "Relatório de gestão, ago/26", "tipo": "primária",
+     "cenario": "Bessent intervém na ponta longa; Warsh duro em Jackson Hole; eleição mais competitiva reprecifica a bolsa.",
+     "resultado": "Agosto +1,98% (182% do CDI): ouro, prata, bolsa global e trading; crédito e juro real americano tiraram pouco. Ano 111% do CDI."},
+    {"ini": "2026-10-01", "fim": "2026-12-31", "rotulo": "4T26", "cor": "#a9acb2", "carta": "Set/26 sai ~10/10", "tipo": "lacuna",
+     "cenario": "Eleição, Copom.", "resultado": "A preencher."}
+  ]
+}
