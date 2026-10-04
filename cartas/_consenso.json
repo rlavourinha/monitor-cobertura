@@ -1,45 +1,437 @@
 {
   "_nota": "Quadro de consenso e discordância entre as casas, montado a partir das últimas cartas lidas (cartas/*.json). Sinal: + comprado/aplicado, - vendido/tomado, 0 zerado/neutro, ~ tático ou reduzindo, vazio = a carta não trata. Atualizar quando as cartas de setembro saírem (6 a 11/10).",
-  "data": "2026-10-03",
-  "ref": "Cartas de agosto/26 (Genoa, Verde, K10, Zeta, Legacy, Squadra 1S26) e setembro/26 (Opportunity)",
-  "casas": ["Opportunity", "Genoa", "Verde", "K10", "Zeta", "Legacy"],
+  "data": "2026-10-04",
+  "ref": "Cartas de agosto/26 (Genoa, Verde, K10, Zeta, Legacy, Squadra 1S26, SPX via informe BB + Substack) e setembro/26 (Opportunity)",
+  "casas": [
+    "Opportunity",
+    "Genoa",
+    "Verde",
+    "K10",
+    "Zeta",
+    "Legacy",
+    "SPX"
+  ],
   "temas": [
-    {"tema": "Bolsa Brasil", "veredito": "consenso",
-     "pos": {"Opportunity": ["+", "seletiva, hedge em índice"], "Genoa": ["+", "Arpa 95% líquido"], "Verde": ["+", "opções, aumentou ago"], "K10": ["+", "adicionou em ago"], "Zeta": ["+", "comprado + valor relativo"], "Legacy": ["+", "risco-retorno melhor (ago)"]},
-     "nota": "Seis de seis compradas, Squadra e Dynamo por mandato. Verde e Opportunity via opções ou com hedge: posição lotada, mas com seguro."},
-    {"tema": "Juros Brasil (DI)", "veredito": "maioria",
-     "pos": {"Opportunity": ["+", "viés aplicador, intermediário"], "Genoa": ["+", "BC corta mais que o mercado"], "Verde": ["0", "sem direcional"], "K10": ["+", "aumentou curto em jul/ago"], "Zeta": ["~", "reduziu em mai e ago"], "Legacy": ["+", "aplicado desde jun/25"]},
-     "nota": "Quatro aplicadas. Genoa aplica porque lê o BC como leniente, não por convicção na inflação; Zeta reduz porque os núcleos são incompatíveis com a meta."},
-    {"tema": "Juro real (NTN-B)", "veredito": "dividido",
-     "pos": {"Opportunity": ["+", "estrutural desde dez/25"], "Genoa": ["", ""], "Verde": ["0", "zerou nos leilões (mar)"], "K10": ["+", "aposta eleitoral"], "Zeta": ["~", "mantém, reduziu em ago"], "Legacy": ["+", "aplicado real + nominal"]},
-     "nota": "Opportunity, K10 e Legacy carregam NTN-B como a tese da alternância; a Verde saiu em março e prefere opções de bolsa para a mesma assimetria."},
-    {"tema": "Real (BRL)", "veredito": "maioria",
-     "pos": {"Opportunity": ["+", "vendido USDBRL via opções"], "Genoa": ["+", "detratora em ago"], "Verde": ["0", "zerou em maio"], "K10": ["+", "comprado (tático)"], "Zeta": ["+", "aumentou em ago"], "Legacy": ["~", "cesta de carry"]},
-     "nota": "Comprado na maioria, mas a tese diverge: K10 espera câmbio MAIS depreciado no ajuste fiscal (juro baixo + fiscal restritivo); Genoa espera apreciação com a oposição eleita."},
-    {"tema": "Juros EUA (curto)", "veredito": "consenso",
-     "pos": {"Opportunity": ["-", "tomado"], "Genoa": ["-", "tomado, Fed sobe"], "Verde": ["+", "aplicado em juro REAL"], "K10": ["-", "tomado curto (ago)"], "Zeta": ["0", "zerou tomados em jun"], "Legacy": ["-", "Fed +25-50 no 2S"]},
-     "nota": "Quatro casas esperam o Fed subindo com Warsh. A Verde está na contramão: comprada em TIPS (juro real), apostando que a inflação persiste mais que o juro."},
-    {"tema": "Juros longos globais", "veredito": "discordância",
-     "pos": {"Opportunity": ["-", "capex de IA via dívida pressiona"], "Genoa": ["", ""], "Verde": ["-", "fiscal + IA; repressão financeira"], "K10": ["0", "sem prêmio de solvência; sem posição"], "Zeta": ["", ""], "Legacy": ["-", "fiscal + competição por capital"]},
-     "nota": "Diagnóstico oposto: Verde, Legacy e Opportunity veem term premium estrutural (déficits e capex de IA); K10 testou as hipóteses e ficou com crescimento nominal e produtividade, por isso prefere bolsa a tomar a ponta longa."},
-    {"tema": "Bolsa global / tech", "veredito": "consenso",
-     "pos": {"Opportunity": ["+", "semis, financeiros, mídia"], "Genoa": ["~", "perdeu em semis EUA"], "Verde": ["+", "alocação global"], "K10": ["+", "comprou a queda de jul"], "Zeta": ["~", "reduziu globais em ago"], "Legacy": ["+", "principal ganho do ano"]},
-     "nota": "Comprado quase geral; K10 e Legacy leram a queda de julho como desalavancagem técnica e compraram."},
-    {"tema": "Ouro e prata", "veredito": "discordância",
-     "pos": {"Opportunity": ["", ""], "Genoa": ["", ""], "Verde": ["+", "ouro e prata (debasement)"], "K10": ["0", "short prata encerrado"], "Zeta": ["-", "vendido ouro desde jun"], "Legacy": ["+", "commodities (genérico)"]},
-     "nota": "Verde compra metais como seguro contra repressão financeira; a Kapitalo (Zeta) está vendida em ouro desde junho e short paládio."},
-    {"tema": "Petróleo", "veredito": "maioria",
-     "pos": {"Opportunity": ["", ""], "Genoa": ["", "risco altista p/ IPCA"], "Verde": ["", ""], "K10": ["~", "curto +, longo - (2027)"], "Zeta": ["-", "vendido, reduzido em ago"], "Legacy": ["-", "viés de baixa 2027 (US$ 70)"]},
-     "nota": "Quem opera concorda que a curva longa cai (excesso de oferta em 2027, Golfo produzindo no máximo); o curto depende de Ormuz."},
-    {"tema": "Eleição (cenário-base)", "veredito": "consenso",
-     "pos": {"Opportunity": ["+", "alternância = compromisso fiscal"], "Genoa": ["+", "derrota de Lula no 2º turno"], "Verde": ["~", "disputa mais competitiva; assimetria"], "K10": ["~", "empate técnico, dicotômico"], "Zeta": ["~", "6x1 antes do 2º turno = risco"], "Legacy": ["+", "Flávio favorito"]},
-     "nota": "Alternância como cenário-base e o acirramento de agosto como gatilho de compra: K10, Legacy, Verde e Opportunity aumentaram Brasil no mesmo mês. Squadra: 'menos pior não é tese'."},
-    {"tema": "IPCA 2026 (projeção)", "veredito": "consenso",
-     "pos": {"Opportunity": ["", ""], "Genoa": ["", "~5,0% / 4,5% em 2027"], "Verde": ["", ""], "K10": ["", ""], "Zeta": ["", "4,8% (jul)"], "Legacy": ["", "5,1% / 4,8% em 2027"]},
-     "nota": "Entre 4,8% e 5,1%, todas acima do Focus de julho; riscos citados por mais de uma casa: El Niño, fim da 6x1, estímulos eleitorais, petróleo."},
-    {"tema": "BCB (próximos passos)", "veredito": "maioria",
-     "pos": {"Opportunity": ["+", "corta, dependente de dados"], "Genoa": ["+", "vai além do que o mercado supõe"], "Verde": ["", ""], "K10": ["+", "espaço para seguir cortando"], "Zeta": ["~", "núcleos incompatíveis; cautela"], "Legacy": ["+", "calibração de 25 bps"]},
-     "nota": "Ciclo de 25 bps continua é o consenso; Genoa é a mais dovish (BC leniente), Zeta a mais hawkish (serviços, 6x1, El Niño)."}
+    {
+      "tema": "Bolsa Brasil",
+      "veredito": "consenso",
+      "pos": {
+        "Opportunity": [
+          "+",
+          "seletiva, hedge em índice"
+        ],
+        "Genoa": [
+          "+",
+          "Arpa 95% líquido"
+        ],
+        "Verde": [
+          "+",
+          "opções, aumentou ago"
+        ],
+        "K10": [
+          "+",
+          "adicionou em ago"
+        ],
+        "Zeta": [
+          "+",
+          "comprado + valor relativo"
+        ],
+        "Legacy": [
+          "+",
+          "risco-retorno melhor (ago)"
+        ],
+        "SPX": [
+          "~",
+          "relativos; dez/24 'já precifica'"
+        ]
+      },
+      "nota": "Seis de seis compradas, Squadra e Dynamo por mandato. Verde e Opportunity via opções ou com hedge: posição lotada, mas com seguro."
+    },
+    {
+      "tema": "Juros Brasil (DI)",
+      "veredito": "maioria",
+      "pos": {
+        "Opportunity": [
+          "+",
+          "viés aplicador, intermediário"
+        ],
+        "Genoa": [
+          "+",
+          "BC corta mais que o mercado"
+        ],
+        "Verde": [
+          "0",
+          "sem direcional"
+        ],
+        "K10": [
+          "+",
+          "aumentou curto em jul/ago"
+        ],
+        "Zeta": [
+          "~",
+          "reduziu em mai e ago"
+        ],
+        "Legacy": [
+          "+",
+          "aplicado desde jun/25"
+        ],
+        "SPX": [
+          "",
+          "sem direcional (abr/25); Selic 13,50 fim/26"
+        ]
+      },
+      "nota": "Quatro aplicadas. Genoa aplica porque lê o BC como leniente, não por convicção na inflação; Zeta reduz porque os núcleos são incompatíveis com a meta."
+    },
+    {
+      "tema": "Juro real (NTN-B)",
+      "veredito": "dividido",
+      "pos": {
+        "Opportunity": [
+          "+",
+          "estrutural desde dez/25"
+        ],
+        "Genoa": [
+          "",
+          ""
+        ],
+        "Verde": [
+          "0",
+          "zerou nos leilões (mar)"
+        ],
+        "K10": [
+          "+",
+          "aposta eleitoral"
+        ],
+        "Zeta": [
+          "~",
+          "mantém, reduziu em ago"
+        ],
+        "Legacy": [
+          "+",
+          "aplicado real + nominal"
+        ],
+        "SPX": [
+          "",
+          ""
+        ]
+      },
+      "nota": "Opportunity, K10 e Legacy carregam NTN-B como a tese da alternância; a Verde saiu em março e prefere opções de bolsa para a mesma assimetria."
+    },
+    {
+      "tema": "Real (BRL)",
+      "veredito": "maioria",
+      "pos": {
+        "Opportunity": [
+          "+",
+          "vendido USDBRL via opções"
+        ],
+        "Genoa": [
+          "+",
+          "detratora em ago"
+        ],
+        "Verde": [
+          "0",
+          "zerou em maio"
+        ],
+        "K10": [
+          "+",
+          "comprado (tático)"
+        ],
+        "Zeta": [
+          "+",
+          "aumentou em ago"
+        ],
+        "Legacy": [
+          "~",
+          "cesta de carry"
+        ],
+        "SPX": [
+          "",
+          "moedas relativas EM x DM"
+        ]
+      },
+      "nota": "Comprado na maioria, mas a tese diverge: K10 espera câmbio MAIS depreciado no ajuste fiscal (juro baixo + fiscal restritivo); Genoa espera apreciação com a oposição eleita."
+    },
+    {
+      "tema": "Juros EUA (curto)",
+      "veredito": "consenso",
+      "pos": {
+        "Opportunity": [
+          "-",
+          "tomado"
+        ],
+        "Genoa": [
+          "-",
+          "tomado, Fed sobe"
+        ],
+        "Verde": [
+          "+",
+          "aplicado em juro REAL"
+        ],
+        "K10": [
+          "-",
+          "tomado curto (ago)"
+        ],
+        "Zeta": [
+          "0",
+          "zerou tomados em jun"
+        ],
+        "Legacy": [
+          "-",
+          "Fed +25-50 no 2S"
+        ],
+        "SPX": [
+          "-",
+          "Fed +25 set e +25 (cenário)"
+        ]
+      },
+      "nota": "Quatro casas esperam o Fed subindo com Warsh. A Verde está na contramão: comprada em TIPS (juro real), apostando que a inflação persiste mais que o juro."
+    },
+    {
+      "tema": "Juros longos globais",
+      "veredito": "discordância",
+      "pos": {
+        "Opportunity": [
+          "-",
+          "capex de IA via dívida pressiona"
+        ],
+        "Genoa": [
+          "",
+          ""
+        ],
+        "Verde": [
+          "-",
+          "fiscal + IA; repressão financeira"
+        ],
+        "K10": [
+          "0",
+          "sem prêmio de solvência; sem posição"
+        ],
+        "Zeta": [
+          "",
+          ""
+        ],
+        "Legacy": [
+          "-",
+          "fiscal + competição por capital"
+        ],
+        "SPX": [
+          "-",
+          "competição por capital (Substack)"
+        ]
+      },
+      "nota": "Diagnóstico oposto: Verde, Legacy, Opportunity e SPX (Substack: 'competição pelo próximo dólar de capital') veem term premium estrutural (déficits e capex de IA); K10 testou as hipóteses e ficou com crescimento nominal e produtividade, por isso prefere bolsa a tomar a ponta longa."
+    },
+    {
+      "tema": "Bolsa global / tech",
+      "veredito": "consenso",
+      "pos": {
+        "Opportunity": [
+          "+",
+          "semis, financeiros, mídia"
+        ],
+        "Genoa": [
+          "~",
+          "perdeu em semis EUA"
+        ],
+        "Verde": [
+          "+",
+          "alocação global"
+        ],
+        "K10": [
+          "+",
+          "comprou a queda de jul"
+        ],
+        "Zeta": [
+          "~",
+          "reduziu globais em ago"
+        ],
+        "Legacy": [
+          "+",
+          "principal ganho do ano"
+        ],
+        "SPX": [
+          "+",
+          "tech EUA e China (imprensa ago/25)"
+        ]
+      },
+      "nota": "Comprado quase geral; K10 e Legacy leram a queda de julho como desalavancagem técnica e compraram."
+    },
+    {
+      "tema": "Ouro e prata",
+      "veredito": "discordância",
+      "pos": {
+        "Opportunity": [
+          "",
+          ""
+        ],
+        "Genoa": [
+          "",
+          ""
+        ],
+        "Verde": [
+          "+",
+          "ouro e prata (debasement)"
+        ],
+        "K10": [
+          "0",
+          "short prata encerrado"
+        ],
+        "Zeta": [
+          "-",
+          "vendido ouro desde jun"
+        ],
+        "Legacy": [
+          "+",
+          "commodities (genérico)"
+        ],
+        "SPX": [
+          "",
+          ""
+        ]
+      },
+      "nota": "Verde compra metais como seguro contra repressão financeira; a Kapitalo (Zeta) está vendida em ouro desde junho e short paládio."
+    },
+    {
+      "tema": "Petróleo",
+      "veredito": "maioria",
+      "pos": {
+        "Opportunity": [
+          "",
+          ""
+        ],
+        "Genoa": [
+          "",
+          "risco altista p/ IPCA"
+        ],
+        "Verde": [
+          "",
+          ""
+        ],
+        "K10": [
+          "~",
+          "curto +, longo - (2027)"
+        ],
+        "Zeta": [
+          "-",
+          "vendido, reduzido em ago"
+        ],
+        "Legacy": [
+          "-",
+          "viés de baixa 2027 (US$ 70)"
+        ],
+        "SPX": [
+          "",
+          "Brent 90 fim/26 'em linha'"
+        ]
+      },
+      "nota": "Quem opera concorda que a curva longa cai (excesso de oferta em 2027, Golfo produzindo no máximo); o curto depende de Ormuz."
+    },
+    {
+      "tema": "Eleição (cenário-base)",
+      "veredito": "consenso",
+      "pos": {
+        "Opportunity": [
+          "+",
+          "alternância = compromisso fiscal"
+        ],
+        "Genoa": [
+          "+",
+          "derrota de Lula no 2º turno"
+        ],
+        "Verde": [
+          "~",
+          "disputa mais competitiva; assimetria"
+        ],
+        "K10": [
+          "~",
+          "empate técnico, dicotômico"
+        ],
+        "Zeta": [
+          "~",
+          "6x1 antes do 2º turno = risco"
+        ],
+        "Legacy": [
+          "+",
+          "Flávio favorito"
+        ],
+        "SPX": [
+          "~",
+          "reflexividade; armadilha fiscal"
+        ]
+      },
+      "nota": "Alternância como cenário-base e o acirramento de agosto como gatilho de compra: K10, Legacy, Verde e Opportunity aumentaram Brasil no mesmo mês. Squadra: 'menos pior não é tese'."
+    },
+    {
+      "tema": "IPCA 2026 (projeção)",
+      "veredito": "consenso",
+      "pos": {
+        "Opportunity": [
+          "",
+          ""
+        ],
+        "Genoa": [
+          "",
+          "~5,0% / 4,5% em 2027"
+        ],
+        "Verde": [
+          "",
+          ""
+        ],
+        "K10": [
+          "",
+          ""
+        ],
+        "Zeta": [
+          "",
+          "4,8% (jul)"
+        ],
+        "Legacy": [
+          "",
+          "5,1% / 4,8% em 2027"
+        ],
+        "SPX": [
+          "",
+          "5,0% / 4,4% em 2027"
+        ]
+      },
+      "nota": "Entre 4,8% e 5,1%, todas acima do Focus de julho; riscos citados por mais de uma casa: El Niño, fim da 6x1, estímulos eleitorais, petróleo."
+    },
+    {
+      "tema": "BCB (próximos passos)",
+      "veredito": "maioria",
+      "pos": {
+        "Opportunity": [
+          "+",
+          "corta, dependente de dados"
+        ],
+        "Genoa": [
+          "+",
+          "vai além do que o mercado supõe"
+        ],
+        "Verde": [
+          "",
+          ""
+        ],
+        "K10": [
+          "+",
+          "espaço para seguir cortando"
+        ],
+        "Zeta": [
+          "~",
+          "núcleos incompatíveis; cautela"
+        ],
+        "Legacy": [
+          "+",
+          "calibração de 25 bps"
+        ],
+        "SPX": [
+          "~",
+          "25 em set e nov; 13,50%"
+        ]
+      },
+      "nota": "Ciclo de 25 bps continua é o consenso; Genoa é a mais dovish (BC leniente), Zeta a mais hawkish (serviços, 6x1, El Niño); SPX projeta só mais dois cortes e Selic 13,50% no fim de 2026."
+    }
   ],
   "consensos": [
     "Bolsa Brasil comprada por todas as macro e pelas duas de ações; a assimetria eleitoral é a razão comum. Quando todo mundo está do mesmo lado, o seguro importa: Verde e Opportunity carregam via opções ou com hedge de índice.",
@@ -50,11 +442,11 @@
   ],
   "discordancias": [
     "Câmbio depois do ajuste fiscal: K10 espera real MAIS depreciado (juro baixo + fiscal restritivo); Genoa espera apreciação com a oposição eleita. Mesma eleição, sinal oposto no câmbio de 2027.",
-    "Juros longos globais: Verde, Legacy e Opportunity veem prêmio estrutural (déficits, capex de IA financiado por dívida, repressão financeira); K10 descarta prêmio de solvência e não toma a ponta longa.",
+    "Juros longos globais: Verde, Legacy, Opportunity e SPX veem prêmio estrutural (déficits, capex de IA financiado por dívida, repressão financeira, 'investidor marginal'); K10 descarta prêmio de solvência e não toma a ponta longa.",
     "NTN-B: Opportunity, K10 e Legacy compradas; Verde zerou em março nos leilões do Tesouro e prefere opções de bolsa para a mesma tese.",
     "Ouro e prata: Verde comprada (seguro contra repressão financeira); Zeta vendida em ouro desde junho.",
     "Juros Brasil: Genoa aplicada porque o BC é leniente (não por convicção na inflação); Zeta reduziu duas vezes em 2026 porque os núcleos são incompatíveis com a meta.",
     "Brasil pela eleição: as macro compram a alternância; a Squadra diz que 'menos pior que o vizinho' não é tese, que o macro segue difícil e compra empresas apesar dele."
   ],
-  "equities": "Squadra e Dynamo (ações) não entram na matriz: compradas por mandato. Squadra: Equatorial, Energisa, Mercado Livre, Nubank entre as quatro maiores; book short importante; Hapvida reduzida. Dynamo: Rede D'Or entre as maiores posições. Ibiuna e Absolute: sem carta pública, só cota CVM."
+  "equities": "Squadra e Dynamo (ações) não entram na matriz: compradas por mandato. Squadra: Equatorial, Energisa, Mercado Livre, Nubank entre as quatro maiores; book short importante; Hapvida reduzida. Dynamo: Rede D'Or entre as maiores posições. SPX: posições não divulgadas em 2026, entra pelo cenário dos espelhos e pelo Substack. Ibiuna e Absolute: sem carta pública, só cota CVM."
 }

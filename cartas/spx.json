@@ -1,0 +1,286 @@
+{
+  "fundo": "SPX Nimitz",
+  "gestora": "SPX Capital (macro global; Rogério Xavier, Bruno Pandolfi, Daniel Schneider; Rio, Londres em fechamento, Singapura, Abu Dhabi)",
+  "tipo": "Multimercado macro global em cinco classes (juros, moedas, ações, commodities, crédito); Nimitz = versão 1x, Raptor = 2x. Desde mai/26 os books passaram de 14 independentes para gestão centralizada sob Pandolfi; Xavier opera um book próprio de eventos.",
+  "inicio": "2024-01-01",
+  "cnpj": "12.831.360/0001-14",
+  "cnpj_fonte": "CVM registro_fundo_classe: SPX NIMITZ FEEDER FIF CIC (feeder original de 2010, PL R$ 52 mi, taxas cheias). Master 12.798.221/0001-36 (PL R$ 3,4 bi, bruto) rende ~0,07 p.p./mês a mais; espelhos: BB 30.518.545/0001-55, Caixa 34.660.453/0001-66, Bradesco 28.428.202/0001-58, Inter 31.457.455/0001-64.",
+  "fontes": [
+    {
+      "nome": "Substack de Rogério Xavier: Brasil, dominância fiscal como processo (01/10/2026)",
+      "url": "https://rogerioxavierspx.substack.com/p/brasil-o-problema-nao-e-saber-se"
+    },
+    {
+      "nome": "Substack: The Global Competition For The Next Dollar Capital (23/09/2026)",
+      "url": "https://rogerioxavierspx.substack.com/p/the-global-competition-for-the-next"
+    },
+    {
+      "nome": "Informe mensal BB Espelho SPX Nimitz (seção Cenário escrita pela SPX; só o mês corrente)",
+      "url": "https://www.bb.com.br/uci/informe-mensal/1367"
+    },
+    {
+      "nome": "Informe mensal BB Espelho SPX Nimitz Private",
+      "url": "https://bb.com.br/uci/informe-mensal/1369"
+    },
+    {
+      "nome": "Caixa, Carta Mensal aos Cotistas Expert SPX Nimitz (parada em abr/2025)",
+      "url": "https://www.caixa.gov.br/Downloads/aplicacao-financeira-carta-mensal/CM_6475.pdf"
+    },
+    {
+      "nome": "Bradesco, relatório mensal SPX Nimitz (tabela de retornos)",
+      "url": "https://wspf.bradesco.com.br/wsFundosInvestimentos/File/JCOT_014590_RELATORIO_MENSAL.pdf"
+    },
+    {
+      "nome": "InfoMoney 11/06/26: 'Somos traders, não freiras'",
+      "url": "https://www.infomoney.com.br/onde-investir/somos-traders-nao-freiras-rogerio-xavier-da-spx-explica-mudancas-e-planeja-reviravolta/"
+    },
+    {
+      "nome": "Brazil Journal 07/05/26: As mudanças na SPX",
+      "url": "https://braziljournal.com/as-mudancas-na-spx/"
+    },
+    {
+      "nome": "NeoFeed 18/08/25: soberania e pessimismo com os EUA",
+      "url": "https://neofeed.com.br/economia/rogerio-xavier-da-spx-o-dilema-da-soberania-nacional-e-o-pessimismo-com-a-economia-dos-eua/"
+    },
+    {
+      "nome": "Seu Dinheiro 13/01/25: Selic extremamente elevada ou dominância fiscal",
+      "url": "https://www.seudinheiro.com/2025/bolsa-dolar/bc-tera-de-elevar-selic-a-niveis-extremamente-elevados-ou-admitir-dominancia-fiscal-diz-spx-vinp/"
+    },
+    {
+      "nome": "Página do fundo (SPX)",
+      "url": "https://spxcapital.com.br/fundo/nimitz-spx/"
+    }
+  ],
+  "data": "2026-10-01",
+  "nota_fontes": "A SPX não publica carta aberta (site só com formulário para cotistas). O comentário mensal chega pelos fundos espelho dos bancos: BB (informe mensal com a seção 'Cenário' da SPX, sobrescrito todo mês, sem arquivo nem Wayback), Caixa (carta completa com posições e atribuição, mas parada em abr/2025), Inter (abas 'Atribuição' e 'Posicionamento' vazias em set/26), Bradesco (só números). Desde 23/09/2026 Rogério Xavier escreve em rogerioxavierspx.substack.com (2 posts). Posições por classe só aparecem na carta da Caixa de abr/25 e na imprensa. Rotina: baixar o informe BB (~dia 8) e o Substack; guardar o PDF do BB porque não fica arquivado.",
+  "cenario": {
+    "global": [
+      "Ago/26 (informe BB): geopolítica dominou, Ormuz com fluxo muito baixo, Brent ~US$ 90 'em linha com a nossa previsão para o fim do ano'; alta expressiva dos juros longos no mundo por inflação e fiscal. Premissas internacionais inalteradas: Fed sobe 25 bps em 16/9 e mais 25 depois; BCE +25 em 10/9.",
+      "Substack 23/09: 'competição global pelo próximo dólar de capital'. Dívida pública global de 94% para 100% do PIB em 2029 (FMI), capex de IA, defesa e energia disputam o mesmo balanço; o investidor marginal exige mais prêmio para carregar duration; vigiar curvas fora dos EUA, leilões fracos e queda conjunta de bolsa e bonds. 'Ainda não vejo escassez de financiamento; vejo um teste crescente do juro necessário para absorver a nova oferta.'",
+      "Emergentes: canal 1 custo de oportunidade global; canal 2 base de investidores (não-bancos estrangeiros em dívida local); canal 3 câmbio limitando cortes. Exportador de commodities com reservas e dívida local longa atravessa diferente de importador de energia."
+    ],
+    "brasil": [
+      "Ago/26: PIB do 2T de 1,1% para 0,5% t/t, abertura sugere desaceleração mais intensa; PIB 2026 revisado de 2,1% para 1,9%, 2027 em 1,1%. IPCA 2026 de 5,2% para 5,0%; 2027 em 4,4% já com El Niño forte. Selic: corte de 25 em setembro e mais um em novembro, 13,50% no fim do ano.",
+      "Substack 01/10: dominância fiscal não é 'dia zero', é processo; o que importa é o investidor marginal (quem compra a próxima emissão) e a capacidade EFETIVA de reação do Estado. Armadilha: atividade menor → receita menor → fiscal pior → prêmio maior. Juro real extraordinariamente alto e parafiscais de 1,6-1,8% do PIB em 2026 escondem o impulso fiscal verdadeiro; a eleição altera as funções de reação esperadas (reflexividade).",
+      "Linha desde dez/24: 'ou o BC sobe a Selic a níveis extremamente elevados ou admite dominância fiscal'; abr/25: Selic 15% até o fim de 2026 e sem direcional em juros BR; set/25: 15% até início de 2026 e depois 12,50%; ago/26: 13,50% no fim de 2026."
+    ],
+    "tese_longa": [
+      "Casa de macro global que errou o Brasil em 2023 e o petróleo em março/26 e reconhece em público ('obrigação de admitir'); 2026 trouxe reestruturação completa (Pandolfi centraliza, AUM cai de R$ 80 bi para ~R$ 50 bi, Londres fecha, Abu Dhabi abre) e Xavier passa a operar eventos com book próprio e a escrever em público.",
+      "Tese estrutural atual: o preço da duration global vai subir porque muitos emissores (governos, IA, defesa) pedem capital ao mesmo tempo; países endividados perdem a escolha de prazo e custo antes de perder o acesso. Brasil é o caso de estudo seguinte.",
+      "No Brasil a casa é cética com a convergência há anos (metas 'ambiciosas demais' em 2023, dominância em 2025) e por isso operou juros BR sem direcional em 2025; o cenário de agosto/26 (Selic 13,50%, IPCA 5,0%) é um dos mais conservadores da amostra em cortes."
+    ]
+  },
+  "posicoes": {
+    "ultimas_divulgadas": "Abr/25 (Caixa): juros desenvolvidos em posições de curva com direcional limitado; SEM direcional em juros Brasil; moedas relativas EM x DM; vendido tático em índices de bolsa globais + relativos no Brasil; sem commodities relevantes; crédito EM soberano com compras idiossincráticas, conservador. Ago/25 (imprensa): comprado em tech EUA e China.",
+    "cenario_ago26": "Fed +25 em set e +25 depois; BCE +25; Brent US$ 90 no fim do ano; Selic 13,50% (cortes em set e nov); IPCA 5,0%/4,4%; PIB 1,9%/1,1%.",
+    "nota": "A SPX não abre posições nos espelhos de 2026; usar o cenário como proxy de direção."
+  },
+  "desempenho": {
+    "mes": {
+      "fundo": 2.06,
+      "cdi": 1.17,
+      "ref": "2026-09"
+    },
+    "ano": {
+      "fundo": 6.29,
+      "cdi": 10.5,
+      "pct_cdi": 59.9
+    },
+    "anos": {
+      "2023": {
+        "fundo": -1.49,
+        "cdi": 13.05
+      },
+      "2024": {
+        "fundo": 14.96,
+        "cdi": 10.87
+      },
+      "2025": {
+        "fundo": 10.84,
+        "cdi": 14.31
+      },
+      "2026 (até set)": {
+        "fundo": 6.29,
+        "cdi": 10.5
+      }
+    },
+    "mensal_2026": [
+      [
+        "01",
+        1.76
+      ],
+      [
+        "02",
+        2.03
+      ],
+      [
+        "03",
+        -5.54
+      ],
+      [
+        "04",
+        1.52
+      ],
+      [
+        "05",
+        1.2
+      ],
+      [
+        "06",
+        2.16
+      ],
+      [
+        "07",
+        -0.86
+      ],
+      [
+        "08",
+        2.07
+      ],
+      [
+        "09",
+        2.06
+      ]
+    ],
+    "mensal_2025": [
+      [
+        "01",
+        -0.61
+      ],
+      [
+        "02",
+        0.97
+      ],
+      [
+        "03",
+        -0.32
+      ],
+      [
+        "04",
+        1.02
+      ],
+      [
+        "05",
+        -0.05
+      ],
+      [
+        "06",
+        1.85
+      ],
+      [
+        "07",
+        -0.26
+      ],
+      [
+        "08",
+        2.69
+      ],
+      [
+        "09",
+        1.55
+      ],
+      [
+        "10",
+        2.06
+      ],
+      [
+        "11",
+        0.71
+      ],
+      [
+        "12",
+        0.78
+      ]
+    ],
+    "pl_mi": 52,
+    "nota": "Cota diária CVM do Feeder (último dado 2026-10-01); 2023 e 2024 do informe BB (espelho). Master +~0,07 p.p./mês (bruto). PL do master R$ 3,4 bi; estratégia Nimitz ~R$ 6,9 bi somando veículos; Raptor (2x) R$ 3,6 bi."
+  },
+  "leitura": [
+    "Mais conservadora da amostra em cortes: Selic 13,50% no fim de 2026 e IPCA 5,0% (Genoa aplica esperando mais; Opportunity/K10 aplicados). Em 2025 ficou sem direcional em juros BR enquanto Legacy e Zeta aplicavam; errou pouco e ganhou pouco (76% do CDI).",
+    "O Substack é a melhor fonte primária que a SPX já teve: a tese de 'competição por capital / investidor marginal' converge com Verde e Legacy (juros longos sobem por fiscal + IA) e diverge da K10. E o post sobre o Brasil é o contraponto fiscal mais duro ao consenso 'alternância resolve'.",
+    "Março/26 (-5,5%) custou o ano: +6,3% até setembro, 60% do CDI; terceiro ano em quatro abaixo do CDI. A reestruturação de maio (books centralizados, AUM -35%) é o dado de risco: a casa que vai aparecer nas cartas de 2027 não é a mesma de 2025.",
+    "Para a leitura de petróleo e geopolítica a SPX acertou a direção (Brent 90 'em linha com a previsão') depois de errar o choque; o livro de Xavier em Cascais é de eventos, não de carrego."
+  ],
+  "periodos_cartas": [
+    {
+      "ini": "2025-01-01",
+      "fim": "2025-03-31",
+      "rotulo": "1T25",
+      "cor": "#2457c5",
+      "carta": "Carta de dez/24 via imprensa (Seu Dinheiro, 13/01/25)",
+      "tipo": "imprensa",
+      "cenario": "Sem austeridade, 'o ajuste virá pela inflação'; BC terá de subir a Selic a níveis 'extremamente elevados' ou admitir dominância fiscal; mudança de governo em 2026 como alternativa. A bolsa já precifica o cenário: Utilities e Concessões, Bancos e Seguradoras, Commodities (óleo e gás).",
+      "resultado": "Jan -0,61%, fev +0,97%, mar -0,32% (cota CVM do Feeder). Sem carta aberta: posições do trimestre não públicas."
+    },
+    {
+      "ini": "2025-04-01",
+      "fim": "2025-06-30",
+      "rotulo": "2T25",
+      "cor": "#7b4fb8",
+      "carta": "Carta de abr/25 (Caixa, Carta Mensal aos Cotistas CM_6475)",
+      "tipo": "primária",
+      "cenario": "Selic a 15% e parada 'durante todo o horizonte de projeção, que vai até o final de 2026'; crescimento 2026 puxado pelo fiscal; serviços pressionados; risco baixista = recessão global/excesso de oferta asiática. Trump com tarifas maiores que o esperado; Fed parado em 2025.",
+      "resultado": "Abr +1,02% (CDI 1,06%; ações e moedas +, juros e crédito -), mai -0,05%, jun +1,85%. Posições: curva em juros desenvolvidos, SEM direcional em juros Brasil, moedas relativas EM x DM, vendido tático em índices globais + relativo no Brasil, sem commodities, crédito EM conservador."
+    },
+    {
+      "ini": "2025-07-01",
+      "fim": "2025-09-30",
+      "rotulo": "3T25",
+      "cor": "#1a8fa8",
+      "carta": "Entrevista NeoFeed 18/08/25 + informe BB set/25 (indexado)",
+      "tipo": "imprensa",
+      "cenario": "Pessimista com os EUA (consumo de 3% para ~1%, tarifas contracionistas, dívida 120% do PIB); 'ficar gritando sobre soberania não vai nos ajudar em nada'. Set/25: Copom mantém 15% com tom duro; SPX projeta 15% até o início de 2026 e ciclo de cortes até 12,50%.",
+      "resultado": "Jul -0,26%, ago +2,69%, set +1,55%. Comprado em tecnologia nos EUA e na China (mesma posição de Kapitalo e Legacy, segundo a matéria)."
+    },
+    {
+      "ini": "2025-10-01",
+      "fim": "2025-12-31",
+      "rotulo": "4T25",
+      "cor": "#e0662b",
+      "carta": "Sem fonte pública (cota CVM)",
+      "tipo": "lacuna",
+      "cenario": "",
+      "resultado": "Out +2,06%, nov +0,71%, dez +0,78%; 2025 +10,84% (76% do CDI; espelho Bradesco publica 10,80%)."
+    },
+    {
+      "ini": "2026-01-01",
+      "fim": "2026-03-31",
+      "rotulo": "1T26",
+      "cor": "#bf3a2f",
+      "carta": "Imprensa (Brazil Journal 07/05/26, InfoMoney 11/06/26)",
+      "tipo": "imprensa",
+      "cenario": "Guerra do Irã em março: 'não se antecipou à alta do petróleo', erro operacional reconhecido. Nimitz com a pior perda mensal da história em março.",
+      "resultado": "Jan +1,76%, fev +2,03%, MAR -5,54% (pior mês desde 2010; Raptor -11,9%). Bradesco/BB publicam -5,50%/-5,34% nos espelhos."
+    },
+    {
+      "ini": "2026-04-01",
+      "fim": "2026-06-30",
+      "rotulo": "2T26",
+      "cor": "#1a8fa8",
+      "carta": "Imprensa (Brazil Journal 07/05/26, InfoMoney/Bloomberg Línea 11/06/26)",
+      "tipo": "imprensa",
+      "cenario": "Reestruturação: Bruno Pandolfi vira head dos multimercados (14 books independentes → liderança única), Marcelo Castro e Marcella Libardoni saem, Londres fecha e NY encolhe, Abu Dhabi abre; AUM de ~R$ 80 bi (2022) para R$ 49-54 bi. Xavier em Cascais com um book próprio de eventos: 'não preciso ter posições o tempo todo'.",
+      "resultado": "Abr +1,52%, mai +1,20%, jun +2,16%; +0,8% nos 5 primeiros meses, a caminho do 3º ano em 4 abaixo do CDI. 'Somos traders, não freiras.'"
+    },
+    {
+      "ini": "2026-07-01",
+      "fim": "2026-09-30",
+      "rotulo": "3T26",
+      "cor": "#1baf7a",
+      "carta": "Informe BB ago/26 (Cenário SPX) + Substack de Rogério Xavier (23/09 e 01/10)",
+      "tipo": "primária",
+      "cenario": "Ago/26: Ormuz com fluxo mínimo, Brent ~US$ 90 'em linha com a nossa previsão para o fim do ano', juros longos globais sobem por inflação e fiscal; Fed +25 em setembro e mais uma; BCE +25; Brasil PIB 2026 revisado 2,1 → 1,9% (2027 1,1%), IPCA 5,2 → 5,0% (2027 4,4% com El Niño forte), Selic 13,50% no fim do ano (cortes em set e nov). Substack: competição global por capital e o investidor marginal; dominância fiscal no Brasil como processo, parafiscais de 1,6-1,8% do PIB.",
+      "resultado": "Jul -0,86%, ago +2,07%, set +2,06% (cota CVM); 2026 até setembro +6,29% (60% do CDI). Posições não divulgadas nos espelhos."
+    },
+    {
+      "ini": "2026-10-01",
+      "fim": "2026-12-31",
+      "rotulo": "4T26",
+      "cor": "#8a8d92",
+      "carta": "Set/26: Inter com abas vazias; BB sai ~dia 8",
+      "tipo": "lacuna",
+      "cenario": "Eleição, Copom 4/11 (corte de 25 no cenário SPX), Fed.",
+      "resultado": "A preencher."
+    }
+  ]
+}
