@@ -7,14 +7,38 @@
   "cnpj": "35.828.684/0001-07",
   "cnpj_fonte": "Carta mensal (Informações gerais do Radar FIC FIM)",
   "fontes": [
-    {"nome": "Carta Mensal, agosto/2026 (publicada 09/09/2026)", "url": "https://www.genoacapital.com.br/docs/CartaMensalGenoaCapital_Ago26.pdf"},
-    {"nome": "Julho/2026", "url": "https://www.genoacapital.com.br/docs/CartaMensalGenoaCapital_Jul26.pdf"},
-    {"nome": "Junho/2026", "url": "https://www.genoacapital.com.br/docs/CartaMensalGenoaCapital_Jun26.pdf"},
-    {"nome": "Maio/2026", "url": "https://www.genoacapital.com.br/docs/CartaMensalGenoaCapital_Mai26.pdf"},
-    {"nome": "Abril/2026", "url": "https://www.genoacapital.com.br/docs/CartaMensalGenoaCapital_Abr26.pdf"},
-    {"nome": "Março/2026", "url": "https://www.genoacapital.com.br/docs/CartaMensalGenoaCapital_Mar26.pdf"},
-    {"nome": "Fevereiro/2026", "url": "https://www.genoacapital.com.br/docs/CartaMensalGenoaCapital_Fev26.pdf"},
-    {"nome": "Índice das cartas (site)", "url": "https://www.genoacapital.com.br/relatorios.html"}
+    {
+      "nome": "Carta Mensal, agosto/2026 (publicada 09/09/2026)",
+      "url": "https://www.genoacapital.com.br/docs/CartaMensalGenoaCapital_Ago26.pdf"
+    },
+    {
+      "nome": "Julho/2026",
+      "url": "https://www.genoacapital.com.br/docs/CartaMensalGenoaCapital_Jul26.pdf"
+    },
+    {
+      "nome": "Junho/2026",
+      "url": "https://www.genoacapital.com.br/docs/CartaMensalGenoaCapital_Jun26.pdf"
+    },
+    {
+      "nome": "Maio/2026",
+      "url": "https://www.genoacapital.com.br/docs/CartaMensalGenoaCapital_Mai26.pdf"
+    },
+    {
+      "nome": "Abril/2026",
+      "url": "https://www.genoacapital.com.br/docs/CartaMensalGenoaCapital_Abr26.pdf"
+    },
+    {
+      "nome": "Março/2026",
+      "url": "https://www.genoacapital.com.br/docs/CartaMensalGenoaCapital_Mar26.pdf"
+    },
+    {
+      "nome": "Fevereiro/2026",
+      "url": "https://www.genoacapital.com.br/docs/CartaMensalGenoaCapital_Fev26.pdf"
+    },
+    {
+      "nome": "Índice das cartas (site)",
+      "url": "https://www.genoacapital.com.br/relatorios.html"
+    }
   ],
   "data": "2026-08-31",
   "nota_fontes": "Carta mensal de 8 páginas (Cenário, atribuição por estratégia do Radar, posicionamento do Arpa, Sagres, tabelas mensais), publicada no site por volta do dia 9 do mês seguinte em /docs/CartaMensalGenoaCapital_<Mes><AA>.pdf. Setembro/26 ainda não publicada em 03/10. Só agosto/26 lida na íntegra; fev-jul/26 disponíveis para preencher os períodos.",
@@ -41,17 +65,120 @@
     "acoes": "Radar: macro e micro pequenas e negativas no ano. Arpa: 95% líquido, comprado em industriais, utilities e energia no Brasil; perdeu em semicondutores e industriais nos EUA e consumo doméstico."
   },
   "desempenho": {
-    "mes": {"fundo": 1.37, "cdi": 1.09, "ref": "2026-08"},
-    "ano": {"fundo": 9.26, "cdi": 9.33, "pct_cdi": 99.2},
-    "inicio": {"fundo": 113.44, "cdi": 85.58, "pct_cdi": 132.6},
-    "anos": {"2021": {"fundo": 21.39, "cdi": 12.37}, "2022": {"fundo": 12.71, "cdi": 13.05}, "2023": {"fundo": 12.68, "cdi": 10.87}, "2024": {"fundo": 12.99, "cdi": 14.31}, "2025": {"fundo": 12.99, "cdi": 14.31}, "2026 (até ago)": {"fundo": 9.26, "cdi": 9.33}},
-    "mensal_2026": [["01", 1.94], ["02", 1.72], ["03", -1.34], ["04", 1.65], ["05", 0.89], ["06", 1.74], ["07", 0.99], ["08", 1.37]],
-    "atribuicao_ano": [["Internacional", 1.58], ["Câmbio Brasil", 0.73], ["Juros Brasil", 0.14], ["Ações macro", -0.23], ["Caixa", -0.32], ["Ações micro", -0.48], ["Custos", -1.49]],
+    "mes": {
+      "fundo": 1.37,
+      "cdi": 1.09,
+      "ref": "2026-08"
+    },
+    "ano": {
+      "fundo": 9.26,
+      "cdi": 9.33,
+      "pct_cdi": 99.2
+    },
+    "inicio": {
+      "fundo": 113.44,
+      "cdi": 85.58,
+      "pct_cdi": 132.6
+    },
+    "anos": {
+      "2021": {
+        "fundo": 21.39,
+        "cdi": 12.37
+      },
+      "2022": {
+        "fundo": 12.71,
+        "cdi": 13.05
+      },
+      "2023": {
+        "fundo": 12.68,
+        "cdi": 10.87
+      },
+      "2024": {
+        "fundo": 12.99,
+        "cdi": 10.87
+      },
+      "2025": {
+        "fundo": 12.99,
+        "cdi": 14.9
+      },
+      "2026 (até ago)": {
+        "fundo": 9.26,
+        "cdi": 9.33
+      }
+    },
+    "mensal_2026": [
+      [
+        "01",
+        1.94
+      ],
+      [
+        "02",
+        1.72
+      ],
+      [
+        "03",
+        -1.34
+      ],
+      [
+        "04",
+        1.65
+      ],
+      [
+        "05",
+        0.89
+      ],
+      [
+        "06",
+        1.74
+      ],
+      [
+        "07",
+        0.99
+      ],
+      [
+        "08",
+        1.37
+      ]
+    ],
+    "atribuicao_ano": [
+      [
+        "Internacional",
+        1.58
+      ],
+      [
+        "Câmbio Brasil",
+        0.73
+      ],
+      [
+        "Juros Brasil",
+        0.14
+      ],
+      [
+        "Ações macro",
+        -0.23
+      ],
+      [
+        "Caixa",
+        -0.32
+      ],
+      [
+        "Ações micro",
+        -0.48
+      ],
+      [
+        "Custos",
+        -1.49
+      ]
+    ],
     "sharpe": 0.69,
     "vol": 3.69,
     "pl_medio_12m_mi": 448,
     "pl_master_mi": 4476,
-    "nota": "Tabela de rentabilidades da carta de agosto/26 (linhas por ano em ordem decrescente 2026, 2025, 2024, 2023, 2022, 2021, 2020); as linhas de 2025 e 2024 saem iguais no texto extraído do PDF e precisam de conferência na cota CVM. Atribuição no ano (p.p., ex-CDI) como publicada."
+    "nota": "Tabela da carta de ago/26; 2025 conferido pela cota CVM (12.99%); 2024 = 12,99% (CDI 10,87%) e 2021-23 como na carta. Atribuição no ano (p.p., ex-CDI) como publicada.",
+    "anos_cota_cvm": {
+      "2025": 12.99,
+      "2026": 13.03
+    }
   },
   "leitura": [
     "É a casa mais explícita sobre a eleição: cenário-base de derrota do governo, com o próprio risco baixista das projeções (real mais forte, desinflação) dependendo disso.",
@@ -60,12 +187,35 @@
     "Arpa negativo no ano (-1,4%) com 95% líquido em Brasil: quem comprou a tese eleitoral via bolsa ainda não foi pago; o rali de agosto veio em utilities e industriais."
   ],
   "periodos_cartas": [
-    {"ini": "2026-01-01", "fim": "2026-06-30", "rotulo": "1S26", "cor": "#8a8d92", "carta": "Cartas fev-jun/26 disponíveis, não lidas", "tipo": "lacuna",
-     "cenario": "Guerra no Irã (março -1,34%), petróleo, Fed hawkish.", "resultado": "A preencher com as cartas de fevereiro a junho."},
-    {"ini": "2026-07-01", "fim": "2026-09-30", "rotulo": "3T26", "cor": "#1baf7a", "carta": "Carta mensal, ago/26", "tipo": "primária",
-     "cenario": "EUA fortes e Fed com viés de alta; Brasil desacelerando com crédito estrangulado; eleição apertada vira cenário-base de alternância.",
-     "resultado": "Agosto +1,37% (126% do CDI): juros e moedas globais pagaram, juros Brasil pouco, câmbio e bolsa Brasil tiraram. Ano em 99% do CDI."},
-    {"ini": "2026-10-01", "fim": "2026-12-31", "rotulo": "4T26", "cor": "#a9acb2", "carta": "Set/26 sai ~9/10; out/26 ~9/11", "tipo": "lacuna",
-     "cenario": "Eleição, Copom 4/11 e 9/12.", "resultado": "A preencher."}
+    {
+      "ini": "2026-01-01",
+      "fim": "2026-06-30",
+      "rotulo": "1S26",
+      "cor": "#8a8d92",
+      "carta": "Cartas fev-jun/26 disponíveis, não lidas",
+      "tipo": "lacuna",
+      "cenario": "Guerra no Irã (março -1,34%), petróleo, Fed hawkish.",
+      "resultado": "A preencher com as cartas de fevereiro a junho."
+    },
+    {
+      "ini": "2026-07-01",
+      "fim": "2026-09-30",
+      "rotulo": "3T26",
+      "cor": "#1baf7a",
+      "carta": "Carta mensal, ago/26",
+      "tipo": "primária",
+      "cenario": "EUA fortes e Fed com viés de alta; Brasil desacelerando com crédito estrangulado; eleição apertada vira cenário-base de alternância.",
+      "resultado": "Agosto +1,37% (126% do CDI): juros e moedas globais pagaram, juros Brasil pouco, câmbio e bolsa Brasil tiraram. Ano em 99% do CDI."
+    },
+    {
+      "ini": "2026-10-01",
+      "fim": "2026-12-31",
+      "rotulo": "4T26",
+      "cor": "#a9acb2",
+      "carta": "Set/26 sai ~9/10; out/26 ~9/11",
+      "tipo": "lacuna",
+      "cenario": "Eleição, Copom 4/11 e 9/12.",
+      "resultado": "A preencher."
+    }
   ]
 }
