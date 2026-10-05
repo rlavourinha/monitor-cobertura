@@ -407,6 +407,7 @@ def build_mobile() -> None:
     page = PAGE.replace("/*CSS*/", CSS).replace("/*VERSAO*/", B.versao()).replace("/*DATA*/", B.carimbo_build()).replace("/*CORPO*/", corpo)
     config.OUTPUT.mkdir(parents=True, exist_ok=True)
     SAIDA.write_text(page, encoding="utf-8")
+    (config.OUTPUT / "m.html").write_text(page, encoding="utf-8")     # mesmo nome do GitHub Pages: o link "Versão celular" do Painel funciona local e no ar
     print(f"ok -> {SAIDA} ({len(page) // 1024} KB)")
 
 

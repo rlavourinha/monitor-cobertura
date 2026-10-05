@@ -2184,7 +2184,8 @@ def slide_painel(M: dict, sgs: dict, mercado_micro: dict, minhas: list[dict], co
        <div class="pbox"><h2>Movimentos recentes</h2>{tab_mov}</div>
        <div class="pbox" style="padding:6px 10px 2px">{sparks[2]}</div></div>
 </div>'''
-    return slide("Painel", "painel", "Painel", corpo, f"Uma tela para formar opinião. O detalhe de cada bloco está nos slides abaixo. Cotações às {(mk.get('Ibovespa') or {}).get('hora', '—')[11:]}.", carimbos, cls="painel")
+    link_mobile = '<a class="btn-mobile" href="m.html" title="Painel resumido para o celular (m.html)">&#128241; Versão celular</a>'
+    return slide("Painel", "painel", "Painel", corpo, f"Uma tela para formar opinião. O detalhe de cada bloco está nos slides abaixo. Cotações às {(mk.get('Ibovespa') or {}).get('hora', '—')[11:]}.", carimbos, cls="painel", canto=link_mobile)
 
 def slides_juros(M: dict, sgs: dict) -> list[tuple[str, str]]:
     """Juros nominais: curva ANBIMA de hoje (pré, IPCA, implícita) e histórico de vencimento constante do Tesouro desde 2004."""
@@ -3438,6 +3439,9 @@ select.ativo{font:inherit;font-size:11.5px;padding:1px 6px;border-radius:8px;bor
 .janela-global{margin:8px 0 10px}.janela-global span{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--mut);width:100%;margin-bottom:2px}
 
 /* painel de uma tela */
+.slide header{position:relative}.slide header .canto{position:absolute;right:0;top:0}
+.btn-mobile{display:inline-block;font-size:12px;padding:5px 11px;border:1px solid var(--ring);border-radius:999px;background:var(--sf);color:var(--ink2);text-decoration:none;letter-spacing:.02em}
+.btn-mobile:hover{color:var(--ink);border-color:var(--ink2)}
 .slide.painel{padding:20px 40px 16px}.slide.painel header{margin-bottom:6px}.slide.painel h1{font-size:26px}.slide.painel .lede{font-size:13.5px;margin-top:2px}
 .strip8{display:grid;grid-template-columns:repeat(8,1fr);gap:8px;margin-bottom:12px}.strip8 .tile{padding:8px 10px;border-radius:10px}.strip8 .tile .l{font-size:11px}.strip8 .tile .v{font-size:19px;margin-top:1px}.strip8 .tile .d{font-size:11px;margin-top:1px}
 .pgrid{display:grid;grid-template-columns:1.15fr 1fr 1.05fr;gap:12px;align-items:start}
@@ -4013,12 +4017,12 @@ def carimbo_build() -> str:
         return datetime.now().strftime("%d/%m/%Y %H:%M")
 
 
-def slide(sec: str, sid: str, titulo: str, corpo: str, lede: str = "", nota: str = "", cls: str = "") -> tuple[str, str]:
-    """Um slide da apresentação. Devolve (html, item do trilho)."""
+def slide(sec: str, sid: str, titulo: str, corpo: str, lede: str = "", nota: str = "", cls: str = "", canto: str = "") -> tuple[str, str]:
+    """Um slide da apresentação. Devolve (html, item do trilho). `canto` = HTML fixado no canto superior direito do cabeçalho."""
     _N["n"] += 1
     n = _N["n"]
     html = f'''<section class="slide {cls}" id="{sid}" data-sec="{sec}">
-<header><div class="kicker">{sec} · {n:02d}</div><h1>{titulo}</h1>{f'<p class="lede">{lede}</p>' if lede else ''}</header>
+<header><div class="kicker">{sec} · {n:02d}</div><h1>{titulo}</h1>{f'<p class="lede">{lede}</p>' if lede else ''}{f'<div class="canto">{canto}</div>' if canto else ''}</header>
 <div class="body">{corpo}</div>
 <footer><span>{nota}</span><span class="n">{n:02d}</span></footer></section>'''
     return html, f'<a href="#{sid}" data-s="{sid}">{titulo}</a>'
