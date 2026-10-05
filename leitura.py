@@ -1,4 +1,4 @@
-"""Leitura do dia — resumo analítico dos relatórios novos (BTG Research + Itaú BBA) com gráficos de dados PRIMÁRIOS.
+"""Leitura do dia — resumo analítico dos relatórios novos (BTG Research + Itaú BBA + Bradesco BBI) com gráficos de dados PRIMÁRIOS.
 
 Fluxo (cron da sessão, 19h em dias úteis):
   1. `python leitura.py --montar`            junta os relatórios coletados desde a última leitura (índices do repositório
@@ -71,7 +71,8 @@ GRAFICO_POR_TEMA = {"fiscal": "fiscal", "inflacao": "inflacao", "juros": "juros"
 # ----------------------------------------------------------------------------------------------------- material
 def _indices() -> list[dict]:
     out = []
-    for fonte, arq, txt in (("BTG", RES / "indice.json", RES / "txt"), ("Itaú BBA", RES / "bba" / "indice.json", RES / "bba" / "txt")):
+    for fonte, arq, txt in (("BTG", RES / "indice.json", RES / "txt"), ("Itaú BBA", RES / "bba" / "indice.json", RES / "bba" / "txt"),
+                            ("Bradesco BBI", RES / "bradesco" / "indice.json", RES / "bradesco" / "txt")):
         if not arq.exists():
             continue
         I = json.loads(arq.read_text(encoding="utf-8"))
@@ -85,7 +86,7 @@ def _classifica(it: dict, texto: str) -> dict:
     base = f"{it.get('titulo', '')} {it.get('empresa', '')} {it.get('tipo', '')}"
     amostra = base + " " + texto[:1500]
     setores = [s for s, rx in SETORES if re.search(rx, base, re.I)]
-    macro = bool(re.search(r"Macroeconomic|Macro|Brazil •|Brasil •|Global •|Strategy|Estrat", it.get("empresa", "") + " " + it.get("tipo", ""), re.I))
+    macro = bool(re.search(r"Macroeconomic|Macro|Brazil •|Brasil •|Global •|Strategy|Estrat|Economics", it.get("empresa", "") + " " + it.get("tipo", ""), re.I))
     temas = [t for t, rx in TEMAS if re.search(rx, base, re.I)]
     if not temas and macro:
         temas = [t for t, rx in TEMAS if re.search(rx, amostra, re.I)][:2]
@@ -121,9 +122,10 @@ def montar(desde: str | None = None, ate: str | None = None) -> dict:
         if it["fora"]:
             continue
         por_tema.setdefault(it["temas"][0], []).append(it)
-    n_btg = sum(1 for i in itens if i["fonte"] == "BTG"); n_bba = len(itens) - n_btg
+    n_btg = sum(1 for i in itens if i["fonte"] == "BTG"); n_bba = sum(1 for i in itens if i["fonte"] == "Itaú BBA")
+    n_bdx = len(itens) - n_btg - n_bba
     md = [f"# Leitura do dia — material coletado entre {desde} e {ate}", "",
-          f"{len(itens)} relatórios novos (BTG {n_btg}, Itaú BBA {n_bba}); {sum(1 for i in itens if i['fora'])} fora do escopo (LatAm ex-Brasil, diários).", ""]
+          f"{len(itens)} relatórios novos (BTG {n_btg}, Itaú BBA {n_bba}, Bradesco BBI {n_bdx}); {sum(1 for i in itens if i['fora'])} fora do escopo (LatAm ex-Brasil, diários).", ""]
     for tema in ordem:
         lst = por_tema.get(tema)
         if not lst:
@@ -145,7 +147,7 @@ def montar(desde: str | None = None, ate: str | None = None) -> dict:
     MATERIAL_MD.write_text("\n".join(md), encoding="utf-8")
     MATERIAL_JSON.write_text(json.dumps({"desde": desde, "ate": ate, "itens": [{k: v for k, v in i.items() if k != "texto"} for i in itens]},
                                         ensure_ascii=False, indent=1), encoding="utf-8")
-    return {"desde": desde, "ate": ate, "n": len(itens), "btg": n_btg, "bba": n_bba, "fora": len(fora), "temas": {t: len(v) for t, v in por_tema.items()}}
+    return {"desde": desde, "ate": ate, "n": len(itens), "btg": n_btg, "bba": n_bba, "bradesco": n_bdx, "fora": len(fora), "temas": {t: len(v) for t, v in por_tema.items()}}
 
 
 # ----------------------------------------------------------------------------------------------------- gráficos
@@ -425,7 +427,7 @@ def _html(digest: dict, pngs: dict, titulo: str = "Leitura do dia") -> str:
             '<style>body{font-family:"Segoe UI",system-ui,sans-serif;max-width:1040px;margin:24px auto;padding:0 16px;color:#222;line-height:1.45}'
             'h1{font-size:22px}h2{font-size:17px;margin:26px 0 6px}p{white-space:normal}section{border-top:1px solid #e5e5e5;padding-top:8px}</style></head>'
             f'<body><h1>{titulo} · {digest["data"]}</h1><p>{digest.get("cabecalho", "").replace(chr(10), "<br>")}</p>{blocos}'
-            '<p style="color:#777;font-size:12px">Uso privado. Resumos próprios a partir dos relatórios do BTG Research e do Itaú BBA (Leitura) ou dos jornais assinados (Jornais); gráficos de dados primários.</p></body></html>')
+            '<p style="color:#777;font-size:12px">Uso privado. Resumos próprios a partir dos relatórios do BTG Research, do Itaú BBA e do Bradesco BBI (Leitura) ou dos jornais assinados (Jornais); gráficos de dados primários.</p></body></html>')
 
 
 def _bot() -> str | None:
