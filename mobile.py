@@ -131,8 +131,9 @@ def svg_hbar(linhas: list[tuple[str, float]], W=400, RH=22, ML=132, dec=2, suf="
     return "".join(o)
 
 
-def svg_curva_di(vert: dict, ant: dict | None = None, W=400, H=150) -> str:
-    """Curva de hoje (cheia) e a do pregão anterior (tracejada) nos mesmos vértices; rótulos = taxa de hoje."""
+def svg_curva_di(vert: dict, ant: dict | None = None, W=400, H=150, maxa: float = 10, ticks=(1, 2, 3, 5, 7, 10)) -> str:
+    """Curva de hoje (cheia) e a do pregão anterior (tracejada) nos mesmos vértices; rótulos = taxa de hoje.
+    `maxa`/`ticks` = alcance do eixo x em anos (DI: 10; DAP/juro real: 30)."""
     pts = [(float(k[:-1]), v["taxa"]) for k, v in vert.items() if not k.startswith("_") and isinstance(v, dict) and v.get("taxa")]
     pts.sort()
     if len(pts) < 3:
@@ -141,10 +142,10 @@ def svg_curva_di(vert: dict, ant: dict | None = None, W=400, H=150) -> str:
     ML, MR, MT, MB = 40, 16, 16, 22
     ys = [v for _, v in pts] + [v for _, v in pa]
     lo, hi = min(ys), max(ys); pad = (hi - lo) * 0.25 or 0.2; lo, hi = lo - pad, hi + pad
-    X = lambda a: ML + a / 10 * (W - ML - MR); Y = lambda v: MT + (hi - v) / (hi - lo) * (H - MT - MB)
+    X = lambda a: ML + a / maxa * (W - ML - MR); Y = lambda v: MT + (hi - v) / (hi - lo) * (H - MT - MB)
     path = " ".join(f"{'M' if i == 0 else 'L'}{X(a):.1f},{Y(v):.1f}" for i, (a, v) in enumerate(pts))
     o = [f'<svg class="chart" viewBox="0 0 {W} {H}">']
-    for a in (1, 2, 3, 5, 7, 10):
+    for a in ticks:
         o.append(f'<text class="tick" x="{X(a):.1f}" y="{H - 6}" text-anchor="middle">{a}a</text>')
     if len(pa) >= 2:
         pth = " ".join(f"{'M' if i == 0 else 'L'}{X(a):.1f},{Y(v):.1f}" for i, (a, v) in enumerate(pa))
@@ -345,6 +346,18 @@ def bloco_di(DI: dict) -> str:
                  + '<p class="nota">Vértices de prazo constante interpolados (flat-forward) dos contratos líquidos (B3 via MT5). Ontem = fechamento D1 dos mesmos contratos. Δ em pontos-base; verde = taxa caiu.</p>', sub)
 
 
+def bloco_dap(DP: dict) -> str:
+    """Curva de juro real (futuros DAP = cupom de IPCA, a NTN-B sintética): mesmo formato do card da curva DI."""
+    vert = DP.get("vertices") or {}
+    if not vert:
+        return ""
+    from fontes import dap
+    d_ant, ant = dap.vertices_anterior((DP.get("hora") or "")[:10] or None, contratos_base=vert.get("_contratos"))
+    sub = f'{(DP.get("hora") or "")[11:16]} · tracejado = {d_ant[8:10]}/{d_ant[5:7]}' if d_ant else "% a.a. + IPCA"
+    return _card("Curva de juro real (DAP)", svg_curva_di(vert, ant, maxa=30, ticks=(2, 5, 10, 15, 20, 30)) + tabela_di(vert, ant, d_ant)
+                 + '<p class="nota">Cupom de IPCA (DAP, B3 via MT5) = juro real da NTN-B sintética, % a.a. acima do IPCA. Vértices de prazo constante (flat-forward) dos contratos com negócio ou bid/ask vivo; a ponta de 2045-2055 vem do meio do spread. Δ em pontos-base; verde = taxa caiu.</p>', sub)
+
+
 # ----------------------------------------------------------------------------------------------------- página
 CSS = r"""
 :root{color-scheme:light dark;--bg:#f4f1ea;--sf:#fbfaf6;--ink:#15171b;--ink2:#4b4e54;--mut:#8a8d92;--grid:#e6e2d8;--ring:rgba(21,23,27,.09);--s1:#2f5fd0;--s2:#e06a2a;--up:#1f8a4c;--dn:#c8362b;--chip:#ebe7dd}
@@ -401,9 +414,10 @@ def build_mobile() -> None:
     minhas, cons = B.le_csv(B.MINHAS), B.le_csv(B.CONS)
     C = _j("ibov_comp.json", {}) or {}
     DI = _j("di_curva.json", {}) or {}
+    DP = _j("dap_curva.json", {}) or {}                        # juro real (DAP = cupom de IPCA), gravado pelo vigia como o DI
     IB = _ibov_hoje(M)
     corpo = "".join([bloco_hoje(M, IB, DI), bloco_intraday(IB), bloco_alertas(IB), bloco_cobertura(mercado, minhas, cons, IB),
-                     bloco_setores(C, IB), bloco_fluxo(), bloco_liquidez(IB), bloco_di(DI)])
+                     bloco_setores(C, IB), bloco_fluxo(), bloco_liquidez(IB), bloco_di(DI), bloco_dap(DP)])
     page = PAGE.replace("/*CSS*/", CSS).replace("/*VERSAO*/", B.versao()).replace("/*DATA*/", B.carimbo_build()).replace("/*CORPO*/", corpo)
     config.OUTPUT.mkdir(parents=True, exist_ok=True)
     SAIDA.write_text(page, encoding="utf-8")
