@@ -8,7 +8,7 @@
 const id = (location.pathname.match(/([0-9a-f-]{36})/) || [])[1];
 let body = document.body.innerText.replace(/\r/g, '');
 body = body.replace(/^\s*REPORT CONTENT\s*DISCLOSURES\s*VIEW PDF\s*/i, '');
-const fimIdx = ['\nANALYST CERTIFICATION', '\nAnalyst Certification', '\nIMPORTANT DISCLOSURES', '\nImportant Disclosures', '\nDISCLOSURES\n', '\nDisclosures\n', '\nRating Distribution', '\nBradesco S.A. Corretora de Títulos']
+const fimIdx = ['\nANALYST CERTIFICATION', '\nAnalyst Certification', '\nIMPORTANT DISCLOSURES', '\nImportant Disclosures', '\nDISCLOSURES\n', '\nDisclosures\n', '\nRating Distribution', '\nBradesco S.A. Corretora de Títulos', '\nExpand All Disclosures']
   .map(k => body.indexOf(k, 300)).filter(i => i > 0);
 const fim = fimIdx.length ? Math.min(...fimIdx) : body.length;
 const texto = body.slice(0, fim).replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim().slice(0, 16000);
