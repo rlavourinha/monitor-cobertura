@@ -395,6 +395,77 @@ def _graficos_di(S1: str, S2: str, MUT: str) -> tuple[str, str]:
     return g, g10
 
 
+_DAP_CACHE: dict = {}
+
+
+def _dap_dados() -> dict:
+    """Curva de juro real do vigia (data/dap_curva.json, futuros DAP de cupom de IPCA) + séries diárias dos vértices de
+    10 e 5 anos (data/dap_hist.json) com o ponto provisório de hoje pela fotografia. {snap, v, s10, s5}; vazio se não há."""
+    if _DAP_CACHE:
+        return _DAP_CACHE
+    from fontes import dap as _dap
+    snap = {}
+    if _dap.ARQ.exists():
+        try:
+            snap = json.loads(_dap.ARQ.read_text(encoding="utf-8"))
+        except Exception:
+            snap = {}
+    v = snap.get("vertices") or {}
+    s10, s5 = _dap.serie_vertice(10), _dap.serie_vertice(5)
+    hoje = (snap.get("hora") or "")[:10]
+    for s, k in ((s10, "10a"), (s5, "5a")):
+        if v.get(k) and hoje and (not s or s[-1][0] < hoje):
+            s.append([hoje, v[k]["taxa"]])
+        elif v.get(k) and hoje and s and s[-1][0] == hoje:
+            s[-1] = [hoje, v[k]["taxa"]]
+    _DAP_CACHE.update({"snap": snap, "v": v, "s10": s10, "s5": s5})
+    return _DAP_CACHE
+
+
+def _graficos_dap(S1: str, S2: str, MUT: str) -> tuple[str, str]:
+    """(curva de juro real de hoje vs pregão anterior e ANBIMA IPCA+, juro real 10 e 5 anos no tempo) para a grade do
+    Painel — a mesma leitura da curva DI, em cima dos DAP (cupom de IPCA = NTN-B sintética)."""
+    from fontes import dap as _dap
+    D = _dap_dados()
+    snap, v = D["snap"], D["v"]
+    cs = snap.get("contratos") or []
+    liq = set(v.get("_contratos") or [])
+    pts = [[c["venc"], c["taxa"], c.get("negocios"), c.get("origem")] for c in cs if c.get("taxa") and c["cod"] in liq]
+    series = []
+    deltas = []
+    if pts:
+        series.append((f"DAP {snap.get('hora', '')[11:]}", S1, pts))
+        d_ant, v_ant = _dap.vertices_anterior((snap.get("hora") or "")[:10] or None, contratos_base=list(liq))
+        if d_ant and _dap.HIST.exists():
+            try:
+                Hd = json.loads(_dap.HIST.read_text(encoding="utf-8")).get(d_ant) or {}
+            except Exception:
+                Hd = {}
+            pts_ant = [[c["venc"], Hd.get(c["cod"]), None, "D1"] for c in cs if c["cod"] in liq and Hd.get(c["cod"])]
+            if len(pts_ant) >= 2:
+                series.append((f"DAP {d_ant[8:10]}/{d_ant[5:7]}", S2, pts_ant))
+        deltas = [f"{k[:-1]}a {'+' if (v['taxa'] - v_ant[k]) >= 0 else ''}{(v['taxa'] - v_ant[k]) * 100:.0f}" for k, v in v.items()
+                  if not k.startswith("_") and isinstance(v, dict) and v_ant.get(k) and k in ("2a", "5a", "10a", "20a")]
+    da, ipca = _dap.anbima_ipca()
+    if ipca:
+        hoje = date.today()
+        series.append((f"ANBIMA {da[8:]}/{da[5:7]}", MUT, [[(hoje + timedelta(days=round(d * 365.25 / 252))).isoformat(), t, None, "ETTJ"] for d, t in sorted(ipca) if 400 <= d <= 7700]))
+    if series:
+        g = svg_linhas("painel-dap-curva", series, 2, suf="%", W=260, H=130,
+                       titulo="Curva de juro real (DAP = cupom de IPCA, MT5) vs pregão anterior e ANBIMA (IPCA+)" + (f" · Δ bps: {' · '.join(deltas)}" if deltas else ""),
+                       extras=["negócios", "preço"])
+        g = g.replace('<div class="janela" data-for="painel-dap-curva">', '<div class="janela" data-for="painel-dap-curva" style="display:none">')
+        g = g.replace('id="painel-dap-curva"', 'id="painel-dap-curva" data-nosel="1"')   # eixo x = vencimentos
+    else:
+        g = '<div class="empty small">Curva de juro real: o vigia grava data/dap_curva.json no pregão (MT5).</div>'
+    if D["s10"]:
+        g10 = svg_linhas("painel-dap10", [("juro real 10 anos", S1, D["s10"]), ("juro real 5 anos", S2, D["s5"])], 2, suf="%", W=260, H=130, ini=5,
+                         titulo="Juro real 10 e 5 anos (DAP, MT5; vértices de prazo constante, flat-forward)")
+    else:
+        g10 = '<div class="empty small">Histórico do juro real: rode <code>python coletar.py --janela mt5</code>.</div>'
+    return g, g10
+
+
 def _mescla_intraday_hoje(ticker: str, res: dict | None, escala: float = 1.0) -> dict | None:
     """Sobrepõe as barras de 1 min de HOJE publicadas pelo vigia (data/intraday_hoje.json, a cada 5 min no pregão) ao
     extrato: substitui o dia nas séries "1 min" e "5 min" (o extrato do MT5 só é regravado pela janela mt5)."""
@@ -1262,8 +1333,10 @@ def linha_variaveis_painel(M: dict) -> str:
     g_fx = svg_linhas("painel-fx", [("USD/BRL", S1, fx)], 2, W=260, H=130, ini=5, titulo="USD/BRL (PTAX venda; último ponto intraday)" if len(ptax) > 2000 else "USD/BRL (Yahoo)",
                       resol=mt5_intraday("WDO$", escala=0.001)) if fx else '<div class="empty small">Sem histórico do câmbio.</div>'
     g_di_curva, g_di10 = _graficos_di(S1, S2, MUT)     # curva DI de hoje (vigia/MT5) vs ANBIMA; DI 10 anos e 1 ano no tempo
-    return (f'<div class="pgrid pg6" style="grid-template-columns:repeat(5,1fr);margin-top:10px">'
-            + "".join(f'<div class="pbox">{g}</div>' for g in (g_br, g_di10, g_us, g_prem, g_fx, g_brent, g_curva, g_di_curva, g_fluxo, g_ativo)) + '</div>')
+    g_dap_curva, g_dap10 = _graficos_dap(S1, S2, MUT)  # a mesma leitura para o juro real (DAP = cupom de IPCA)
+    # 12 gráficos em 4 colunas × 3 linhas (6 colunas deixava cada SVG com ~190 px; 4 dá ~310 px, maior que os 5×2 de antes)
+    return (f'<div class="pgrid pg6" style="grid-template-columns:repeat(4,1fr);margin-top:10px">'
+            + "".join(f'<div class="pbox">{g}</div>' for g in (g_br, g_di10, g_dap10, g_us, g_prem, g_fx, g_brent, g_curva, g_di_curva, g_dap_curva, g_fluxo, g_ativo)) + '</div>')
 
 
 def linha_ibov_painel(D: dict, M: dict) -> str:
@@ -1916,6 +1989,16 @@ def slide_painel(M: dict, sgs: dict, mercado_micro: dict, minhas: list[dict], co
                 linha(rot, base, ult, taxa=True, suf="%", svg="painel-di10")
     except Exception as e:
         print(f"  DI na tabela: {e}", file=sys.stderr)
+    try:                                                     # juro real (DAP, MT5): mesma lógica do DI
+        DP = _dap_dados()
+        for rot, k, s in (("Juro real 10 anos (DAP)", "10a", DP["s10"]), ("Juro real 5 anos (DAP)", "5a", DP["s5"])):
+            if s:
+                hoje = (DP["snap"].get("hora") or "")[:10]
+                ult = [hoje, DP["v"][k]["taxa"]] if DP["v"].get(k) and hoje else None
+                base = [p for p in s if p[0] != hoje] if ult else s
+                linha(rot, base, ult, taxa=True, suf="%", svg="painel-dap10")
+    except Exception as e:
+        print(f"  DAP na tabela: {e}", file=sys.stderr)
     med35 = (sum(v for _, v in n35) / len(n35)) if n35 else None
     linha("NTN-B 2035 (real)", n35, taxa=True, suf="%", obs=f"média hist. {num(med35, 2, suf='%')}", svg="ntnb35")
     cab_m = ('<thead><tr><th>Variável</th><th>Último</th><th>Mín 12 m</th><th>Máx 12 m</th><th>1 d</th><th>5 d</th><th>MTD</th><th>YTD</th><th>12 m</th>'

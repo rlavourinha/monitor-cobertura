@@ -19,7 +19,7 @@ import sys
 from datetime import date, datetime, time, timedelta
 
 import config
-from fontes import b3, di, mt5, telegram
+from fontes import b3, dap, di, mt5, telegram
 
 ARQ = config.DATA / "alertas_tempo_real.json"
 ESTADO = config.DATA / "alertas_estado.json"
@@ -286,6 +286,13 @@ def exportar_di() -> None:
             di.atualiza_historico()
     except Exception as e:
         print(f"  DI: {e}", file=sys.stderr)
+    try:                                   # juro real (DAP = cupom de IPCA): mesma rotina, arquivos data/dap_*.json
+        dap.snapshot()
+        idade = (datetime.now().timestamp() - dap.HIST.stat().st_mtime) / 60 if dap.HIST.exists() else 1e9
+        if idade > 60:
+            dap.atualiza_historico()
+    except Exception as e:
+        print(f"  DAP: {e}", file=sys.stderr)
 
 
 def registrar_diario(res: dict) -> None:
@@ -321,7 +328,7 @@ def publicar(res: dict) -> None:
         git("add", str(INTRADAY.relative_to(config.RAIZ)))
     if DIARIO.exists():
         git("add", str(DIARIO.relative_to(config.RAIZ)))
-    for p in (di.ARQ, di.HIST):
+    for p in (di.ARQ, di.HIST, dap.ARQ, dap.HIST):
         if p.exists():
             git("add", str(p.relative_to(config.RAIZ)))
     if git("diff", "--cached", "--quiet").returncode == 0:

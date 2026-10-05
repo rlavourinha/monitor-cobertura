@@ -530,11 +530,13 @@ def mt5_extrato_intraday():
 
 def mt5_di():
     """Curva DI: histórico diário dos contratos de janeiro desde 2016 + fotografia de agora (fontes/di.py)."""
-    from fontes import di
+    from fontes import dap, di
     from datetime import date as _d
     n = di.atualiza_historico(desde=_d(2016, 1, 1))
     di.snapshot()
-    return f"{n} datas no histórico"
+    m = dap.atualiza_historico(desde=_d(2016, 1, 1))       # juro real (DAP = cupom de IPCA): mesmos arquivos, prefixo dap_
+    dap.snapshot()
+    return f"{n} datas no histórico do DI, {m} no do DAP"
 
 
 JANELAS["mt5"] = [("MT5 diário", mt5_diario), ("MT5 1 min", mt5_m1), ("MT5 extrato intraday", mt5_extrato_intraday), ("MT5 curva DI", mt5_di)]   # fora de "tudo": não roda no GitHub Actions

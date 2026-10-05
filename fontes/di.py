@@ -62,7 +62,7 @@ _CUM: dict[date, int] = {}       # dias úteis acumulados de 2010-01-01 até a d
 def _cum(d: date) -> int:
     if not _CUM:
         n, x = 0, date(2010, 1, 1)
-        fim = date(2050, 12, 31)
+        fim = date(2070, 12, 31)        # os DAP (cupom de IPCA) vão até 2060
         while x <= fim:
             if util(x):
                 n += 1
