@@ -383,7 +383,7 @@ def _graficos_di(S1: str, S2: str, MUT: str) -> tuple[str, str]:
         hoje = date.today()
         series.append((f"ANBIMA {da[8:]}/{da[5:7]}", MUT, [[(hoje + timedelta(days=round(d * 365.25 / 252))).isoformat(), t, None] for d, t in sorted(pre) if d <= 3400]))
     if series:
-        g = svg_linhas("painel-di-curva", series, 2, suf="%", W=260, H=130,
+        g = svg_linhas("painel-di-curva", series, 2, suf="%", W=260, H=130, gap=5000,
                        titulo=f"Curva DI (MT5, contratos líquidos) vs pregão anterior e ANBIMA (pré)" + (f" · Δ bps: {' · '.join(deltas)}" if deltas else ""), extras=["negócios"])
         g = g.replace('<div class="janela" data-for="painel-di-curva">', '<div class="janela" data-for="painel-di-curva" style="display:none">')
         g = g.replace('id="painel-di-curva"', 'id="painel-di-curva" data-nosel="1"')   # eixo x = vencimentos
@@ -479,7 +479,7 @@ def _graficos_dap(S1: str, S2: str, MUT: str) -> tuple[str, str]:
         hoje = date.today()
         series.append((f"ANBIMA {da[8:]}/{da[5:7]}", MUT, [[(hoje + timedelta(days=round(d * 365.25 / 252))).isoformat(), t, None, "ETTJ"] for d, t in sorted(ipca) if 400 <= d <= 7700]))
     if series:
-        g = svg_linhas("painel-dap-curva", series, 2, suf="%", W=260, H=130,
+        g = svg_linhas("painel-dap-curva", series, 2, suf="%", W=260, H=130, gap=5000,
                        titulo="Curva de juro real (DAP = cupom de IPCA, MT5) vs pregão anterior e ANBIMA (IPCA+)" + (f" · Δ bps: {' · '.join(deltas)}" if deltas else ""),
                        extras=["negócios", "preço"])
         g = g.replace('<div class="janela" data-for="painel-dap-curva">', '<div class="janela" data-for="painel-dap-curva" style="display:none">')
@@ -740,7 +740,7 @@ def svg_linhas(cid: str, series: list[tuple[str, str, list[list]]], dec=1, pref=
     # dados completos para o renderizador JS (o seletor de janela redesenha o gráfico no navegador)
     def _r(p):   # 4 decimais bastam para qualquer série daqui; floats longos dobravam o tamanho do HTML (parse lento no celular)
         return [p[0]] + [(round(x, 4) if isinstance(x, float) else x) for x in p[1:]]
-    data_js = json.dumps({"series": [{"n": n, "cor": c, "pts": [_r(p) for p in pts]} for n, c, pts in series], "bandas": {str(k): [_r(p) for p in v] for k, v in bandas.items()},
+    data_js = json.dumps({"series": [{"n": n, "cor": c, "pts": [_r(p) for p in pts], "st": st} for (n, c, pts), st in zip(series, estilos)], "bandas": {str(k): [_r(p) for p in v] for k, v in bandas.items()},
                           "refs": [[r[0], r[1], r[2]] for r in refs], "pref": pref, "suf": suf, "dec": dec, "extras": extras or [],
                           "titulo": titulo, "W": W, "H": H, "ML": ML, "MR": MR, "MT": MT, "MB": MB, "gap": gap, "livre": livre, "coluna": coluna,
                           "nominal": nominal, "resol": resol or {}, "alts": alts or {}, "tituloBase": titulo_base})
@@ -3607,7 +3607,7 @@ JS = r"""
         // nominal (fluxo acumulado): o 1º ponto da janela é o dia-base (como o fechamento anterior nos gráficos de preço) e vira zero;
         // o fim da linha = soma dos saldos dos dias seguintes (5 d = 5 saldos, igual aos tiles). Em "máx" a base é zero.
         if(data.nominal&&pts.length){var base=first>0?s.pts[first][1]:0;pts=pts.map(function(p){var q=p.slice();q[1]=p[1]-base;return q;});}
-        return {n:s.n,cor:s.cor,pts:pts,o:o};}).filter(function(s){return s.pts.length;});
+        return {n:s.n,cor:s.cor,st:s.st||'',pts:pts,o:o};}).filter(function(s){return s.pts.length;});
       if(!S.length)return;
       var B={};Object.keys(data.bandas||{}).forEach(function(k){B[k]=(data.bandas[k]||[]).filter(function(b){return ord(b[0])>=corte;});});
       var d0=Math.min.apply(null,S.map(function(s){return s.o[0];})),d1=Math.max.apply(null,S.map(function(s){return s.o[s.o.length-1];})),span=Math.max(d1-d0,svg._intraday?0.02:1);   // intraday: eixo cabe em horas; janelas curtas (1 d, 5 d, 21 d) ocupam a largura toda
@@ -3649,8 +3649,8 @@ JS = r"""
         h.push('<line x1="'+xm.toFixed(1)+'" x2="'+xm.toFixed(1)+'" y1="'+MT+'" y2="'+(H-MB)+'" style="stroke:var(--s2);stroke-width:1.2;stroke-dasharray:4 3"/><text class="tick" x="'+(xm+(m[1]==='fim'?-4:4)).toFixed(1)+'" y="'+(H-MB-(m[1]==='fim'?18:6))+'" text-anchor="'+(m[1]==='fim'?'end':'start')+'" style="fill:var(--s2)">'+m[1]+' '+m[0].slice(8)+'/'+m[0].slice(5,7)+'/'+m[0].slice(2,4)+'</text>');});
       var labels=[];
       var gap=data.gap||45;
-      S.forEach(function(s){h.push('<path class="line" style="stroke:'+s.cor+'" d="'+s.pts.map(function(p,i){var liga=i&&s.o[i]-s.o[i-1]<=gap&&!(svg._intraday&&String(p[0]).slice(0,10)!==String(s.pts[i-1][0]).slice(0,10));return (liga?'L':'M')+X(s.o[i]).toFixed(1)+','+Y(p[1]).toFixed(1);}).join(' ')+'"/>');
-        var last=s.pts[s.pts.length-1],xl=X(s.o[s.o.length-1]),yl=Y(last[1]);h.push('<circle class="dot" cx="'+xl.toFixed(1)+'" cy="'+yl.toFixed(1)+'" r="4" style="fill:'+s.cor+'"/>');
+      S.forEach(function(s){h.push('<path class="line" style="stroke:'+s.cor+(s.st?';'+s.st:'')+'" d="'+s.pts.map(function(p,i){var liga=i&&s.o[i]-s.o[i-1]<=gap&&!(svg._intraday&&String(p[0]).slice(0,10)!==String(s.pts[i-1][0]).slice(0,10));return (liga?'L':'M')+X(s.o[i]).toFixed(1)+','+Y(p[1]).toFixed(1);}).join(' ')+'"/>');
+        var last=s.pts[s.pts.length-1],xl=X(s.o[s.o.length-1]),yl=Y(last[1]);h.push('<circle class="dot" cx="'+xl.toFixed(1)+'" cy="'+yl.toFixed(1)+'" r="'+(s.st?2.5:4)+'" style="fill:'+s.cor+'"/>');
         var rec=s.pts.slice(-Math.max(3,Math.floor(s.pts.length/12))).map(function(p){return p[1];});var acima=!(Math.max.apply(null,rec)>last[1]+(hi-lo)*0.04);
         labels.push([xl,yl,(data.pref||'')+num(last[1],data.dec)+(data.suf||''),acima]);});
       labels.sort(function(p,q){return p[1]-q[1];});var ysl=[];
