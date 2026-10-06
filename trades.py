@@ -58,8 +58,6 @@ def marca(hoje: str | None = None, ibov_hist: list | None = None) -> dict:
             horas.append(q["hora"])
         else:
             preco, hora = (s[-1][1], s[-1][0]) if s else (None, "")
-            if preco is not None and hora < t["data"]:      # entrou depois do último fechamento conhecido: marca no PM até ter preço
-                preco, hora = t["preco"], ""
         fech_ant = next((v for d, v in reversed(s) if d < (hora[:10] or hoje)), None)
         if q and q.get("fech_ant"):
             fech_ant = q["fech_ant"]
@@ -168,7 +166,7 @@ def slide_trades(M: dict | None = None) -> tuple[str, str] | None:
         dt = x["data"][8:10] + "/" + x["data"][5:7] + ("<small> est.</small>" if x.get("data_estimada") else "")
         enc = f'<small>encerrado {x["saida"]["data"][8:10]}/{x["saida"]["data"][5:7]}</small>' if x.get("saida") else ""
         rows.append(f'<tr><td class="tk">{x["ticker"]}<small>{x.get("nome", "")}</small></td><td>{lado}{enc}</td><td>{dt}</td><td>{B.num(x["qtd"], 0)}</td>'
-                    f'<td>{B.num(x["preco"], 2)}</td><td>{B.num(x["preco_atual"], 2)}<small>{x.get("hora", "")[11:16] or (x.get("hora", "")[8:10] + "/" + x.get("hora", "")[5:7] + " fech." if x.get("hora") else "= PM, sem preço")}</small></td>'
+                    f'<td>{B.num(x["preco"], 2)}</td><td>{B.num(x["preco_atual"], 2)}<small>{x.get("hora", "")[11:16] or (x.get("hora", "")[8:10] + "/" + x.get("hora", "")[5:7] + " fech." if x.get("hora") else "sem preço")}</small></td>'
                     f'<td class="{B.dlt_cls(x.get("dia"))}">{B.pct(x.get("dia"), 2)}</td><td class="{B.dlt_cls(x["ret"])}">{B.pct(x["ret"], 2)}</td>'
                     f'<td class="{B.dlt_cls(x["resultado"])}">{sinal(x["resultado"])}</td>'
                     f'<td>{B.num(x["notional"] / bk["bruto"] * 100 if bk["bruto"] else None, 1, suf="%")}</td></tr>')
