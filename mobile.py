@@ -255,6 +255,29 @@ def bloco_cobertura(mercado: dict, minhas: list, cons: list, IB: dict) -> str:
     return _card("Cobertura", f'<ul class="cob">{"".join(rows)}</ul><p class="nota">Preço do vigia (MT5) no pregão; sparkline de 60 pregões (COTAHIST, sem ajuste). Alvo meu: estimativas/minhas.csv; consenso Bloomberg ou Yahoo.</p>', "RDOR3 · SAUD3 + acompanhados")
 
 
+def bloco_trades(M: dict) -> str:
+    """Trades executados (trades.json): resultado do book e de cada trade, marcado pelo vigia no pregão."""
+    try:
+        import trades
+        R = trades.marca(ibov_hist=(M.get("hist") or {}).get("Ibovespa"))
+    except Exception as e:
+        return ""
+    T = [x for x in R["trades"] if x.get("preco_atual") is not None]
+    if not T:
+        return ""
+    bk, cv = R["book"], R["curva"]
+    def sg(v, dec=0, suf=""):
+        return B.num(v, dec, "+" if (v or 0) > 0 else "", suf)
+    tiles = (_tile("Resultado do book", f'R$ {sg(bk["resultado"])}', f'{sg((bk["ret"] or 0) * 100, 2, "%")} do bruto · {bk["n_abertos"]} abertos', B.dlt_cls(bk["resultado"]))
+             + _tile("Comprado / vendido", f'{B.num(bk["comprado"] / 1000, 0)} / {B.num(bk["vendido"] / 1000, 0)} mil', f'CDI {sg(cv["cdi"][-1][1], 2, "%") if cv.get("cdi") else "—"} · Ibov {sg(cv["ibov"][-1][1], 1, "%") if cv.get("ibov") else "—"} no período'))
+    rows = "".join(f'<tr><td><b>{x["ticker"]}</b> <small class="{"up" if x["sinal"] > 0 else "dn"}">{x["lado"][:4]}</small></td><td>{B.num(x["preco_atual"], 2)}</td>'
+                   f'<td class="{B.dlt_cls(x.get("dia"))}">{B.pct(x.get("dia"))}</td><td class="{B.dlt_cls(x["ret"])}">{B.pct(x["ret"])}</td><td class="{B.dlt_cls(x["resultado"])}">{sg(x["resultado"])}</td></tr>'
+                   for x in sorted(T, key=lambda x: -x["resultado"]))
+    tab = f'<table><thead><tr><th>Trade</th><th>Preço</th><th>Dia</th><th>Entrada</th><th>R$</th></tr></thead><tbody>{rows}</tbody></table>'
+    hora = R["hora"]
+    return _card("Trades", f'<div class="tiles">{tiles}</div>{tab}<p class="nota">Posições da corretora (trades.json) marcadas pelo vigia{" às " + hora[11:16] if hora else " no fechamento"}; vendido com sinal invertido. Sem custos nem aluguel.</p>', f'{len(T)} trades')
+
+
 def bloco_setores(C: dict, IB: dict) -> str:
     itens = C.get("itens") or []
     if not itens or not (IB.get("hoje") or IB.get("ultimo")):
@@ -416,7 +439,7 @@ def build_mobile() -> None:
     DI = _j("di_curva.json", {}) or {}
     DP = _j("dap_curva.json", {}) or {}                        # juro real (DAP = cupom de IPCA), gravado pelo vigia como o DI
     IB = _ibov_hoje(M)
-    corpo = "".join([bloco_hoje(M, IB, DI), bloco_intraday(IB), bloco_alertas(IB), bloco_cobertura(mercado, minhas, cons, IB),
+    corpo = "".join([bloco_hoje(M, IB, DI), bloco_intraday(IB), bloco_alertas(IB), bloco_cobertura(mercado, minhas, cons, IB), bloco_trades(M),
                      bloco_setores(C, IB), bloco_fluxo(), bloco_liquidez(IB), bloco_di(DI), bloco_dap(DP)])
     page = PAGE.replace("/*CSS*/", CSS).replace("/*VERSAO*/", B.versao()).replace("/*DATA*/", B.carimbo_build()).replace("/*CORPO*/", corpo)
     config.OUTPUT.mkdir(parents=True, exist_ok=True)

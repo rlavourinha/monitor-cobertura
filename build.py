@@ -4270,6 +4270,12 @@ def secao_macro(mercado_micro: dict) -> list[tuple[str, str]]:
                     f'<p class="note" style="font-size:11.5px;margin:10px 0 0">Ponto verde = dentro do prazo; vermelho = falhou ou passou do limite da janela. Colunas: quando o coletor rodou e a data de referência do dado.</p></div>')
     S = []
     S.append(slide_painel(M, sgs, mercado_micro, le_csv(MINHAS), le_csv(CONS), est))
+    try:                                   # trades executados (trades.json): book marcado a mercado
+        import trades
+        if st := trades.slide_trades(M):
+            S.append(st)
+    except Exception as e:
+        print(f"trades: ERRO ({e})")
     S += slides_opiniao(M, sgs)
     scb = slide_carteiras_btg()
     if scb:

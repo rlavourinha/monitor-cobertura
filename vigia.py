@@ -39,7 +39,8 @@ def snapshot() -> dict | None:
         return None
     C = json.loads((config.DATA / "ibov_comp.json").read_text(encoding="utf-8"))
     # carteira do Ibovespa + BDRs acompanhados + cobertura (SAUD3 saiu do índice e precisa continuar no vigia)
-    cods = sorted({i["cod"] for i in C.get("itens", [])} | set(getattr(config, "BDRS", [])) | set(getattr(config, "UNIVERSO", {})))
+    import trades
+    cods = sorted({i["cod"] for i in C.get("itens", [])} | set(getattr(config, "BDRS", [])) | set(getattr(config, "UNIVERSO", {})) | trades.tickers())   # + papéis dos trades (trades.json)
     out = {}
     hoje = date.today().isoformat()
     for cod in cods:
