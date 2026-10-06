@@ -370,8 +370,10 @@ def _graficos_di(S1: str, S2: str, MUT: str) -> tuple[str, str]:
             except Exception:
                 Hd = {}
             pts_ant = [[c["venc"], Hd.get(c["cod"]), None] for c in cs if c["cod"] in liq and Hd.get(c["cod"])]
+            refs_el, suf_el = _series_eleicao(_di.HIST, cs, liq, d_ant, MUT)
             if len(pts_ant) >= 2:
-                series.append((f"DI {d_ant[8:10]}/{d_ant[5:7]}", S2, pts_ant))
+                series.append((f"DI {d_ant[8:10]}/{d_ant[5:7]}{suf_el}", S2, pts_ant))
+            series += refs_el
         deltas = [f"{k[:-1]}a {'+' if (v['taxa'] - v_ant[k]) >= 0 else ''}{(v['taxa'] - v_ant[k]) * 100:.0f}" for k, v in v.items()
                   if not k.startswith("_") and isinstance(v, dict) and v_ant.get(k) and k in ("1a", "2a", "5a", "10a")]
     else:
@@ -396,6 +398,30 @@ def _graficos_di(S1: str, S2: str, MUT: str) -> tuple[str, str]:
 
 
 _DAP_CACHE: dict = {}
+
+# Referência temporária nas curvas DI e DAP: fechamentos da véspera e do dia seguinte ao 1º turno (04/10/2026), em
+# tracejado fino. O foco segue d0 vs d-1; apagar esta lista (ou esvaziá-la) quando a referência deixar de interessar.
+REFS_ELEICAO = [("pré-1º turno 02/10", "2026-10-02", "stroke-dasharray:2 3;stroke-width:1;opacity:.85"),
+                ("pós-1º turno 05/10", "2026-10-05", "stroke-dasharray:6 3;stroke-width:1;opacity:.85")]
+
+
+def _series_eleicao(hist, cs: list[dict], liq: set, d_ant: str | None, cor: str, campo_extra: str | None = None) -> tuple[list, str]:
+    """Séries tracejadas das datas em REFS_ELEICAO a partir do histórico D1 (di_hist/dap_hist), nos contratos líquidos de hoje.
+    Devolve (séries, sufixo para o rótulo da série d-1 quando d-1 coincide com uma das datas, p/ não duplicar a linha)."""
+    out, suf = [], ""
+    try:
+        H = json.loads(hist.read_text(encoding="utf-8"))
+    except Exception:
+        return out, suf
+    for nome, d, estilo in REFS_ELEICAO:
+        if d == d_ant:
+            suf = f" ({nome.rsplit(' ', 1)[0]})"   # "DI 05/10 (pós-1º turno)"
+            continue
+        Hd = H.get(d) or {}
+        pts = [[c["venc"], Hd.get(c["cod"]), None] + ([campo_extra] if campo_extra else []) for c in cs if c["cod"] in liq and Hd.get(c["cod"])]
+        if len(pts) >= 2:
+            out.append((nome, cor, pts, estilo))
+    return out, suf
 
 
 def _dap_dados() -> dict:
@@ -442,8 +468,10 @@ def _graficos_dap(S1: str, S2: str, MUT: str) -> tuple[str, str]:
             except Exception:
                 Hd = {}
             pts_ant = [[c["venc"], Hd.get(c["cod"]), None, "D1"] for c in cs if c["cod"] in liq and Hd.get(c["cod"])]
+            refs_el, suf_el = _series_eleicao(_dap.HIST, cs, liq, d_ant, MUT, campo_extra="ref")
             if len(pts_ant) >= 2:
-                series.append((f"DAP {d_ant[8:10]}/{d_ant[5:7]}", S2, pts_ant))
+                series.append((f"DAP {d_ant[8:10]}/{d_ant[5:7]}{suf_el}", S2, pts_ant))
+            series += refs_el
         deltas = [f"{k[:-1]}a {'+' if (v['taxa'] - v_ant[k]) >= 0 else ''}{(v['taxa'] - v_ant[k]) * 100:.0f}" for k, v in v.items()
                   if not k.startswith("_") and isinstance(v, dict) and v_ant.get(k) and k in ("2a", "5a", "10a", "20a")]
     da, ipca = _dap.anbima_ipca()
@@ -627,8 +655,10 @@ def svg_linhas(cid: str, series: list[tuple[str, str, list[list]]], dec=1, pref=
     ML, MR, MT, MB = 56, 16, 22 if titulo else 12, 30
     if coluna:
         MR += 44
-    series = [(n, c, [p for p in pts if p[1] is not None]) for n, c, pts in series]
-    series = [s for s in series if s[2]]
+    estilos = [s[3] if len(s) > 3 else "" for s in series]          # 4º item opcional: estilo CSS extra da linha (referência tracejada fina)
+    pares = [((s[0], s[1], [p for p in s[2] if p[1] is not None]), e) for s, e in zip(series, estilos)]
+    estilos = [e for sr, e in pares if sr[2]]
+    series = [sr for sr, e in pares if sr[2]]
     if not series:
         return f'<div class="empty small">{titulo or "Série"}: sem dados.</div>'
     d0 = min(datetime.fromisoformat(s[2][0][0]).toordinal() for s in series)
@@ -665,15 +695,15 @@ def svg_linhas(cid: str, series: list[tuple[str, str, list[list]]], dec=1, pref=
             volta = " ".join(f"L{X(datetime.fromisoformat(p[0]).toordinal()):.1f},{Y(p[1]):.1f}" for p in reversed(b))
             out.append(f'<path d="{ida} {volta} Z" style="fill:{cor};opacity:.13;stroke:none"/>')
     labels = []  # (xl, yl, texto, cor, acima?)
-    for n, cor, pts in series:
+    for (n, cor, pts), estilo in zip(series, estilos):
         segs, prev = [], None                     # quebra a linha em lacunas > 45 dias (série sem título no prazo)
         for p in pts:
             o = datetime.fromisoformat(p[0]).toordinal()
             segs.append(f"{'L' if prev is not None and o - prev <= gap else 'M'}{X(o):.1f},{Y(p[1]):.1f}")
             prev = o
-        out.append(f'<path class="line" style="stroke:{cor}" d="{" ".join(segs)}"/>')
+        out.append(f'<path class="line" style="stroke:{cor}{(";" + estilo) if estilo else ""}" d="{" ".join(segs)}"/>')
         xl, yl = X(datetime.fromisoformat(pts[-1][0]).toordinal()), Y(pts[-1][1])
-        out.append(f'<circle class="dot" cx="{xl:.1f}" cy="{yl:.1f}" r="4" style="fill:{cor}"/>')
+        out.append(f'<circle class="dot" cx="{xl:.1f}" cy="{yl:.1f}" r="{2.5 if estilo else 4}" style="fill:{cor}"/>')
         # rótulo acima, salvo se a linha recente sobe até ele (então vai abaixo)
         rec = [p[1] for p in pts[-max(3, len(pts) // 12):]]
         acima = not (max(rec) > pts[-1][1] + (hi - lo) * 0.04)
