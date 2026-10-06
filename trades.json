@@ -3,9 +3,9 @@
   "trades": [
     {"ticker": "ROXO34", "nome": "Nubank", "lado": "comprado", "qtd": 2000, "preco": 11.6559, "data": "2026-09-25", "data_estimada": true, "tese": ""},
     {"ticker": "ENEV3", "nome": "Eneva", "lado": "comprado", "qtd": 1000, "preco": 27.383, "data": "2026-09-25", "data_estimada": true, "tese": ""},
-    {"ticker": "XPBR31", "nome": "XP Inc", "lado": "comprado", "qtd": 150, "preco": 142.6746, "data": "2026-10-06", "tese": ""},
-    {"ticker": "EZTC3", "nome": "EZTEC", "lado": "comprado", "qtd": 1100, "preco": 18.11, "data": "2026-10-06", "tese": ""},
-    {"ticker": "B3SA3", "nome": "B3", "lado": "vendido", "qtd": 900, "preco": 23.5975, "data": "2026-10-06", "tese": ""},
-    {"ticker": "CYRE3", "nome": "Cyrela", "lado": "vendido", "qtd": 600, "preco": 34.64, "data": "2026-10-06", "tese": ""}
+    {"ticker": "XPBR31", "nome": "XP Inc", "lado": "comprado", "qtd": 150, "preco": 142.6746, "data": "2026-10-05", "tese": ""},
+    {"ticker": "EZTC3", "nome": "EZTEC", "lado": "comprado", "qtd": 1100, "preco": 18.11, "data": "2026-10-05", "tese": ""},
+    {"ticker": "B3SA3", "nome": "B3", "lado": "vendido", "qtd": 900, "preco": 23.5975, "data": "2026-10-05", "tese": ""},
+    {"ticker": "CYRE3", "nome": "Cyrela", "lado": "vendido", "qtd": 600, "preco": 34.64, "data": "2026-10-05", "tese": ""}
   ]
 }
