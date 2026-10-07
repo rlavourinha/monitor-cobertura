@@ -65,16 +65,16 @@
   }
  },
  "2026-10-07": {
-  "hora": "2026-10-07 14:40",
+  "hora": "2026-10-07 14:50",
   "book": {
    "bruto": 134038.74,
    "comprado": 92016.99,
    "vendido": 42021.75,
    "liquido": 49995.24,
-   "resultado": 7681.76,
+   "resultado": 7714.26,
    "ret": 0.06,
-   "res_comprado": 6217.01,
-   "res_vendido": 1464.75,
+   "res_comprado": 6129.51,
+   "res_vendido": 1584.75,
    "n": 6,
    "n_abertos": 6
   },
@@ -83,9 +83,9 @@
     "lado": "comprado",
     "qtd": 2000,
     "pm": 11.6559,
-    "preco": 13.03,
-    "resultado": 2748.2,
-    "ret": 0.11789
+    "preco": 13.02,
+    "resultado": 2728.2,
+    "ret": 0.11703
    },
    "ENEV3": {
     "lado": "comprado",
@@ -99,33 +99,33 @@
     "lado": "comprado",
     "qtd": 150,
     "pm": 142.6746,
-    "preco": 148.2,
-    "resultado": 828.81,
-    "ret": 0.03873
+    "preco": 148.19,
+    "resultado": 827.31,
+    "ret": 0.03866
    },
    "EZTC3": {
     "lado": "comprado",
     "qtd": 1100,
     "pm": 18.11,
-    "preco": 17.94,
-    "resultado": -187.0,
-    "ret": -0.00939
+    "preco": 17.88,
+    "resultado": -253.0,
+    "ret": -0.0127
    },
    "B3SA3": {
     "lado": "vendido",
     "qtd": 900,
     "pm": 23.5975,
-    "preco": 22.63,
-    "resultado": 870.75,
-    "ret": 0.041
+    "preco": 22.59,
+    "resultado": 906.75,
+    "ret": 0.0427
    },
    "CYRE3": {
     "lado": "vendido",
     "qtd": 600,
     "pm": 34.64,
-    "preco": 33.65,
-    "resultado": 594.0,
-    "ret": 0.02858
+    "preco": 33.51,
+    "resultado": 678.0,
+    "ret": 0.03262
    }
   }
  }
