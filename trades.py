@@ -132,7 +132,27 @@ def marca(hoje: str | None = None, ibov_hist: list | None = None) -> dict:
             if base:
                 ibov = [[d, (v / base - 1) * 100] for d, v in H if d >= d0]
         curva_out = {"book": curva, "cdi": cdi, "ibov": ibov, "trades": cur_tr, "d0": d0}
-    return {"trades": out, "book": book, "curva": curva_out, "hora": max(horas) if horas else ""}
+    R = {"trades": out, "book": book, "curva": curva_out, "hora": max(horas) if horas else ""}
+    _registra(R, hoje)
+    return R
+
+
+def _registra(R: dict, hoje: str) -> None:
+    """Histórico das marcações (data/trades_diario.json): uma entrada por dia, sobrescrita a cada build, com preço e resultado
+    por trade e do book. Fica guardado mesmo que trades.json mude (trade encerrado ou editado)."""
+    try:
+        p = config.DATA / "trades_diario.json"
+        H = json.loads(p.read_text(encoding="utf-8")) if p.exists() else {}
+        hora = R["hora"] or hoje
+        d = hora[:10]
+        H[d] = {"hora": hora, "book": {k: round(v, 2) if isinstance(v, float) else v for k, v in R["book"].items()},
+                "trades": {x["ticker"]: {"lado": x["lado"], "qtd": x["qtd"], "pm": x["preco"], "preco": x.get("preco_atual"),
+                                         "resultado": round(x["resultado"], 2) if x.get("resultado") is not None else None,
+                                         "ret": round(x["ret"], 5) if x.get("ret") is not None else None}
+                           for x in R["trades"] if x.get("preco_atual") is not None}}
+        p.write_text(json.dumps(dict(sorted(H.items())), ensure_ascii=False, indent=1), encoding="utf-8")
+    except Exception as e:
+        print(f"trades_diario: {e}")
 
 
 def slide_trades(M: dict | None = None) -> tuple[str, str] | None:

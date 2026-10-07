@@ -1,0 +1,67 @@
+{
+ "2026-10-06": {
+  "hora": "2026-10-06 13:07",
+  "book": {
+   "bruto": 134038.74,
+   "comprado": 92016.99,
+   "vendido": 42021.75,
+   "liquido": 49995.24,
+   "resultado": 6462.26,
+   "ret": 0.05,
+   "res_comprado": 5006.51,
+   "res_vendido": 1455.75,
+   "n": 6,
+   "n_abertos": 6
+  },
+  "trades": {
+   "ROXO34": {
+    "lado": "comprado",
+    "qtd": 2000,
+    "pm": 11.6559,
+    "preco": 12.94,
+    "resultado": 2568.2,
+    "ret": 0.11017
+   },
+   "ENEV3": {
+    "lado": "comprado",
+    "qtd": 1000,
+    "pm": 27.383,
+    "preco": 30.11,
+    "resultado": 2727.0,
+    "ret": 0.09959
+   },
+   "XPBR31": {
+    "lado": "comprado",
+    "qtd": 150,
+    "pm": 142.6746,
+    "preco": 145.37,
+    "resultado": 404.31,
+    "ret": 0.01889
+   },
+   "EZTC3": {
+    "lado": "comprado",
+    "qtd": 1100,
+    "pm": 18.11,
+    "preco": 17.48,
+    "resultado": -693.0,
+    "ret": -0.03479
+   },
+   "B3SA3": {
+    "lado": "vendido",
+    "qtd": 900,
+    "pm": 23.5975,
+    "preco": 22.68,
+    "resultado": 825.75,
+    "ret": 0.03888
+   },
+   "CYRE3": {
+    "lado": "vendido",
+    "qtd": 600,
+    "pm": 34.64,
+    "preco": 33.59,
+    "resultado": 630.0,
+    "ret": 0.03031
+   }
+  }
+ }
+}
