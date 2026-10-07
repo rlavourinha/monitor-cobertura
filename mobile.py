@@ -269,11 +269,12 @@ def bloco_trades(M: dict) -> str:
     def sg(v, dec=0, suf=""):
         return B.num(v, dec, "+" if (v or 0) > 0 else "", suf)
     tiles = (_tile("Resultado do book", f'R$ {sg(bk["resultado"])}', f'{sg((bk["ret"] or 0) * 100, 2, "%")} do bruto · {bk["n_abertos"]} abertos', B.dlt_cls(bk["resultado"]))
+             + _tile("Resultado do dia", f'R$ {sg(bk.get("res_dia"))}', "contra o fechamento anterior", B.dlt_cls(bk.get("res_dia")))
              + _tile("Comprado / vendido", f'{B.num(bk["comprado"] / 1000, 0)} / {B.num(bk["vendido"] / 1000, 0)} mil', f'CDI {sg(cv["cdi"][-1][1], 2, "%") if cv.get("cdi") else "—"} · Ibov {sg(cv["ibov"][-1][1], 1, "%") if cv.get("ibov") else "—"} no período'))
     rows = "".join(f'<tr><td><b>{x["ticker"]}</b> <small class="{"up" if x["sinal"] > 0 else "dn"}">{x["lado"][:4]}</small></td><td>{B.num(x["preco_atual"], 2)}</td>'
-                   f'<td class="{B.dlt_cls(x.get("dia"))}">{B.pct(x.get("dia"))}</td><td class="{B.dlt_cls(x["ret"])}">{B.pct(x["ret"])}</td><td class="{B.dlt_cls(x["resultado"])}">{sg(x["resultado"])}</td></tr>'
+                   f'<td class="{B.dlt_cls(x.get("dia"))}">{B.pct(x.get("dia"))}</td><td class="{B.dlt_cls(x["ret"])}">{B.pct(x["ret"])}</td><td class="{B.dlt_cls(x["resultado"])}">{sg(x["resultado"])}</td><td>{B.num((x.get("mult") or {}).get("valor"), 1, suf="x") if x.get("mult") else "—"}</td></tr>'
                    for x in sorted(T, key=lambda x: -x["resultado"]))
-    tab = f'<table><thead><tr><th>Trade</th><th>Preço</th><th>Dia</th><th>Entrada</th><th>R$</th></tr></thead><tbody>{rows}</tbody></table>'
+    tab = f'<table><thead><tr><th>Trade</th><th>Preço</th><th>Dia</th><th>Entrada</th><th>R$</th><th>Múlt.</th></tr></thead><tbody>{rows}</tbody></table>'
     hora = R["hora"]
     return _card("Trades", f'<div class="tiles">{tiles}</div>{tab}<p class="nota">Posições da corretora (trades.json) marcadas pelo vigia{" às " + hora[11:16] if hora else " no fechamento"}; vendido com sinal invertido. Sem custos nem aluguel.</p>', f'{len(T)} trades')
 

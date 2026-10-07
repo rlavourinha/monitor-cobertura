@@ -1,11 +1,130 @@
 {
-  "nota": "Trades executados na corretora (manual). lado: comprado/vendido; preco = preço médio; data = dia da entrada (data_estimada = inferida pelo fechamento, confirmar). Encerrou: preencha saida {data, preco}.",
-  "trades": [
-    {"ticker": "ROXO34", "nome": "Nubank", "lado": "comprado", "qtd": 2000, "preco": 11.6559, "data": "2026-09-25", "data_estimada": true, "tese": ""},
-    {"ticker": "ENEV3", "nome": "Eneva", "lado": "comprado", "qtd": 1000, "preco": 27.383, "data": "2026-09-25", "data_estimada": true, "tese": ""},
-    {"ticker": "XPBR31", "nome": "XP Inc", "lado": "comprado", "qtd": 150, "preco": 142.6746, "data": "2026-10-05", "tese": ""},
-    {"ticker": "EZTC3", "nome": "EZTEC", "lado": "comprado", "qtd": 1100, "preco": 18.11, "data": "2026-10-05", "tese": ""},
-    {"ticker": "B3SA3", "nome": "B3", "lado": "vendido", "qtd": 900, "preco": 23.5975, "data": "2026-10-05", "tese": ""},
-    {"ticker": "CYRE3", "nome": "Cyrela", "lado": "vendido", "qtd": 600, "preco": 34.64, "data": "2026-10-05", "tese": ""}
-  ]
+ "nota": "Trades executados na corretora (manual). lado: comprado/vendido; preco = preço médio; data = dia da entrada (data_estimada = inferida pelo fechamento, confirmar). Encerrou: preencha saida {data, preco}. mult: P/E 12m (lucro26/27 interpolado por dias até 31/12, EPS = lucro ÷ ações, BDR = EPS × câmbio ÷ razao_bdr), ev_ebitda 12m ou pb (preço ÷ PL/ações).",
+ "trades": [
+  {
+   "ticker": "ROXO34",
+   "nome": "Nubank",
+   "lado": "comprado",
+   "qtd": 2000,
+   "preco": 11.6559,
+   "data": "2026-09-25",
+   "data_estimada": true,
+   "tese": "",
+   "mult": {
+    "tipo": "pe",
+    "moeda": "USD",
+    "lucro26": 4164.7,
+    "lucro27": 5226.7,
+    "acoes": 4830.6,
+    "razao_bdr": 6,
+    "fonte": "BTG Stock Guide 06/10/2026 (lucro = valor de mercado ÷ P/E; ações = valor de mercado ÷ preço)"
+   }
+  },
+  {
+   "ticker": "ENEV3",
+   "nome": "Eneva",
+   "lado": "comprado",
+   "qtd": 1000,
+   "preco": 27.383,
+   "data": "2026-09-25",
+   "data_estimada": true,
+   "tese": "",
+   "mult": {
+    "tipo": "ev_ebitda",
+    "moeda": "BRL",
+    "ebitda26": 5692.0,
+    "ebitda27": 6549.6,
+    "div_liq26": 22333.9,
+    "div_liq27": 23034.7,
+    "acoes": 1944.4,
+    "fonte": "BTG Stock Guide 06/10/2026 (lucro = valor de mercado ÷ P/E; ações = valor de mercado ÷ preço); EBITDA e dívida líquida abertos de EV/EBITDA e DL/EBITDA"
+   }
+  },
+  {
+   "ticker": "XPBR31",
+   "nome": "XP Inc",
+   "lado": "comprado",
+   "qtd": 150,
+   "preco": 142.6746,
+   "data": "2026-10-05",
+   "tese": "",
+   "mult": {
+    "tipo": "pe",
+    "moeda": "USD",
+    "lucro26": 1191.2,
+    "lucro27": 1275.6,
+    "acoes": 518.3,
+    "razao_bdr": 1,
+    "fonte": "BTG Stock Guide 06/10/2026 (lucro = valor de mercado ÷ P/E; ações = valor de mercado ÷ preço)"
+   }
+  },
+  {
+   "ticker": "EZTC3",
+   "nome": "EZTEC",
+   "lado": "comprado",
+   "qtd": 1100,
+   "preco": 18.11,
+   "data": "2026-10-05",
+   "tese": "",
+   "mult": {
+    "tipo": "pb",
+    "pl": 5232.0,
+    "acoes": 277.359,
+    "fonte": "PL 2T26 via Yahoo (a conferir no ITR); ações B3"
+   }
+  },
+  {
+   "ticker": "B3SA3",
+   "nome": "B3",
+   "lado": "vendido",
+   "qtd": 900,
+   "preco": 23.5975,
+   "data": "2026-10-05",
+   "tese": "",
+   "mult": {
+    "tipo": "pe",
+    "moeda": "BRL",
+    "lucro26": 6204.1,
+    "lucro27": 6636.7,
+    "acoes": 5046.5,
+    "razao_bdr": 1,
+    "fonte": "BTG Stock Guide 06/10/2026 (lucro = valor de mercado ÷ P/E; ações = valor de mercado ÷ preço)"
+   }
+  },
+  {
+   "ticker": "CYRE3",
+   "nome": "Cyrela",
+   "lado": "vendido",
+   "qtd": 600,
+   "preco": 34.64,
+   "data": "2026-10-05",
+   "tese": "",
+   "mult": {
+    "tipo": "pb",
+    "pl": 11168.0,
+    "acoes": 435.757,
+    "fonte": "ITR 2T26: PL consolidado 12.451,5 menos minoritários 1.283,5; 384 mi ON + 69,4 mi PN menos 17,7 mi em tesouraria"
+   }
+  }
+ ],
+ "multiplos_cobertura": {
+  "RDOR3": {
+   "tipo": "pe",
+   "moeda": "BRL",
+   "lucro26": 5113.0,
+   "lucro27": 6104.7,
+   "acoes": 2289.3,
+   "razao_bdr": 1,
+   "fonte": "BTG Stock Guide 06/10/2026 (lucro = valor de mercado ÷ P/E; ações = valor de mercado ÷ preço)"
+  },
+  "SAUD3": {
+   "tipo": "pe",
+   "moeda": "BRL",
+   "lucro26": 4599.9,
+   "lucro27": 5297.7,
+   "acoes": 2924.2,
+   "razao_bdr": 1,
+   "fonte": "BTG Stock Guide 06/10/2026 (lucro = valor de mercado ÷ P/E; ações = valor de mercado ÷ preço)"
+  }
+ }
 }

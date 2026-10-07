@@ -4417,8 +4417,15 @@ def build() -> None:
         n_an = (est[a0]["c"] or {}).get("n_analistas")
         novo_m = any(est[a]["m"] and est[a]["m"]["data"] >= hoje[:8] for a in config.ANOS_FISCAIS)
 
+        try:                                       # P/E 12 meses à frente com lucro das casas (trades.json: multiplos_cobertura)
+            import trades as _tr
+            _mc = (json.loads(_tr.ARQ.read_text(encoding="utf-8")).get("multiplos_cobertura") or {}).get(tk)
+            pe12 = _tr.multiplo(_mc, preco, hoje, _tr._fx(hoje)) if _mc and preco else None
+        except Exception:
+            pe12 = None
         linhas_resumo.append(f'''<tr><td class="tk"><a href="#{tk}-preco" style="color:inherit;text-decoration:none">{tk}</a><small>{v["nome"]}</small></td>
 <td>{num(preco, 2, "R$ ")}</td><td class="{dlt_cls(var_dia)}">{pct(var_dia)}</td><td class="{dlt_cls(var_ano)}">{pct(var_ano)}</td>
+<td title="{(pe12 or {}).get("detalhe", "")}">{num((pe12 or {}).get("valor"), 1, suf="x")}</td>
 <td>{num(est[a0]["pl_m"], 1, suf="x")}</td><td>{num(est[a0]["pl_c"], 1, suf="x")}</td><td>{num(est[a1]["pl_m"], 1, suf="x")}</td><td>{num(est[a1]["pl_c"], 1, suf="x")}</td>
 <td class="{dlt_cls(est[a0]["delta"])}">{pct(est[a0]["delta"])}</td><td class="{dlt_cls(up_m)}">{pct(up_m)}</td><td class="{dlt_cls(up_c)}">{pct(up_c)}</td></tr>''')
 
@@ -4468,9 +4475,9 @@ def build() -> None:
                    '<div class="panel"><p class="note" style="font-size:15px;max-width:720px">Camada ainda não construída. Desenho do esboço: para cada setor coberto, como o cenário macro bate nos drivers e onde a casa diverge do consenso.</p></div>',
                    "Entra depois da camada Micro."))
     S.append(slide("Cobertura", "universo", "Universo coberto",
-                   f'''<div class="panel"><table class="big"><thead><tr><th>Empresa</th><th>Preço</th><th>Dia</th><th>Ano*</th><th>P/L {a0} meu</th><th>cons.</th><th>P/L {a1} meu</th><th>cons.</th><th>Δ lucro {a0}</th><th>Upside meu</th><th>cons.</th></tr></thead><tbody>{"".join(linhas_resumo)}</tbody></table></div>''',
+                   f'''<div class="panel"><table class="big"><thead><tr><th>Empresa</th><th>Preço</th><th>Dia</th><th>Ano*</th><th>P/E 12m</th><th>P/L {a0} meu</th><th>cons.</th><th>P/L {a1} meu</th><th>cons.</th><th>Δ lucro {a0}</th><th>Upside meu</th><th>cons.</th></tr></thead><tbody>{"".join(linhas_resumo)}</tbody></table></div>''',
                    f"Preço intraday sobre histórico B3. P/L = preço ÷ lucro por ação estimado. Δ = minha estimativa de lucro {a0} contra o consenso.",
-                   "* Ano = desde o 1º pregão do ano; série iniciada este ano (SAUD3) = desde a listagem. Minha estimativa: estimativas/minhas.csv ou aba E-A do modelo. Consenso: Bloomberg (ponte) > Yahoo."))
+                   "* Ano = desde o 1º pregão do ano; série iniciada este ano (SAUD3) = desde a listagem. P/E 12m: lucro 2026 e 2027 do BTG Stock Guide interpolados por dias até 31/12, com o preço de tela. Minha estimativa: estimativas/minhas.csv ou aba E-A do modelo. Consenso: Bloomberg (ponte) > Yahoo."))
     for tk, lst in slides_emp:
         for titulo, sid, corpo, lede, nota in lst:
             S.append(slide(tk, sid, titulo, corpo, lede, nota))
