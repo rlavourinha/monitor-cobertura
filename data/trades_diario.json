@@ -65,16 +65,18 @@
   }
  },
  "2026-10-07": {
-  "hora": "2026-10-07 14:50",
+  "hora": "2026-10-07 16:15",
   "book": {
    "bruto": 134038.74,
    "comprado": 92016.99,
    "vendido": 42021.75,
    "liquido": 49995.24,
-   "resultado": 7714.26,
+   "resultado": 8651.26,
    "ret": 0.06,
-   "res_comprado": 6129.51,
-   "res_vendido": 1584.75,
+   "res_dia": 1902.5,
+   "fx": 5.03,
+   "res_comprado": 6715.51,
+   "res_vendido": 1935.75,
    "n": 6,
    "n_abertos": 6
   },
@@ -85,47 +87,77 @@
     "pm": 11.6559,
     "preco": 13.02,
     "resultado": 2728.2,
-    "ret": 0.11703
+    "ret": 0.11703,
+    "res_dia": 40.0,
+    "mult": {
+     "rotulo": "P/E 12m",
+     "valor": 15.076
+    }
    },
    "ENEV3": {
     "lado": "comprado",
     "qtd": 1000,
     "pm": 27.383,
-    "preco": 30.21,
-    "resultado": 2827.0,
-    "ret": 0.10324
+    "preco": 30.5,
+    "resultado": 3117.0,
+    "ret": 0.11383,
+    "res_dia": 260.0,
+    "mult": {
+     "rotulo": "EV/EBITDA 12m",
+     "valor": 12.941
+    }
    },
    "XPBR31": {
     "lado": "comprado",
     "qtd": 150,
     "pm": 142.6746,
-    "preco": 148.19,
-    "resultado": 827.31,
-    "ret": 0.03866
+    "preco": 149.21,
+    "resultado": 980.31,
+    "ret": 0.04581,
+    "res_dia": 328.5,
+    "mult": {
+     "rotulo": "P/E 12m",
+     "valor": 12.249
+    }
    },
    "EZTC3": {
     "lado": "comprado",
     "qtd": 1100,
     "pm": 18.11,
-    "preco": 17.88,
-    "resultado": -253.0,
-    "ret": -0.0127
+    "preco": 18.01,
+    "resultado": -110.0,
+    "ret": -0.00552,
+    "res_dia": 440.0,
+    "mult": {
+     "rotulo": "P/B",
+     "valor": 0.955
+    }
    },
    "B3SA3": {
     "lado": "vendido",
     "qtd": 900,
     "pm": 23.5975,
-    "preco": 22.59,
-    "resultado": 906.75,
-    "ret": 0.0427
+    "preco": 22.34,
+    "resultado": 1131.75,
+    "ret": 0.05329,
+    "res_dia": 306.0,
+    "mult": {
+     "rotulo": "P/E 12m",
+     "valor": 17.249
+    }
    },
    "CYRE3": {
     "lado": "vendido",
     "qtd": 600,
     "pm": 34.64,
-    "preco": 33.51,
-    "resultado": 678.0,
-    "ret": 0.03262
+    "preco": 33.3,
+    "resultado": 804.0,
+    "ret": 0.03868,
+    "res_dia": 528.0,
+    "mult": {
+     "rotulo": "P/B",
+     "valor": 1.299
+    }
    }
   }
  }
