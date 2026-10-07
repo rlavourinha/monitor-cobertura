@@ -111,6 +111,36 @@ def enviar_foto(caminho, legenda: str = "", silencioso: bool = False, bot: str |
     return False
 
 
+def enviar_documento(caminho, legenda: str = "", silencioso: bool = False, bot: str | None = None) -> bool:
+    """Envia um arquivo (PDF etc., até 50 MB) com legenda em HTML (até 1024 caracteres; o excedente vai em mensagem seguinte)."""
+    if not disponivel(bot):
+        print(f"  Telegram: bot {bot or 'padrão'} sem token/chat_id em .secrets/telegram.json", file=sys.stderr)
+        return False
+    import time
+    import requests
+    c = _cfg(bot)
+    cap, resto = (legenda[:1024], "") if len(legenda) <= 1024 else _corta(legenda, 1000)
+    erro = None
+    for tent in range(3):
+        try:
+            with open(caminho, "rb") as fh:
+                r = requests.post(API.format(token=c["token"], metodo="sendDocument"),
+                                  data={"chat_id": c["chat_id"], "caption": cap, "parse_mode": "HTML",
+                                        "disable_notification": "true" if silencioso else "false"},
+                                  files={"document": fh}, timeout=180, headers={"User-Agent": "Mozilla/5.0"})
+            ok = bool(r.json().get("ok"))
+            if not ok:
+                print(f"  Telegram sendDocument: {r.text[:200]}", file=sys.stderr)
+            if ok and resto:
+                ok = enviar(resto, silencioso=True, bot=bot)
+            return ok
+        except requests.exceptions.ConnectionError as e:
+            erro = e
+            time.sleep(2 + 3 * tent)
+    print(f"  Telegram: {erro}", file=sys.stderr)
+    return False
+
+
 def _corta(texto: str, n: int) -> tuple[str, str]:
     """Divide num limite de paragrafo antes de n caracteres, sem partir tags HTML simples."""
     i = texto.rfind(chr(10), 0, n)
