@@ -24,7 +24,12 @@ from fontes import b3, dap, di, mt5, telegram
 ARQ = config.DATA / "alertas_tempo_real.json"
 ESTADO = config.DATA / "alertas_estado.json"
 INTRADAY = config.DATA / "intraday_hoje.json"                 # barras de 1 min de hoje: chip "hoje" do gráfico do Ibovespa
-TICKERS_INTRADAY = ["IBOV", "WDO$", "WSP$", "DAPK35", "DAPK29", "RDOR3", "SAUD3"]   # futuros B3 com feed na Genial: dólar mini, micro S&P 500, cupom IPCA (juro real 2035/2029)
+TICKERS_INTRADAY = ["IBOV", "WDO$", "WSP$", "DAPK35", "DAPK29", "RDOR3", "SAUD3"]
+try:                                                      # + papéis dos trades (trades.json): intraday para o slide de trades
+    import trades as _trades
+    TICKERS_INTRADAY += sorted(_trades.tickers() - set(TICKERS_INTRADAY))
+except Exception:
+    pass   # futuros B3 com feed na Genial: dólar mini, micro S&P 500, cupom IPCA (juro real 2035/2029)
 ABRE, FECHA = time(10, 0), time(17, 0)
 
 

@@ -520,7 +520,8 @@ def mt5_extrato_intraday():
     versionado: é o que o build do GitHub Actions usa para o seletor 'preço: diário / 5 min / 1 min' no site."""
     import build
     out = {}
-    for tk in ["IBOV", "WDO$"] + list(config.UNIVERSO):
+    import trades
+    for tk in ["IBOV", "WDO$"] + list(config.UNIVERSO) + sorted(trades.tickers() - set(config.UNIVERSO)):
         r = build.mt5_intraday(tk)
         if r:
             out[tk] = r
