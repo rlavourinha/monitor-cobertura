@@ -1,0 +1,987 @@
+[página 1]
+Setembro 2026
+Itaú 
+Janeiro
+Carta do Gestor
+[página 2]
+Carta do Gestor                     
+Itaú Janeiro
+30 de setembro de 2026
+Cenário Internacional – Juros Longos
+A alta dos juros longos americanos dominou os mercados no último trimestre . O movimento 
+refletiu a combinação de três forças: a alta do petróleo, a continuidade do ciclo de investimento em 
+inteligência artificial (IA), incluindo as emissões para financiar esse Capex, e a mudança de postura do 
+Fed. O Fed deixou de acomodar mais um choque de oferta para ajustar a taxa de juros focando nos 
+riscos para a inflação. Após essa mudança, os juros de 10 anos nos EUA seguiram a alta do petróleo 
+(ver figura 1). A boa atividade e as condições financeiras estimulativas, ambas relacionadas ao ciclo de 
+investimentos de IA, permitiram esse movimento. 
+Fonte: Itaú Asset, Haver, Bloomberg
+Olhando um horizonte mais longo, a resiliência da atividade é o principal motivo da alta dos 
+juros longos nos EUA. Acumulando as variações dos juros da 
+Treasury de 10 anos ao redor de uma 
+janela de três dias das divulgações1 do payroll, jolts e retail sales, conseguimos explicar a maior parte 
+da alta observada desde jan/2022 (ver figura 2). Da alta de 355 pontos-base para 5,25%, as janelas de 
+divulgação de dados importantes de atividade responderam por 285 pontos -base. Isso sugere uma 
+reavaliação dos investidores nos últimos anos do grau adequado de restrição da política monetária, 
+com juro neutro mais alto e/ou atividade pedindo mais aperto monetário. Imigração alta até 2024, 
+estímulos fiscais pós-pandemia e investimento de IA sustentaram a atividade e sugerem um período 
+de juros mais elevado. Desses fatores, a imigração já se reverteu (próxima de zero ou negativa) e, do 
+lado fiscal, este ano, o 
+tax rebate foi modesto e seu efeito praticamente apenas compensou o gasto 
+extra das famílias com a alta dos combustíveis. O ciclo de investimento em IA continuará forte e é o 
+principal motor do PIB nos EUA e global (ver discussão abaixo). Note que a dívida pública não aparece 
+como um fator importante nessa explicação.
+1Para uma referência desse tipo de estudo ver Hillenbrand (2025 -The Fed and the Secular Decline in Interest Rates Get access Arrow, The Review of Financial Studies)
+3,90%
+4,03%
+4,15%
+4,28%
+4,41%
+4,54%
+4,66%
+4,79%
+4,92%
+5,05%
+5,17%
+5,30%
+5,43%
+-30%
+-20%
+-10%
+0%
+10%
+20%
+30%
+40%
+50%
+60%
+70%
+80%
+90%
+set/25
+out/25
+nov/25
+dez/25
+jan/26
+fev/26
+mar/26
+abr/26
+mai/26
+jun/26
+jul/26
+ago/26
+set/26
+out/26
+Oil (esq, a/a)
+UST10Y (dir)
+Figura 1: Juros 10a US subiu com nova alta de petróleo e ajuste de política do Fed
+Fed: Acomodar
+choque 
+Fed: Alta de juros 
+para mitigar riscos 
+de inflação
+[página 3]
+Carta do Gestor                     
+Itaú Janeiro
+30 de setembro de 2026
+A alta de juros é acompanhada de uma narrativa de problema inflacionário persistente, da qual 
+nós discordamos. O choque de petróleo (e seus derivados) certamente foi significativo e elevou a 
+inflação. Mas os núcleos de inflação permanecem comportados, entre 2,0% e 2,5% na média dos 
+países desenvolvidos e no CPI dos EUA (ver figura 3).. É verdade que o PCE, indicador no qual o Fed se 
+concentra, está em 3,0%. Mas atribuímos essa diferença a fatores temporários e o PCE deve convergir 
+para o CPI adiante. Note que outras medidas de tendência do próprio PCE estão mais próximas de 
+2,5% do que dos 3,0% (ver figura 3).
+Fonte: Itaú Asset, Haver, Bloomberg
+Fonte: Itaú Asset, Haver, Bloomberg
+-0,5
+0,0
+0,5
+1,0
+1,5
+2,0
+2,5
+3,0
+3,5
+4,0
+2022 2023 2024 2025 2026
+Alta total desde 2022 Ao redor da divulgacao de dados de atividade (payroll, jolts, retails sales) Outros dias
+Figura 2: A alta dos Juros 10a (EUA) desde 2022 ocorreu, principalmente, ao redor da divulgação de dados 
+atividade (com um descolamento de 50-75bps na ponta)
+0,5
+1,0
+1,5
+2,0
+2,5
+3,0
+3,5
+4,0
+4,5
+5,0
+2005
+2006
+2007
+2008
+2009
+2010
+2011
+2012
+2013
+2014
+2015
+2016
+2017
+2018
+2019
+2020
+2021
+2022
+2023
+2024
+2025
+2026
+DM ex US US_CPI
+US_PCE PCE - Fed Cleveland Median
+PCE - Fed Dallas: Trimmed-Mean PCE - Fed NY Multivariate Core Trend
+Figura 3 - Núcleos de inflação comportados mesmo com choque de petróleo
+[página 4]
+Carta do Gestor                     
+Itaú Janeiro
+30 de setembro de 2026
+Com a identificação acima dos principais fatores para a alta de juros nos EUA, nossa avaliação é 
+que parte da alta foi exagerada e que os juros devem recuar adiante. Notamos que, nos gráficos 1 
+e 2 acima, na ponta, os juros de 10 anos estão acima do sugerido pela alta do petróleo e dos dados de 
+atividade. No caso da análise do gráfico 2, considerando a reprecificação dos juros de equilíbrio pela 
+atividade, os juros estão 75 bps acima do sugerido pelos dados. Abaixo, discutimos que, à medida que 
+o choque do petróleo 
+na inflação passar, diminuindo assim o risco de inflação, e o ciclo de IA avançar, 
+nós esperamos que os juros recuem, por exemplo, no título de 10 anos de 5,25% para 4,50%.
+Em primeiro lugar, o preço do petróleo, apesar de níveis estressados, encontrou um equilíbrio 
+próximo de US$ 100 por barril. De um lado, os fluxos de exportações do Oriente Médio se 
+recuperaram para aproximadamente 90% do nível anterior à guerra e preços elevados já provocam 
+alguma destruição de demanda. Do outro lado, os estoques estão baixos, os custos de frete elevados e 
+os riscos de novos ataques permanecem. Esses fatores ajudam a explicar por que o preço não recuou, 
+mesmo com a melhora do fluxo. Nosso cenário é de estabilidade com viés de queda, condicionado à 
+ausência de novos ataques ou interrupções de infraestrutura. Notamos que os derivados, 
+especialmente o diesel, continuam próximos das máximas do ano, mas também mostraram alguma 
+estabilização.
+Em segundo lugar, o mercado de trabalho nos EUA é desinflacionário. A criação de emprego 
+melhorou em comparação com 2025, mas está modesta, próxima do crescimento da oferta de mão de 
+obra. A taxa de desemprego está em 4,2%, indicando um mercado de trabalho equilibrado. Mas os 
+salários estão fracos, abaixo da inflação e da produtividade. Medidas de custo unitário do trabalho 
+indicam que a inflação de serviços excluindo moradia e itens voláteis (portfólio, passagens aéreas e 
+hotéis) deve recuar para 2,5% (ver figura 4). A participação da renda do trabalho no PIB está em queda, 
+e a IA pode reforçar essa tendência (ver discussão abaixo).
+Fonte: Itaú Asset, Haver, Bloomberg
+0,0%
+0,5%
+1,0%
+1,5%
+2,0%
+2,5%
+3,0%
+3,5%
+4,0%
+4,5%
+0,0%
+0,5%
+1,0%
+1,5%
+2,0%
+2,5%
+3,0%
+3,5%
+4,0%
+4,5%
+5,0%
+5,5%
+6,0%
+1990
+1991
+1992
+1993
+1994
+1995
+1996
+1997
+1998
+1999
+2000
+2001
+2002
+2003
+2004
+2005
+2006
+2007
+2008
+2009
+2010
+2011
+2012
+2013
+2014
+2015
+2016
+2017
+2018
+2019
+2020
+2021
+2022
+2023
+2024
+2025
+2026
+Servicos ex moradia. portfolio, aereas, hoteis Custo unitario do trabalho (a/a, media 2 anos)
+Figura 4: PCE Serviços (ex moradia, portfolio, aéreas, hotéis)  vs salários (custo unitário do trabalho)
+a/a
+[página 5]
+Carta do Gestor                     
+Itaú Janeiro
+30 de setembro de 2026
+Com a estabilização do petróleo, núcleos de inflação comportados e alta de juros dos bancos 
+centrais, a inflação deve recuar. A alta do petróleo começou em março deste ano, e sem uma nova 
+alta relevante dos preços, seu efeito direto sobre a inflação tende a se encerrar em março de 2027 . A 
+alta de juros pelo Fed e por outros bancos centrais desenvolvidos está mantendo as expectativas 
+ancoradas e mitigando efeitos de segunda ordem. O petróleo ainda sustenta a inflação corrente, mas 
+sua contribuição marginal tende a diminuir, e a inflação tende a recuar de forma mais contundente no 
+início de 2027 . 
+A inteligência artificial continuará sustentando a atividade, mas é o único fundamento 
+dinâmico da economia. O ciclo de investimento em nova tecnologia é excepcional, com estimativas 
+de gastos equivalentes a aproximadamente 3,6% do PIB ao ano até 2032 nos EUA. Esse investimento, 
+combinado ao efeito riqueza sobre o consumo, sustenta parte relevante do crescimento americano, 
+enquanto investimentos residenciais e construções não relacionadas a data centers permanecem 
+fracos. A composição do investimento é mais saudável do que, por exemplo, o boom imobiliário dos 
+anos 2000. Mas o investimento total cresce abaixo de 5% ao ano, distante do ritmo de 10% observado 
+durante o último boom de tecnologia, na segunda metade da década de 1990 (ver figura 5). O boom 
+é intenso na cadeia de IA, mas não está disseminado por toda a economia.
+Fonte: Itaú Asset, Haver, Bloomberg
+Adicionalmente, a passagem da fase de construção para a fase de uso da IA dá sinais de que 
+está começando, o que alteraria seu impacto macroeconômico
+. Na fase inicial, o ciclo pressiona 
+chips, memória, energia e estruturas físicas. Mais recentemente, duas evoluções nos chamaram 
+atenção. Primeiro, o uso de tokens continuou aumentando, enquanto o custo de inferência caiu 
+desde junho (ver figura 6). Isso sugere melhora da oferta e da eficiência, apesar da demanda forte. 
+-10
+-5
+0
+5
+10
+15
+20
+25
+30
+1995
+1996
+1997
+1998
+1999
+2000
+2001
+2002
+2003
+2004
+2005
+2006
+2007
+2008
+2009
+2010
+2011
+2012
+2013
+2014
+2015
+2016
+2017
+2018
+2019
+2020
+2021
+2022
+2023
+2024
+2025
+2026
+Investimento Fixo - Total Investimento IA - processamento info + software
+Figura 5: Investimento em AI forte, mas investimento total modesto 
+[página 6]
+Carta do Gestor                     
+Itaú Janeiro
+30 de setembro de 2026
+Fontes: UBS, Itaú Asset
+Fonte: ItaÚ Asset, GS, MS, Bloomberg
+Segundo, começamos a ver uma estabilização do valor das cestas de ações que se beneficiam de 
+investimento de IA (inflacionário), relativamente a cestas de ações que ganham com o uso de IA 
+(desinflacionário). Algumas medidas de preço de semicondutores estabilizaram (ver figura 7). Não 
+esperamos queda no preço dos chips e outros insumos da cadeia de IA, dado que a demanda por 
+investimento continua elevada. Ainda assim, a estabilização dos preços de memória e 
+semicondutores e a queda do custo por token indicam menor pressão inflacionária na margem. Com 
+o avanço do uso, os ganhos de eficiência e produtividade podem tornar o ciclo menos inflacionário.
+Vale ressaltar que o modo pelo qual os retornos do investimento em IA ocorrerão ainda é 
+incerto e tem implicações importantes. Estimativas sugerem que o setor de IA precisaria gerar 
+receitas próximas de 10% do PIB até 2032 para remunerar o capital investido2. Esse retorno pode vir 
+de crescimento do PIB mais forte, redistribuição de lucros entre empresas e setores ou redistribuição 
+de renda entre capital e trabalho.
+0,40
+0,45
+0,50
+0,55
+0,60
+0,65
+0
+5
+10
+15
+20
+25
+10/05/2026 10/06/2026 10/07/2026 10/08/2026 10/09/2026
+Uso de Token (trilhoes, OpenRouter) Custo de inferencia (usd/ milhoes token)
+Figura 6: AI - Uso de token subindo, preço por token caindo
+0%
+20%
+40%
+60%
+80%
+100%
+120%
+140%
+80
+120
+160
+200
+240
+280
+320
+set/25
+out/25
+nov/25
+dez/25
+jan/26
+fev/26
+mar/26
+abr/26
+mai/26
+jun/26
+jul/26
+ago/26
+set/26
+out/26
+Korea - Precos de exportacoes de semicondutores  (esq, set/25 = 100)
+AI Cesta acoes de "Build Up" /  Uso (dir)
+Figura 7: AI pressão de build up estabilizando 
+2Ver por exemplo, Stijn Van Nieuwerburgh (2026, Financing the AI Buildout, Brookings Papers on Economic Activity)
+[página 7]
+Carta do Gestor                     
+Itaú Janeiro
+30 de setembro de 2026
+Fonte : Bloomberg, Itaú Asset
+Por enquanto, a produtividade parece ter se elevado para ao redor de 2% a.a., o que é bom, mas 
+ainda aquém de gerar uma aceleração expressiva do PIB. Adicionalmente, esse aumento da 
+produtividade ocorre no retorno do capital e não no trabalho, o que explica uma dinâmica de salários 
+benigna. No geral, os benefícios do uso de IA permanecem concentrados nas maiores empresas. Se 
+os ganhos de IA vierem principalmente de redistribuição de lucros entre setores e com redução da 
+parcela de renda do trabalho, o efeito macro tende a ser desinflacionário. 
+Por fim, o nível atual do Treasury de 10 anos exige crescimento do PIB nominal 
+persistentemente elevado
+. O PIB nominal dos EUA no 2T26 foi de 6,3% a/a (e 8,5% t/t anualizado), 
+combinando crescimento real de 2,2% a/a e deflator de 4,0% a/a, este último impulsionado pelo 
+petróleo, tarifas e aumento de preços do investimento em IA. Com esses choques temporários se 
+estabilizando, o deflator tende a recuar para abaixo de 3,0%, levando o PIB nominal para entre 5% e 
+5,5%, caso o crescimento real permaneça próximo de 2,0%. Manter o PIB nominal em 6% exigiria uma 
+aceleração relevante da produtividade, que ainda não ocorreu. Sem isso, juros ainda mais altos 
+parecem pouco prováveis. Um PIB nominal ao redor de 5,0%, como esperamos adiante, seria mais 
+consistente com um Treasury de 10 anos de 4,5% do que com os níveis recentes. 
+A política monetária continua sendo parte importante da explicação para os juros atuais . Para 
+o Fed, nosso cenário-base é pular a reunião de outubro, apoiado por revisões baixistas da inflação e 
+por um mercado de trabalho equilibrado. Esperamos mais uma alta em dezembro e manutenção em 
+2027 . Cenários alternativos incluem um ciclo total com três ou quatro altas, caso a inflação não recue 
+ou a economia acelere de forma relevante. Na Zona do Euro, cujo ajuste está mais avançado, 
+esperamos apenas mais uma alta em dezembro para 2,75%. Já na Inglaterra e no Canadá, que 
+optaram por esperar ao máximo uma possível resolução do choque de energia, dada a situação local 
+do mercado de trabalho, antevemos também mais duas altas de juros em cada, com terminais em 
+4,25% e 2,75%, respectivamente.
+-2
+-1
+0
+1
+2
+3
+4
+5
+6
+7
+8
+1997
+1998
+1999
+2000
+2001
+2002
+2003
+2004
+2005
+2006
+2007
+2008
+2009
+2010
+2011
+2012
+2013
+2014
+2015
+2016
+2017
+2018
+2019
+2020
+2021
+2022
+2023
+2024
+2025
+2026
+PIB Real PIB Deflator US10Y
+Figura 8: Juros EUA 10a vs PIB nominal (real + deflator, a/a)
+[página 8]
+Carta do Gestor                     
+Itaú Janeiro
+30 de setembro de 2026
+Cenário Brasil – Mudança de política econômica
+O resultado do primeiro turno da eleição aumentou a chance de uma mudança de direção na 
+política econômica. O candidato da oposição chegou na frente no primeiro turno da corrida 
+presidencial e a direita teve forte desempenho na eleição para o congresso e para os governos 
+estaduais. O cenário-base passou a ser de mudança, com vitória da oposição na eleição do segundo 
+turno. 
+Apesar da falta de detalhes, as indicações são de um ajuste fiscal e de reformas para reduzir 
+distorções na economia e estimular a participação do setor privado
+. Se implementada, essa 
+direção de política econômica deve reduzir a pressão na demanda agregada vinda da expansão de 
+gastos públicos e reduzir o prêmio de risco fiscal, o que pode ser o início de um novo ciclo de 
+crescimento liderado pelo setor privado e pela produtividade.
+Um ajuste fiscal deve gerar um equilíbrio macro que mostrará o benefício completo da meta de 
+inflação de 3,0%. Nos últimos anos, apesar da expansão fiscal, de políticas de crédito e vários 
+choques, o IPCA oscilou próximo do intervalo de tolerância da meta de inflação (ver figura 9). Isso 
+demonstra a ancoragem de uma meta de inflação baixa, alinhada com o resto do mundo. Alguns 
+críticos argumentam que isso vem com o custo de juros reais elevados. Essa crítica é equivocada. O 
+juro real é elevado não porque a meta de inflação de 3% é baixa, mas pela necessidade de contrapor 
+outros vetores de demanda, notadamente o impulso fiscal dos últimos anos. Essa expansão de 
+gastos, bem superior ao crescimento do PIB, demandou do banco central uma política monetária 
+extremamente restritiva. Uma vez corrigida a pressão fiscal, os juros devem cair de forma 
+importante. No período em que vigorou o regime fiscal do T eto de Gastos, que se propunha a limitar 
+o crescimento do gasto público à inflação passada (entre 2017 e 2022, ver figura 9), a inflação oscilou 
+em linha com outros países emergentes, permanecendo inclusive na metade de baixo do intervalo de 
+tolerância da meta no período anterior à pandemia (ver figura 9). Durante a pandemia, a inflação no 
+Brasil subiu, mas, diferentemente de outros choques, como 2002 e 2015, subiu em linha com outros 
+países emergentes (ver figura 10).
+Fonte: Itau Asset, Haver
+0,0
+1,0
+2,0
+3,0
+4,0
+5,0
+6,0
+7,0
+8,0
+9,0
+10,0
+2002
+2003
+2004
+2005
+2006
+2007
+2008
+2009
+2010
+2011
+2012
+2013
+2014
+2015
+2016
+2017
+2018
+2019
+2020
+2021
+2022
+2023
+2024
+2025
+2026
+IPCA (a/a) Meta de inflacao e intervalo de tolerancia
+Figura 9 - IPCA deve se aproximar da Meta....
+Gastos
+Contidos 
+(pré
+pandemia)
+500
+1000
+1500
+2000
+2500
+3000
+2003
+2004
+2005
+2006
+2007
+2008
+2009
+2010
+2011
+2012
+2013
+2014
+2015
+2016
+2017
+2018
+2019
+2020
+2021
+2022
+2023
+2024
+2025
+2026
+...com gasto fiscal moderado 
+(gasto primário governo federal, 12m, preços de 2026, R$ bilhões)
+6.5% 
+Teto de 
+gastos: 
+1.1% a.a
+4.6% a.a
+[página 9]
+Carta do Gestor                     
+Itaú Janeiro
+30 de setembro de 2026
+A comparação internacional demonstra claramente o espaço para queda dos juros no Brasil
+A postura do Banco Central contribui para a inflação no Brasil ser semelhante aos países emergentes 
+similares. Mas os juros no Brasil ainda são muito mais altos (ver figura 10). Novamente, atribuímos isso 
+ao regime fiscal. Um ajuste fiscal deve consolidar uma inflação baixa e juros similares ao padrão 
+global. O período de 2017-2022 é ilustrativo. Com gastos contidos, a Selic ficou abaixo dos juros de 
+países como México, África do Sul e Colômbia (ver figura 10). A partir de uma mudança na política 
+econômica, uma Selic abaixo de 10% nos parece o cenário provável.
+Fonte: Itaú Asset, Haver
+No curto prazo, esperamos que o Banco Central seja conservador na condução da política 
+monetária
+. Nos próximos meses, a inflação deve ser pressionada pelo efeito do El Niño em alimentos 
+e um ajuste no preço dos combustíveis (com possível revisão dos subsídios). O Banco Central também 
+deve aguardar a confirmação das mudanças que discutimos acima e observar uma reancoragem das 
+expectativas de inflação. Assim, esperamos que o Copom continue com cortes de 25 bps no 4T26 e, 
+possivelmente, no início do 1T27 , a depender da velocidade do processo de ajuste. Após essa janela 
+de curto prazo, de pressão sobre a inflação, e caso se consolide um novo regime fiscal, a redução da 
+Selic poderá ser mais rápida. 
+Principais alocações no final do terceiro trimestre de 2026
+Mantivemos um viés aplicado em juros. Nesse aspecto, nosso diagnóstico permanece semelhante 
+ao apresentado na carta do 2T26. Apesar da resiliência da atividade global e do choque recente nos 
+preços de energia, os núcleos de inflação permaneceram comportados na maior parte das 
+economias. Como discutimos nesta carta, essa avaliação se aplica inclusive aos Estados Unidos.
+Entre as economias desenvolvidas, seguimos com preferência por posições aplicadas na curva 
+americana, onde os juros mais subiram nas últimas semanas. Um mercado de trabalho menos 
+dinâmico, com criação de vagas próxima de zero e crescimento salarial moderado, sugere que o 
+mercado ainda embute uma precificação excessiva para o ciclo do Federal Reserve, atualmente entre 
+100 e 125 pontos-base.
+0
+2
+4
+6
+8
+10
+12
+14
+16
+2010
+2011
+2012
+2013
+2014
+2015
+2016
+2017
+2018
+2019
+2020
+2021
+2022
+2023
+2024
+2025
+2026
+BZ MX CL CO SA US_CPI
+Figura 10 - Inflação Brasil convergiu para global....
+Gastos
+Contidos 
+(pré
+pandemia)
+0
+2
+4
+6
+8
+10
+12
+14
+16
+2010
+2011
+2012
+2013
+2014
+2015
+2016
+2017
+2018
+2019
+2020
+2021
+2022
+2023
+2024
+2025
+2026
+BZ_Juros MX_Juros CL_Juros
+CO_Juros SA_Juros US_CPI_Juros
+...e, com fiscal contido, juros também irão convergir
+Gastos
+Contidos 
+(pré
+pandemia)
+[página 10]
+Carta do Gestor                     
+Itaú Janeiro
+30 de setembro de 2026
+Colômbia e Hungria seguem em destaque diante de mudanças políticas importantes . Apesar do 
+desempenho negativo dos títulos colombianos desde nossa última carta, acreditamos que o novo 
+governo tem sido transparente ao reconhecer a real situação das contas públicas. Aguardamos com 
+otimismo o projeto de lei que propõe um ajuste fiscal de aproximadamente 2% do PIB para 2027 . Uma 
+política fiscal mais equilibrada deve limitar a necessidade de novas altas de juros pelo BanRep, abrindo 
+espaço para o início de um ciclo de cortes já a partir do segundo trimestre de 2027 . Na Hungria, o banco 
+central oficializou uma nova meta de inflação de 2,5% a partir de 2028. Paralelamente, segue avançando 
+na agenda de reformas voltadas à adoção do euro no médio prazo. Esse processo continua justificando a 
+compressão dos spreads dos juros locais em relação aos mercados da Europa e do Leste Europeu.
+No México, vemos pouco espaço para cortes adicionais de juros. O início do ciclo de aperto monetário 
+pelo Federal Reserve, combinado com uma atividade doméstica mais forte nos últimos meses, sugere que 
+o Banco Central do México manterá os juros. Além disso, o aumento da volatilidade e a depreciação 
+relevante do peso mexicano devem contribuir para uma postura mais cautelosa do Banxico no curto 
+prazo.
+No Chile, iniciamos uma posição aplicada na barriga da curva de juros nominal . A fraqueza na 
+atividade continua e projeções de PIB para 2027 parecem otimistas. A safra de dados fracos de atividade 
+continuou desde a nossa última carta, com desemprego ainda em alta e mineração dando sequência às 
+decepções. Importações de bens de capital não retomaram a alta observada em 2025 e, em nossa visão, 
+questionam o otimismo com o investimento para o ano que vem. Com expectativas de inflação ancoradas 
+e um ciclo de alta razoável já implícito na curva, aplicamos juros nominais de prazo intermediário.
+Na África do Sul, observamos melhora nas expectativas de inflação capturadas pela pesquisa BER . 
+Acreditamos que o SARB não precisará elevar os juros além do que já está precificado pela curva, o que 
+favorece posições aplicadas ao longo da estrutura a termo. 
+No mercado de câmbio, com exceção do real, seguimos operando com flexibilidade em torno do 
+dólar. O início do ciclo de altas de juros pelo Federal Reserve em setembro contribuiu para o 
+fortalecimento da moeda americana ao final do trimestre. Ainda não está claro, porém, se esse 
+movimento terá continuidade, especialmente se o ciclo de afrouxamento monetário se mostrar mais 
+curto do que o atualmente esperado. Nesse contexto, mantemos preferência por moedas asiáticas, 
+beneficiadas pelo ciclo de investimentos em inteligência artificial, em detrimento de moedas de 
+economias desenvolvidas com juros mais baixos.
+No Brasil, mantivemos alocação aplicada em juros nominais, mas em tamanho mais cauteloso do que 
+nos meses anteriores, por conta da volatilidade esperada durante o processo eleitoral. Por conta da 
+liquidez e da possibilidade de utilizar instrumentos de perda limitada, trocamos parte da posição aplicada 
+em juros nominais por compra de real contra o dólar americano e o euro.
+Seguimos construtivos com ações internacionais, especialmente nos EUA e na Ásia . O ciclo de 
+investimentos e lucros impulsionado pela inteligência artificial continua sólido, sustentando nossa visão 
+positiva. Mantemos exposição a empresas que consideramos beneficiárias estruturais dessa tendência, 
+como TSMC, Amazon, Meta e outros participantes relevantes da cadeia de semicondutores. Ao final de 
+junho, adotávamos uma postura mais seletiva, com um portfólio mais diversificado e maior exposição ao 
+setor financeiro. A forte correção observada em julho nos permitiu aumentar posições ligadas ao tema de 
+IA em níveis de preço que consideramos mais atrativos.
+No mercado doméstico, passamos a ampliar gradualmente nossa exposição por meio do mercado 
+de opções, refletindo nossa visão de que o cenário eleitoral de 2026 pode criar uma assimetria 
+favorável para ativos brasileiros
+.
+[página 11]
+Itaú Janeiro Multimercado FICFI
+30 de Setembro de 2026
+Objetivos do Fundo
+Fundo Multimercado Macro que atua no mercado brasileiro e internacional, buscandoentregar retorno absoluto ao investidor em qualquer cenário econômico. O time degestão, com sólida formação macroeconômica, se dedica a identificar relevantes temas deinvestimentos ainda no seu início de ciclo, combinando análise macroeconômica comacompanhamento de indicadores técnicos de mercado. A dedicação a uma análisedetalhada sobre a origem dos resultados obtidos (estratégia e implementação), assegurauma profunda compreensão da forma como o alpha é gerado e é essencial para alcançarretornos consistentes no longo prazo.
+Termômetro de Risco
+Baixo Médio Alto
+Rentabilidade do Mês
+0,98 %90,9% do CDI
+CDI - 0,10%
+Rentabilidade do Ano
+6,49 %61,8% do CDI
+CDI - 4,02%
+58%
+Meses em que esteve
+acima do benchmark
+86%
+Meses de retorno
+positivo do fundoRentabilidade dos últimos12 meses
+9,50 %65,6% do CDI
+CDI - 4,98%
+Rentabilidade desde o iníciodo fundo (29/09/2023)
+50,45 %114,6% do CDI
+CDI + 1,66% a.a.
+0,41
+Índice Sharpe1
+4,02%
+Volatilidade desde o início
+do fundo (29/09/2023)
+Retorno Acumulado
+Data de início do fundo
+29/09/2023
+Itaú Janeiro MM
+CDI
+44,04%44,04% 44,04%
+50,45%50,45% 50,45%
+Out/23
+Dez/23
+Fev/24
+Abr/24
+Jun/24
+Ago/24
+Out/24
+Dez/24
+Fev/25
+Abr/25
+Jun/25
+Ago/25
+Out/25
+Dez/25
+Fev/26
+Abr/26
+Jun/26
+Ago/26
+0%
+20%
+40%
+Retorno Mensal
+Jan Fev Mar Abr Mai Jun Jul Ago Set Out Nov Dez
+Fundo 2,58% 0,45% -4,03% 1,79% 1,52% 2,49% -0,09% 0,78% 0,98% - - -
+2026 CDI 1,16% 1,00% 1,21% 1,09% 1,07% 1,12% 1,22% 1,09% 1,08% - - -
+%CDI 221,2% 45,1% -332,6% 164,4% 142,1% 222,0% -7,6% 71,7% 90,9% - - -
++/-CDI 1,41% -0,55% -5,25% 0,70% 0,45% 1,37% -1,31% -0,31% -0,10% - - -
+Fundo 2,75% 1,05% -0,66% 3,65% 1,99% 2,86% 0,69% 2,50% 1,49% 1,51% 1,26% 0,04%
+2025 CDI 1,01% 0,99% 0,96% 1,06% 1,14% 1,10% 1,28% 1,16% 1,22% 1,28% 1,05% 1,22%
+%CDI 272,3% 106,2% -68,7% 345,3% 174,6% 261,3% 53,7% 214,6% 122,3% 118,3% 119,3% 3,4%
++/-CDI 1,74% 0,06% -1,62% 2,59% 0,85% 1,77% -0,59% 1,33% 0,27% 0,23% 0,20% -1,18%
+Fundo 0,36% 0,31% 0,30% -0,35% 0,74% 1,40% 2,63% 1,35% 2,40% 0,60% 1,52% -0,55%
+2024 CDI 0,97% 0,80% 0,83% 0,89% 0,83% 0,79% 0,91% 0,87% 0,83% 0,93% 0,79% 0,93%
+%CDI 37,2% 38,2% 35,6% -40,0% 89,2% 178,0% 289,5% 156,2% 288,0% 64,8% 192,0% -59,6%
++/-CDI -0,61% -0,50% -0,54% -1,24% -0,09% 0,62% 1,72% 0,49% 1,57% -0,33% 0,73% -1,48%
+Ano
+6,49%
+10,51%
+61,8%
+-4,02%
+20,78%
+14,31%
+145,2%
+6,47%
+11,19%
+10,87%
+102,9%
+0,31%
+Notas: (1)  Índice Sharpe é a métrica que avalia o desempenho de um investimento levando em consideração o risco incorrido no período. Calcula-se dividindo o retorno excedente do fundo
+(rentabilidade acima do CDI) pela volatilidade. Quanto maior o índice, melhor a relação entre risco e retorno.
+|
+[página 12]
+Itaú Janeiro Multimercado FICFI
+30 de Setembro de 2026
+Atribuição de Performance Mensal
+CDI
+Juros - Brasil
+Moedas
+Bolsa Internacional
+Bolsa Local
+Valor Relativo
+Commodities + CDS
+Caixa e Custos
+Juros - Emergentes
+Juros - Desenvolvidos
+Total
+1,08%
+0,55%
+0,30%
+0,28%
+0,12% -0,01% -0,13%
+-0,21%
+-0,39%
+-0,61%
+0,98%
+Atribuição de Performance Anual
+CDI
+Bolsa Internacional
+Moedas
+Bolsa Local
+Juros - Emergentes
+Valor Relativo
+Commodities + CDS
+Juros - Brasil
+Juros - Desenvolvidos
+Caixa e Custos
+Total
+10,51%
+0,99%
+0,97% 0,11% 0,05% -0,23% -0,29% -1,35%
+-1,89%
+-2,36%
+6,49%
+[página 13]
+Itaú Janeiro Multimercado FICFI
+30 de Setembro de 2026
+Alocação relevante por região (últimos 6 meses)2
+AUAUAU
+BRBRBR
+CLCLCL
+COCOCO
+EUEUEU
+MXMXMX
+ZAZAZA
+GBGBGB
+USUSUS
+Notas: (2)  O gráfico considera a média do patrimônio líquido (PL) dos últimos 6 meses para determinar a relevância das alocações por região. A classificação de relevância segue os seguintes
+critérios mínimos de participação no PL médio: Juros (50% do patrimônio líquido equivalente ano bruto), Moedas (1% do patrimônio líquido), Renda Variável (5% do patrimônio líquido bruto) e
+Inflação (25% do patrimônio líquido equivalente ano). Alocações abaixo desses limites não são exibidas por não atenderem ao critério de relevância estabelecido.
+[página 14]
+Itaú Janeiro Multimercado FICFI
+30 de Setembro de 2026
+Risco Vs Retorno (desde o início) Defasagem de 30 dias devido à divulgação do IHFA.
+3 Drawdown Queda do fundo em relação à sua cotação máxima.Defasagem de 30 dias devido à divulgação do IHFA.
+4
+Volatilidade (a.a)
+Retorno Acumulado IBOVIBOVIBOV
+CDICDICDI
+FundoFundoFundo
+IMA-BIMA-BIMA-B
+IRF-MIRF-MIRF-M
+IHFAIHFAIHFA
+0,00% 5,00% 10,00% 15,00%
+20,00%
+30,00%
+40,00%
+50,00%
+60,00%
+IHFA Fundo
+Jan/24
+Mai/24
+Set/24
+Jan/25
+Mai/25
+Set/25
+Jan/26
+Mai/26
+-6,00%
+-4,00%
+-2,00%
+0,00%
+Histórico de VaR 
+Perda máxima estimada em um dia com 95% de confiança
+5
+0,45%0,45% 0,45%
+Out/25
+Nov/25
+Dez/25
+Jan/26
+Fev/26
+Mar/26
+Abr/26
+Mai/26
+Jun/26
+Jul/26
+Ago/26
+Set/26
+0,25%
+0,50%
+0,75%
+1,00%
+1,25%
+VaR por classe de ativo 
+Perda máxima estimada em um dia com 95% de confiançaAs barras e pontos representam o mínimo, máximo e médio ao longo do mês
+5
+0,14%0,14% 0,14%
+0,22%0,22% 0,22%
+0,16%0,16% 0,16%
+0,06%0,06% 0,06% 0,05%0,05% 0,05% 0,07%0,07% 0,07% 0,02%0,02% 0,02%
+0,19%0,19% 0,19%
+0,32%0,32% 0,32%
+0,18%0,18% 0,18%
+0,08%0,08% 0,08% 0,06%0,06% 0,06% 0,08%0,08% 0,08% 0,02%0,02% 0,02%0,11%0,11% 0,11%
+0,17%0,17% 0,17% 0,12%0,12% 0,12%
+0,04%0,04% 0,04% 0,04%0,04% 0,04% 0,06%0,06% 0,06% 0,02%0,02% 0,02%
+0,48%0,48% 0,48%
+0,55%0,55% 0,55%
+0,44%0,44% 0,44%
+Juros - Brasil Juros - Desenvolvidos Juros - Emergentes Moedas Bolsa Local Bolsa Internacional Commodities + CDS Total
+0,00%
+0,20%
+0,40%
+0,60%
+-0,20%
+Notas: (3) O gráfico de Risco Vs. Retorno apresenta a relação entre a volatilidade anualizada e o retorno acumulado desde o início do fundo, em comparação com índices de mercado como CDI,
+Ibovespa, IHFA, IMA-B e IRF-M. (4) O gráfico de Drawdown serve para acompanhar a magnitude de um retorno negativo após o investimento ter atingido seu nível máximo e o tempo que foi preciso
+para que o investimento voltasse a atingir seu nível mais alto novamente. De maneira geral, investimentos que apresentam um menor Drawdown tendem a entregar um maior retorno ao investidor
+no longo prazo. (5) A metodologia de cálculo de risco VaR (Value at Risk) busca dimensionar o nível de perda diária que o fundo terá em até 95% dos dias. Essa metodologia utiliza dados históricos
+de mercado para determinar o comportamento esperado dos ativos do portfólio, dando pesos maiores para os eventos mais recentes. Soma das exposições é superior ao resultado total por conta
+do efeito da diversificação. 
+[página 15]
+Itaú Janeiro Multimercado FICFI
+30 de Setembro de 2026
+Por que Itaú Janeiro Multimercado?
+Equipe experiente, formada por profissionaisaltamente qualificados, com histórico de alphacomprovado.
+Potencial de retornos consistentes no longo prazo,impulsionados por uma análise macroeconômicadetalhada, acompanhamento de indicadorestécnicos e análise da origem dos resultados.
+Alocação eficiente do risco, com monitoramentoconstante da dinâmica de mercado eposicionamento técnico.
+ Diversificação da carteira
+Por que Itaú Asset?
+A maior gestora privada de recursos do Brasil, com + deR$1 tri sob gestão e uma estrutura integrada para agestão eficiente de investimentos.
++ de   2,6 mi
+clientes6
++ de   300
+profissionais7
++ de   60
+anos em gestãode investimento8
+15x
+A melhor gestora defundos pelo Guia deFundos FGV9
+Pesquisa
+Econômica
+Pesquisa
+Quantitativa
+Portfolio
+Analytics Trading Integração ESG Operações
+Por que investir em fundos multimercado?
+Estratégia adaptável a diferentes cenários de mercado, com uma gestãoativa capaz de responder rapidamente às mudanças de ciclos econômicos.
+Notas: (6)  Fonte: Itaú Asset Management, Julho, 2025. (7)  Fonte: Itaú Asset Management, Julho, 2025. (8)  Fonte: Itaú Asset Management, Julho, 2025. (9) 
+Fonte: Portal de fundos - FGV, Dezembro, 2023.
+[página 16]
+Itaú Janeiro Multimercado FICFI
+30 de Setembro de 2026
+Características
+Volume Global Mínimo
+R$ 1,00
+Classificação Tributária
+Longo Prazo Sem Compromisso
+Patrimônio Líquido Médio
+Últimos 12 meses
+R$ 1.205.138.213,17
+Taxa Total Máxima
+2,00% ao ano
+Taxa de Performance
+20% sobre o que exceder 100% do CDI
+Público Alvo
+Público Em Geral
+Horário para Movimentação
+Até às 15:00
+Aplicação e Resgate
+Cota de aplicação: D+0
+Cota de Resgate (dias úteis): D+21
+Crédito do Resgate (dias úteis após
+cotização): D+1
+Taxas do produto
+Administração Custódia Distribuição Gestão
+Taxa cobrada ao ano 0,05% 0,05% 0,40% 1,50%
+Taxa máxima ao ano 0,05% 0,05% 0,40% 1,50%
+O fundo poderá, eventualmente, apresentar indisponibilidade, permanente ou temporária, de acesso por parte deinvestidores. Em caso de dúvidas, consulte seu gerente de relacionamentoAcesse outros documentos relevantes deste fundo: www.itau.com.br/investimentos-previdencia/fundos/informacoes-cotistas/Glossário: LF - Letra Financeira. CDB - Certificado de Depósito Bancário. LSF - Letra Financeira Subordinada. LFSN - Letra Financeira Elegível - Nível II. DEB –Debentures. NP - Notas Promissórias. CCB - Cédula de Crédito Bancário. FIDC - Fundo de Investimento em Direitos Creditórios. DPGE - Depósito a Prazo comGarantia Especial. Debentures Conversível. Certificado de Recebíveis Imobiliários. LC – Letra de Câmbio. LCA – Letra de Crédito Agrícola. LCI – Letra de CréditoImobiliário. DEB COMP – Debênture Compromissada. CDB Vinc – Certificado de Depósito Interbancário Vinculado. CRI – Certificado de Recebíveis Imobiliário. CDCA –Certificado de Direitos Creditórios do Agronegócio. CPR – Contas a Pagar e Receber. DPGE - Depósito a Prazo com Garantia Especial. COMPR – OperaçãoCompromissada. LH –Letra Hipotecária. TERMO – Contrato a Termo 
+Informações relevantes  ITAÚ JANEIRO MULTIMERCADO FUNDO DE INVESTIMENTO FINANCEIRO DA CLASSE DE INVESTIMENTO EM COTAS RESPONSABILIDADE LIMITADA CNPJ 52.116.227/0001-09 - 30/09/2026Este fundo possui lâmina de informações essenciais, podendo esta ser consultada no seguinte endereço eletrônico www.itau.com.br. Não há garantia de que este fundo terá o tratamento tributário parafundos de longo prazo. Os rendimentos serão tributados semestralmente, no último dia útil dos meses de maio e novembro, à alíquota de 15%. No momento do resgate, será aplicada a alíquota complementarem função do prazo da aplicação: até 180 dias, 22,5%; de 181 a 360 dias, 20%; de 361 a 720 dias, 17,5%; acima de 720 dias, 15%. Haverá cobrança de IOF regressivo no caso de resgates de aplicações commenos de 30 dias. Público alvo: O FUNDO, a critério do ADMINISTRADOR, receberá recursos de fundos de investimento, pessoas físicas e jurídicas, clientes do ADMINISTRADOR, do GESTOR ou de controladas,direta ou indiretamente, pela Itaú Unibanco Holding S.A. Objetivo do fundo: O objetivo do FUNDO é aplicar seus recursos em cotas de fundos de investimento de diversas classes, os quais investem em ativosfinanceiros de diferentes naturezas, riscos e características, sem o compromisso de concentração em nenhum ativo ou fator de risco em especial, observado que a rentabilidade do FUNDO será impactada emvirtude dos custos e despesas do FUNDO, inclusive taxa de administração. Tipo Anbima: MULTIMERCADOS LIVRE - Fundos que são baseados nas estratégias preponderantes adotadas e suportadas peloprocesso de investimento adotado pelo gestor como forma de atingir os objetivos e executar a política de investimentos dos Fundos. Fundos que não possuem obrigatoriamente o compromisso deconcentração em nenhuma estratégia específica. Início do fundo em: 29/09/2023. Fonte de dados do material: Itaú Asset Management. Material de divulgação do fundo - A Itaú Asset Management (ITAÚUNIBANCO ASSET MANAGEMENT LTDA., CNPJ 40.430.971/0001-96) é a gestora de fundos de investimento do conglomerado Itaú Unibanco. Leia a lâmina de informações essenciais, se houver, e o regulamentoantes de investir. Rentabilidade passada não representa garantia de rentabilidade futura. A rentabilidade divulgada não é líquida de impostos. Fundos de investimento não contam com garantia doadministrador, do gestor, de qualquer mecanismo de seguro ou fundo garantidor de crédito – FGC. Para obter mais informações, entre em contato pelo telefone 4004-4828. Consultas, sugestões, reclamações,críticas, elogios e denúncias, utilize o SAC: 0800 728 0728, todos os dias, 24 horas, ou o canal Fale Conosco (www.itau.com.br). Se necessário contate a Ouvidoria Corporativa Itaú: 0800 570 0011 (em dias úteisdas 9h às 18h) ou Caixa Postal 67.600, CEP 03162-971. Deficientes auditivos ou de fala, todos os dias, 24 horas, 0800 722 1722.
+Corporativo | Compartilhamento Externo Fonte: Itaú Asset Management - Outubro, 2026
