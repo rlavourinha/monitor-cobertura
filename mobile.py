@@ -328,14 +328,17 @@ def bloco_setores(C: dict, IB: dict) -> str:
 
 
 def bloco_fluxo() -> str:
+    from fontes import b3_bdi
     F = _j("fluxo_investidores.json", {}) or {}
-    h = F.get("historico") or {}
-    if not h:
+    serie = b3_bdi.serie_diaria(F) if F else []          # diário coletado + histórico de terceiros (antes era só o histórico, parava no mês anterior)
+    if not serie:
         return ""
-    ds = sorted(h)[-6:]
+    by = {r["data"]: r for r in serie}
+    ds = [r["data"] for r in serie][-6:]
     mes = ds[-1][:7]
-    mtd = {k: sum((h[d].get(k) or 0) for d in h if d.startswith(mes)) / 1e3 for k in ("estrangeiro", "institucional", "pessoa física")}
-    rows = "".join(f'<tr><td>{d[8:10]}/{d[5:7]}</td>' + "".join(f'<td class="{B.dlt_cls(h[d].get(k))}">{B.num((h[d].get(k) or 0) / 1e3, 2)}</td>' for k in ("estrangeiro", "institucional", "pessoa física")) + "</tr>" for d in ds[::-1])
+    tipos = ("estrangeiro", "institucional", "pessoa física")
+    mtd = {k: sum((by[d].get(k) or 0) for d in by if d.startswith(mes)) / 1e3 for k in tipos}
+    rows = "".join(f'<tr><td>{d[8:10]}/{d[5:7]}</td>' + "".join(f'<td class="{B.dlt_cls(by[d].get(k))}">{B.num((by[d].get(k) or 0) / 1e3, 2)}</td>' for k in tipos) + "</tr>" for d in ds[::-1])
     rows = f'<tr class="tot"><td>{MESES[int(mes[5:]) - 1]}/{mes[2:4]} até aqui</td>' + "".join(f'<td class="{B.dlt_cls(v)}">{B.num(v, 1)}</td>' for v in mtd.values()) + "</tr>" + rows
     return _card("Fluxo na B3 (R$ bi)", f'<table><thead><tr><th>Dia</th><th>Estrang.</th><th>Instit.</th><th>P. física</th></tr></thead><tbody>{rows}</tbody></table><p class="nota">Saldo diário por tipo de investidor (B3, compilação Dados de Mercado); publicado com 2 dias de atraso.</p>', f'até {ds[-1][8:10]}/{ds[-1][5:7]}')
 
