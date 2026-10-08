@@ -24,7 +24,7 @@ import sys
 from datetime import date, datetime, timedelta
 
 import config
-from fontes import telegram
+from fontes import bba, telegram
 
 DIR = config.DATA / "bba"
 TXT = DIR / "txt"
@@ -145,11 +145,11 @@ def espelhar(novos: list[dict]) -> bool:
     return r.returncode == 0
 
 
-def modo_registrar(arq: str, sem_telegram: bool, sem_espelho: bool) -> int:
-    metas = json.loads(open(arq, encoding="utf-8").read())
+def _registrar(itens: list[dict], sem_telegram: bool, sem_espelho: bool) -> list[dict]:
+    """Fecha a passada: índice, novos.json, Telegram e espelho. `itens` = dicts crus (da lista) ou metas."""
     indice = _carrega(INDICE, {})
     novos = []
-    for d in metas:
+    for d in itens:
         m = _meta(d)
         t = TXT / f"{m['id']}.txt"
         if t.exists():
@@ -158,11 +158,62 @@ def modo_registrar(arq: str, sem_telegram: bool, sem_espelho: bool) -> int:
         novos.append(m)
     _grava(INDICE, indice)
     _grava(NOVOS, {"hora": datetime.now().strftime("%Y-%m-%d %H:%M"), "novos": novos})
+    espelho = None
     if novos and not sem_telegram:
         avisar(novos)
     if novos and not sem_espelho:
-        espelhar(novos)
-    print(f"{len(novos)} registrados ({sum(1 for m in novos if m['chars'])} com resumo); índice com {len(indice)}")
+        espelho = espelhar(novos)
+    print(f"{len(novos)} registrados ({sum(1 for m in novos if m['chars'])} com resumo); índice com {len(indice)}; "
+          f"espelho {'ok' if espelho else ('falhou' if espelho is False else 'pulado')}")
+    return novos
+
+
+def modo_registrar(arq: str, sem_telegram: bool, sem_espelho: bool) -> int:
+    _registrar(json.loads(open(arq, encoding="utf-8").read()), sem_telegram, sem_espelho)
+    return 0
+
+
+def _avisar_login(motivo: str, sem_telegram: bool) -> None:
+    msg = {"captcha": "captcha na tela", "login": "a sessão expirou"}.get(motivo, "a sessão expirou")
+    print(f"Itaú BBA: {msg}: rode `python bba_relatorios.py --login`", file=sys.stderr)
+    if not sem_telegram and telegram.disponivel():
+        telegram.enviar(f"<b>Itaú BBA Smart</b> · {msg}. No laptop: <code>python bba_relatorios.py --login</code>")
+
+
+def modo_rotina(dias: int, maxn: int, headed: bool, sem_telegram: bool, sem_espelho: bool) -> int:
+    """Rotina headless (sem modelo): lista equity+macro, lê o resumo dos destaques, registra. Só DOM."""
+    indice = _carrega(INDICE, {})
+    limite = (date.today() - timedelta(days=dias)).isoformat()
+    try:
+        with bba.Portal(headless=not headed) as p:
+            st = p.confirmar_sessao()
+            if st != "ok":
+                _avisar_login(st, sem_telegram)
+                return 1
+            vistos, todos = set(), []
+            for area in bba.AREAS:
+                for d in p.listar_area(area, list(indice), dias):
+                    if d["id"] not in vistos and d["id"] not in indice:
+                        vistos.add(d["id"])
+                        todos.append(d)
+            novos = [d for d in todos if (d.get("d") or "")[:10] >= limite]
+            metas = [_meta(d) for d in novos]
+            metas.sort(key=lambda m: (not m["destaque"], m["data"]))
+            print(f"{len(todos)} novos listados, {len(metas)} nos últimos {dias} dias")
+            lidos = 0
+            for m in metas:
+                if not m["destaque"] or lidos >= maxn:
+                    continue
+                r = p.resumo(m["area"], m["id"])
+                if r.get("texto") and r.get("chars"):
+                    TXT.mkdir(parents=True, exist_ok=True)
+                    (TXT / f"{m['id']}.txt").write_text(r["texto"], encoding="utf-8")
+                    lidos += 1
+                print(f"  {m['data']} {(m['empresa'] or m['area'])[:34]:34} {m['titulo'][:50]} ({r.get('chars', 0)} chars)")
+    except bba.PrecisaLogin as e:
+        _avisar_login(str(e), sem_telegram)
+        return 1
+    _registrar(novos, sem_telegram, sem_espelho)
     return 0
 
 
@@ -172,15 +223,20 @@ def main() -> int:
     except Exception:
         pass
     ap = argparse.ArgumentParser()
+    ap.add_argument("--login", action="store_true", help="abre janela para você fazer login no portal")
     ap.add_argument("--conhecidos", action="store_true")
     ap.add_argument("--novos", metavar="LISTA.json")
     ap.add_argument("--clip", action="store_true")
     ap.add_argument("--arquivo", metavar="BLOCOS.txt", help="com --clip: lê os blocos deste arquivo em vez da área de transferência")
     ap.add_argument("--registrar", metavar="METAS.json")
     ap.add_argument("--dias", type=int, default=3)
+    ap.add_argument("--max", type=int, default=40, help="máximo de resumos lidos por passada (rotina)")
+    ap.add_argument("--headed", action="store_true", help="rotina com a janela visível")
     ap.add_argument("--sem-telegram", action="store_true")
     ap.add_argument("--sem-espelho", action="store_true")
     a = ap.parse_args()
+    if a.login:
+        return 0 if bba.login_interativo() else 1
     if a.conhecidos:
         return modo_conhecidos(a.dias)
     if a.clip:
@@ -189,8 +245,7 @@ def main() -> int:
         return modo_novos(a.novos, a.dias)
     if a.registrar:
         return modo_registrar(a.registrar, a.sem_telegram, a.sem_espelho)
-    ap.print_help()
-    return 2
+    return modo_rotina(a.dias, a.max, a.headed, a.sem_telegram, a.sem_espelho)
 
 
 if __name__ == "__main__":
