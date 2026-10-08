@@ -243,16 +243,24 @@ def slide_trades(M: dict | None = None) -> tuple[str, str] | None:
                     f'<td title="{(x.get("mult") or {}).get("detalhe", "")}">{B.num((x.get("mult") or {}).get("valor"), 1, suf="x") if x.get("mult") else "—"}<small>{(x.get("mult") or {}).get("rotulo", "")}</small></td></tr>')
     tab = (f'<table class="mini"><thead><tr><th>Papel</th><th>Lado</th><th>Entrada</th><th>Qtd</th><th>PM</th><th>Preço</th><th>Dia · R$</th>'
            f'<th>Desde a entrada</th><th>R$</th><th>Peso</th><th>Múltiplo 12m</th></tr></thead><tbody>{"".join(rows)}</tbody></table>')
-    g1 = g2 = ""
+    g1 = g2 = g3 = ""
+    # ganho do dia por papel (R$), a mercado: trades abertos com resultado do dia, do mais forte ao mais fraco
+    dia = sorted([x for x in T if not x.get("saida") and x.get("res_dia") is not None], key=lambda x: -(x.get("res_dia") or 0))
+    if dia:
+        g3 = B.svg_colunas("Ganho do dia por papel (R$) · a mercado, contra o fechamento anterior",
+                           [x["ticker"] for x in dia], [round(x["res_dia"], 0) for x in dia],
+                           ["var(--s1)" if (x["res_dia"] or 0) >= 0 else "var(--dn)" for x in dia],
+                           dec=0, W=560, H=240)
     if cv.get("book"):
         g1 = B.svg_linhas("trades-book", [("Book", S1, cv["book"]), ("CDI", MUT, cv["cdi"]), ("Ibovespa", S2, cv["ibov"])], 2, suf="%",
                           W=560, H=240, refs=[("zero", 0.0)], titulo="Book acumulado, retornos diários encadeados (%)", livre=True)
         cores = [S1, S2, "var(--s3)", "var(--s4)", "var(--dn)", MUT]
         ser = [(tk, cores[i % len(cores)], pts) for i, (tk, pts) in enumerate(cv["trades"].items()) if pts]
-        g2 = B.svg_linhas("trades-cada", ser, 1, suf="%", W=560, H=240, refs=[("zero", 0.0)],
+        g2 = B.svg_linhas("trades-cada", ser, 1, suf="%", W=1140, H=240, refs=[("zero", 0.0)],
                           titulo="Cada trade desde a entrada (%, vendido com sinal invertido)", livre=True)
     corpo = (f'<div class="tiles strip" style="grid-template-columns:repeat(6,1fr);margin-bottom:10px">{tiles}</div>'
-             f'<div class="grid2"><div>{g1}</div><div>{g2}</div></div><div class="panel" style="margin-top:10px">{tab}</div>')
+             f'<div class="grid2"><div>{g1}</div><div>{g3}</div></div>'
+             f'<div style="margin-top:10px">{g2}</div><div class="panel" style="margin-top:10px">{tab}</div>')
     hora = R["hora"]
     return B.slide("Trades", "trades", "Trades executados · book", corpo,
                    f'Posições reais da corretora marcadas a mercado{" às " + hora[11:16] + " (vigia)" if hora else " no fechamento"}: '
