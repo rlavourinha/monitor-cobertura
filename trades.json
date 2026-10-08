@@ -44,8 +44,8 @@
    "ticker": "XPBR31",
    "nome": "XP Inc",
    "lado": "comprado",
-   "qtd": 150,
-   "preco": 142.6746,
+   "qtd": 300,
+   "preco": 147.8123,
    "data": "2026-10-05",
    "tese": "",
    "mult": {
@@ -56,14 +56,27 @@
     "acoes": 518.3,
     "razao_bdr": 1,
     "fonte": "BTG Stock Guide 06/10/2026 (lucro = valor de mercado ÷ P/E; ações = valor de mercado ÷ preço)"
-   }
+   },
+   "lotes": [
+    {
+     "data": "2026-10-05",
+     "qtd": 150,
+     "preco": 142.6746
+    },
+    {
+     "data": "2026-10-08",
+     "qtd": 150,
+     "preco": 152.95
+    }
+   ],
+   "nota_lotes": "PM = média ponderada dos lotes; data = início da posição"
   },
   {
    "ticker": "EZTC3",
    "nome": "EZTEC",
    "lado": "comprado",
-   "qtd": 1100,
-   "preco": 18.11,
+   "qtd": 2200,
+   "preco": 18.23,
    "data": "2026-10-05",
    "tese": "",
    "mult": {
@@ -71,14 +84,27 @@
     "pl": 5232.0,
     "acoes": 277.359,
     "fonte": "PL 2T26 via Yahoo (a conferir no ITR); ações B3"
-   }
+   },
+   "lotes": [
+    {
+     "data": "2026-10-05",
+     "qtd": 1100,
+     "preco": 18.11
+    },
+    {
+     "data": "2026-10-08",
+     "qtd": 1100,
+     "preco": 18.35
+    }
+   ],
+   "nota_lotes": "PM = média ponderada dos lotes; data = início da posição"
   },
   {
    "ticker": "B3SA3",
    "nome": "B3",
    "lado": "vendido",
-   "qtd": 900,
-   "preco": 23.5975,
+   "qtd": 1800,
+   "preco": 23.3038,
    "data": "2026-10-05",
    "tese": "",
    "mult": {
@@ -89,14 +115,27 @@
     "acoes": 5046.5,
     "razao_bdr": 1,
     "fonte": "BTG Stock Guide 06/10/2026 (lucro = valor de mercado ÷ P/E; ações = valor de mercado ÷ preço)"
-   }
+   },
+   "lotes": [
+    {
+     "data": "2026-10-05",
+     "qtd": 900,
+     "preco": 23.5975
+    },
+    {
+     "data": "2026-10-08",
+     "qtd": 900,
+     "preco": 23.01
+    }
+   ],
+   "nota_lotes": "PM = média ponderada dos lotes; data = início da posição"
   },
   {
    "ticker": "CYRE3",
    "nome": "Cyrela",
    "lado": "vendido",
-   "qtd": 600,
-   "preco": 34.64,
+   "qtd": 1200,
+   "preco": 33.955,
    "data": "2026-10-05",
    "tese": "",
    "mult": {
@@ -104,7 +143,20 @@
     "pl": 11168.0,
     "acoes": 435.757,
     "fonte": "ITR 2T26: PL consolidado 12.451,5 menos minoritários 1.283,5; 384 mi ON + 69,4 mi PN menos 17,7 mi em tesouraria"
-   }
+   },
+   "lotes": [
+    {
+     "data": "2026-10-05",
+     "qtd": 600,
+     "preco": 34.64
+    },
+    {
+     "data": "2026-10-08",
+     "qtd": 600,
+     "preco": 33.27
+    }
+   ],
+   "nota_lotes": "PM = média ponderada dos lotes; data = início da posição"
   }
  ],
  "multiplos_cobertura": {
