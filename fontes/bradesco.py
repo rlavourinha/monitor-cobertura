@@ -32,8 +32,9 @@ _JS_ESTADO = r"""() => {
   // UI de busca visível vence; captcha só conta com o widget de fato na tela (o texto da página pode citar reCAPTCHA)
   const temBusca = [...document.querySelectorAll('button')].some(b => ['SEARCH','LIST'].includes(b.innerText.trim())) || /Showing \d+ to/.test(t) || !!document.querySelector('a[href*="/report/"]');
   if (temBusca) return 'ok';
-  const vis = el => { if (!el) return false; const r = el.getBoundingClientRect(); return r.width > 40 && r.height > 40; };
-  if ([...document.querySelectorAll('iframe[src*="recaptcha"],iframe[src*="hcaptcha"],.g-recaptcha,[id*="captcha" i]')].some(vis)) return 'captcha';
+  // selo "protegido por reCAPTCHA" (anchor, 256x60) não é desafio; desafio = bframe/hcaptcha/px visível e grande
+  const vis = el => { if (!el) return false; const r = el.getBoundingClientRect(); return r.width > 150 && r.height > 150; };
+  if ([...document.querySelectorAll('iframe[src*="recaptcha/api2/bframe"],iframe[src*="hcaptcha.com"],#px-captcha,[id*="captcha-challenge" i]')].some(vis)) return 'captcha';
   if (document.querySelector('input[type=email],input[type=text]') && /verif|código|code|e-?mail|access code|enter the/i.test(t)) return 'login';
   return 'vazio';
 }"""

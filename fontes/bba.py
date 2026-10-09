@@ -33,8 +33,9 @@ class PrecisaLogin(Exception):
 _JS_ESTADO = r"""() => {
   // lista visível vence: a página logada tem "reCAPTCHA" no rodapé, então o texto não serve de prova de captcha
   if (document.querySelector('a[href*="/report/"]')) return 'ok';
-  const vis = el => { if (!el) return false; const r = el.getBoundingClientRect(); return r.width > 40 && r.height > 40; };
-  const widget = [...document.querySelectorAll('iframe[src*="recaptcha"],iframe[src*="hcaptcha"],.g-recaptcha,#px-captcha,[id*="captcha" i]')].some(vis);
+  // o selo "protegido por reCAPTCHA" (iframe .../anchor, 256x60) não é desafio; desafio = bframe/hcaptcha/px visível e grande
+  const vis = el => { if (!el) return false; const r = el.getBoundingClientRect(); return r.width > 150 && r.height > 150; };
+  const widget = [...document.querySelectorAll('iframe[src*="recaptcha/api2/bframe"],iframe[src*="hcaptcha.com"],#px-captcha,[id*="captcha-challenge" i]')].some(vis);
   if (widget) return 'captcha';
   if (document.querySelector('input[type=password]') || /\/(login|sso|auth|acesso)/i.test(location.pathname) || /id\.itau|sso|login/i.test(location.hostname)) return 'login';
   return 'vazio';
