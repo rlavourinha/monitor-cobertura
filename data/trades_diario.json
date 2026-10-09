@@ -162,18 +162,18 @@
   }
  },
  "2026-10-08": {
-  "hora": "2026-10-08 15:10",
+  "hora": "2026-10-08 17:34",
   "book": {
    "bruto": 217837.33,
    "comprado": 135144.49,
    "vendido": 82692.84,
    "liquido": 52451.65,
-   "resultado": 10029.35,
-   "ret": 0.05,
-   "res_dia": 2423.0,
-   "fx": 5.03,
-   "res_comprado": 8252.51,
-   "res_vendido": 1776.84,
+   "resultado": 8912.35,
+   "ret": 0.04,
+   "res_dia": 1306.0,
+   "fx": 5.04,
+   "res_comprado": 6907.51,
+   "res_vendido": 2004.84,
    "n": 6,
    "n_abertos": 6
   },
@@ -182,78 +182,78 @@
     "lado": "comprado",
     "qtd": 2000,
     "pm": 11.6559,
-    "preco": 13.07,
-    "resultado": 2828.2,
-    "ret": 0.12132,
-    "res_dia": 0.0,
+    "preco": 12.93,
+    "resultado": 2548.2,
+    "ret": 0.10931,
+    "res_dia": -280.0,
     "mult": {
      "rotulo": "P/E 12m",
-     "valor": 15.102
+     "valor": 14.915
     }
    },
    "ENEV3": {
     "lado": "comprado",
     "qtd": 1000,
     "pm": 27.383,
-    "preco": 30.91,
-    "resultado": 3527.0,
-    "ret": 0.1288,
-    "res_dia": 510.0,
+    "preco": 30.72,
+    "resultado": 3337.0,
+    "ret": 0.12186,
+    "res_dia": 320.0,
     "mult": {
      "rotulo": "EV/EBITDA 12m",
-     "valor": 13.062
+     "valor": 13.004
     }
    },
    "XPBR31": {
     "lado": "comprado",
     "qtd": 300,
     "pm": 147.8123,
-    "preco": 153.11,
-    "resultado": 1589.31,
-    "ret": 0.03584,
-    "res_dia": 1935.0,
+    "preco": 151.44,
+    "resultado": 1088.31,
+    "ret": 0.02454,
+    "res_dia": 1434.0,
     "mult": {
      "rotulo": "P/E 12m",
-     "valor": 12.548
+     "valor": 12.39
     }
    },
    "EZTC3": {
     "lado": "comprado",
     "qtd": 2200,
     "pm": 18.23,
-    "preco": 18.37,
-    "resultado": 308.0,
-    "ret": 0.00768,
-    "res_dia": 1100.0,
+    "preco": 18.2,
+    "resultado": -66.0,
+    "ret": -0.00165,
+    "res_dia": 726.0,
     "mult": {
      "rotulo": "P/B",
-     "valor": 0.974
+     "valor": 0.965
     }
    },
    "B3SA3": {
     "lado": "vendido",
     "qtd": 1800,
     "pm": 23.3038,
-    "preco": 22.9,
-    "resultado": 726.84,
-    "ret": 0.01733,
-    "res_dia": -1026.0,
+    "preco": 22.8,
+    "resultado": 906.84,
+    "ret": 0.02162,
+    "res_dia": -846.0,
     "mult": {
      "rotulo": "P/E 12m",
-     "valor": 17.678
+     "valor": 17.601
     }
    },
    "CYRE3": {
     "lado": "vendido",
     "qtd": 1200,
     "pm": 33.955,
-    "preco": 33.08,
-    "resultado": 1050.0,
-    "ret": 0.02577,
-    "res_dia": -96.0,
+    "preco": 33.04,
+    "resultado": 1098.0,
+    "ret": 0.02695,
+    "res_dia": -48.0,
     "mult": {
      "rotulo": "P/B",
-     "valor": 1.291
+     "valor": 1.289
     }
    }
   }
