@@ -230,7 +230,8 @@ def enviar_carta(est: dict, fundo_nome: str, origem: str, url: str, stem: str, s
         return 0
     pago = "7-day free trial" in texto or "Already a paid subscriber" in texto
     resumo = None if pago else resumir(texto, fundo_nome, origem)
-    cab = f"<b>Carta nova · {fundo_nome}</b>\n{origem}" + (f" · {dt.strftime('%d/%m/%Y')}" if dt else "") + f"\n{url}\n\n"
+    pub = f"Publicação: {dt.strftime('%d/%m/%Y')} (data no documento)" if dt else "Publicação: data não encontrada no documento"
+    cab = f"<b>Carta nova · {fundo_nome}</b>\n{pub}\n{origem}\n{url}\n\n"
     if resumo:
         corpo = resumo
     elif pago:
