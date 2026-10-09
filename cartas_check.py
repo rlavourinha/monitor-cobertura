@@ -201,6 +201,19 @@ def _guarda(conteudo: bytes, stem: str, url: str) -> Path:
     return p
 
 
+def _publicacao(url: str) -> date | None:
+    """Data de publicação pelo Last-Modified do arquivo na fonte (HEAD; GET leve se o HEAD for recusado). None se não houver."""
+    from email.utils import parsedate_to_datetime
+    try:
+        r = requests.head(url, headers=UA, timeout=30, allow_redirects=True)
+        if r.status_code >= 400 or not r.headers.get("Last-Modified"):
+            r = requests.get(url, headers=UA, timeout=60, stream=True)
+        lm = r.headers.get("Last-Modified")
+        return parsedate_to_datetime(lm).date() if lm else None
+    except Exception:
+        return None
+
+
 def enviar_carta(est: dict, fundo_nome: str, origem: str, url: str, stem: str, silencio: bool,
                  conteudo: bytes | None = None, forcar: bool = False) -> int:
     """Baixa (se preciso), confere md5 e recência, resume e envia. Devolve 1 se enviou."""
@@ -230,8 +243,12 @@ def enviar_carta(est: dict, fundo_nome: str, origem: str, url: str, stem: str, s
         return 0
     pago = "7-day free trial" in texto or "Already a paid subscriber" in texto
     resumo = None if pago else resumir(texto, fundo_nome, origem)
-    pub = f"Publicação: {dt.strftime('%d/%m/%Y')} (data no documento)" if dt else "Publicação: data não encontrada no documento"
-    cab = f"<b>Carta nova · {fundo_nome}</b>\n{pub}\n{origem}\n{url}\n\n"
+    # Referência = mês/data que a própria carta traz (carta mensal sai no mês seguinte); Publicação = quando a fonte publicou
+    MESES_PT = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"]
+    ref = (f"Referência: {MESES_PT[dt.month - 1]}/{dt.year}" + (f" ({dt.strftime('%d/%m')})" if dt.day != 1 else "")) if dt else "Referência: não achei data no documento"
+    lm = _publicacao(url)
+    pub = f"Publicação: {lm.strftime('%d/%m/%Y')} (data do arquivo na fonte)" if lm else f"Publicação: vista pelo vigia em {date.today().strftime('%d/%m/%Y')}"
+    cab = f"<b>Carta nova · {fundo_nome}</b>\n{ref} · {pub}\n{origem}\n{url}\n\n"
     if resumo:
         corpo = resumo
     elif pago:
