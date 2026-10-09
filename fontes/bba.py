@@ -31,9 +31,11 @@ class PrecisaLogin(Exception):
 
 # Estado da página (só DOM): 'captcha' | 'ok' (lista de relatórios visível) | 'login' | 'vazio' (ainda carregando)
 _JS_ESTADO = r"""() => {
-  const t = document.body ? document.body.innerText : '';
-  if (document.querySelector('iframe[src*="recaptcha"],iframe[src*="hcaptcha"],.g-recaptcha,#px-captcha') || /captcha/i.test(t)) return 'captcha';
+  // lista visível vence: a página logada tem "reCAPTCHA" no rodapé, então o texto não serve de prova de captcha
   if (document.querySelector('a[href*="/report/"]')) return 'ok';
+  const vis = el => { if (!el) return false; const r = el.getBoundingClientRect(); return r.width > 40 && r.height > 40; };
+  const widget = [...document.querySelectorAll('iframe[src*="recaptcha"],iframe[src*="hcaptcha"],.g-recaptcha,#px-captcha,[id*="captcha" i]')].some(vis);
+  if (widget) return 'captcha';
   if (document.querySelector('input[type=password]') || /\/(login|sso|auth|acesso)/i.test(location.pathname) || /id\.itau|sso|login/i.test(location.hostname)) return 'login';
   return 'vazio';
 }"""

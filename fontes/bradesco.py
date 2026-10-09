@@ -29,9 +29,11 @@ class PrecisaLogin(Exception):
 # Estado da página só pelo DOM: 'captcha' | 'ok' (UI de busca visível => verificado) | 'login' | 'vazio'.
 _JS_ESTADO = r"""() => {
   const t = document.body ? document.body.innerText : '';
-  if (document.querySelector('iframe[src*="recaptcha"],iframe[src*="hcaptcha"],.g-recaptcha') || /captcha/i.test(t)) return 'captcha';
+  // UI de busca visível vence; captcha só conta com o widget de fato na tela (o texto da página pode citar reCAPTCHA)
   const temBusca = [...document.querySelectorAll('button')].some(b => ['SEARCH','LIST'].includes(b.innerText.trim())) || /Showing \d+ to/.test(t) || !!document.querySelector('a[href*="/report/"]');
   if (temBusca) return 'ok';
+  const vis = el => { if (!el) return false; const r = el.getBoundingClientRect(); return r.width > 40 && r.height > 40; };
+  if ([...document.querySelectorAll('iframe[src*="recaptcha"],iframe[src*="hcaptcha"],.g-recaptcha,[id*="captcha" i]')].some(vis)) return 'captcha';
   if (document.querySelector('input[type=email],input[type=text]') && /verif|código|code|e-?mail|access code|enter the/i.test(t)) return 'login';
   return 'vazio';
 }"""
@@ -42,7 +44,8 @@ _JS_LISTA = r"""async ([paginas]) => {
   const esperar = ms => new Promise(r => setTimeout(r, ms));
   const botao = t => [...document.querySelectorAll('button')].find(b => b.innerText.trim() === t);
   const t0 = document.body.innerText;
-  if (document.querySelector('iframe[src*="recaptcha"],iframe[src*="hcaptcha"]') || /captcha/i.test(t0)) return {status: 'captcha', todos: []};
+  const visC = el => { const r = el.getBoundingClientRect(); return r.width > 40 && r.height > 40; };
+  if ([...document.querySelectorAll('iframe[src*="recaptcha"],iframe[src*="hcaptcha"]')].some(visC)) return {status: 'captcha', todos: []};
   if (!/Showing \d+ to/.test(t0)) { const s = botao('SEARCH'); if (s) { s.click(); await esperar(6000); } }
   if (!document.querySelector('a[href*="/report/"]')) { const l = botao('LIST'); if (l) { l.click(); await esperar(5000); } }
   for (let i = 1; i < paginas; i++) { const m = botao('LOAD MORE'); if (!m) break; m.click(); await esperar(5000); }
