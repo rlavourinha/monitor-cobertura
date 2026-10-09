@@ -33,6 +33,8 @@ class PrecisaLogin(Exception):
 _JS_ESTADO = r"""() => {
   // lista visível vence: a página logada tem "reCAPTCHA" no rodapé, então o texto não serve de prova de captcha
   if (document.querySelector('a[href*="/report/"]')) return 'ok';
+  // borda (Akamai) negou o acesso: não é login nem captcha; esperar e tentar depois
+  if (/^Access Denied/i.test(document.title) || /Access Denied[\s\S]{0,200}edgesuite/i.test(document.body ? document.body.innerText : '')) return 'bloqueado';
   // o selo "protegido por reCAPTCHA" (iframe .../anchor, 256x60) não é desafio; desafio = bframe/hcaptcha/px visível e grande
   const vis = el => { if (!el) return false; const r = el.getBoundingClientRect(); return r.width > 150 && r.height > 150; };
   const widget = [...document.querySelectorAll('iframe[src*="recaptcha/api2/bframe"],iframe[src*="hcaptcha.com"],#px-captcha,[id*="captcha-challenge" i]')].some(vis);
@@ -52,9 +54,10 @@ _JS_LISTA = r"""([conhecidos, dias, area]) => {
     if (!id || seen.has(id)) continue;
     seen.add(id);
     if (CONHECIDOS.has(id)) continue;
-    let c = a;
-    for (let i = 0; i < 8 && c; i++) { c = c.parentElement; if (c && /\d{1,2} \w{3},? \d{4}/.test(c.innerText) && c.innerText.length < 900) break; }
-    const txt = c ? c.innerText : '';
+    // card = .gco-card-list__item (um por relatório, com a data dentro); reserva: subida até achar data num bloco curto
+    let c = a.closest('.gco-card-list__item');
+    if (!c) { c = a; for (let i = 0; i < 8 && c; i++) { c = c.parentElement; if (c && /\d{1,2} \w{3},? \d{4}/.test((c.innerText||'').replace(/ /g,' ')) && c.innerText.length < 900) break; } }
+    const txt = c ? c.innerText.replace(/ /g, ' ') : '';
     const m = txt.match(/(\d{1,2}) (\w{3}),? (\d{4})/);
     const d = m ? `${m[3]}-${MES[m[2].toLowerCase()] || '01'}-${m[1].padStart(2, '0')}` : null;
     if (!d || d < lim) continue;
@@ -121,14 +124,14 @@ class Portal:
         except Exception:
             return "vazio"
 
-    def confirmar_sessao(self, espera: int = 35) -> str:
+    def confirmar_sessao(self, espera: int = 60) -> str:
         """Abre a lista de equity e espera a UI logada aparecer. Devolve 'ok' | 'login' | 'captcha'."""
         self.page.goto(AREAS["equity"], wait_until="domcontentloaded", timeout=90_000)
         fim = time.time() + espera
         st = "vazio"
         while time.time() < fim:
             st = self._estado()
-            if st in ("ok", "login", "captcha"):
+            if st in ("ok", "login", "captcha", "bloqueado"):
                 return st
             time.sleep(2)
         return "login" if st == "vazio" else st     # não confirmou sessão => trata como login (seguro)
@@ -137,15 +140,26 @@ class Portal:
         url = AREAS.get(area)
         if not url:
             return []
-        self.page.goto(url, wait_until="domcontentloaded", timeout=90_000)
+        # navegar de novo para a URL já aberta (confirmar_sessao abre equity) deixa a SPA com a lista invisível: só vai se não estiver lá
+        if not self.page.url.startswith(url.split("?")[0]):
+            self.page.goto(url, wait_until="domcontentloaded", timeout=90_000)
         try:
-            self.page.wait_for_selector('a[href*="/report/"]', timeout=25_000)
+            # as âncoras da lista são grid sem caixa própria: para o Playwright nunca ficam "visíveis". Basta estarem no DOM.
+            self.page.wait_for_selector('a[href*="/report/"]', state="attached", timeout=40_000)
         except Exception:
             st = self._estado()
-            if st in ("login", "captcha"):
+            if st in ("login", "captcha", "bloqueado"):
                 raise PrecisaLogin(st)
             return []
-        time.sleep(2)                               # deixa a lista terminar de hidratar
+        # a SPA pinta os links antes do resto do card; avaliando cedo o extrator devolve 0. Espera a contagem (sem filtro
+        # de conhecidos) ficar estável em duas leituras seguidas, até 30 s.
+        fim, ant, n = time.time() + 30, -1, 0
+        while time.time() < fim:
+            n = len(self.page.evaluate(_JS_LISTA, [[], dias, area]))
+            if n and n == ant:
+                break
+            ant = n
+            time.sleep(2)
         return self.page.evaluate(_JS_LISTA, [list(conhecidos), dias, area])
 
     def resumo(self, area: str, id_: str, espera: int = 8) -> dict:

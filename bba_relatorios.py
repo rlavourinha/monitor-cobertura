@@ -174,10 +174,12 @@ def modo_registrar(arq: str, sem_telegram: bool, sem_espelho: bool) -> int:
 
 
 def _avisar_login(motivo: str, sem_telegram: bool) -> None:
-    msg = {"captcha": "captcha na tela", "login": "a sessão expirou"}.get(motivo, "a sessão expirou")
-    print(f"Itaú BBA: {msg}: rode `python bba_relatorios.py --login`", file=sys.stderr)
+    msg = {"captcha": "captcha na tela", "login": "a sessão expirou",
+           "bloqueado": "o portal negou o acesso (Access Denied, borda Akamai); esperar e tentar na próxima rodada, sem refazer login"}.get(motivo, "a sessão expirou")
+    dica = "" if motivo == "bloqueado" else ": rode `python bba_relatorios.py --login`"
+    print(f"Itaú BBA: {msg}{dica}", file=sys.stderr)
     if not sem_telegram and telegram.disponivel():
-        telegram.enviar(f"<b>Itaú BBA Smart</b> · {msg}. No laptop: <code>python bba_relatorios.py --login</code>")
+        telegram.enviar(f"<b>Itaú BBA Smart</b> · {msg}." + ("" if motivo == "bloqueado" else " No laptop: <code>python bba_relatorios.py --login</code>"))
 
 
 def modo_rotina(dias: int, maxn: int, headed: bool, sem_telegram: bool, sem_espelho: bool) -> int:
