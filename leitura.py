@@ -332,7 +332,19 @@ def _comp() -> list[dict]:
 
 def g_setor(setor: str) -> Path:
     from fontes import b3
-    cods = [i["cod"] for i in _comp() if i.get("setor") == setor]
+    comp = _comp()
+    cods = [i["cod"] for i in comp if i.get("setor") == setor]
+    if not cods:                                   # o modelo escreve "Consumo" / "imobiliario"; a base tem "Consumo cíclico", "Imobiliário"
+        import unicodedata
+        norm = lambda s: unicodedata.normalize("NFKD", s or "").encode("ascii", "ignore").decode().lower().strip()
+        alvo = norm(setor)
+        setores = sorted({i.get("setor") for i in comp if i.get("setor")})
+        cand = [s for s in setores if norm(s) == alvo] or [s for s in setores if norm(s).startswith(alvo) or alvo.startswith(norm(s))] \
+            or [s for s in setores if alvo in norm(s) or norm(s) in alvo]
+        if not cand:
+            raise ValueError(f"setor '{setor}' não existe; setores: {', '.join(setores)}")
+        setor = cand[0]
+        cods = [i["cod"] for i in comp if i.get("setor") == setor]
     h = {d: v for d, v in _macro().get("hist", {}).get("Ibovespa", []) if v}
     series = {c: dict(b3.serie(c)) for c in cods}
     datas = sorted(d for d in h if d >= "2019-01-01")

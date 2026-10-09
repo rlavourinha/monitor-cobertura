@@ -56,12 +56,27 @@ def disponivel(bot: str | None = None) -> bool:
     return bool(c.get("token") and c.get("chat_id"))
 
 
+_TAGS_OK = {"b", "strong", "i", "em", "u", "s", "code", "pre", "a", "tg-spoiler"}
+
+
+def html_tg(texto: str) -> str:
+    """Deixa só o HTML que o Telegram aceita: <br>/<p>/<li> viram quebra de linha; qualquer outra tag some.
+    Protege contra o que o modelo escreve (o Telegram recusa a mensagem inteira por uma tag desconhecida)."""
+    import re
+    t = re.sub(r"<br\s*/?>", "\n", texto or "", flags=re.I)
+    t = re.sub(r"</(p|div|li|h\d)\s*>", "\n", t, flags=re.I)
+    t = re.sub(r"<li\b[^>]*>", "• ", t, flags=re.I)
+    t = re.sub(r"</?([a-zA-Z][\w-]*)\b[^>]*>", lambda m: m.group(0) if m.group(1).lower() in _TAGS_OK else "", t)
+    return re.sub(r"\n{3,}", "\n\n", t).strip()
+
+
 def enviar(texto: str, silencioso: bool = False, bot: str | None = None) -> bool:
     """Envia uma mensagem (HTML simples: <b>, <i>, <code>). Devolve False se não configurado ou se a API recusar.
     Textos acima de 4096 caracteres são divididos em parágrafos e enviados em sequência."""
     if not disponivel(bot):
         print(f"  Telegram: bot {bot or 'padrão'} sem token/chat_id em .secrets/telegram.json", file=sys.stderr)
         return False
+    texto = html_tg(texto)
     partes = []
     while len(texto) > 4000:
         a, texto = _corta(texto, 3900)
@@ -89,6 +104,7 @@ def enviar_foto(caminho, legenda: str = "", silencioso: bool = False, bot: str |
     import time
     import requests
     c = _cfg(bot)
+    legenda = html_tg(legenda)
     cap, resto = (legenda[:1024], "") if len(legenda) <= 1024 else _corta(legenda, 1000)
     erro = None
     for tent in range(3):
