@@ -134,12 +134,14 @@ def _claude_exe() -> str | None:
         p = shutil.which(cand)
         if p:
             return p
+    # o Python da Microsoft Store não enxerga a pasta npm do AppData (virtualização MSIX): cópia do CLI fora do AppData primeiro
+    cands = [Path.home() / ".local" / "claude-cli" / "claude.cmd", Path.home() / ".local" / "bin" / "claude.exe"]
     appdata = os.environ.get("APPDATA", "")
     if appdata:
-        for nome in ("claude.cmd", "claude.exe", "claude"):
-            p = Path(appdata) / "npm" / nome
-            if p.exists():
-                return str(p)
+        cands += [Path(appdata) / "npm" / nome for nome in ("claude.cmd", "claude.exe", "claude")]
+    for p in cands:
+        if p.exists():
+            return str(p)
     return None
 
 

@@ -217,6 +217,12 @@ def enviar_carta(est: dict, fundo_nome: str, origem: str, url: str, stem: str, s
     texto = texto_pdf(conteudo) if eh_pdf else texto_html(conteudo.decode("utf-8", "replace"))
     dt = data_documento(texto, Path(urlparse(url).path).name)
     hashes[h] = {"fundo": stem, "url": url, "data_doc": dt.isoformat() if dt else None, "visto": date.today().isoformat()}
+    # URL fixa regerada todo dia (informes do BB, Bradesco, Janeiro): o que identifica a carta é a data do documento, não o md5
+    docs = est.setdefault("_docs", {})
+    if dt and docs.get(url) == dt.isoformat() and not forcar:
+        return 0
+    if dt:
+        docs[url] = dt.isoformat()
     if silencio:
         return 0
     if eh_pdf and dt and (date.today() - dt).days > RECENTE_DIAS and not forcar:
