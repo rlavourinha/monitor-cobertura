@@ -240,7 +240,7 @@ def slide_trades(M: dict | None = None) -> tuple[str, str] | None:
                     f'<td class="{B.dlt_cls(x["ret"])}">{B.pct(x["ret"], 2)}</td>'
                     f'<td class="{B.dlt_cls(x["resultado"])}">{sinal(x["resultado"])}</td>'
                     f'<td>{B.num(x["notional"] / bk["bruto"] * 100 if bk["bruto"] else None, 1, suf="%")}</td>'
-                    f'<td title="{(x.get("mult") or {}).get("detalhe", "")}">{B.num((x.get("mult") or {}).get("valor"), 1, suf="x") if x.get("mult") else "—"}<small>{(x.get("mult") or {}).get("rotulo", "")}</small></td></tr>')
+                    f'<td title="{(x.get("mult") or {}).get("detalhe", "")}">{B.num((x.get("mult") or {}).get("valor"), 2 if "P/B" in (x.get("mult") or {}).get("rotulo", "") else 1, suf="x") if x.get("mult") else "—"}<small>{(x.get("mult") or {}).get("rotulo", "")}</small></td></tr>')
     tab = (f'<table class="mini"><thead><tr><th>Papel</th><th>Lado</th><th>Entrada</th><th>Qtd</th><th>PM</th><th>Preço</th><th>Dia · R$</th>'
            f'<th>Desde a entrada</th><th>R$</th><th>Peso</th><th>Múltiplo 12m</th></tr></thead><tbody>{"".join(rows)}</tbody></table>')
     g1 = g2 = g3 = ""
