@@ -38,6 +38,19 @@ def _num(v, d=1, sinal=False):
     return ("+" + s) if (sinal and v > 0) else s
 
 
+def ha_pregao_hoje() -> bool:
+    """Há sessão na B3 hoje? O sinal é o próprio índice: em feriado o servidor do MT5 cria barras "de hoje" às 06:00 com o
+    preço/volume da sessão anterior (alerta falso em todos os papéis), mas o IBOV não imprime. Antes de 10:15 dá o
+    benefício da dúvida (o índice pode demorar a abrir); depois disso, sem IBOV de hoje após a abertura = sem pregão."""
+    if not mt5.disponivel():
+        return True                                    # sem terminal: deixa o snapshot reportar a indisponibilidade
+    q = mt5.intraday("IBOV")
+    agora = datetime.now()
+    if q and q.get("hora", "")[:10] == date.today().isoformat() and q["hora"][11:16] >= ABRE.strftime("%H:%M"):
+        return True
+    return agora.time() < time(10, 15)
+
+
 def snapshot() -> dict | None:
     """{cod: {preco, hora, vol_hoje}} pelo MT5 (tick + barra diária de hoje). None se o terminal não está disponível."""
     if not mt5.disponivel():
@@ -54,6 +67,8 @@ def snapshot() -> dict | None:
             continue
         if q["hora"][:10] != hoje and "--forcar" not in sys.argv:   # sem negócio hoje ainda (ou pregão fechado): ignora
             continue
+        if q["hora"][11:16] < ABRE.strftime("%H:%M") and "--forcar" not in sys.argv:
+            continue                                   # barra "de hoje" carimbada antes da abertura = fantasma do servidor (feriado)
         out[cod] = {"preco": q["preco"], "hora": q["hora"], "vol_hoje": q.get("volume"),   # volume = quantidade de ações do dia (barra D1)
                     "fech_ant": q.get("fech_anterior")}                                       # fechamento da sessão anterior (barra D1 do MT5)
     return out
@@ -370,6 +385,8 @@ def main() -> int:
     agora = datetime.now()
     if "--forcar" not in sys.argv and (agora.weekday() >= 5 or not (ABRE <= agora.time() <= time(17, 40))):
         print("fora do pregão"); return 0
+    if "--forcar" not in sys.argv and not ha_pregao_hoje():
+        print("sem pregão hoje (feriado na B3: o índice IBOV não negociou)"); return 0
     snap = snapshot()
     if snap is None:
         print("MT5 indisponível"); return 1
