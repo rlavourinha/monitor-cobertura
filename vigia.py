@@ -44,11 +44,17 @@ def ha_pregao_hoje() -> bool:
     benefício da dúvida (o índice pode demorar a abrir); depois disso, sem IBOV de hoje após a abertura = sem pregão."""
     if not mt5.disponivel():
         return True                                    # sem terminal: deixa o snapshot reportar a indisponibilidade
-    q = mt5.intraday("IBOV")
-    agora = datetime.now()
-    if q and q.get("hora", "")[:10] == date.today().isoformat() and q["hora"][11:16] >= ABRE.strftime("%H:%M"):
+    # NÃO usar o símbolo IBOV: no MT5 ele fica parado (último tick antigo) até em dia normal — em 13/10 a trava travou o vigia.
+    # Sinal: papéis líquidos com negócio carimbado hoje DEPOIS da abertura (em feriado o servidor carimba às 06:00).
+    hoje, abre = date.today().isoformat(), ABRE.strftime("%H:%M")
+    vivos = 0
+    for cod in ("PETR4", "VALE3", "ITUB4", "BBDC4", "B3SA3", "BBAS3", "ABEV3"):
+        q = mt5.intraday(cod)
+        if q and q.get("hora", "")[:10] == hoje and q["hora"][11:16] >= abre:
+            vivos += 1
+    if vivos >= 3:
         return True
-    return agora.time() < time(10, 15)
+    return datetime.now().time() < time(10, 15)
 
 
 def snapshot() -> dict | None:
@@ -386,7 +392,7 @@ def main() -> int:
     if "--forcar" not in sys.argv and (agora.weekday() >= 5 or not (ABRE <= agora.time() <= time(17, 40))):
         print("fora do pregão"); return 0
     if "--forcar" not in sys.argv and not ha_pregao_hoje():
-        print("sem pregão hoje (feriado na B3: o índice IBOV não negociou)"); return 0
+        print("sem pregão hoje (feriado na B3: nenhum papel líquido negociou depois da abertura)"); return 0
     snap = snapshot()
     if snap is None:
         print("MT5 indisponível"); return 1
