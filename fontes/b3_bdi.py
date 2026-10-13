@@ -104,16 +104,37 @@ def atualiza_fluxo(dias_atras: int = 25) -> tuple[int, int]:
             if ref not in obj["diario"]:
                 obj["diario"][ref] = dados; novos += 1
     novos_m = 0
-    for k in range(0, 3):                                        # último mês fechado e os dois anteriores, se a B3 servir
-        ref = (hoje.replace(day=1) - timedelta(days=1))
+    # A tabela mensal do mês M sai entre os dias ~8 e 15 de M+1 e a B3 devolve sempre a MAIS RECENTE publicada, seja qual for a
+    # data pedida (até 07/10 ainda vinha agosto). Por isso o mês não pode ser deduzido da data do pedido: pede-se no fim de M+1
+    # (ou hoje) e confere-se o "Total geral" com o acumulado diário de M; sem diário de M, só aceita pedido feito a partir do dia 16.
+    for k in range(1, 4):
+        ini = hoje.replace(day=1)
         for _ in range(k):
-            ref = ref.replace(day=1) - timedelta(days=1)
-        chave = ref.strftime("%Y-%m")
+            ini = (ini - timedelta(days=1)).replace(day=1)
+        chave = ini.strftime("%Y-%m")
         if chave in obj["mensal"]:
             continue
-        r = investidores_mensal(ref.isoformat())
-        if r:
-            obj["mensal"][chave] = r; novos_m += 1
+        prox = (ini + timedelta(days=32)).replace(day=1)
+        fim_prox = (prox + timedelta(days=32)).replace(day=1) - timedelta(days=1)
+        pedido = min(hoje, fim_prox)
+        r = None
+        for _ in range(6):                                       # o dia de hoje (e feriado/fim de semana) pode vir vazio: recua
+            r = investidores_mensal(pedido.isoformat())
+            if r:
+                break
+            pedido -= timedelta(days=1)
+        if not r:
+            continue
+        tg = sum((v.get("Total geral") or [0])[0] for v in r.values()) / 2 / 1000          # R$ (compras+vendas) -> R$ mil de compras
+        dias_m = [d for d in obj["diario"] if d.startswith(chave)]
+        if dias_m:
+            acum = sum(v[0] for v in obj["diario"][max(dias_m)].values())
+            if not acum or abs(tg / acum - 1) > 0.005:
+                print(f"  BDI mensal {chave}: a B3 ainda serve outro mês (total {tg:,.0f} × acumulado {acum:,.0f}); tenta depois", file=sys.stderr)
+                continue
+        elif pedido < prox.replace(day=16):
+            continue
+        obj["mensal"][chave] = r; novos_m += 1
     ARQ.write_text(json.dumps(obj, ensure_ascii=False), encoding="utf-8")
     return novos, novos_m
 
