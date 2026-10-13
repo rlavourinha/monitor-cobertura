@@ -162,9 +162,9 @@ def _chama_claude(prompt: str, rotulo: str, sem_claude: bool = False) -> Path | 
            "--max-turns", "40"]
     try:
         r = subprocess.run(cmd, input=prompt, cwd=str(RAIZ), capture_output=True,
-                           text=True, encoding="utf-8", timeout=1200)
+                           text=True, encoding="utf-8", timeout=2700)
     except subprocess.TimeoutExpired:
-        _log(f"[{rotulo}] claude TIMEOUT (1200s)")
+        _log(f"[{rotulo}] claude TIMEOUT (2700s)")
         return None
     dt = time.time() - t0
     saida = (r.stdout or "").strip()
@@ -276,7 +276,7 @@ def extra(sem_claude: bool, sem_telegram: bool) -> None:
     if run_daily.exists():
         try:
             cr = subprocess.run([sys.executable, "run_daily.py"], cwd=str(JORNAIS_DIR),
-                                capture_output=True, text=True, encoding="utf-8", timeout=1200)
+                                capture_output=True, text=True, encoding="utf-8", timeout=2700)
             _log(f"run_daily rc={cr.returncode}")
         except subprocess.TimeoutExpired:
             _log("run_daily TIMEOUT")
