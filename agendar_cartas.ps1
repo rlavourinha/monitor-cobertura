@@ -8,6 +8,6 @@ if ($Remover) { Unregister-ScheduledTask -TaskName $nome -Confirm:$false -ErrorA
 $py = (& python -c "import sys; print(sys.executable)")
 $acao = New-ScheduledTaskAction -Execute $py -Argument "cartas_check.py" -WorkingDirectory $raiz
 $gatilho = New-ScheduledTaskTrigger -Daily -At 07:50
-$cfg = New-ScheduledTaskSettingsSet -ExecutionTimeLimit (New-TimeSpan -Minutes 10) -MultipleInstances IgnoreNew -StartWhenAvailable
+$cfg = New-ScheduledTaskSettingsSet -ExecutionTimeLimit (New-TimeSpan -Minutes 10) -MultipleInstances IgnoreNew -StartWhenAvailable -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries
 Register-ScheduledTask -TaskName $nome -Action $acao -Trigger $gatilho -Settings $cfg -Force | Out-Null
 "tarefa '$nome' registrada: todo dia às 07:50 (avisa no Telegram quando a fonte de uma carta mudar)"

@@ -8,7 +8,7 @@ if ($Remover) { Stop-ScheduledTask -TaskName $nome -ErrorAction SilentlyContinue
 $py = (& python -c "import sys, os; print(os.path.join(os.path.dirname(sys.executable), 'pythonw.exe'))")
 $acao = New-ScheduledTaskAction -Execute $py -Argument "btg_receptor.py" -WorkingDirectory $raiz
 $gatilho = New-ScheduledTaskTrigger -AtLogOn -User $env:USERNAME
-$cfg = New-ScheduledTaskSettingsSet -ExecutionTimeLimit ([TimeSpan]::Zero) -MultipleInstances IgnoreNew -StartWhenAvailable -RestartCount 10 -RestartInterval (New-TimeSpan -Minutes 1)
+$cfg = New-ScheduledTaskSettingsSet -ExecutionTimeLimit ([TimeSpan]::Zero) -MultipleInstances IgnoreNew -StartWhenAvailable -RestartCount 10 -RestartInterval (New-TimeSpan -Minutes 1) -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries
 Register-ScheduledTask -TaskName $nome -Action $acao -Trigger $gatilho -Settings $cfg -Force | Out-Null
 Start-ScheduledTask -TaskName $nome
 Start-Sleep -Seconds 3

@@ -9,9 +9,9 @@ $dias = @("Monday","Tuesday","Wednesday","Thursday","Friday")
 
 # nome, argumento do leitura_headless.py, horário, tempo-limite (min)
 $tarefas = @(
-    @{ nome = "Monitor leitura manha"; arg = "leitura_headless.py --manha"; hora = "08:48"; limite = 40 },
-    @{ nome = "Monitor leitura dia";   arg = "leitura_headless.py --dia";   hora = "19:04"; limite = 25 },
-    @{ nome = "Monitor leitura extra"; arg = "leitura_headless.py --extra"; hora = "12:33"; limite = 40 }
+    @{ nome = "Monitor leitura manha"; arg = "leitura_headless.py --manha"; hora = "08:48"; limite = 105 },
+    @{ nome = "Monitor leitura dia";   arg = "leitura_headless.py --dia";   hora = "19:04"; limite = 60 },
+    @{ nome = "Monitor leitura extra"; arg = "leitura_headless.py --extra"; hora = "12:33"; limite = 60 }
 )
 
 if ($Remover) {
@@ -26,7 +26,7 @@ $py = (& python -c "import sys; print(sys.executable)")
 foreach ($t in $tarefas) {
     $acao = New-ScheduledTaskAction -Execute $py -Argument $t.arg -WorkingDirectory $raiz
     $gatilho = New-ScheduledTaskTrigger -Weekly -DaysOfWeek $dias -At $t.hora
-    $cfg = New-ScheduledTaskSettingsSet -ExecutionTimeLimit (New-TimeSpan -Minutes $t.limite) -MultipleInstances IgnoreNew -StartWhenAvailable
+    $cfg = New-ScheduledTaskSettingsSet -ExecutionTimeLimit (New-TimeSpan -Minutes $t.limite) -MultipleInstances IgnoreNew -StartWhenAvailable -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries
     Register-ScheduledTask -TaskName $t.nome -Action $acao -Trigger $gatilho -Settings $cfg -Force | Out-Null
     "tarefa '$($t.nome)' registrada: dias úteis às $($t.hora) ($($t.arg))"
 }

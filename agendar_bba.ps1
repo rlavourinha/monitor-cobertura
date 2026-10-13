@@ -12,6 +12,6 @@ $gatilhos = @(
   (New-ScheduledTaskTrigger -Weekly -DaysOfWeek $dias -At 08:25),
   (New-ScheduledTaskTrigger -Weekly -DaysOfWeek $dias -At 18:25)
 )
-$cfg = New-ScheduledTaskSettingsSet -ExecutionTimeLimit (New-TimeSpan -Minutes 20) -MultipleInstances IgnoreNew -StartWhenAvailable
+$cfg = New-ScheduledTaskSettingsSet -ExecutionTimeLimit (New-TimeSpan -Minutes 20) -MultipleInstances IgnoreNew -StartWhenAvailable -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries
 Register-ScheduledTask -TaskName $nome -Action $acao -Trigger $gatilhos -Settings $cfg -Force | Out-Null
 "tarefa '$nome' registrada: dias úteis às 08:25 e 18:25 ($py)"
