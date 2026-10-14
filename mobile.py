@@ -98,6 +98,32 @@ def svg_intraday(barras: list, fech_ant: float | None, W=400, H=150) -> str:
     return "".join(o)
 
 
+def svg_volume(serie: list[list], mm21: list[list], W=400, H=150) -> str:
+    """Volume diário (série inteira, por pregão) e média de 21 pregões; eixo de anos e grade em R$ bi."""
+    if len(serie) < 2:
+        return ""
+    ML, MR, MT, MB = 30, 50, 8, 18
+    n = len(serie); hi = max(v for _, v in serie) * 1.05
+    X = lambda i: ML + i / (n - 1) * (W - ML - MR)
+    Y = lambda v: MT + (hi - v) / hi * (H - MT - MB)
+    o = [f'<svg class="chart" viewBox="0 0 {W} {H}" role="img" aria-label="Volume diário da B3">']
+    passo = 20 if hi > 60 else 10
+    for t in range(0, int(hi) + 1, passo):
+        o.append(f'<line x1="{ML}" x2="{W - MR}" y1="{Y(t):.1f}" y2="{Y(t):.1f}" class="grid"/><text class="tick" x="{ML - 4}" y="{Y(t) + 4:.1f}" text-anchor="end">{t}</text>')
+    ano = None
+    for i, (d, _) in enumerate(serie):
+        if d[:4] != ano:
+            ano = d[:4]
+            o.append(f'<text class="tick" x="{X(i) + 2:.1f}" y="{H - 5}">{ano[2:]}</text>')
+    for pts, cor, w in ((serie, "var(--mut)", 0.8), (mm21, "var(--s2)", 1.8)):
+        path = " ".join(f"{'M' if i == 0 else 'L'}{X(i):.1f},{Y(v):.1f}" for i, (_, v) in enumerate(pts))
+        o.append(f'<path class="line" style="stroke:{cor};stroke-width:{w}" d="{path}"/>')
+    for v, cor, dy in ((serie[-1][1], "var(--mut)", -4), (mm21[-1][1], "var(--s2)", 10)):
+        o.append(f'<text class="endlab" x="{W - MR + 4}" y="{Y(v) + dy:.1f}" style="fill:{cor}">{B.num(v, 1)}</text>')
+    o.append("</svg>")
+    return "".join(o)
+
+
 def svg_spark(pts: list[list], cor: str, dec: int, W=150, H=40) -> str:
     pts = [p for p in pts if p[1] is not None]
     if len(pts) < 2:
@@ -359,7 +385,10 @@ def bloco_liquidez(IB: dict) -> str:
              + _tile("Média 2026", B.num(sum(ano) / len(ano) / 1e9, 1, "R$ ", " bi"), f'{len(ano)} pregões · 2025: R$ 21,4 bi')
              + _tile("Ibov hoje (projetado)", B.num(ib.get("vrel"), 2, suf="x") if IB.get("hoje") else "—", "volume dos papéis do índice vs média de 21, projetado para o pregão")
              + _tile("Negócios", B.num(r["negocios"] / 1e6, 2, suf=" mi"), f'{int(r["papeis"])} códigos negociados'))
-    return _card("Liquidez", f'<div class="tiles">{tiles}</div>')
+    serie = [[dd, x["total"] / 1e9] for dd, x in S]
+    mm21 = [[serie[i][0], sum(v for _, v in serie[max(0, i - 20):i + 1]) / len(serie[max(0, i - 20):i + 1])] for i in range(len(serie))]
+    g = svg_volume(serie, mm21)
+    return _card("Liquidez", f'<div class="tiles">{tiles}</div>{g}<p class="nota">Volume diário de toda a B3 à vista (cinza) e média de 21 pregões (laranja), R$ bi, desde 2019.</p>')
 
 
 def bloco_di(DI: dict) -> str:

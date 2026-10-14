@@ -1400,8 +1400,16 @@ def linha_ibov_painel(D: dict, M: dict) -> str:
     g = svg_linhas("painel-ibov", [("Ibovespa", "var(--s1)", [[d, v] for d, v in ib])], 0, W=760, H=250, ini=2, curtas=True, sombra_desde=ini_h,
                    titulo="Ibovespa · a janela escolhida (ou o ponto clicado) define a decomposição ao lado e a janela dos outros gráficos",
                    resol=mt5_intraday("IBOV"))
+    # volume embaixo do preço: toda a B3 à vista (COTAHIST, conferido com o oficial da B3) e média de 21 pregões; segue a janela do Ibovespa
+    Mk = _volume_mercado({})
+    g_vol = ""
+    if Mk:
+        rot = f"{Mk['data'][8:]}/{Mk['data'][5:7]}"
+        g_vol = svg_linhas("painel-volume", [("B3 à vista", "var(--axis)", [[d, v] for d, v in Mk["serie"]]), ("Média 21 pregões", "var(--s2)", [[d, v] for d, v in Mk["mm21"]])],
+                           1, pref="R$ ", suf=" bi", W=760, H=120, ini=2, curtas=True,
+                           titulo=f"Volume financeiro diário · toda a B3 à vista (R$ bi) e média de 21 pregões · {rot}: R$ {num(Mk['hoje'], 1)} bi, {num(Mk['razao'], 2, suf='x')} a média")
     return (f'<div class="pgrid dec pg2" style="grid-template-columns:2fr 1fr 1fr">'
-            f'<div class="pbox pib">{g}</div>'
+            f'<div class="pbox pib">{g}{g_vol}</div>'
             f'<div class="pbox" data-slot="setores"><h2 style="margin:0 0 4px">Decomposição por setor</h2><div class="empty small">calculando…</div></div>'
             f'<div class="pbox" data-slot="papeis"><h2>Quem puxou, quem segurou</h2><div class="empty small">calculando…</div></div>'
             f'<script type="application/json" id="ibov-dados">{dados_js}</script></div>')
