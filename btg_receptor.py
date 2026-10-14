@@ -7,6 +7,7 @@ portal (connect-src) bloqueia fetch/XHR para localhost, mas libera `ws:`/`wss:` 
     python btg_receptor.py            # escuta em ws://127.0.0.1:8766 (só loopback); agendar_receptor.ps1 mantém no ar
 
 Protocolo: o cliente manda um JSON {"id": 122940, "txt": "..."}; resposta "ok <bytes>" ou "erro ...".
+           BBA/Bradesco: {"casa": "bba"|"bradesco", "nome": "blocos", "txt": "..."} -> data/<casa>/_recebido/<nome>.txt.
            {"ping": 1} responde "pong".
 """
 from __future__ import annotations
@@ -28,6 +29,16 @@ async def trata(ws):
             d = json.loads(msg)
             if d.get("ping"):
                 await ws.send("pong"); continue
+            casa = d.get("casa")
+            if casa in ("bba", "bradesco"):                        # BBA/Bradesco: blocos de texto/listas para os coletores do modo Chrome
+                nome = str(d.get("nome", ""))
+                txt = d.get("txt") or ""
+                if not re.fullmatch(r"[a-z0-9_]{1,40}", nome) or not txt:
+                    await ws.send("erro: nome ou txt inválido"); continue
+                pasta = config.DATA / casa / "_recebido"; pasta.mkdir(parents=True, exist_ok=True)
+                dados = txt.encode("utf-8"); (pasta / f"{nome}.txt").write_bytes(dados)
+                print(f"{casa}/{nome}: {len(dados)} bytes", flush=True)
+                await ws.send(f"ok {len(dados)}"); continue
             id_ = str(d.get("id", ""))
             txt = d.get("txt") or ""
             if not re.fullmatch(r"\d{3,8}", id_) or not txt:
@@ -45,7 +56,8 @@ async def main():
     import websockets
     print(f"receptor BTG em ws://127.0.0.1:{PORTA} -> {TXT}", flush=True)
     async with websockets.serve(trata, "127.0.0.1", PORTA, max_size=64 * 1024 * 1024,
-                                origins=["https://www.btgpactual.com"]):
+                                origins=["https://www.btgpactual.com", "https://www.itau.com.br",
+                                         "https://bradesco-portal.bluematrix.com", "https://bradescobbi.bluematrix.com"]):
         await asyncio.Future()
 
 

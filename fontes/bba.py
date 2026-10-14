@@ -57,7 +57,7 @@ _JS_LISTA = r"""([conhecidos, dias, area]) => {
     // card = .gco-card-list__item (um por relatório, com a data dentro); reserva: subida até achar data num bloco curto
     let c = a.closest('.gco-card-list__item');
     if (!c) { c = a; for (let i = 0; i < 8 && c; i++) { c = c.parentElement; if (c && /\d{1,2} \w{3},? \d{4}/.test((c.innerText||'').replace(/ /g,' ')) && c.innerText.length < 900) break; } }
-    const txt = c ? c.innerText.replace(/ /g, ' ') : '';
+    const txt = c ? c.innerText.replace(/[^\S\n]+/g, ' ') : '';
     const m = txt.match(/(\d{1,2}) (\w{3}),? (\d{4})/);
     const d = m ? `${m[3]}-${MES[m[2].toLowerCase()] || '01'}-${m[1].padStart(2, '0')}` : null;
     if (!d || d < lim) continue;

@@ -15,9 +15,10 @@ for (const a of document.querySelectorAll('a[href*="/report/"]')) {
   if (!id || seen.has(id)) continue;
   seen.add(id);
   if (CONHECIDOS.has(id)) continue;
-  let c = a;
-  for (let i = 0; i < 8 && c; i++) { c = c.parentElement; if (c && /\d{1,2} \w{3},? \d{4}/.test(c.innerText) && c.innerText.length < 900) break; }
-  const txt = c ? c.innerText : '';
+  // card = .gco-card-list__item (um por relatório); a subida de 8 níveis pegava a lista inteira e dava a data do 1º card a todos
+  let c = a.closest('.gco-card-list__item');
+  if (!c) { c = a; for (let i = 0; i < 8 && c; i++) { c = c.parentElement; if (c && /\d{1,2} \w{3},? \d{4}/.test(c.innerText) && c.innerText.length < 900) break; } }
+  const txt = c ? c.innerText.replace(/[^\S\n]+/g, ' ') : '';
   const m = txt.match(/(\d{1,2}) (\w{3}),? (\d{4})/);
   const d = m ? `${m[3]}-${MES[m[2].toLowerCase()] || '01'}-${m[1].padStart(2, '0')}` : null;
   if (!d || d < lim) continue;
