@@ -383,7 +383,7 @@ def _graficos_di(S1: str, S2: str, MUT: str) -> tuple[str, str]:
         hoje = date.today()
         series.append((f"ANBIMA {da[8:]}/{da[5:7]}", MUT, [[(hoje + timedelta(days=round(d * 365.25 / 252))).isoformat(), t, None] for d, t in sorted(pre) if d <= 3400]))
     if series:
-        g = svg_linhas("painel-di-curva", series, 2, suf="%", W=260, H=130, gap=5000,
+        g = svg_linhas("painel-di-curva", series, 2, suf="%", W=540, H=130, gap=5000,
                        titulo=f"Curva DI (MT5, contratos líquidos) vs pregão anterior e ANBIMA (pré)" + (f" · Δ bps: {' · '.join(deltas)}" if deltas else ""), extras=["negócios"])
         g = g.replace('<div class="janela" data-for="painel-di-curva">', '<div class="janela" data-for="painel-di-curva" style="display:none">')
         g = g.replace('id="painel-di-curva"', 'id="painel-di-curva" data-nosel="1"')   # eixo x = vencimentos
@@ -479,7 +479,7 @@ def _graficos_dap(S1: str, S2: str, MUT: str) -> tuple[str, str]:
         hoje = date.today()
         series.append((f"ANBIMA {da[8:]}/{da[5:7]}", MUT, [[(hoje + timedelta(days=round(d * 365.25 / 252))).isoformat(), t, None, "ETTJ"] for d, t in sorted(ipca) if 400 <= d <= 7700]))
     if series:
-        g = svg_linhas("painel-dap-curva", series, 2, suf="%", W=260, H=130, gap=5000,
+        g = svg_linhas("painel-dap-curva", series, 2, suf="%", W=540, H=130, gap=5000,
                        titulo="Curva de juro real (DAP = cupom de IPCA, MT5) vs pregão anterior e ANBIMA (IPCA+)" + (f" · Δ bps: {' · '.join(deltas)}" if deltas else ""),
                        extras=["negócios", "preço"])
         g = g.replace('<div class="janela" data-for="painel-dap-curva">', '<div class="janela" data-for="painel-dap-curva" style="display:none">')
@@ -791,6 +791,71 @@ def svg_curva(pontos: list[tuple[str, float]], titulo: str, suf="%", W=470, H=20
         out.append(f'<circle class="dot" data-tip="{p[0]}: {num(y, 2)}{suf}" cx="{X(x):.1f}" cy="{Y(y):.1f}" r="4" style="fill:var(--s1)"/>'
                    f'<text class="cap" x="{X(x):.1f}" y="{Y(y) - 9:.1f}" text-anchor="middle">{num(y, 2)}</text>')
     return f'<svg class="chart" viewBox="0 0 {W} {H}" role="img" aria-label="{titulo}">{"".join(out)}</svg>'
+
+
+def svg_curva_ust(W=540, H=150) -> str:
+    """Movimento da curva de Treasuries (U.S. Treasury, par yield): último dia contra 1 semana, 1 mês e 1 ano antes.
+    Eixo x = prazos igualmente espaçados (1m … 30a); Δ em bps no tooltip de cada ponto e no título (2a, 10a, 30a vs 1 mês)."""
+    from fontes import ust
+    D = ust.ler()
+    S = D.get("serie") or {}
+    if len(S) < 260:
+        return '<div class="empty small">Curva de Treasuries: rode a janela diária (U.S. Treasury).</div>'
+    rot = D.get("rotulos") or ust.ROTULOS
+    ds = list(S)
+    d0 = ds[-1]
+    def antes(dias):                                       # último dia com dado até d0 − dias
+        alvo = (date.fromisoformat(d0) - timedelta(days=dias)).isoformat()
+        return next((d for d in reversed(ds) if d <= alvo), None)
+    S1, S2, S3, MUT = "var(--s1)", "var(--s2)", "var(--s3)", "var(--axis)"
+    comp = [(antes(365), "1 ano", MUT, "stroke-dasharray:5 3;stroke-width:1.4"), (antes(30), "1 mês", S3, "stroke-width:1.4"),
+            (antes(7), "1 semana", S2, "stroke-width:1.4"), (d0, "hoje", S1, "stroke-width:2.4")]
+    comp = [c for c in comp if c[0]]
+    ys = [v for d, *_ in comp for v in S[d] if v is not None]
+    lo, hi = min(ys) - 0.15, max(ys) + 0.15
+    ML, MR, MT, MB = 34, 12, 36, 20
+    n = len(rot)
+    X = lambda i: ML + i / (n - 1) * (W - ML - MR)
+    Y = lambda v: MT + (hi - v) / (hi - lo) * (H - MT - MB)
+    hoje = S[d0]; mes = S[antes(30)] if antes(30) else None
+    def dbp(i, ref):
+        return None if (ref is None or ref[i] is None or hoje[i] is None) else round((hoje[i] - ref[i]) * 100)
+    i2, i10, i30 = rot.index("2a"), rot.index("10a"), rot.index("30a")
+    deltas = " · ".join(f"{rot[i]} {dbp(i, mes):+d}" for i in (i2, i10, i30) if dbp(i, mes) is not None)
+    s2s10 = round((hoje[i10] - hoje[i2]) * 100) if hoje[i10] is not None and hoje[i2] is not None else None
+    titulo = f"Curva de Treasuries (% a.a.) em {d0[8:]}/{d0[5:7]} · Δ 1 mês, bps: {deltas}" + (f" · 2s10s {s2s10:+d} bps" if s2s10 is not None else "")
+    out = [f'<text class="sub" x="{ML}" y="12">{titulo}</text>']
+    x = ML
+    for d, lab, cor, est in comp[::-1]:
+        leg = f"{lab} ({d[8:]}/{d[5:7]}/{d[2:4]})"
+        out.append(f'<line x1="{x:.0f}" x2="{x + 14:.0f}" y1="23" y2="23" style="stroke:{cor};{est}"/><text class="tick" x="{x + 18:.0f}" y="27">{leg}</text>')
+        x += 18 + 5 * len(leg) + 16                         # ~4,5 px por caractere na fonte do eixo + folga
+    for t in ticks(lo, hi, 3):
+        if lo <= t <= hi:
+            out.append(f'<line class="grid" x1="{ML}" x2="{W - MR}" y1="{Y(t):.1f}" y2="{Y(t):.1f}"/><text class="tick" x="{ML - 5}" y="{Y(t) + 4:.1f}" text-anchor="end">{num(t, 1)}</text>')
+    for i, r in enumerate(rot):
+        out.append(f'<text class="tick" x="{X(i):.1f}" y="{H - 5}" text-anchor="middle">{r}</text>')
+    for d, lab, cor, est in comp:
+        v = S[d]
+        segs, pen = [], "M"
+        for i, y in enumerate(v):
+            if y is None:
+                pen = "M"
+                continue
+            segs.append(f"{pen}{X(i):.1f},{Y(y):.1f}"); pen = "L"
+        out.append(f'<path class="line" style="stroke:{cor};fill:none;{est}" d="{" ".join(segs)}"/>')
+    for d, lab, cor, _ in comp:                              # pontos com tooltip: taxa e Δ de hoje contra a data da linha
+        v = S[d]
+        for i, y in enumerate(v):
+            if y is None:
+                continue
+            dd = dbp(i, v) if d != d0 else None
+            tip = f"{rot[i]} · {lab} ({d[8:]}/{d[5:7]}/{d[:4]}): {num(y, 2)}%" + (f" · hoje vs {lab}: {dd:+d} bps" if dd is not None else "")
+            out.append(f'<circle class="dot" data-tip="{tip}" cx="{X(i):.1f}" cy="{Y(y):.1f}" r="{3.2 if d == d0 else 2.4}" style="fill:{cor}"/>')
+    for i, y in enumerate(hoje):
+        if y is not None and i in (0, i2, rot.index("5a"), i10, i30):
+            out.append(f'<text class="cap" x="{X(i):.1f}" y="{Y(y) - 7:.1f}" text-anchor="middle">{num(y, 2)}</text>')
+    return f'<svg class="chart" viewBox="0 0 {W} {H}" role="img" aria-label="Curva de Treasuries">{"".join(out)}</svg>'
 
 
 def svg_colunas(titulo: str, cats: list[str], vals: list[float | None], cores: list[str] | str, dec=2, suf="",
@@ -1364,9 +1429,13 @@ def linha_variaveis_painel(M: dict) -> str:
                       resol=mt5_intraday("WDO$", escala=0.001)) if fx else '<div class="empty small">Sem histórico do câmbio.</div>'
     g_di_curva, g_di10 = _graficos_di(S1, S2, MUT)     # curva DI de hoje (vigia/MT5) vs ANBIMA; DI 10 anos e 1 ano no tempo
     g_dap_curva, g_dap10 = _graficos_dap(S1, S2, MUT)  # a mesma leitura para o juro real (DAP = cupom de IPCA)
-    # 12 gráficos em 4 colunas × 3 linhas (6 colunas deixava cada SVG com ~190 px; 4 dá ~310 px, maior que os 5×2 de antes)
+    g_ust = svg_curva_ust()                            # curva de Treasuries: hoje vs 1 semana, 1 mês, 1 ano (U.S. Treasury)
+    # 13 gráficos em 4 colunas × 4 linhas: as três curvas (eixo = prazo) ocupam 2 colunas cada e ficam juntas embaixo
+    simples = (g_br, g_di10, g_dap10, g_us, g_prem, g_fx, g_brent, g_curva, g_fluxo, g_ativo)
+    largos = (g_ust, g_di_curva, g_dap_curva)
     return (f'<div class="pgrid pg6" style="grid-template-columns:repeat(4,1fr);margin-top:10px">'
-            + "".join(f'<div class="pbox">{g}</div>' for g in (g_br, g_di10, g_dap10, g_us, g_prem, g_fx, g_brent, g_curva, g_di_curva, g_dap_curva, g_fluxo, g_ativo)) + '</div>')
+            + "".join(f'<div class="pbox">{g}</div>' for g in simples)
+            + "".join(f'<div class="pbox" style="grid-column:span 2">{g}</div>' for g in largos) + '</div>')
 
 
 def linha_ibov_painel(D: dict, M: dict) -> str:
