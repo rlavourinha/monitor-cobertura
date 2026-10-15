@@ -367,11 +367,11 @@ def bloco_fluxo() -> str:
     by = {r["data"]: r for r in serie}
     ds = [r["data"] for r in serie][-6:]
     mes = ds[-1][:7]
-    tipos = ("estrangeiro", "institucional", "pessoa física")
+    tipos = ("estrangeiro", "institucional", "pessoa física", "inst. financeira", "outros")   # as 5 categorias da B3: a linha soma zero
     mtd = {k: sum((by[d].get(k) or 0) for d in by if d.startswith(mes)) / 1e3 for k in tipos}
     rows = "".join(f'<tr><td>{d[8:10]}/{d[5:7]}</td>' + "".join(f'<td class="{B.dlt_cls(by[d].get(k))}">{B.num((by[d].get(k) or 0) / 1e3, 2)}</td>' for k in tipos) + "</tr>" for d in ds[::-1])
     rows = f'<tr class="tot"><td>{MESES[int(mes[5:]) - 1]}/{mes[2:4]} até aqui</td>' + "".join(f'<td class="{B.dlt_cls(v)}">{B.num(v, 1)}</td>' for v in mtd.values()) + "</tr>" + rows
-    return _card("Fluxo na B3 (R$ bi)", f'<table><thead><tr><th>Dia</th><th>Estrang.</th><th>Instit.</th><th>P. física</th></tr></thead><tbody>{rows}</tbody></table><p class="nota">Saldo diário por tipo de investidor (B3, compilação Dados de Mercado); publicado com 2 dias de atraso.</p>', f'até {ds[-1][8:10]}/{ds[-1][5:7]}')
+    return _card("Fluxo na B3 (R$ bi)", f'<table><thead><tr><th>Dia</th><th>Estr.</th><th>Inst.</th><th>PF</th><th>IF</th><th>Outros</th></tr></thead><tbody>{rows}</tbody></table><p class="nota">Saldo diário por tipo de investidor (B3): estrangeiro, institucional, pessoa física, instituição financeira e outros (empresas, governo, clubes). Cada linha soma zero: todo negócio tem um comprador e um vendedor. Publicado com 2 dias de atraso.</p>', f'até {ds[-1][8:10]}/{ds[-1][5:7]}')
 
 
 def bloco_liquidez(IB: dict) -> str:

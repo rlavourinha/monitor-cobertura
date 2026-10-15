@@ -1750,7 +1750,8 @@ def fluxo_tiles(M: dict) -> tuple[str, str] | None:
     if not serie:
         return None
     S1, S2, S3, S4 = "var(--s1)", "var(--s2)", "var(--s3)", "var(--s4)"
-    tipos = [("estrangeiro", "Estrangeiro", S1), ("institucional", "Institucional", S2), ("pessoa física", "Pessoa física", S3), ("inst. financeira", "Inst. financeira", S4)]
+    # as 5 categorias da B3 somam zero (todo negócio tem comprador e vendedor); "outros" = empresas, governo, clubes etc.
+    tipos = [("estrangeiro", "Estrangeiro", S1), ("institucional", "Institucional", S2), ("pessoa física", "Pessoa física", S3), ("inst. financeira", "Inst. financeira", S4), ("outros", "Outros", "var(--axis)")]
     ult = serie[-1]["data"]
     acum = O["diario"][ult]
     ano = ult[:4]
@@ -1791,7 +1792,8 @@ def slide_fluxo_investidores(M: dict) -> tuple[str, str] | None:
     if not serie:
         return None
     S1, S2, S3, S4 = "var(--s1)", "var(--s2)", "var(--s3)", "var(--s4)"
-    tipos = [("estrangeiro", "Estrangeiro", S1), ("institucional", "Institucional", S2), ("pessoa física", "Pessoa física", S3), ("inst. financeira", "Inst. financeira", S4)]
+    # as 5 categorias da B3 somam zero (todo negócio tem comprador e vendedor); "outros" = empresas, governo, clubes etc.
+    tipos = [("estrangeiro", "Estrangeiro", S1), ("institucional", "Institucional", S2), ("pessoa física", "Pessoa física", S3), ("inst. financeira", "Inst. financeira", S4), ("outros", "Outros", "var(--axis)")]
     ult = serie[-1]["data"]
     mes = ult[:7]
     acum = O["diario"][ult]                                   # acumulado do mês na última data de referência
@@ -1819,7 +1821,7 @@ def slide_fluxo_investidores(M: dict) -> tuple[str, str] | None:
     g_acum = svg_linhas("fluxo-acum", series, 1, suf=" bi", W=520, H=175, titulo=f"Acumulado por tipo desde {serie[0]['data'][8:]}/{serie[0]['data'][5:7]}/{serie[0]['data'][2:4]} (R$ bi)")
     leg = "".join(f'<span><i style="background:{c}"></i>{l}</span>' for _, l, c in tipos)
     tr = "".join(f'<tr><td class="tk">{lab}</td><td>{num(acum[t][0] / 1000, 0)}</td><td>{num(acum[t][1] / 1000, 0)}</td><td class="{dlt_cls(saldo_mes(t))}">{num(saldo_mes(t), 0, "+" if (saldo_mes(t) or 0) > 0 else "")}</td>'
-                 f'<td>{num((acum[t][0] + acum[t][1]) / (tot_c + tot_v) * 100, 1, suf="%") if (tot_c + tot_v) else "—"}</td></tr>' for t, lab, _ in tipos + [("outros", "Outros", "")] if t in acum)
+                 f'<td>{num((acum[t][0] + acum[t][1]) / (tot_c + tot_v) * 100, 1, suf="%") if (tot_c + tot_v) else "—"}</td></tr>' for t, lab, _ in tipos if t in acum)
     tab = f'<table class="mini" style="width:100%"><thead><tr><th>Investidor</th><th>Compras R$ mi</th><th>Vendas R$ mi</th><th>Saldo</th><th>% do volume</th></tr></thead><tbody>{tr}</tbody></table>'
     # participação mensal por segmento (último mês fechado)
     men = O.get("mensal") or {}
@@ -1828,10 +1830,10 @@ def slide_fluxo_investidores(M: dict) -> tuple[str, str] | None:
         km = sorted(men)[-1]; m = men[km]
         segs = ["À vista", "A termo", "Opções", "Exercícios de opções", "Blocos", "Total geral"]
         segs = [s for s in segs if any(s in v for v in m.values())]
-        trm = "".join(f'<tr><td class="tk">{lab}</td>' + "".join(f'<td>{num(m[t][s][1], 0, suf="%") if s in m.get(t, {}) else "—"}</td>' for s in segs) + "</tr>" for t, lab, _ in tipos + [("outros", "Outros", "")] if t in m)
+        trm = "".join(f'<tr><td class="tk">{lab}</td>' + "".join(f'<td>{num(m[t][s][1], 0, suf="%") if s in m.get(t, {}) else "—"}</td>' for s in segs) + "</tr>" for t, lab, _ in tipos if t in m)
         tab_m = (f'<h2 style="font-size:13px;margin:10px 0 4px">Participação no volume por segmento, {km[5:]}/{km[:4]} (compras + vendas, %)</h2>'
                  f'<table class="mini" style="width:100%"><thead><tr><th>Investidor</th>{"".join(f"<th>{s}</th>" for s in segs)}</tr></thead><tbody>{trm}</tbody></table>')
-    corpo = (f'<div class="tiles strip" style="grid-template-columns:repeat(4,1fr);margin-bottom:10px">{tiles}</div>'
+    corpo = (f'<div class="tiles strip" style="grid-template-columns:repeat(5,1fr);margin-bottom:10px">{tiles}</div>'
              f'<div class="grid2" style="grid-template-columns:1.1fr 1fr;align-items:start"><div>{g_dia}</div><div><div class="legend" style="margin-bottom:4px">{leg}</div>{g_acum}</div></div>'
              f'<div class="grid2" style="grid-template-columns:1fr 1.2fr;align-items:start;margin-top:10px"><div><h2 style="font-size:13px;margin:0 0 4px">Acumulado do mês até {ult[8:]}/{ult[5:7]} (R$ mi)</h2>{tab}</div><div>{tab_m}</div></div>')
     return slide("Macro", "fluxo-investidores", "Fluxo por tipo de investidor", corpo,
@@ -2122,7 +2124,7 @@ def slide_painel(M: dict, sgs: dict, mercado_micro: dict, minhas: list[dict], co
     fl = fluxo_tiles(M)
     if fl:
         tiles_fl, ult_fl, graf_fl = fl
-        leg_fl = '<div class="legend" style="margin:6px 0 0"><span><i style="background:var(--s1)"></i>Estrangeiro</span><span><i style="background:var(--s2)"></i>Institucional</span><span><i style="background:var(--s3)"></i>Pessoa física</span><span><i style="background:var(--s4)"></i>Inst. financeira</span></div>'
+        leg_fl = '<div class="legend" style="margin:6px 0 0"><span><i style="background:var(--s1)"></i>Estrangeiro</span><span><i style="background:var(--s2)"></i>Institucional</span><span><i style="background:var(--s3)"></i>Pessoa física</span><span><i style="background:var(--s4)"></i>Inst. financeira</span><span><i style="background:var(--axis)"></i>Outros</span></div>'
         box_fl = (f'<div class="pbox" style="padding:6px 10px"><h2 style="margin:0 0 4px">Fluxo por tipo de investidor · ações B3, saldo até {ult_fl[8:]}/{ult_fl[5:7]} (R$ mi)</h2>'
                   f'<div class="tiles fltiles">{tiles_fl}</div></div>')
         strip = f'<div class="grid2" style="grid-template-columns:1fr 1fr;gap:10px;align-items:start">{tab_var}{box_set}</div>'   # tiles do fluxo saíram (pedido 26/09): só o gráfico da grade
@@ -3598,7 +3600,7 @@ main{margin-left:232px}
 .tile{background:var(--sf);border:1px solid var(--ring);border-radius:14px;padding:16px 18px}.tile .l{font-size:12px;color:var(--mut)}.tile .v{font-size:30px;font-weight:600;letter-spacing:-.02em;margin-top:4px;line-height:1.1}.tile .d{font-size:12.5px;color:var(--ink2);margin-top:4px}
 .hero .v{font-size:46px;white-space:nowrap}
 .tiles.strip{grid-template-columns:repeat(8,1fr);gap:8px}.tiles.strip .tile{padding:12px 12px}.tiles.strip .v{font-size:20px}
-.tiles.fltiles{grid-template-columns:repeat(4,1fr);gap:8px;margin:0}.fltiles .tile{padding:5px 10px;border-radius:10px}.fltiles .tile .l{font-size:10.5px}.fltiles .tile .v{font-size:17px;margin-top:0}.fltiles .tile .d{font-size:10.5px;margin-top:1px;line-height:1.3}.fltiles .tile .d .it{white-space:nowrap}
+.tiles.fltiles{grid-template-columns:repeat(5,1fr);gap:8px;margin:0}.fltiles .tile{padding:5px 10px;border-radius:10px}.fltiles .tile .l{font-size:10.5px}.fltiles .tile .v{font-size:17px;margin-top:0}.fltiles .tile .d{font-size:10.5px;margin-top:1px;line-height:1.3}.fltiles .tile .d .it{white-space:nowrap}
 td.varjan{font-weight:600}th.varjan-h{white-space:nowrap}
 .painel .tabvar table.mini{font-size:11.5px}.painel .tabvar table.mini td,.painel .tabvar table.mini th{padding:2px 5px}.painel .tabvar table.mini th{font-size:9.5px}
 #papeis-ibov table.mini{font-size:11.5px}#papeis-ibov table.mini td,#papeis-ibov table.mini th{padding:2px 6px}#papeis-ibov .tk small{font-size:10px}
