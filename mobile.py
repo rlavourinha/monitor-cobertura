@@ -383,17 +383,50 @@ def bloco_liquidez(IB: dict) -> str:
     if not S:
         return ""
     d, r = S[-1]
-    m21 = sum(x["total"] for _, x in S[-21:]) / min(21, len(S)) / 1e9
-    ano = [x["total"] for dd, x in S if dd[:4] == d[:4]]
+    liq = lambda x: x["total"] - x.get("indice", 0)          # sem o IBOV11 (exercício de opções de Ibovespa no vencimento)
+    serie = [[dd, liq(x) / 1e9] for dd, x in S]
+    m21 = sum(v for _, v in serie[-22:-1]) / 21
+    ano = [v for dd, v in serie if dd[:4] == d[:4]]
+    ant = [v for dd, v in serie if dd[:4] == str(int(d[:4]) - 1)]
     ib = IB.get("ibov") or {}
-    tiles = (_tile(f"B3 à vista {d[8:10]}/{d[5:7]}", B.num(r["total"] / 1e9, 1, "R$ ", " bi"), f'{B.num(r["total"] / 1e9 / m21, 2, suf="x")} da média de 21 pregões')
-             + _tile("Média 2026", B.num(sum(ano) / len(ano) / 1e9, 1, "R$ ", " bi"), f'{len(ano)} pregões · 2025: R$ 21,4 bi')
+    ex = f' · fora R$ {B.num(r["indice"] / 1e9, 1)} bi de exercício de opções de Ibovespa' if r.get("indice", 0) > 1e9 else ""
+    tiles = (_tile(f"B3 à vista {d[8:10]}/{d[5:7]}", B.num(serie[-1][1], 1, "R$ ", " bi"), f'{B.num(serie[-1][1] / m21, 2, suf="x")} da média de 21 pregões{ex}')
+             + _tile(f"Média {d[:4]}", B.num(sum(ano) / len(ano), 1, "R$ ", " bi"), f'{len(ano)} pregões' + (f' · {int(d[:4]) - 1}: R$ {B.num(sum(ant) / len(ant), 1)} bi' if ant else ""))
              + _tile("Ibov hoje (projetado)", B.num(ib.get("vrel"), 2, suf="x") if IB.get("hoje") else "—", "volume dos papéis do índice vs média de 21, projetado para o pregão")
              + _tile("Negócios", B.num(r["negocios"] / 1e6, 2, suf=" mi"), f'{int(r["papeis"])} códigos negociados'))
-    serie = [[dd, x["total"] / 1e9] for dd, x in S]
     mm21 = [[serie[i][0], sum(v for _, v in serie[max(0, i - 20):i + 1]) / len(serie[max(0, i - 20):i + 1])] for i in range(len(serie))]
     g = svg_volume(serie[-252:], mm21[-252:])                  # últimos 12 meses (pedido 14/10: a série desde 2019 ficava longa demais no celular)
-    return _card("Liquidez", f'<div class="tiles">{tiles}</div>{g}<p class="nota">Volume diário de toda a B3 à vista (cinza) e média de 21 pregões (laranja), R$ bi, últimos 12 meses.</p>')
+    return _card("Liquidez", f'<div class="tiles">{tiles}</div>{g}<p class="nota">Volume diário de toda a B3 à vista (cinza) e média de 21 pregões (laranja), R$ bi, últimos 12 meses. '
+                 'Sem o IBOV11: no vencimento de opções de Ibovespa o exercício entra como negócio à vista e infla o dia.</p>')
+
+
+def bloco_ust() -> str:
+    """Curva de Treasuries (U.S. Treasury): hoje vs 1 semana, 1 mês e 1 ano; Δ em bps por vértice numa tabela curta."""
+    from fontes import ust
+    D = ust.ler()
+    S = D.get("serie") or {}
+    if len(S) < 260:
+        return ""
+    rot = D.get("rotulos") or ust.ROTULOS
+    ds = list(S)
+    d0 = ds[-1]
+    def antes(dias):
+        alvo = (date.fromisoformat(d0) - timedelta(days=dias)).isoformat()
+        return next((d for d in reversed(ds) if d <= alvo), None)
+    VERDE = "#1baf7a"                                        # o CSS do celular não tem --s3/--axis
+    g = B.svg_curva_ust(W=400, H=170, cab=False).replace("var(--axis)", "var(--mut)").replace("var(--s3)", VERDE)
+    cores = [("hoje", "var(--s1)", d0), ("1 semana", "var(--s2)", antes(7)), ("1 mês", VERDE, antes(30)), ("1 ano", "var(--mut)", antes(365))]
+    leg = "".join(f'<span style="margin-right:10px;white-space:nowrap"><i style="display:inline-block;width:12px;height:3px;background:{c};vertical-align:3px;margin-right:4px"></i>{l} {d[8:]}/{d[5:7]}{"/" + d[2:4] if l == "1 ano" else ""}</span>' for l, c, d in cores if d)
+    h = S[d0]
+    rows = ""
+    for k in ("2a", "10a", "30a"):
+        i = rot.index(k)
+        cel = "".join(f'<td class="{B.dlt_cls(-(h[i] - S[d][i]))}">{(h[i] - S[d][i]) * 100:+.0f}</td>' if d and S[d][i] is not None and h[i] is not None else "<td>—</td>" for _, _, d in cores[1:])
+        rows += f'<tr><td>{k}</td><td>{B.num(h[i], 2)}%</td>{cel}</tr>'
+    i2, i10 = rot.index("2a"), rot.index("10a")
+    s2s10 = (h[i10] - h[i2]) * 100
+    tab = f'<table><thead><tr><th>Prazo</th><th>Hoje</th><th>Δ 1 sem</th><th>Δ 1 mês</th><th>Δ 1 ano</th></tr></thead><tbody>{rows}</tbody></table>'
+    return _card("Juros americanos", f'<p class="nota" style="margin-top:0">{leg}</p>{g}{tab}<p class="nota">Treasuries nominais (par yield, U.S. Treasury). Δ em bps. Inclinação 2a–10a: {s2s10:+.0f} bps.</p>', f"{d0[8:]}/{d0[5:7]}")
 
 
 def bloco_di(DI: dict) -> str:
@@ -442,7 +475,7 @@ header.top a{margin-left:auto;font-size:13px;color:var(--s1);text-decoration:non
 .up{color:var(--up)}.dn{color:var(--dn)}.flat{color:var(--ink2)}
 .chart{width:100%;height:auto;display:block}
 .chart .line{fill:none;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}.chart .grid{stroke:var(--grid);stroke-width:1}.chart .ref{stroke:var(--mut);stroke-width:1;stroke-dasharray:4 4}
-.chart .tick{font-size:11px;fill:var(--mut)}.chart .lab{font-size:12px;fill:var(--ink2)}.chart .endlab{font-size:12px;font-weight:600;fill:var(--ink)}
+.chart .tick{font-size:11px;fill:var(--mut)}.chart .cap{font-size:11px;fill:var(--ink2);paint-order:stroke;stroke:var(--sf);stroke-width:3px}.chart .dot{stroke:var(--sf);stroke-width:1.2}.chart .lab{font-size:12px;fill:var(--ink2)}.chart .endlab{font-size:12px;font-weight:600;fill:var(--ink)}
 .spark{width:150px;height:40px;flex:none}.spark .line{fill:none;stroke-width:1.6}
 ul.lista{list-style:none;margin:0;padding:0}ul.lista li{display:grid;grid-template-columns:72px 64px 1fr;gap:6px;align-items:baseline;padding:8px 0;border-top:1px solid var(--grid);font-variant-numeric:tabular-nums}
 ul.lista li:first-child{border-top:0}ul.lista li b{font-weight:600}ul.lista li small{color:var(--ink2);font-size:13px;line-height:1.3}
@@ -478,7 +511,7 @@ def build_mobile() -> None:
     DP = _j("dap_curva.json", {}) or {}                        # juro real (DAP = cupom de IPCA), gravado pelo vigia como o DI
     IB = _ibov_hoje(M)
     corpo = "".join([bloco_hoje(M, IB, DI), bloco_intraday(IB), bloco_alertas(IB), bloco_cobertura(mercado, minhas, cons, IB), bloco_trades(M),
-                     bloco_setores(C, IB), bloco_fluxo(), bloco_liquidez(IB), bloco_di(DI), bloco_dap(DP)])
+                     bloco_setores(C, IB), bloco_fluxo(), bloco_liquidez(IB), bloco_di(DI), bloco_dap(DP), bloco_ust()])
     page = PAGE.replace("/*CSS*/", CSS).replace("/*VERSAO*/", B.versao()).replace("/*DATA*/", B.carimbo_build()).replace("/*CORPO*/", corpo)
     config.OUTPUT.mkdir(parents=True, exist_ok=True)
     SAIDA.write_text(page, encoding="utf-8")

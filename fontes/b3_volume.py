@@ -8,7 +8,9 @@ antes de filtrar. Série em data/b3_volume_diario.csv (versionada), uma linha po
   total       R$ de todo o mercado à vista (TPMERC 010 lote-padrão + 020 fracionário), qualquer CODBDI
   acoes       ações e units no lote-padrão (CODBDI 02/05..11: ON, PN, UNT...)
   bdr         BDRs (CODBDI 34/35/36, ESPECI DR*)
-  etf         ETFs (CODBDI 14, ESPECI CI; e IBOV11)
+  etf         ETFs (CODBDI 14, ESPECI CI)
+  indice      IBOV11 (ESPECI IBO): registro do exercício das opções de Ibovespa no vencimento (quarta mais próxima do dia 15);
+              não é negociação do mercado à vista — chega a R$ 35 bi num dia (14/10/2026) e distorce o total. Gráficos usam total − indice.
   fii         FIIs/Fiagro/FI-Infra (CODBDI 12)
   fracionario mercado fracionário (TPMERC 020)
   negocios    nº de negócios no total
@@ -26,7 +28,8 @@ from datetime import date
 import config
 
 ARQ = config.DATA / "b3_volume_diario.csv"
-CAB = ["data", "total", "acoes", "bdr", "etf", "fii", "fracionario", "negocios", "papeis"]
+CAB = ["data", "total", "acoes", "bdr", "etf", "fii", "fracionario", "indice", "negocios", "papeis"]
+_RS = ("total", "acoes", "bdr", "etf", "fii", "fracionario", "indice")
 _ACOES_BDI = {b"02", b"05", b"06", b"07", b"08", b"09", b"10", b"11"}
 
 
@@ -40,7 +43,9 @@ def _classe(codbdi: bytes, tpmerc: bytes, especi: bytes) -> str | None:
     e = especi.strip()
     if e.startswith(b"DR"):                                   # BDI 34 (DRN), 35 (DR1/2/3), 36 (DRE)
         return "bdr"
-    if codbdi == b"14" or e.startswith(b"CI") or e.startswith(b"IBO"):   # BDI 14 = ETFs (ESPECI CI); IBOV11 vem como BDI 02/IBO
+    if e.startswith(b"IBO"):                                  # IBOV11 (BDI 02/IBO): exercício de opções de índice
+        return "indice"
+    if codbdi == b"14" or e.startswith(b"CI"):                # BDI 14 = ETFs (ESPECI CI)
         return "etf"
     if codbdi in _ACOES_BDI:
         return "acoes"
@@ -79,7 +84,7 @@ def ler() -> dict[str, dict]:
     if not ARQ.exists():
         return {}
     with ARQ.open(encoding="utf-8") as fh:
-        return {row["data"]: {k: float(row[k]) for k in CAB[1:]} for row in csv.DictReader(fh)}
+        return {row["data"]: {k: float(row.get(k) or 0) for k in CAB[1:]} for row in csv.DictReader(fh)}
 
 
 def _grava(rows: dict[str, dict]) -> None:
@@ -89,7 +94,7 @@ def _grava(rows: dict[str, dict]) -> None:
         w.writerow(CAB)
         for d in sorted(rows):
             r = rows[d]
-            w.writerow([d] + [f"{r[k]:.2f}" if k in ("total", "acoes", "bdr", "etf", "fii", "fracionario") else str(int(r[k])) for k in CAB[1:]])
+            w.writerow([d] + [f"{r.get(k, 0):.2f}" if k in _RS else str(int(r[k])) for k in CAB[1:]])
 
 
 def acrescenta(dados: bytes) -> int:
@@ -129,4 +134,4 @@ if __name__ == "__main__":
         backfill(int(sys.argv[i + 1]) if len(sys.argv) > i + 1 else 2019)
     for d, r in serie()[-5:]:
         print(d, f"total R$ {r['total'] / 1e9:.1f} bi", f"ações {r['acoes'] / 1e9:.1f}", f"BDR {r['bdr'] / 1e9:.1f}", f"ETF {r['etf'] / 1e9:.1f}",
-              f"FII {r['fii'] / 1e9:.1f}", f"frac {r['fracionario'] / 1e9:.2f}", f"negócios {int(r['negocios']):,}", f"papéis {int(r['papeis'])}")
+              f"FII {r['fii'] / 1e9:.1f}", f"índice {r.get('indice', 0) / 1e9:.1f}", f"frac {r['fracionario'] / 1e9:.2f}", f"negócios {int(r['negocios']):,}", f"papéis {int(r['papeis'])}")

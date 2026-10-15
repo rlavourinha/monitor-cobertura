@@ -793,9 +793,10 @@ def svg_curva(pontos: list[tuple[str, float]], titulo: str, suf="%", W=470, H=20
     return f'<svg class="chart" viewBox="0 0 {W} {H}" role="img" aria-label="{titulo}">{"".join(out)}</svg>'
 
 
-def svg_curva_ust(W=540, H=150) -> str:
+def svg_curva_ust(W=540, H=150, cab: bool = True) -> str:
     """Movimento da curva de Treasuries (U.S. Treasury, par yield): último dia contra 1 semana, 1 mês e 1 ano antes.
-    Eixo x = prazos igualmente espaçados (1m … 30a); Δ em bps no tooltip de cada ponto e no título (2a, 10a, 30a vs 1 mês)."""
+    Eixo x = prazos igualmente espaçados (1m … 30a); Δ em bps no tooltip de cada ponto e no título (2a, 10a, 30a vs 1 mês).
+    cab=False omite título e legenda dentro do SVG (o mobile põe os dois em HTML, ver mobile.bloco_ust)."""
     from fontes import ust
     D = ust.ler()
     S = D.get("serie") or {}
@@ -813,7 +814,7 @@ def svg_curva_ust(W=540, H=150) -> str:
     comp = [c for c in comp if c[0]]
     ys = [v for d, *_ in comp for v in S[d] if v is not None]
     lo, hi = min(ys) - 0.15, max(ys) + 0.15
-    ML, MR, MT, MB = 34, 12, 36, 20
+    ML, MR, MT, MB = 34, 12, (36 if cab else 12), 20
     n = len(rot)
     X = lambda i: ML + i / (n - 1) * (W - ML - MR)
     Y = lambda v: MT + (hi - v) / (hi - lo) * (H - MT - MB)
@@ -824,9 +825,9 @@ def svg_curva_ust(W=540, H=150) -> str:
     deltas = " · ".join(f"{rot[i]} {dbp(i, mes):+d}" for i in (i2, i10, i30) if dbp(i, mes) is not None)
     s2s10 = round((hoje[i10] - hoje[i2]) * 100) if hoje[i10] is not None and hoje[i2] is not None else None
     titulo = f"Curva de Treasuries (% a.a.) em {d0[8:]}/{d0[5:7]} · Δ 1 mês, bps: {deltas}" + (f" · 2s10s {s2s10:+d} bps" if s2s10 is not None else "")
-    out = [f'<text class="sub" x="{ML}" y="12">{titulo}</text>']
+    out = [f'<text class="sub" x="{ML}" y="12">{titulo}</text>'] if cab else []
     x = ML
-    for d, lab, cor, est in comp[::-1]:
+    for d, lab, cor, est in (comp[::-1] if cab else []):
         leg = f"{lab} ({d[8:]}/{d[5:7]}/{d[2:4]})"
         out.append(f'<line x1="{x:.0f}" x2="{x + 14:.0f}" y1="23" y2="23" style="stroke:{cor};{est}"/><text class="tick" x="{x + 18:.0f}" y="27">{leg}</text>')
         x += 18 + 5 * len(leg) + 16                         # ~4,5 px por caractere na fonte do eixo + folga
@@ -1476,7 +1477,8 @@ def linha_ibov_painel(D: dict, M: dict) -> str:
         rot = f"{Mk['data'][8:]}/{Mk['data'][5:7]}"
         g_vol = svg_linhas("painel-volume", [("B3 à vista", "var(--axis)", [[d, v] for d, v in Mk["serie"]]), ("Média 21 pregões", "var(--s2)", [[d, v] for d, v in Mk["mm21"]])],
                            1, pref="R$ ", suf=" bi", W=760, H=120, ini=2, curtas=True,
-                           titulo=f"Volume financeiro diário · toda a B3 à vista (R$ bi) e média de 21 pregões · {rot}: R$ {num(Mk['hoje'], 1)} bi, {num(Mk['razao'], 2, suf='x')} a média")
+                           titulo=f"Volume financeiro diário · toda a B3 à vista, sem o exercício de opções de índice (R$ bi) e média de 21 pregões · {rot}: R$ {num(Mk['hoje'], 1)} bi, {num(Mk['razao'], 2, suf='x')} a média"
+                                 + (f" (+ R$ {num(Mk['indice'], 1)} bi de exercício de opções de Ibovespa)" if Mk.get("indice", 0) > 1 else ""))
     return (f'<div class="pgrid dec pg2" style="grid-template-columns:2fr 1fr 1fr">'
             f'<div class="pbox pib">{g}{g_vol}</div>'
             f'<div class="pbox" data-slot="setores"><h2 style="margin:0 0 4px">Decomposição por setor</h2><div class="empty small">calculando…</div></div>'
@@ -1674,20 +1676,22 @@ def _volume_mercado(tot_ibov: dict) -> dict | None:
         return None
     if len(B) < 30:
         return None
-    serie = [[d, r["total"] / 1e9] for d, r in B]
+    # total ex-IBOV11: o exercício das opções de Ibovespa no vencimento (quarta perto do dia 15) entra no COTAHIST como
+    # negócio à vista (R$ 35,7 bi em 14/10/2026) e não é negociação do mercado; fica fora do gráfico e da razão sobre a média
+    serie = [[d, (r["total"] - r.get("indice", 0)) / 1e9] for d, r in B]
     mm21 = []
     for i in range(len(serie)):
         jan = [v for _, v in serie[max(0, i - 20):i + 1]]
         mm21.append([serie[i][0], sum(jan) / len(jan)])
-    fatia = [[d, tot_ibov[d] / r["total"] * 100] for d, r in B if tot_ibov.get(d) and r["total"]]
+    fatia = [[d, tot_ibov[d] / (r["total"] - r.get("indice", 0)) * 100] for d, r in B if tot_ibov.get(d) and r["total"] - r.get("indice", 0) > 0]
     por_ano: dict[str, list] = {}
     for d, v in serie:
         por_ano.setdefault(d[:4], []).append(v)
     d_ult, ult = B[-1]
     med21 = sum(v for _, v in serie[-22:-1]) / 21
-    return {"data": d_ult, "hoje": ult["total"] / 1e9, "acoes": ult["acoes"] / 1e9, "bdr": ult["bdr"] / 1e9, "etf": ult["etf"] / 1e9,
+    return {"data": d_ult, "hoje": serie[-1][1], "indice": ult.get("indice", 0) / 1e9, "acoes": ult["acoes"] / 1e9, "bdr": ult["bdr"] / 1e9, "etf": ult["etf"] / 1e9,
             "fii": ult["fii"] / 1e9, "fracionario": ult["fracionario"] / 1e9, "negocios": int(ult["negocios"]), "papeis": int(ult["papeis"]),
-            "med21": med21, "razao": (ult["total"] / 1e9 / med21) if med21 else None, "serie": serie, "mm21": mm21, "fatia": fatia,
+            "med21": med21, "razao": (serie[-1][1] / med21) if med21 else None, "serie": serie, "mm21": mm21, "fatia": fatia,
             "fatia_hoje": fatia[-1][1] if fatia else None, "fatia_data": fatia[-1][0] if fatia else None,
             "adtv_ano": {a: sum(v) / len(v) for a, v in por_ano.items()}}
 
@@ -1731,7 +1735,8 @@ def slide_volume(M: dict) -> tuple[str, str] | None:
     return slide("Macro", "volume", "Volume · quem está sendo negociado", corpo,
                  "O mercado está mais líquido ou mais parado que o normal, e em quais papéis o volume destoa da média própria.",
                  "B3 COTAHIST (volume financeiro do mercado à vista, tipo 010) dos papéis da carteira atual do Ibovespa, desde 2019. A média de 21 pregões exclui o dia. "
-                 "Toda a B3 = soma de todos os registros à vista do COTAHIST (lote-padrão + fracionário: ações, units, BDRs, ETFs, FIIs), série diária em data/b3_volume_diario.csv.")
+                 "Toda a B3 = soma de todos os registros à vista do COTAHIST (lote-padrão + fracionário: ações, units, BDRs, ETFs, FIIs), série diária em data/b3_volume_diario.csv, "
+                 "sem o IBOV11: no vencimento de opções de Ibovespa (quarta perto do dia 15) o exercício é registrado como negócio à vista do índice e chega a R$ 35 bi num dia.")
 
 
 def fluxo_tiles(M: dict) -> tuple[str, str] | None:
