@@ -65,6 +65,7 @@ def snapshot() -> dict | None:
     # carteira do Ibovespa + BDRs acompanhados + cobertura (SAUD3 saiu do índice e precisa continuar no vigia)
     import trades
     cods = sorted({i["cod"] for i in C.get("itens", [])} | set(getattr(config, "BDRS", [])) | set(getattr(config, "UNIVERSO", {})) | trades.tickers())   # + papéis dos trades (trades.json)
+    _poda_market_watch(set(cods))
     out = {}
     hoje = date.today().isoformat()
     for cod in cods:
@@ -81,22 +82,37 @@ def snapshot() -> dict | None:
     return out
 
 
+# contínuos que outras partes leem (índice, dólar, curvas) — ficam sempre no Observação do Mercado
+_MW_FIXOS = {"IBOV", "BOVA11", "WDO$", "WDO$N", "DOL$", "IND$", "WIN$", "DI1$", "DAP$"}
+
+
+def _poda_market_watch(manter: set[str]) -> int:
+    """Tira do Observação do Mercado o que o vigia não precisa. Em 16/10/2026 havia 404 símbolos visíveis (os contratos DI/DAP
+    que exportar_di seleciona a cada ciclo se acumulam) e 38 dos 103 papéis pararam de receber tick às 10:05-10:06, logo
+    depois do primeiro exportar_di — os 65 restantes seguiram vivos. Hipótese: limite de assinaturas em tempo real do
+    terminal. A poda roda no início do snapshot (antes dos papéis) e no fim do ciclo (tira os contratos DI/DAP)."""
+    M = mt5._mt5
+    n = 0
+    for sym in M.symbols_get() or []:
+        if sym.visible and sym.name not in manter and sym.name not in _MW_FIXOS:
+            if M.symbol_select(sym.name, False):
+                n += 1
+    return n
+
+
 def _corrige_parados(out: dict, cods: list[str], hoje: str) -> None:
     """O terminal às vezes para de receber ticks de alguns papéis (16/10/2026: RDOR3, SAUD3, CYRE3 e XPBR31 congelados às
-    10:06 o dia inteiro; o site mostrou XPBR31 +0,7% num dia de −2,5%). Papel da cobertura/trades com tick velho (> 20 min
-    no pregão) ou sem tick: usa o Yahoo (atraso de ~15 min) se for mais novo. E o fechamento anterior vem do COTAHIST
+    10:06 o dia inteiro; o site mostrou XPBR31 +0,7% num dia de −2,5%). Papel com tick velho (> 20 min no pregão) ou sem
+    tick: usa o Yahoo (atraso de ~15 min) se for mais novo. E o fechamento anterior vem do COTAHIST
     oficial quando a sessão anterior já está nele (a barra D1 do MT5 difere do leilão de fechamento: RDOR3 42,79 × 42,85)."""
-    import trades
     agora = datetime.now()
     limite = (agora - timedelta(minutes=20)).strftime("%Y-%m-%d %H:%M")
-    no_pregao = ABRE <= agora.time() <= time(18, 0)
-    import mobile                                        # ACOMPANHA = papéis seguidos fora da cobertura formal (RENT3, CYRE3, CURY3)
-    importantes = set(getattr(config, "UNIVERSO", {})) | trades.tickers() | set(getattr(config, "BDRS", [])) | set(getattr(mobile, "ACOMPANHA", {}))
+    no_pregao = agora.time() >= ABRE                  # inclui republicação manual depois do fechamento (--forcar)
     try:
         from fontes import yahoo
     except Exception:
         yahoo = None
-    for cod in sorted(importantes & set(cods)):
+    for cod in sorted(set(cods)):                     # todos (não só a cobertura): a decomposição do Ibov também usa estes preços
         q = out.get(cod)
         if yahoo and no_pregao and (not q or q["hora"] < limite):
             y = yahoo.intraday(f"{cod}.SA")
@@ -453,6 +469,10 @@ def main() -> int:
     n = notificar(res)
     ni = exportar_intraday()
     exportar_di()
+    try:                                               # devolve o Observação do Mercado só com os papéis (tira os contratos DI/DAP)
+        _poda_market_watch(set(res.get("papeis", {})))
+    except Exception as e:
+        print(f"poda do Market Watch: {e}")
     registrar_diario(res)
     print(f"{res['hora']}: {len(res['papeis'])} papéis, {len(res['alertas'])} alertas, {n} enviados; pregão {res['fracao_pregao']:.0%}; intraday {ni} séries")
     if "--sem-push" not in sys.argv and "--forcar" not in sys.argv:
