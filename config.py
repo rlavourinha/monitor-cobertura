@@ -93,8 +93,13 @@ SGS_SERIES = {
     24364: ("IBC-Br (índice dessaz.)", "2015-01-01"),
     20539: ("Crédito saldo total (R$ mi)", "2015-01-01"),
     28763: ("CAGED estoque de empregos", "2020-01-01"),
-    13762: ("Dívida bruta do governo geral (% PIB)", "2010-01-01"),
+    13762: ("Dívida bruta do governo geral (% PIB)", "2006-12-01"),
     4513: ("Dívida líquida do setor público (% PIB)", "2010-01-01"),
+    # dinâmica da dívida (slide r − g): juro implícito = (NFSP nominal − primário) × PIB 12 m ÷ DBGG média de 12 meses
+    13761: ("Dívida bruta do governo geral (R$ mi)", "2006-12-01"),
+    4382: ("PIB acumulado 12 meses, valores correntes (R$ mi)", "2005-01-01"),
+    5727: ("NFSP nominal, setor público consolidado, 12 meses (% PIB)", "2006-01-01"),
+    5793: ("NFSP primário, setor público consolidado, 12 meses (% PIB; + = déficit)", "2006-01-01"),
 }
 # Focus fiscal: série completa por ano de referência (data/focus_longo), para ver como a expectativa de dívida se move.
 FOCUS_FISCAL_INDICADORES = ["Dívida bruta do governo geral", "Dívida líquida do setor público"]

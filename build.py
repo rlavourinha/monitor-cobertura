@@ -3025,6 +3025,67 @@ def slide_cartas_trimestrais(C: dict, stem: str) -> tuple[str, str] | None:
                  f"Cartas do gestor publicadas como documento no LinkedIn de Bruno Serra Fernandes; texto integral lido e resumido. {C.get('nota_fontes', '')}")
 
 
+def _divida_rg(sgs: dict) -> list[dict]:
+    """Série mensal da dinâmica da dívida a partir do SGS (todas em 12 meses):
+    r   = juros nominais 12 m ÷ DBGG média dos 13 fins de mês (t−12 … t); juros = (NFSP nominal 5727 − primário 5793) × PIB 4382
+    g   = PIB nominal 12 m (4382) ÷ o de 12 meses antes − 1
+    primário efetivo = −5793 (NFSP: + é déficit); primário que estabiliza = d × (r − g) ÷ (1 + g), d = DBGG % PIB (13762).
+    Juros do setor público consolidado (inclui o resultado de swaps do BC) sobre a dívida BRUTA do governo geral: aproximação
+    do custo médio da dívida, não a taxa implícita oficial."""
+    S = {c: {d[:7]: v for d, v in ((sgs.get(c) or {}).get("serie") or [])} for c in ("13761", "13762", "4382", "5727", "5793")}
+    if not all(S.values()):
+        return []
+    def ant(m, k):
+        t = int(m[:4]) * 12 + int(m[5:]) - 1 - k
+        return f"{t // 12}-{t % 12 + 1:02d}"
+    out = []
+    for m in sorted(S["13762"]):
+        try:
+            pib, pib0 = S["4382"][m], S["4382"][ant(m, 12)]
+            dmed = sum(S["13761"][ant(m, k)] for k in range(13)) / 13
+            juros = (S["5727"][m] - S["5793"][m]) / 100 * pib
+        except KeyError:
+            continue
+        r, g, d = juros / dmed * 100, (pib / pib0 - 1) * 100, S["13762"][m]
+        out.append({"m": m, "r": r, "g": g, "rg": r - g, "prim": -S["5793"][m], "est": d * (r - g) / (100 + g), "d": d})
+    return out
+
+
+def slide_divida_rg(sgs: dict) -> tuple[str, str] | None:
+    """Dinâmica da dívida: r (juro implícito) × g (PIB nominal), primário efetivo × primário que estabiliza a dívida, e a
+    dívida bruta. Série completa (desde dez/2007, primeiro mês com 12 meses de DBGG na metodologia de 2008)."""
+    D = _divida_rg(sgs)
+    if len(D) < 24:
+        return None
+    S1, S2, S3, S4 = "var(--s1)", "var(--s2)", "var(--s3)", "var(--s4)"
+    pt = lambda k: [[f"{x['m']}-01", round(x[k], 2)] for x in D]
+    g1 = svg_linhas("divida-rg", [("r · juro implícito", S2, pt("r")), ("g · PIB nominal", S1, pt("g")),
+                                  ("primário efetivo", S3, pt("prim")), ("primário que estabiliza", S4, pt("est"), "stroke-dasharray:5 3")],
+                    1, suf="%", W=640, H=330, refs=[("0", 0.0)], coluna=True, gap=70,
+                    titulo="r × g (% a.a.) e resultado primário (% do PIB, 12 meses): efetivo × o que estabiliza a dívida")
+    g2 = svg_linhas("divida-dbgg", [("Dívida bruta", "var(--ink)", pt("d"))], 1, suf="%", W=420, H=330, gap=70,
+                    titulo="Dívida bruta do governo geral (% do PIB)")
+    u = D[-1]; a12 = D[-13] if len(D) > 13 else D[0]
+    mes = f"{u['m'][5:]}/{u['m'][2:4]}"
+    falta = u["est"] - u["prim"]
+    tiles = "".join(f'<div class="tile"><div class="l">{l}</div><div class="v">{v}</div><div class="d">{s}</div></div>' for l, v, s in (
+        (f"r · juro implícito ({mes})", num(u["r"], 1, suf="%"), f"12 meses antes: {num(a12['r'], 1, suf='%')}"),
+        ("g · PIB nominal", num(u["g"], 1, suf="%"), f"12 meses antes: {num(a12['g'], 1, suf='%')}"),
+        ("r − g", num(u["rg"], 1, "+" if u["rg"] > 0 else "", " p.p."), "positivo: a dívida cresce sozinha sem primário"),
+        ("Primário efetivo", num(u["prim"], 1, "+" if u["prim"] > 0 else "", "% PIB"), "12 meses, setor público consolidado"),
+        ("Primário que estabiliza", num(u["est"], 1, "+" if u["est"] > 0 else "", "% PIB"), f"falta {num(falta, 1, suf=' p.p.')} do PIB" if falta > 0 else "efetivo já estabiliza"),
+        ("Dívida bruta", num(u["d"], 1, suf="% PIB"), f"{num(u['d'] - a12['d'], 1, '+' if u['d'] > a12['d'] else '', ' p.p.')} em 12 meses")))
+    leg = (f'<div class="legend"><span><i style="background:{S2}"></i>r · juro implícito</span><span><i style="background:{S1}"></i>g · PIB nominal</span>'
+           f'<span><i style="background:{S3}"></i>primário efetivo</span><span><i style="background:{S4}"></i>primário que estabiliza (tracejado)</span></div>')
+    corpo = (f'<div class="tiles strip" style="grid-template-columns:repeat(6,1fr);margin-bottom:10px">{tiles}</div>{leg}'
+             f'<div class="grid2" style="grid-template-columns:1.5fr 1fr;align-items:start"><div>{g1}</div><div>{g2}</div></div>')
+    return slide("Macro", "divida-rg", "Dinâmica da dívida · r − g", corpo,
+                 "Com o juro médio da dívida (r) acima do crescimento nominal do PIB (g), a dívida sobe sozinha; o primário que a estabiliza é d × (r − g)/(1 + g). A distância entre a linha tracejada e o primário efetivo é o esforço fiscal que falta.",
+                 "BCB SGS: 13761/13762 (dívida bruta do governo geral, R$ e % do PIB, metodologia 2008), 4382 (PIB 12 meses, R$ correntes), 5727 e 5793 (NFSP nominal e primário "
+                 "do setor público consolidado, 12 meses, % do PIB). r = (NFSP nominal − primário) × PIB ÷ dívida bruta média de 12 meses: juros do setor público consolidado "
+                 "(inclui swaps do BC) sobre a dívida bruta, aproximação do custo médio, não a taxa implícita oficial. Série desde dez/2007.")
+
+
 def slides_focus(M: dict, sgs: dict) -> list[tuple[str, str]]:
     """Slides com o Focus completo: painéis por grupo, dispersão, mensal, trimestral, 12/24m, Top 5."""
     S1, S2, MUT = "var(--s1)", "var(--s2)", "var(--axis)"
@@ -3212,6 +3273,11 @@ def slides_focus(M: dict, sgs: dict) -> list[tuple[str, str]]:
                          f'{leg}<div class="grid2">{"".join(blocos_div)}</div><div class="grid2" style="margin-top:10px;align-items:start">{"".join(tabs_div)}</div>',
                          "Como o mercado revisa a trajetória fiscal: a expectativa de dívida para cada ano de referência, ao longo do tempo, contra o realizado.",
                          "BCB Focus (ExpectativasMercadoAnuais, mediana, todos os respondentes; fiscais têm horizonte até 2035) e SGS 13762 (DBGG) / 4513 (DLSP), % do PIB, mensal."))
+
+    # --- Dinâmica da dívida: juro implícito (r) × crescimento nominal (g), primário efetivo × primário que estabiliza
+    sd = slide_divida_rg(sgs)
+    if sd:
+        out.append(sd)
 
     # --- Top 5 vs mercado
     t5 = M.get("focus_top5", {}).get("linhas", [])
