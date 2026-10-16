@@ -337,6 +337,18 @@ def registrar_diario(res: dict) -> None:
     DIARIO.write_text(cab + "\n".join(antigas + [",".join(linha)]) + "\n", encoding="utf-8")
 
 
+def _resolve_autostash(git) -> None:
+    """Se a volta do autostash conflitou (arquivo gerado mudou aqui e no repositório), fica com a versão do repositório
+    nesses arquivos — são regenerados na próxima rodada — e descarta o stash; os demais arquivos locais ficam como estavam."""
+    st = git("status", "--porcelain")
+    uu = [ln[3:].strip() for ln in (st.stdout or "").splitlines() if ln[:2] in ("UU", "AA", "DU", "UD")]
+    if not uu:
+        return
+    git("checkout", "HEAD", "--", *uu)
+    git("reset", "-q")
+    git("stash", "drop", "-q")
+
+
 def publicar(res: dict) -> None:
     """Commit + push do JSON de alertas (+ intraday de hoje); o push dispara o build no GitHub (exceção em `paths`)."""
     raiz = str(config.RAIZ)
@@ -363,7 +375,10 @@ def publicar(res: dict) -> None:
     git("commit", "-q", "-m", f"vigia: alertas em tempo real {res['hora']}")
     # Rebase favorecendo os commits locais (-X theirs = o que está sendo reaplicado); se ainda assim travar, aborta e
     # funde origin/main preferindo a versão local dos arquivos gerados (nunca fica em rebase pela metade).
-    pull = git("pull", "--rebase", "-X", "theirs", "-q", "origin", "main")
+    # --autostash: outras rotinas locais (cartas, leitura, trades) mexem em data/*.json versionados sem commitar; sem ele o
+    # pull recusa ("unstaged changes"), o merge de reserva também, e nenhum push sai (16/10/2026, 10:00 em diante).
+    pull = git("pull", "--rebase", "--autostash", "-X", "theirs", "-q", "origin", "main")
+    _resolve_autostash(git)
     if pull.returncode != 0 and "would be overwritten" in (pull.stderr or ""):
         # arquivo de cache criado localmente (ex.: coletar.py rodado à mão) que o GitHub passou a versionar: apaga a cópia
         # local não rastreada e tenta de novo (01/10/2026: data/cda/*.json travou os pushes das 13h às 17h35)
@@ -374,11 +389,13 @@ def publicar(res: dict) -> None:
                     (config.RAIZ / ln).unlink()
                 except OSError:
                     pass
-        pull = git("pull", "--rebase", "-X", "theirs", "-q", "origin", "main")
+        pull = git("pull", "--rebase", "--autostash", "-X", "theirs", "-q", "origin", "main")
+        _resolve_autostash(git)
     if pull.returncode != 0:
         git("rebase", "--abort")
         git("fetch", "-q", "origin", "main")
-        git("merge", "-q", "-X", "ours", "--no-edit", "origin/main")
+        git("merge", "-q", "--autostash", "-X", "ours", "--no-edit", "origin/main")
+        _resolve_autostash(git)
     push = git("push", "-q", "origin", "main")
     # O build do site é disparado pelo próprio push (o workflow tem exceção para data/alertas_tempo_real.json). Não usar
     # `gh workflow run` aqui: o Python do Python Install Manager (MSIX) virtualiza o AppData dos processos filhos e o gh
