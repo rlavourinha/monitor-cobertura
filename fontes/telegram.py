@@ -45,7 +45,7 @@ def _chama(metodo: str, dados: dict | None = None, bot: str | None = None) -> di
         try:
             r = requests.post(API.format(token=c["token"], metodo=metodo), data=dados or {}, timeout=30, headers={"User-Agent": "Mozilla/5.0"})
             return r.json()
-        except requests.exceptions.ConnectionError as e:
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
             erro = e
             time.sleep(2 + 3 * tent)
     raise erro
@@ -120,7 +120,7 @@ def enviar_foto(caminho, legenda: str = "", silencioso: bool = False, bot: str |
             if ok and resto:
                 ok = enviar(resto, silencioso=True, bot=bot)
             return ok
-        except requests.exceptions.ConnectionError as e:
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
             erro = e
             time.sleep(2 + 3 * tent)
     print(f"  Telegram: {erro}", file=sys.stderr)
@@ -150,7 +150,7 @@ def enviar_documento(caminho, legenda: str = "", silencioso: bool = False, bot: 
             if ok and resto:
                 ok = enviar(resto, silencioso=True, bot=bot)
             return ok
-        except requests.exceptions.ConnectionError as e:
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
             erro = e
             time.sleep(2 + 3 * tent)
     print(f"  Telegram: {erro}", file=sys.stderr)

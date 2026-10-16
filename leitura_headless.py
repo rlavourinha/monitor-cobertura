@@ -251,10 +251,21 @@ def parte_sellside(edicao: str, nblocos: str, sem_claude: bool, sem_telegram: bo
 
 
 # ---------------------------------------------------------------------------- rotinas
+def _tenta(fn, rotulo: str) -> str:
+    """Roda uma parte isolando exceção: loga, alerta e segue (uma parte que quebra não derruba a outra)."""
+    try:
+        return fn()
+    except Exception as e:
+        import traceback
+        _log(f"[{rotulo}] EXCEÇÃO: {e}\n{traceback.format_exc()}")
+        _alerta(f"{rotulo}: {type(e).__name__}")
+        return f"{rotulo}: erro ({type(e).__name__})"
+
+
 def manha(sem_claude: bool, sem_telegram: bool) -> None:
     _log("=== MANHÃ ===")
-    a = parte_jornais("manhã", novos=False, extra_prompt="", sem_claude=sem_claude, sem_telegram=sem_telegram)
-    b = parte_sellside("manhã", "2 a 5", sem_claude, sem_telegram)
+    a = _tenta(lambda: parte_jornais("manhã", novos=False, extra_prompt="", sem_claude=sem_claude, sem_telegram=sem_telegram), "jornais/manhã")
+    b = _tenta(lambda: parte_sellside("manhã", "2 a 5", sem_claude, sem_telegram), "sellside/manhã")
     _log(f"MANHÃ fim · {a} · {b}")
 
 
