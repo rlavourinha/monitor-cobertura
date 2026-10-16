@@ -39,6 +39,7 @@ permissions:
   contents: write
   pages: write
   id-token: write
+  actions: write          # rede de segurança: o push do vigia dispara (workflow_dispatch) a coleta que o cron não rodou
 
 jobs:
   atualizar:
@@ -72,6 +73,26 @@ jobs:
           esac
           echo "janela=$j" >> "$GITHUB_OUTPUT"
           echo "janela: $j"
+
+      # O cron do GitHub não é garantido (16/10/2026: caíram 08:30 diario, 08:00 mensal e 10:00 intraday; cotações da Cobertura
+      # ficaram com o fechamento da véspera). O push do vigia (a cada 5 min no pregão) é confiável: se a última coleta está
+      # velha, ele dispara uma rodada de coleta separada (grupo "dados", que não é cancelado pelos pushes seguintes).
+      - name: Rede de segurança (coleta atrasada)
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          export TZ=America/Sao_Paulo
+          dow=$(date +%u); hm=$(date +%H%M); agora=$(date +%s); hoje6=$(date -d "today 06:00" +%s)
+          ult_col=$(git log -1 --format=%ct --grep='^atualização \(intraday\|diario\)' origin/${{ github.ref_name }} || echo 0)
+          ult_dia=$(git log -1 --format=%ct --grep='^atualização diario' origin/${{ github.ref_name }} || echo 0)
+          j=""
+          if [ "$dow" -le 5 ] && [ "$hm" -ge 0900 ] && [ "${ult_dia:-0}" -lt "$hoje6" ]; then j=diario
+          elif [ "$dow" -le 5 ] && [ "$hm" -ge 1015 ] && [ "$hm" -le 1830 ] && [ $(( agora - ${ult_col:-0} )) -gt 7800 ]; then j=intraday; fi
+          if [ -z "$j" ]; then echo "coleta em dia"; exit 0; fi
+          ativos=$(gh run list --workflow atualizar.yml --limit 20 --json event,status -q '[.[] | select(.event != "push" and (.status == "queued" or .status == "in_progress" or .status == "waiting"))] | length')
+          if [ "${ativos:-0}" -gt 0 ]; then echo "já há coleta na fila"; exit 0; fi
+          echo "coleta atrasada: disparando $j"; gh workflow run atualizar.yml --ref "${{ github.ref_name }}" -f janela=$j
 
       - name: Coletar
         if: github.event_name != 'push'          # push = só gerar e publicar (a coleta fica com os horários agendados)
