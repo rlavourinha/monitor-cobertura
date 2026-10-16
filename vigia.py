@@ -77,7 +77,40 @@ def snapshot() -> dict | None:
             continue                                   # barra "de hoje" carimbada antes da abertura = fantasma do servidor (feriado)
         out[cod] = {"preco": q["preco"], "hora": q["hora"], "vol_hoje": q.get("volume"),   # volume = quantidade de ações do dia (barra D1)
                     "fech_ant": q.get("fech_anterior")}                                       # fechamento da sessão anterior (barra D1 do MT5)
+    _corrige_parados(out, cods, hoje)
     return out
+
+
+def _corrige_parados(out: dict, cods: list[str], hoje: str) -> None:
+    """O terminal às vezes para de receber ticks de alguns papéis (16/10/2026: RDOR3, SAUD3, CYRE3 e XPBR31 congelados às
+    10:06 o dia inteiro; o site mostrou XPBR31 +0,7% num dia de −2,5%). Papel da cobertura/trades com tick velho (> 20 min
+    no pregão) ou sem tick: usa o Yahoo (atraso de ~15 min) se for mais novo. E o fechamento anterior vem do COTAHIST
+    oficial quando a sessão anterior já está nele (a barra D1 do MT5 difere do leilão de fechamento: RDOR3 42,79 × 42,85)."""
+    import trades
+    agora = datetime.now()
+    limite = (agora - timedelta(minutes=20)).strftime("%Y-%m-%d %H:%M")
+    no_pregao = ABRE <= agora.time() <= time(18, 0)
+    import mobile                                        # ACOMPANHA = papéis seguidos fora da cobertura formal (RENT3, CYRE3, CURY3)
+    importantes = set(getattr(config, "UNIVERSO", {})) | trades.tickers() | set(getattr(config, "BDRS", [])) | set(getattr(mobile, "ACOMPANHA", {}))
+    try:
+        from fontes import yahoo
+    except Exception:
+        yahoo = None
+    for cod in sorted(importantes & set(cods)):
+        q = out.get(cod)
+        if yahoo and no_pregao and (not q or q["hora"] < limite):
+            y = yahoo.intraday(f"{cod}.SA")
+            if y and y.get("preco") and (y.get("hora") or "")[:10] == hoje and (not q or y["hora"] > q["hora"]):
+                out[cod] = {"preco": y["preco"], "hora": y["hora"], "vol_hoje": y.get("volume"),     # volume do MT5 parado também está velho
+                            "fech_ant": y.get("fech_anterior") or (q or {}).get("fech_ant"), "fonte": "yahoo (MT5 parado)"}
+    ontem = agora.date() - timedelta(days=1)
+    while ontem.weekday() >= 5:
+        ontem -= timedelta(days=1)
+    S = b3.series_todas(("fechamento",), desde=(agora.date() - timedelta(days=10)).isoformat())
+    for cod, q in out.items():                         # só se o COTAHIST já tem a sessão anterior (senão fica a barra D1 do MT5)
+        s = [r for r in S.get(cod, []) if r[0] < hoje and r[1]]
+        if s and s[-1][0] >= ontem.isoformat() and q.get("fech_ant") and abs(s[-1][1] / q["fech_ant"] - 1) < 0.15:
+            q["fech_ant"] = s[-1][1]
 
 
 def avaliar(snap: dict) -> dict:
