@@ -938,18 +938,18 @@
   }
  },
  "2026-10-16": {
-  "hora": "2026-10-16 12:20",
+  "hora": "2026-10-16 14:10",
   "book": {
    "bruto": 217837.33,
    "comprado": 135144.49,
    "vendido": 82692.84,
    "liquido": 52451.65,
-   "resultado": 9991.35,
-   "ret": 0.05,
-   "res_dia": -1191.0,
+   "resultado": 9633.35,
+   "ret": 0.04,
+   "res_dia": -1549.0,
    "fx": 5.1,
-   "res_comprado": 6684.51,
-   "res_vendido": 3306.84,
+   "res_comprado": 6146.51,
+   "res_vendido": 3486.84,
    "n": 6,
    "n_abertos": 6
   },
@@ -958,26 +958,26 @@
     "lado": "comprado",
     "qtd": 2000,
     "pm": 11.6559,
-    "preco": 12.5,
-    "resultado": 1688.2,
-    "ret": 0.07242,
-    "res_dia": -100.0,
+    "preco": 12.33,
+    "resultado": 1348.2,
+    "ret": 0.05783,
+    "res_dia": -440.0,
     "mult": {
      "rotulo": "P/E 12m",
-     "valor": 14.185
+     "valor": 14.007
     }
    },
    "ENEV3": {
     "lado": "comprado",
     "qtd": 1000,
     "pm": 27.383,
-    "preco": 31.5,
-    "resultado": 4117.0,
-    "ret": 0.15035,
-    "res_dia": 80.0,
+    "preco": 31.28,
+    "resultado": 3897.0,
+    "ret": 0.14231,
+    "res_dia": -140.0,
     "mult": {
      "rotulo": "EV/EBITDA 12m",
-     "valor": 13.206
+     "valor": 13.139
     }
    },
    "XPBR31": {
@@ -990,33 +990,33 @@
     "res_dia": 339.0,
     "mult": {
      "rotulo": "P/E 12m",
-     "valor": 12.485
+     "valor": 12.499
     }
    },
    "EZTC3": {
     "lado": "comprado",
     "qtd": 2200,
     "pm": 18.23,
-    "preco": 17.7,
-    "resultado": -1166.0,
-    "ret": -0.02907,
-    "res_dia": -880.0,
+    "preco": 17.71,
+    "resultado": -1144.0,
+    "ret": -0.02852,
+    "res_dia": -858.0,
     "mult": {
      "rotulo": "P/B",
-     "valor": 0.938
+     "valor": 0.939
     }
    },
    "B3SA3": {
     "lado": "vendido",
     "qtd": 1800,
     "pm": 23.3038,
-    "preco": 22.21,
-    "resultado": 1968.84,
-    "ret": 0.04694,
-    "res_dia": 18.0,
+    "preco": 22.11,
+    "resultado": 2148.84,
+    "ret": 0.05123,
+    "res_dia": 198.0,
     "mult": {
      "rotulo": "P/E 12m",
-     "valor": 17.121
+     "valor": 17.044
     }
    },
    "CYRE3": {
