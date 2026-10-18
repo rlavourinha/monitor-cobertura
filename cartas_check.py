@@ -29,7 +29,7 @@ import subprocess
 import sys
 from datetime import date, datetime
 from pathlib import Path
-from urllib.parse import urljoin, urlparse
+from urllib.parse import unquote, urljoin, urlparse
 
 import requests
 
@@ -262,6 +262,18 @@ def enviar_carta(est: dict, fundo_nome: str, origem: str, url: str, stem: str, s
     return 1 if ok else 0
 
 
+_MES = r"(jan|fev|feb|mar|abr|apr|mai|may|jun|jul|ago|aug|set|sep|out|oct|nov|dez|dec)[a-zç]*"
+_DATADO = re.compile(r"(20\d{2}[_-]?(0[1-9]|1[0-2])(?!\d))|" + _MES + r"[-_ ]?(20)?\d{2}(?!\d)|(?<![a-z])[12]s\d{2}(?!\d)", re.I)
+
+
+def _datado(url: str) -> bool:
+    """PDF com data no nome do arquivo (CartaMensal_Ago26, 202608_Carta, Verde-REL-2026_08, Carta-Julho-2026, Carta_1S26) é uma
+    carta datada: não muda depois de publicada. Até 18/10/2026 o vigia consultava todo dia ~110 desses PDFs antigos (e baixava
+    os 20 da Genoa inteiros quando o cabeçalho oscilava). PDF de endereço fixo regerado (Janeiro, SPX) segue vigiado."""
+    nome = unquote(urlparse(url).path.rsplit("/", 1)[-1])
+    return nome.lower().endswith(".pdf") and bool(_DATADO.search(nome))
+
+
 # ----------------------------------------------------------------------------- principal
 def main() -> int:
     silencio = "--silencio" in sys.argv
@@ -272,7 +284,7 @@ def main() -> int:
         print("data:", data_documento(t, p.name), "| chars:", len(t))
         print(resumir(t, p.stem, "teste") or "(sem resumo: CLI indisponível ou sem login)")
         return 0
-    enviados, mudaram = 0, []
+    enviados, mudaram, pulados = 0, [], 0
     for f in sorted((config.RAIZ / "cartas").glob("*.json")):
         if f.name.startswith("_"):
             continue
@@ -289,10 +301,13 @@ def main() -> int:
             u = s.get("url") or ""
             if not u.startswith("http") or "linkedin.com" in u or "web.archive.org" in u:
                 continue
+            k = f"{f.stem}|{u}"
+            if est.get(k) and _datado(u):
+                pulados += 1                   # carta datada já registrada: não muda mais (a carta nova chega pela página-índice)
+                continue
             a, links, conteudo = assinatura(u)
             if a is None or a.startswith("erro"):
                 continue
-            k = f"{f.stem}|{u}"
             antes = est.get(k)
             if antes and antes["assinatura"] != a:
                 mudaram.append((nome, u))
@@ -308,7 +323,7 @@ def main() -> int:
     ESTADO.parent.mkdir(parents=True, exist_ok=True)
     ESTADO.write_text(json.dumps(est, ensure_ascii=False, indent=1), encoding="utf-8")
     n_fontes = sum(1 for k in est if not k.startswith("_"))
-    print(f"{n_fontes} fontes vigiadas; {len(mudaram)} mudaram; {enviados} cartas enviadas (bot {_bot() or 'padrão'}; "
+    print(f"{n_fontes} fontes vigiadas ({pulados} cartas datadas já lidas puladas); {len(mudaram)} mudaram; {enviados} cartas enviadas (bot {_bot() or 'padrão'}; "
           f"resumo: {'claude ' + MODELO if _claude() else 'sem CLI'})"
           + "".join(f"\n  {n}: {u}" for n, u in mudaram))
     return 0
