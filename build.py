@@ -1790,7 +1790,7 @@ def slide_valuation(M: dict, V: dict | None = None) -> tuple[str, str] | None:
     tiles = "".join(f'<div class="tile"><div class="l">{l}</div><div class="v">{v}</div><div class="d">{s}</div></div>' for l, v, s in (
         ("Ibovespa · P/L 12m", x1(h_ib), f"{dx(h_ib - ib[0][1])} desde {dd} · cobre {num(V['cob_peso'], 0, suf='%')} do índice" if (h_ib and ib) else "—"),
         ("Ex-Petrobras e Vale", x1(h_ex), f"{dx(h_ex - ibx[0][1])} desde {dd}" if (h_ex and ibx) else "—"),
-        ("EV/EBITDA 12m", x1(V.get("ibov_ev")), "ex-Petro e Vale, sem bancos (Σ EV ÷ Σ EBITDA)"),
+        ("EV/EBITDA 12m", x1(V.get("ibov_ev")), "EV atual ÷ EBITDA 12m · ex-Petro e Vale, sem bancos"),
         ("P/VP", num(V.get("ibov_pvp"), 2, suf="x"), f"PL dos controladores na CVM ({pld[8:]}/{pld[5:7]}/{pld[2:4]})" if pld else "CVM"),
         ("Dividend yield 12m", pct(V.get("ibov_dy"), 1, sinal=False), "dividendos esperados ÷ preço"),
         ("EY − NTN-B 2035", num((ey * 100 - ntnb) if (ey and ntnb) else None, 1, suf=" pp"), f"EY {pct(ey, 1, sinal=False)} · NTN-B {num(ntnb, 2, suf='%')}")))
@@ -1844,7 +1844,8 @@ def slide_valuation(M: dict, V: dict | None = None) -> tuple[str, str] | None:
     return slide("Macro", "valuation", "Valuation · múltiplos 12 meses à frente", corpo,
                  "Quanto o mercado paga pelo lucro, pelo EBITDA e pelo patrimônio, papel a papel e no agregado, e se o múltiplo mexeu por preço ou por revisão.",
                  f"BTG Pactual Stock Guide (LatAm Valuation Summary, diário): LPA = preço do guia ÷ P/L {a0}E e {a0 + 1}E; DPA = DY × preço; EBITDA = valor de mercado ÷ "
-                 f"(EV/EBITDA − DL/EBITDA) e DL = DL/EBITDA × EBITDA. Tudo 12m à frente = {a0} e {a0 + 1} interpolados por dias até 31/12, com o preço de tela (nunca o "
+                 f"(EV/EBITDA − DL/EBITDA) e DL = DL/EBITDA × EBITDA. EV/EBITDA = EV atual (valor de mercado de tela + dívida líquida de fim de {a0} do BTG) ÷ EBITDA 12m. "
+                 f"Lucro, EBITDA e dividendo 12m à frente = {a0} e {a0 + 1} interpolados por dias até 31/12, com o preço de tela (nunca o "
                  f"múltiplo pronto). P/VP = preço ÷ (PL dos controladores do último ITR/DFP na CVM ÷ ações em circulação). Agregados com as quantidades teóricas da "
                  f"carteira atual; fora do guia: {', '.join(V['sem']) or '—'}. * = guia sem lucro {a0} (usa só {a0 + 1}). Rev. lucro e Δ P/L desde o 1º guia guardado "
                  f"({dd}); Δ negativo (verde) = ficou mais barato. $ = empresa que o BTG modela em dólar: o lucro em reais muda a cada guia com o câmbio, e a "

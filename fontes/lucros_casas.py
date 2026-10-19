@@ -239,14 +239,16 @@ def extras(tk: str, L: dict, fech: dict[str, dict[str, float]]) -> list[dict]:
 
 
 def ev_ebitda12(x: dict, preco_prim: float | None, d: str) -> float | None:
-    """EV/EBITDA 12m à frente: (mcap do guia × preço do principal ÷ preço de referência + DL 12m) ÷ EBITDA 12m."""
-    if not (x and preco_prim and x["ref"] and x["mcap"] and x["e0"] and x["e1"] and x["dl0"] is not None and x["dl1"] is not None):
+    """EV atual ÷ EBITDA 12m à frente (decisão do usuário, 19/10/2026). EV = valor de mercado do guia andando com o
+    preço de tela do papel principal + dívida líquida do fim do ano corrente projetada pelo BTG (o ponto do guia mais
+    próximo de hoje; o guia não traz a dívida do último balanço). EBITDA = ano corrente e seguinte interpolados."""
+    if not (x and preco_prim and x["ref"] and x["mcap"] and x["e0"] and x["e1"] and x["dl0"] is not None):
         return None
     if int(d[:4]) != x["a0"]:
         return None
     w = peso_ano(d)
     eb = w * x["e0"] + (1 - w) * x["e1"]
-    ev = x["mcap"] * preco_prim / x["ref"] + w * x["dl0"] + (1 - w) * x["dl1"]
+    ev = x["mcap"] * preco_prim / x["ref"] + x["dl0"]
     return ev / eb if eb > 0 else None
 
 
