@@ -1630,6 +1630,7 @@ def analise_valuation(M: dict) -> dict | None:
     if not L.get("btg"):
         return None
     PV = cvm_pl.carrega()
+    FX = LC.fator_cambio(L)                       # efeito cambial nas empresas que o BTG modela em dólar (revisão sem câmbio)
     P = analise_papeis(M) or {"linhas": []}
     por = {l["cod"]: l for l in P["linhas"]}
     pc = config.DATA / "ibov_comp.json"
@@ -1663,14 +1664,13 @@ def analise_valuation(M: dict) -> dict | None:
         if pts:
             ult = pts[-1]
             e12, obs = LC.lpa12(ult, hoje)
-            b1, b0 = L["btg"][tk][-1][5], L["btg"][tk][0][5]          # lucro do ano seguinte: último e 1º guia (R$ mn)
             ser = LC.serie_pl(tk, L, fech)
             pl = preco / e12 if (preco and e12 and e12 > 0) else None
             r.update({"pl12": pl, "obs": obs, "ano0": ult[1], "base": ult[4], "serie": ser,
                       "pl0": preco / ult[2] if (preco and ult[2] and ult[2] > 0) else None,
                       "pl1": preco / ult[3] if (preco and ult[3] and ult[3] > 0) else None,
                       "cresc": (ult[3] / ult[2] - 1) if (ult[2] and ult[3] and ult[2] > 0) else None,
-                      "rev": (b1 / b0 - 1) if (b1 and b0 and b1 > 0 and b0 > 0) else None,
+                      "rev": LC.revisao(tk, L, FX), "mtm": "usd" if tk in FX[1] else ("mtm" if tk in FX[2] else ""),
                       "dpl": (pl - ser[0][1]) if (pl and ser) else None})
         if r["x"]:
             r["ev12"] = LC.ev_ebitda12(r["x"], preco_de(r["x"]["prim"]), hoje)
@@ -1735,7 +1735,8 @@ def analise_valuation(M: dict) -> dict | None:
     for st, tks in setores.items():
         sr = agrega(tks)
         ah = agrega_hoje(tks)
-        luc = [(L["btg"][tk][-1][5], L["btg"][tk][0][5]) for tk in tks if tk in L["btg"] and L["btg"][tk][-1][5] and L["btg"][tk][0][5]]
+        luc = [(LC.lucro_sem_cambio(tk, L["btg"][tk][-1], FX), LC.lucro_sem_cambio(tk, L["btg"][tk][0], FX)) for tk in tks
+               if tk in L["btg"] and L["btg"][tk][-1][5] and L["btg"][tk][0][5] and L["btg"][tk][-1][5] > 0 and L["btg"][tk][0][5] > 0]
         rev = (sum(a for a, _ in luc) / sum(b for _, b in luc) - 1) if luc and sum(b for _, b in luc) > 0 else None
         tab_set.append({"setor": st, "n": len(tks), "tks": tks, "pl": ah["pl"] or (sr[-1][1] if sr else None), "pl_ini": sr[0][1] if sr else None,
                         "rev": rev, "pvp": ah["pvp"], "dy": ah["dy"], "ev": ah["ev"], "peso": sum((itens[tk].get("peso") or 0) for tk in tks)})
@@ -1800,7 +1801,7 @@ def slide_valuation(M: dict, V: dict | None = None) -> tuple[str, str] | None:
         r = lin[tk]
         return (f'<tr class="vs-emp" data-s="{{i}}" hidden><td style="text-align:left;padding-left:16px">{tk}</td><td>{num(r["peso"], 1, suf="%")}</td>'
                 f'<td><b>{x1(r["pl12"])}</b>{"*" if r["obs"] else ""}</td><td>{x1(r["ev12"])}</td><td>{num(r["pvp"], 2, suf="x")}</td><td>{pct(r["dy12"], 1, sinal=False)}</td>'
-                f'<td class="{dlt_cls(-r["dpl"] if r["dpl"] is not None else None)}">{dx(r["dpl"])}</td><td class="{dlt_cls(r["rev"])}">{pct(r["rev"])}</td></tr>')
+                f'<td class="{dlt_cls(-r["dpl"] if r["dpl"] is not None else None)}">{dx(r["dpl"])}</td><td class="{dlt_cls(r["rev"])}">{pct(r["rev"])}{ {"usd": "<sup>$</sup>", "mtm": "<sup>~</sup>"}.get(r.get("mtm"), "")}</td></tr>')
     ts = ""
     for i, r in enumerate(V["setores"]):
         d_pl = (r["pl"] - r["pl_ini"]) if (r["pl"] and r["pl_ini"]) else None
@@ -1819,11 +1820,17 @@ def slide_valuation(M: dict, V: dict | None = None) -> tuple[str, str] | None:
         vs = [v for _, v in ser]; lo, hi = min(vs), max(vs); W, H = 70, 16
         pts = " ".join(f"{i / (len(vs) - 1) * W:.1f},{H - 1 - ((v - lo) / (hi - lo) * (H - 2) if hi > lo else H / 2):.1f}" for i, v in enumerate(vs))
         return f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" style="vertical-align:middle"><polyline points="{pts}" fill="none" stroke="var(--s1)" stroke-width="1.3"/></svg>'
+    def marca(r):
+        return {"usd": "<sup>$</sup>", "mtm": "<sup>~</sup>"}.get(r.get("mtm"), "")
+    def marca_t(r):
+        t = {"usd": "modelada em dólar pelo BTG: revisão sem o efeito do câmbio do guia",
+             "mtm": "lucro muda a cada guia (marcação de câmbio/commodity): revisão sem o câmbio, ainda com a marcação"}.get(r.get("mtm"))
+        return f' title="{t}"' if t else ""
     Ls = sorted(V["linhas"], key=lambda r: (r["setor"], r["pl12"] if r["pl12"] else 999))
     tr = "".join(f'<tr><td class="tk">{r["cod"]}<small>{r["setor"]}</small></td><td>{num(r["preco"], 2)}</td>'
                  f'<td title="{r["obs"]}"><b>{x1(r["pl12"])}</b>{"*" if r["obs"] else ""}</td><td>{x1(r["pl0"])}</td><td>{x1(r["pl1"])}</td>'
                  f'<td>{x1(r["ev12"])}</td><td title="VPA {num(r["vpa"], 2)} · PL de {r["pl_data"] or "—"}">{num(r["pvp"], 2, suf="x")}</td><td>{pct(r["dy12"], 1, sinal=False)}</td>'
-                 f'<td class="{dlt_cls(r["cresc"])}">{pct(r["cresc"], 0)}</td><td class="{dlt_cls(r["rev"])}">{pct(r["rev"])}</td>'
+                 f'<td class="{dlt_cls(r["cresc"])}">{pct(r["cresc"], 0)}</td><td class="{dlt_cls(r["rev"])}"{marca_t(r)}>{pct(r["rev"])}{marca(r)}</td>'
                  f'<td class="{dlt_cls(-r["dpl"] if r["dpl"] is not None else None)}">{dx(r["dpl"])}</td><td>{spark(r["serie"])}</td>'
                  f'<td class="mut" style="text-align:left">{"" if r["base"] in ("guia", "") else "P/L do guia sobre o fechamento"}</td></tr>' for r in Ls)
     tab = (f'<table class="mini"><thead><tr><th>Papel</th><th>Preço</th><th>P/L 12m</th><th>P/L {a0}</th><th>P/L {a0 + 1}</th><th>EV/EBITDA 12m</th><th>P/VP</th><th>DY 12m</th>'
@@ -1840,7 +1847,8 @@ def slide_valuation(M: dict, V: dict | None = None) -> tuple[str, str] | None:
                  f"(EV/EBITDA − DL/EBITDA) e DL = DL/EBITDA × EBITDA. Tudo 12m à frente = {a0} e {a0 + 1} interpolados por dias até 31/12, com o preço de tela (nunca o "
                  f"múltiplo pronto). P/VP = preço ÷ (PL dos controladores do último ITR/DFP na CVM ÷ ações em circulação). Agregados com as quantidades teóricas da "
                  f"carteira atual; fora do guia: {', '.join(V['sem']) or '—'}. * = guia sem lucro {a0} (usa só {a0 + 1}). Rev. lucro e Δ P/L desde o 1º guia guardado "
-                 f"({dd}); Δ negativo (verde) = ficou mais barato. Histórico em data/lucros_casas.json e data/pl_cvm.json. Recalculado a cada build "
+                 f"({dd}); Δ negativo (verde) = ficou mais barato. $ = empresa que o BTG modela em dólar: o lucro em reais muda a cada guia com o câmbio, e a "
+                 f"revisão desconta esse fator (comum a essas empresas no guia); ~ = lucro marcado a mercado a cada guia (PRIO: câmbio e petróleo). Histórico em data/lucros_casas.json e data/pl_cvm.json. Recalculado a cada build "
                  f"(no pregão, a cada push do vigia ~5 min) com o preço do MT5; o ponto de hoje no gráfico usa esse preço.",
                  canto=f'<span class="mut" style="font-size:12px">{hora}</span>')
 

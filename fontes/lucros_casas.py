@@ -287,6 +287,69 @@ def serie_pl(tk: str, L: dict, fech: dict[str, dict[str, float]], desde: str | N
     return out
 
 
+def fator_cambio(L: dict) -> tuple[dict[str, float], set[str]]:
+    """O BTG modela algumas empresas em dólar (Petrobras, Vale, Embraer, PRIO, Brava) e converte o lucro para reais no
+    guia: entre dois guias o lucro delas muda pelo MESMO fator, sem revisão nenhuma (08/10/2026: −3,77% em todas).
+    Por par de guias, fator = razão de lucro do ano seguinte compartilhada por ≥3 empresas distintas (≠ 1). Devolve
+    ({data_guia: índice acumulado, 1º guia = 1}, tickers em dólar = os que seguem o fator em ≥60% dos pares com fator,
+    tickers marcados a mercado = lucro muda em ≥60% dos guias sem seguir só o fator)."""
+    from collections import Counter
+    B = L.get("btg") or {}
+    datas = sorted({p[0] for pts in B.values() for p in pts})
+    por = {tk: {p[0]: p[5] for p in pts if p[5] and p[5] > 0} for tk, pts in B.items()}
+    F, acc, fatores = {}, 1.0, {}
+    for i, d in enumerate(datas):
+        if i:
+            d0 = datas[i - 1]
+            c, vistos = Counter(), set()
+            for tk, s in por.items():
+                nome = REV.get(tk, (tk, 0))[0]
+                if d in s and d0 in s and nome not in vistos and s[d] != s[d0]:
+                    vistos.add(nome)
+                    c[round(s[d] / s[d0], 4)] += 1
+            f, n = (c.most_common(1)[0] if c else (1.0, 0))
+            fatores[d] = f if n >= 3 else 1.0
+            acc *= fatores[d]
+        F[d] = acc
+    usd = set()
+    com = [d for d, f in fatores.items() if f != 1.0]
+    for tk, s in por.items():
+        segue = [d for d in com if d in s and datas[datas.index(d) - 1] in s
+                 and abs(s[d] / s[datas[datas.index(d) - 1]] / fatores[d] - 1) < 2e-4]
+        if com and len(segue) >= 0.6 * len(com):
+            usd.add(tk)
+    # lucro que muda em quase todo guia sem seguir só o câmbio (PRIO: ~2× o fator, marcação de câmbio e Brent)
+    mtm = set()
+    for tk, s in por.items():
+        pares = [(datas[i - 1], d) for i, d in enumerate(datas) if i and d in s and datas[i - 1] in s]
+        if tk not in usd and len(pares) >= 4 and sum(1 for a, b in pares if s[a] != s[b]) >= 0.6 * len(pares):
+            mtm.add(tk)
+    return F, usd, mtm
+
+
+def revisao(tk: str, L: dict, FX: tuple | None = None) -> float | None:
+    """Revisão do lucro do ano seguinte entre o 1º e o último guia do ticker, sem o efeito cambial nas empresas que o
+    BTG modela em dólar (lucro ÷ índice do fator cambial do guia)."""
+    pts = (L.get("btg") or {}).get(tk) or []
+    if len(pts) < 2:
+        return None
+    F, usd, mtm = FX or fator_cambio(L)
+    (d0, b0), (d1, b1) = (pts[0][0], pts[0][5]), (pts[-1][0], pts[-1][5])
+    if not (b0 and b1 and b0 > 0 and b1 > 0):
+        return None
+    if tk in usd or tk in mtm:
+        b0, b1 = b0 / F.get(d0, 1.0), b1 / F.get(d1, 1.0)
+    return b1 / b0 - 1
+
+
+def lucro_sem_cambio(tk: str, pt: list, FX: tuple) -> float | None:
+    """Lucro do ano seguinte do ponto pt, dividido pelo índice cambial do guia se a empresa é modelada em dólar."""
+    F, usd, mtm = FX
+    if not pt[5]:
+        return None
+    return pt[5] / F.get(pt[0], 1.0) if (tk in usd or tk in mtm) else pt[5]
+
+
 def pl12_hoje(tk: str, preco: float | None, hoje: str | None = None, L: dict | None = None) -> dict | None:
     """P/L 12m à frente de um papel com o preço dado e o último guia: {valor, detalhe} (mesmo formato de trades.multiplo)."""
     from fontes import b3
