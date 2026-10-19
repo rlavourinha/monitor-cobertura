@@ -96,14 +96,21 @@ def contratos() -> list[dict]:
     if not mt5.disponivel():
         return []
     M = mt5._mt5
-    out = []
+    out, sel = [], []
     for s in M.symbols_get("DI1*") or []:
         if not RE_COD.match(s.name):
             continue
         venc = vencimento(s.name)
         if not venc or venc <= date.today():
             continue
+        sel.append((s, venc))
+    novos = [s for s, _ in sel if not s.visible]
+    for s, _ in sel:
         M.symbol_select(s.name, True)
+    if novos:                      # recém-incluído no Observação do Mercado: o 1º tick leva ~1 s para chegar (19/10: curva vazia)
+        import time as _t
+        _t.sleep(2)
+    for s, venc in sel:
         t, i = M.symbol_info_tick(s.name), M.symbol_info(s.name)
         if not t:
             continue
@@ -170,7 +177,7 @@ def snapshot(gravar: bool = True) -> dict:
     cs = contratos()
     v = vertices(cs)
     snap = {"hora": datetime.now().strftime("%Y-%m-%d %H:%M"), "min_negocios": MIN_NEGOCIOS, "contratos": cs, "vertices": v}
-    if gravar and cs:
+    if gravar and cs and (v or not ARQ.exists() or not json.loads(ARQ.read_text(encoding="utf-8")).get("vertices")):
         config.DATA.mkdir(parents=True, exist_ok=True)
         ARQ.write_text(json.dumps(snap, ensure_ascii=False), encoding="utf-8")
     return snap

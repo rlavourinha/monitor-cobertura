@@ -86,6 +86,19 @@ def snapshot() -> dict | None:
 _MW_FIXOS = {"IBOV", "BOVA11", "WDO$", "WDO$N", "DOL$", "IND$", "WIN$", "DI1$", "DAP$"}
 
 
+def _contratos_curva() -> set[str]:
+    """DI1 e DAP vigentes: ficam no Observação do Mercado entre os ciclos. Tirá-los a cada poda (16-19/10/2026) fazia o
+    exportar_di reselecioná-los sem tick ainda e gravar a curva vazia. São ~40 símbolos; o problema de 16/10 era 404."""
+    from fontes import dap as _dap
+    M, hoje, out = mt5._mt5, date.today(), set()
+    for mod, pad in ((di, "DI1*"), (_dap, "DAP*")):
+        for s in M.symbols_get(pad) or []:
+            v = mod.vencimento(s.name) if mod.RE_COD.match(s.name) else None
+            if v and v > hoje:
+                out.add(s.name)
+    return out
+
+
 def _poda_market_watch(manter: set[str]) -> int:
     """Tira do Observação do Mercado o que o vigia não precisa. Em 16/10/2026 havia 404 símbolos visíveis (os contratos DI/DAP
     que exportar_di seleciona a cada ciclo se acumulam) e 38 dos 103 papéis pararam de receber tick às 10:05-10:06, logo
@@ -93,6 +106,10 @@ def _poda_market_watch(manter: set[str]) -> int:
     terminal. A poda roda no início do snapshot (antes dos papéis) e no fim do ciclo (tira os contratos DI/DAP)."""
     M = mt5._mt5
     n = 0
+    try:
+        manter = set(manter) | _contratos_curva()
+    except Exception as e:
+        print(f"  contratos da curva: {e}", file=sys.stderr)
     for sym in M.symbols_get() or []:
         if sym.visible and sym.name not in manter and sym.name not in _MW_FIXOS:
             if M.symbol_select(sym.name, False):
@@ -469,7 +486,7 @@ def main() -> int:
     n = notificar(res)
     ni = exportar_intraday()
     exportar_di()
-    try:                                               # devolve o Observação do Mercado só com os papéis (tira os contratos DI/DAP)
+    try:                                               # devolve o Observação do Mercado aos papéis + contratos DI/DAP vigentes
         _poda_market_watch(set(res.get("papeis", {})))
     except Exception as e:
         print(f"poda do Market Watch: {e}")
