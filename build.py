@@ -1643,13 +1643,34 @@ def analise_valuation(M: dict) -> dict | None:
     hoje = date.today().isoformat()
     sem_pv = ("PETR3", "PETR4", "VALE3")
 
+    ptr = config.DATA / "alertas_tempo_real.json"         # papéis fora do painel (EZTC3, MOVI3...): preço do vigia
+    TRp = {}
+    try:
+        _T = json.loads(ptr.read_text(encoding="utf-8")) if ptr.exists() else {}
+        if (_T.get("hora") or "")[:10] == hoje:
+            TRp = _T.get("papeis") or {}
+    except Exception:
+        pass
+
     def preco_de(tk):
         l = por.get(tk) or {}
         f_tk = sorted((fech.get(tk) or {}).items())
-        return l.get("preco") or (f_tk[-1][1] if f_tk else None)
+        return l.get("preco") or (TRp.get(tk) or {}).get("preco") or (f_tk[-1][1] if f_tk else None)
+
+    import trades as _tr
+    fx_tela = _tr._fx(hoje)                                  # dólar de tela (WDO do vigia) para os BDRs de empresas em dólar
+    # setor dos papéis fora do Ibov: o setor do Ibov mais comum entre os papéis com o mesmo setor no guia do BTG
+    from collections import Counter as _C
+    sg = L.get("setor_guia") or {}
+    _cont = {}
+    for tk, it in itens.items():
+        if sg.get(tk):
+            _cont.setdefault(sg[tk], _C())[it.get("setor")] += 1
+    setor_de = {k: c.most_common(1)[0][0] for k, c in _cont.items()}
 
     linhas = []
-    for tk in sorted((set(por) | set(config.UNIVERSO)) & (set(L["btg"]) | set(PV))):
+    extra = set(getattr(config, "VALUATION_EXTRA", []))
+    for tk in sorted((set(por) | set(config.UNIVERSO) | extra) & (set(L["btg"]) | set(PV))):
         pts = LC.lpas(tk, L, fech) if tk in L["btg"] else []
         X = LC.extras(tk, L, fech) if tk in L["btg"] else []
         pv = PV.get(tk) or {}
@@ -1658,13 +1679,20 @@ def analise_valuation(M: dict) -> dict | None:
         l = por.get(tk) or {}
         preco = preco_de(tk)
         it = itens.get(tk) or {}
-        r = {"cod": tk, "setor": it.get("setor") or l.get("setor") or "—", "peso": it.get("peso"), "preco": preco, "pl12": None, "obs": "",
+        st = it.get("setor") or setor_de.get(sg.get(tk)) or l.get("setor") or "—"
+        r = {"cod": tk, "setor": st, "ibov": tk in itens, "peso": it.get("peso"), "preco": preco, "pl12": None, "obs": "",
              "ano0": None, "pl0": None, "pl1": None, "cresc": None, "rev": None, "dpl": None, "base": "", "serie": [], "lpa": pts,
              "ev12": None, "dy12": None, "x": X[-1] if X else None,
              "pvp": (preco / pv["vpa"]) if (preco and pv.get("vpa") and pv["vpa"] > 0) else None, "vpa": pv.get("vpa"), "pl_data": pv.get("data")}
         if pts:
             ult = pts[-1]
             e12, obs = LC.lpa12(ult, hoje)
+            if ult[4] == "dólar" and fx_tela and LC.dolar(ult[0]):   # BDR de empresa em dólar: lucro ao dólar de tela
+                k = fx_tela / LC.dolar(ult[0])
+                ult = (ult[0], ult[1], ult[2] * k if ult[2] else None, ult[3] * k if ult[3] else None, ult[4])
+                pts = pts[:-1] + [ult]
+                r["lpa"] = pts
+                e12 = e12 * k if e12 else None
             ser = LC.serie_pl(tk, L, fech)
             pl = preco / e12 if (preco and e12 and e12 > 0) else None
             r.update({"pl12": pl, "obs": obs, "ano0": ult[1], "base": ult[4], "serie": ser,
@@ -1740,13 +1768,17 @@ def analise_valuation(M: dict) -> dict | None:
     for tk in itens:
         if tk in lin:
             setores.setdefault(lin[tk]["setor"], []).append(tk)
+    fora = {}
+    for r in linhas:
+        if not r["ibov"]:
+            fora.setdefault(r["setor"], []).append(r["cod"])
     tab_set = []
     for st, tks in setores.items():
         sr = agrega(tks)
         ah = agrega_hoje(tks)
         luc = [(SA0[tk][5][-1][1], SA0[tk][5][0][1]) for tk in tks if tk in SA0 and len(SA0[tk].get(5) or []) >= 2]
         rev = (sum(a for a, _ in luc) / sum(b for _, b in luc) - 1) if luc and sum(b for _, b in luc) > 0 else None
-        tab_set.append({"setor": st, "n": len(tks), "tks": tks, "pl": ah["pl"] or (sr[-1][1] if sr else None), "pl_ini": sr[0][1] if sr else None,
+        tab_set.append({"setor": st, "n": len(tks), "tks": tks, "fora": fora.get(st, []), "pl": ah["pl"] or (sr[-1][1] if sr else None), "pl_ini": sr[0][1] if sr else None,
                         "rev": rev, "pvp": ah["pvp"], "dy": ah["dy"], "ev": ah["ev"], "peso": sum((itens[tk].get("peso") or 0) for tk in tks)})
     tab_set.sort(key=lambda r: r["pl"] if r["pl"] else 999)
     # ---------------------------------------------------------------- revisões de lucro (direção e intensidade)
@@ -1756,7 +1788,7 @@ def analise_valuation(M: dict) -> dict | None:
     SA = LC.serie_ajustada(L)                              # lucro sem câmbio/movimentos comuns do guia, com o ruído de arredondamento
     empresas = {}                                          # 1 ticker por empresa (PETR3/PETR4, BBDC3/BBDC4)
     for r in linhas:
-        if r["cod"] in L["btg"] and r["setor"] not in ("—", "BDR"):
+        if r["cod"] in L["btg"] and r["cod"] in itens:
             nome = LC.REV.get(r["cod"], (r["cod"], 0))[0]
             empresas.setdefault(nome, r["cod"])
     def rev_emp(tk, dias, i):
@@ -1978,6 +2010,8 @@ def slide_valuation(M: dict, V: dict | None = None) -> tuple[str, str] | None:
     for i, r in enumerate(V["setores"]):
         d_pl = (r["pl"] - r["pl_ini"]) if (r["pl"] and r["pl_ini"]) else None
         filhos = "".join(emp(tk).replace("{i}", str(i)) for tk in sorted(r["tks"], key=lambda t: lin[t]["pl12"] or 999))
+        filhos += "".join(emp(tk).replace("{i}", str(i)).replace(f'>{tk}</td>', f'>{tk} <small class="mut">fora do Ibov</small></td>', 1)
+                          for tk in sorted(r.get("fora") or [], key=lambda t: lin[t]["pl12"] or 999))
         ts += (f'<tr class="vs-set" data-s="{i}" style="cursor:pointer" title="clique para abrir as empresas"><td style="text-align:left"><span class="vs-seta">▸</span> {r["setor"]}<small> · {r["n"]}</small></td>'
                f'<td>{num(r["peso"], 1, suf="%")}</td><td><b>{x1(r["pl"])}</b></td><td>{x1(r["ev"])}</td><td>{num(r["pvp"], 2, suf="x")}</td><td>{pct(r["dy"], 1, sinal=False)}</td>'
                f'<td class="{dlt_cls(-d_pl if d_pl is not None else None)}">{dx(d_pl)}</td><td class="{dlt_cls(r["rev"])}">{pct(r["rev"])}</td></tr>{filhos}')

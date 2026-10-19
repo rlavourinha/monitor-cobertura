@@ -48,7 +48,13 @@ MAPA_BTG: dict[str, list[str]] = {
     "Yduqs": ["YDUQ3"], "C&A": ["CEAB3"], "Bradsaude": ["SAUD3"], "JBS": ["JBSS32"], "Inter & Co": ["INBR32"],
     # fora do Ibov, mas no screening (cobertura/BDRs/acompanhados)
     "EZTEC": ["EZTC3"], "Brava Energia": ["BRAV3"],
+    # cotadas em dólar no guia (NYSE/Nasdaq): BDR na B3, LPA convertido pelo dólar e pela razão do BDR (BDR_RAZAO)
+    "Nubank": ["ROXO34"], "XP Inc": ["XPBR31"], "Stone": ["STOC34"], "MercadoLibre": ["MELI34"],
 }
+# ações americanas por BDR invertido: preço do BDR = preço em US$ × dólar ÷ razão (medido em 19/10/2026)
+BDR_RAZAO = {"ROXO34": 6, "XPBR31": 1, "STOC34": 1, "MELI34": 120}
+# tickers do formato antigo do guia (aba COMP) para os nomes do mapa
+ALIAS_ANTIGO = {"NU US": "Nubank", "XP US": "XP Inc", "STNE US": "Stone", "MELI US": "MercadoLibre"}
 # Braskem fica de fora: no guia de out/26 a linha repete valor de mercado e preço do Banrisul (erro do guia). le_guia
 # descarta qualquer linha com (valor de mercado, preço) idênticos aos de outra empresa.
 # Fora do Stock Guide (holdings e o próprio BTG): BPAC11, BRAP4, GOAU4, ITSA4.
@@ -148,9 +154,11 @@ def _le_guia_comp(wb, data_pub: str | None) -> tuple[str | None, list[dict]]:
     g = lambda r, k: r[col[k]] if k in col and col[k] < len(r) else None
     out = []
     for r in rows[hi + 2:]:
-        if not r or g(r, ("Origin", "")) != "Brazil":
-            continue
         tk = str(g(r, ("Ticker", "")) or "").strip().upper()
+        if not r or (g(r, ("Origin", "")) != "Brazil" and tk not in ALIAS_ANTIGO):
+            continue
+        if tk in ALIAS_ANTIGO:
+            tk = MAPA_BTG[ALIAS_ANTIGO[tk]][0]
         if tk not in REV:
             continue
         out.append({"nome": REV[tk][0], "ticker": tk, "setor": None, "moeda": g(r, ("Share", "Currency")), "mcap": None,
@@ -185,7 +193,7 @@ def le_guia(f: Path, data_pub: str | None = None) -> tuple[str | None, list[dict
                 cab = {str(c).strip(): i for i, c in enumerate(row) if c is not None}
                 anos = sorted(int(m.group(1)) for k in cab for m in [re.fullmatch(r"P/E (\d{4})E", k)] if m)[:2]
             continue
-        if not row or row[cab["Country"]] != "Brazil":
+        if not row or (row[cab["Country"]] != "Brazil" and str(row[0] or "").strip() not in MAPA_BTG):   # MercadoLibre = Argentina
             continue
         g = lambda k: row[cab[k]] if k in cab and cab[k] < len(row) else None
         out.append({"nome": str(g("Company")).strip(), "setor": g("Sector"), "moeda": g("Currency"),
@@ -239,6 +247,17 @@ def atualiza() -> dict:
             for tk in tks:
                 btg.setdefault(tk, {})[d] = reg
                 setor_guia[tk] = l["setor"]
+    # empresas cotadas em dólar: o BTG deixa o P/L em branco em alguns guias (28/09 e 16/10/2026) -> repete o último
+    from datetime import timedelta as _td
+    for tk, ss in btg.items():
+        ant = None
+        for d in sorted(ss):
+            v = ss[d]
+            if v[7] == "USD" and v[3] is None and ant and ant[3] is not None and \
+                    date.fromisoformat(d) - date.fromisoformat(ant[0]) <= _td(days=21) and v[1] == ant[1]:
+                ss[d] = v = [v[0], v[1], ant[2], ant[3], ant[4], ant[5]] + v[6:]
+            if v[3] is not None:
+                ant = v
     # formato antigo não tem valor de mercado em R$: lucro (R$ mn) = LPA × ações implícitas no guia novo mais recente
     for tk, ss in btg.items():
         novos = [v for _, v in sorted(ss.items()) if not v[15] and v[8] and v[6]]
@@ -308,6 +327,21 @@ REV = {tk: (nome, i) for nome, tks in MAPA_BTG.items() for i, tk in enumerate(tk
 TOL_PRECO = 0.03
 
 
+_DOLAR: dict[str, float] = {}
+
+
+def dolar(d: str) -> float | None:
+    """USD/BRL de fechamento na data (ou no último dia antes dela), série do macro.json (Yahoo)."""
+    if not _DOLAR:
+        try:
+            M = json.loads((config.DATA / "macro.json").read_text(encoding="utf-8"))
+            _DOLAR.update({x[0]: x[1] for x in (M.get("hist") or {}).get("USD/BRL", []) if x[1]})
+        except Exception:
+            return None
+    ds = [k for k in _DOLAR if k <= d]
+    return _DOLAR[max(ds)] if ds else None
+
+
 def lpas(tk: str, L: dict, fech: dict[str, dict[str, float]]) -> list[tuple[str, int, float | None, float | None, str]]:
     """Pontos (data_guia, ano0, LPA ano0, LPA ano1, base) do ticker. LPA = preço do guia ÷ P/L quando o preço do guia
     bate (±3%) com o fechamento B3 do papel principal da empresa no mesmo dia (vale para as outras classes: lucro por
@@ -318,6 +352,11 @@ def lpas(tk: str, L: dict, fech: dict[str, dict[str, float]]) -> list[tuple[str,
     prim = MAPA_BTG[nome][0] if nome else tk
     for pt in (L.get("btg") or {}).get(tk, []):
         d, a0, l0, l1, pg = pt[0], pt[1], pt[2], pt[3], pt[6]
+        if pt[7] == "USD" and tk in BDR_RAZAO:
+            f = (dolar(d) or 0) / BDR_RAZAO[tk]
+            if f:
+                out.append((d, a0, l0 * f if l0 else None, l1 * f if l1 else None, "dólar"))
+            continue
         cp = (fech.get(prim) or {}).get(d)
         if pg and cp and abs(pg / cp - 1) <= TOL_PRECO:
             out.append((d, a0, l0, l1, "guia"))

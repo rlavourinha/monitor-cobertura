@@ -523,6 +523,7 @@ def bloco_valuation(M: dict) -> str:
     for r in V["setores"]:
         d_pl = (r["pl"] - r["pl_ini"]) if (r["pl"] and r["pl_ini"]) else None
         filhos = "".join(emp(tk) for tk in sorted(r["tks"], key=lambda t: lin[t]["pl12"] or 999))
+        filhos += "".join(emp(tk).replace(f"<td>{tk}</td>", f"<td>{tk}<small> fora</small></td>", 1) for tk in sorted(r.get("fora") or [], key=lambda t: lin[t]["pl12"] or 999))
         sets += (f'<details class="vset"><summary><span class="n">{html.escape(r["setor"])}</span><b>{x1(r["pl"])}</b>'
                  f'<span class="{B.dlt_cls(-d_pl if d_pl is not None else None)}">{dx(d_pl)}</span><span class="{B.dlt_cls(r["rev"])}">{B.pct(r["rev"])}</span></summary>'
                  f'<table><thead><tr><th>Papel</th><th>P/L</th><th>EV/EB.</th><th>P/VP</th><th>DY</th><th>Rev.</th></tr></thead><tbody>{filhos}</tbody></table></details>')
