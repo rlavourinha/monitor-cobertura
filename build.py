@@ -1742,7 +1742,16 @@ def analise_valuation(M: dict) -> dict | None:
     tab_set.sort(key=lambda r: r["pl"] if r["pl"] else 999)
     ah, ahx = agrega_hoje(cob), agrega_hoje(cob_ex)
     tudo = agrega_hoje([tk for tk in itens if tk in lin])
-    return {"linhas": linhas, "ibov": agrega(cob), "ibov_ex": agrega(cob_ex), "ibov_hoje": ah["pl"], "ibov_ex_hoje": ahx["pl"],
+    s_ib, s_ex = agrega(cob), agrega(cob_ex)
+    # pregão em andamento (preço de tela mais novo que o último fechamento): ponto de hoje nas séries e nas minisséries
+    if P.get("tempo_real") and P["tempo_real"][:10] == hoje:
+        for ser, v in ((s_ib, ah["pl"]), (s_ex, ahx["pl"])):
+            if v and (not ser or ser[-1][0] < hoje):
+                ser.append([hoje, v])
+        for r in linhas:
+            if r["pl12"] and r["serie"] and r["serie"][-1][0] < hoje:
+                r["serie"] = r["serie"] + [(hoje, r["pl12"])]
+    return {"linhas": linhas, "ibov": s_ib, "ibov_ex": s_ex, "ibov_hoje": ah["pl"], "ibov_ex_hoje": ahx["pl"],
             "ibov_pvp": tudo["pvp"], "ibov_dy": ah["dy"], "ibov_ev": ahx["ev"],
             "cob_peso": sum((itens[tk].get("peso") or 0) for tk in cob), "setores": tab_set, "ini": ini,
             "guia": max(L.get("guias") or [ini]), "sem": sorted(set(itens) - set(cob)), "tempo_real": P.get("tempo_real"),
@@ -1824,13 +1833,16 @@ def slide_valuation(M: dict, V: dict | None = None) -> tuple[str, str] | None:
              f'<div class="panel" style="padding:10px 14px 4px"><div class="legend"><span><i style="background:{S1}"></i>Ibovespa</span>'
              f'<span><i style="background:{S2}"></i>ex-Petrobras e Vale</span></div>{g}</div><div>{t_set}</div></div>'
              f'<div style="overflow-x:auto">{tab}</div>')
+    hora = (f'preços de tela {V["tempo_real"][11:16]} (MT5) · guia {gd}' if V.get("tempo_real") else f'último fechamento · guia {gd}')
     return slide("Macro", "valuation", "Valuation · múltiplos 12 meses à frente", corpo,
                  "Quanto o mercado paga pelo lucro, pelo EBITDA e pelo patrimônio, papel a papel e no agregado, e se o múltiplo mexeu por preço ou por revisão.",
                  f"BTG Pactual Stock Guide (LatAm Valuation Summary, diário): LPA = preço do guia ÷ P/L {a0}E e {a0 + 1}E; DPA = DY × preço; EBITDA = valor de mercado ÷ "
                  f"(EV/EBITDA − DL/EBITDA) e DL = DL/EBITDA × EBITDA. Tudo 12m à frente = {a0} e {a0 + 1} interpolados por dias até 31/12, com o preço de tela (nunca o "
                  f"múltiplo pronto). P/VP = preço ÷ (PL dos controladores do último ITR/DFP na CVM ÷ ações em circulação). Agregados com as quantidades teóricas da "
                  f"carteira atual; fora do guia: {', '.join(V['sem']) or '—'}. * = guia sem lucro {a0} (usa só {a0 + 1}). Rev. lucro e Δ P/L desde o 1º guia guardado "
-                 f"({dd}); Δ negativo (verde) = ficou mais barato. Histórico em data/lucros_casas.json e data/pl_cvm.json.")
+                 f"({dd}); Δ negativo (verde) = ficou mais barato. Histórico em data/lucros_casas.json e data/pl_cvm.json. Recalculado a cada build "
+                 f"(no pregão, a cada push do vigia ~5 min) com o preço do MT5; o ponto de hoje no gráfico usa esse preço.",
+                 canto=f'<span class="mut" style="font-size:12px">{hora}</span>')
 
 
 def analise_volume(M: dict) -> dict | None:

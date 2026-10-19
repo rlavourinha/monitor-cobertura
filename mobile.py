@@ -529,7 +529,7 @@ def bloco_valuation(M: dict) -> str:
     return _card("Valuation · múltiplos 12m", f'<div class="tiles">{tiles}</div>{cab}{sets}'
                  f'<p class="nota">Preço de tela ÷ lucro, EBITDA e dividendo de {a1 - 1} e {a1} do BTG Stock Guide, interpolados por dias até 31/12; P/VP com o PL dos controladores do último ITR (CVM). '
                  f'Agregados com as quantidades teóricas da carteira do Ibovespa. Δ e revisão desde {dd}; Δ negativo = ficou mais barato.</p>',
-                 f'guia de {V["guia"][8:]}/{V["guia"][5:7]}')
+                 (f'preços {V["tempo_real"][11:16]} · ' if V.get("tempo_real") else "") + f'guia {V["guia"][8:]}/{V["guia"][5:7]}')
 
 
 PAGE = """<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
