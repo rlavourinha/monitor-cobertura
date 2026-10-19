@@ -492,6 +492,7 @@ details summary span{flex:1;font-weight:600}details summary small{color:var(--mu
 footer{font-size:12px;color:var(--mut);padding:8px 2px 0;line-height:1.4}footer a{color:var(--s1)}
 .vset summary .n{font-size:15px}.vset summary .n,.vcab .n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.vset summary>b,.vset summary>span:not(.n),.vcab>b,.vcab>span:not(.n){width:48px;flex:none;text-align:right}
 .vcab{display:flex;gap:8px;font-size:12px;color:var(--mut);padding:8px 0 4px 18px}.vcab b{font-weight:500}.vset table{font-size:13px;margin:0 0 10px}
+h3.sub{font:600 13px/1.2 -apple-system,system-ui,sans-serif;color:var(--ink2);margin:14px 0 4px}
 """
 
 def bloco_valuation(M: dict) -> str:
@@ -525,8 +526,23 @@ def bloco_valuation(M: dict) -> str:
         sets += (f'<details class="vset"><summary><span class="n">{html.escape(r["setor"])}</span><b>{x1(r["pl"])}</b>'
                  f'<span class="{B.dlt_cls(-d_pl if d_pl is not None else None)}">{dx(d_pl)}</span><span class="{B.dlt_cls(r["rev"])}">{B.pct(r["rev"])}</span></summary>'
                  f'<table><thead><tr><th>Papel</th><th>P/L</th><th>EV/EB.</th><th>P/VP</th><th>DY</th><th>Rev.</th></tr></thead><tbody>{filhos}</tbody></table></details>')
+    RV = V.get("revisoes") or {}
+    jan = "1 mês" if any(m["cel"].get("1 mês") for m in RV.get("mapa", [])) else "1 sem"
+    COR = {"cortes disseminados": "var(--dn)", "corte pontual": "var(--dn)", "upgrades disseminados": "var(--up)", "upgrade pontual": "var(--up)"}
+    rv = sorted([(m["setor"], m["cel"][jan]) for m in RV.get("mapa", []) if m["cel"].get(jan) and m["cel"][jan]["rot"] != "estável"], key=lambda x: x[1]["inten"])
+    li_rv = "".join(f'<li><b>{html.escape(st)}</b><span style="color:{COR[c["rot"]]}">{B.pct(c["inten"])}</span><small>{c["rot"]} · ↓{len(c["dn"])} ↑{len(c["up"])} de {c["n"]}'
+                    f'{" · " + c["drv"] if c.get("drv") else ""}</small></li>' for st, c in rv) or '<li><small>nenhum setor com revisão ≥ 1%</small></li>'
+    def _ev(e):
+        k = "ano1" if "ano1" in e["var"] else "ano0"
+        v = e["var"][k]
+        r = e.get("relatorio")
+        return (f'<li><b>{e["tk"]}</b><span class="{B.dlt_cls(v)}">{B.pct(v, 0) if v is not None else "n.s."}</span>'
+                f'<small>{e["data"][8:]}/{e["data"][5:7]} · {html.escape((r["empresa"] + ": " + (r["titulo"] or ""))[:60]) if r else "sem relatório identificado"}</small></li>')
+    li_ev = "".join(_ev(e) for e in (RV.get("eventos") or [])[:5])
+    bloco_rv = (f'<h3 class="sub">Revisões de lucro {V["ano0"] + 1} · {jan}</h3><ul class="lista dupla">{li_rv}</ul>'
+                + (f'<h3 class="sub">Maiores revisões do mês</h3><ul class="lista dupla">{li_ev}</ul>' if li_ev else ""))
     cab = f'<div class="vset vcab"><span class="n">Setor (toque abre)</span><b>P/L</b><span>Δ</span><span>Rev. {str(a1)[2:]}</span></div>'
-    return _card("Valuation · múltiplos 12m", f'<div class="tiles">{tiles}</div>{cab}{sets}'
+    return _card("Valuation · múltiplos 12m", f'<div class="tiles">{tiles}</div>{cab}{sets}{bloco_rv}'
                  f'<p class="nota">Preço de tela ÷ lucro, EBITDA e dividendo de {a1 - 1} e {a1} do BTG Stock Guide, interpolados por dias até 31/12; P/VP com o PL dos controladores do último ITR (CVM). '
                  f'Agregados com as quantidades teóricas da carteira do Ibovespa. Δ e revisão desde {dd}; Δ negativo = ficou mais barato.</p>',
                  (f'preços {V["tempo_real"][11:16]} · ' if V.get("tempo_real") else "") + f'guia {V["guia"][8:]}/{V["guia"][5:7]}')

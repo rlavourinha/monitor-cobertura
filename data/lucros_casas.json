@@ -106210,42 +106210,6 @@ false
 },
 "eventos": [
 {
-"tk": "CXSE3",
-"empresa": "Caixa Seguridade",
-"setor_guia": "Financials (ex-Banks)",
-"de": "2026-04-20",
-"data": "2026-04-23",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-null,
-5144.44
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "HYPE3",
-"empresa": "Hypera",
-"setor_guia": "Healthcare",
-"de": "2026-04-20",
-"data": "2026-04-23",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-null,
-2381.02
-],
-"cambio": false,
-"relatorio": null
-},
-{
 "tk": "UGPA3",
 "empresa": "Ultrapar",
 "setor_guia": "Oil & Gas",
@@ -106253,83 +106217,12 @@ null,
 "data": "2026-04-23",
 "ano0": 2026,
 "var": {
-"ano0": 0.3568,
-"ano1": 0.0316
+"ano0": 0.357,
+"ano1": 0.0312
 },
 "lucro_ano1": [
 2923.72,
 3018.01
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "VBBR3",
-"empresa": "Vibra Energia",
-"setor_guia": "Oil & Gas",
-"de": "2026-04-20",
-"data": "2026-04-23",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-3198.73,
-null
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "CXSE3",
-"empresa": "Caixa Seguridade",
-"setor_guia": "Financials (ex-Banks)",
-"de": "2026-04-23",
-"data": "2026-04-27",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-5144.44,
-null
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "EQTL3",
-"empresa": "Equatorial Energia",
-"setor_guia": "Utilities",
-"de": "2026-04-23",
-"data": "2026-04-27",
-"ano0": 2026,
-"var": {
-"ano1": -0.3465
-},
-"lucro_ano1": [
-3591.85,
-2345.37
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "HYPE3",
-"empresa": "Hypera",
-"setor_guia": "Healthcare",
-"de": "2026-04-23",
-"data": "2026-04-27",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-2381.02,
-null
 ],
 "cambio": false,
 "relatorio": null
@@ -106342,7 +106235,7 @@ null
 "data": "2026-05-04",
 "ano0": 2026,
 "var": {
-"ano0": 0.041,
+"ano0": 0.0409,
 "ano1": 0.0357
 },
 "lucro_ano1": [
@@ -106360,8 +106253,8 @@ null
 "data": "2026-05-04",
 "ano0": 2026,
 "var": {
-"ano0": -0.052,
-"ano1": -0.0701
+"ano0": -0.0521,
+"ano1": -0.0702
 },
 "lucro_ano1": [
 19454.51,
@@ -106378,7 +106271,7 @@ null
 "data": "2026-05-04",
 "ano0": 2026,
 "var": {
-"ano0": -0.0571,
+"ano0": -0.0572,
 "ano1": -0.0367
 },
 "lucro_ano1": [
@@ -106396,85 +106289,14 @@ null
 "data": "2026-05-06",
 "ano0": 2026,
 "var": {
-"ano1": 0.3408
+"ano0": 1.3667,
+"ano1": 0.341
 },
 "lucro_ano1": [
 5720.96,
 7675.75
 ],
 "cambio": true,
-"relatorio": null
-},
-{
-"tk": "CXSE3",
-"empresa": "Caixa Seguridade",
-"setor_guia": "Financials (ex-Banks)",
-"de": "2026-05-06",
-"data": "2026-05-07",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-null,
-5152.94
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "HYPE3",
-"empresa": "Hypera",
-"setor_guia": "Healthcare",
-"de": "2026-05-06",
-"data": "2026-05-07",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-null,
-2212.87
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "CXSE3",
-"empresa": "Caixa Seguridade",
-"setor_guia": "Financials (ex-Banks)",
-"de": "2026-05-07",
-"data": "2026-05-11",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-5152.94,
-null
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "HYPE3",
-"empresa": "Hypera",
-"setor_guia": "Healthcare",
-"de": "2026-05-07",
-"data": "2026-05-11",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-2212.87,
-null
-],
-"cambio": false,
 "relatorio": null
 },
 {
@@ -106496,23 +106318,6 @@ null
 "relatorio": null
 },
 {
-"tk": "INBR32",
-"empresa": "Inter & Co",
-"setor_guia": "Banks",
-"de": "2026-05-07",
-"data": "2026-05-11",
-"ano0": 2026,
-"var": {
-"ano0": null
-},
-"lucro_ano1": [
-2407.58,
-2175.07
-],
-"cambio": false,
-"relatorio": null
-},
-{
 "tk": "B3SA3",
 "empresa": "B3",
 "setor_guia": "Financials (ex-Banks)",
@@ -106521,83 +106326,11 @@ null
 "ano0": 2026,
 "var": {
 "ano0": 0.0927,
-"ano1": 0.0955
+"ano1": 0.0953
 },
 "lucro_ano1": [
 6038.64,
 6613.97
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "AZZA3",
-"empresa": "Azzas 2154",
-"setor_guia": "Retail",
-"de": "2026-05-12",
-"data": "2026-05-15",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-1112.75,
-null
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "BBAS3",
-"empresa": "Banco do Brasil",
-"setor_guia": "Banks",
-"de": "2026-05-12",
-"data": "2026-05-15",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-25996.04,
-null
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "CXSE3",
-"empresa": "Caixa Seguridade",
-"setor_guia": "Financials (ex-Banks)",
-"de": "2026-05-12",
-"data": "2026-05-15",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-null,
-5209.9
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "HYPE3",
-"empresa": "Hypera",
-"setor_guia": "Healthcare",
-"de": "2026-05-12",
-"data": "2026-05-15",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-null,
-2223.34
 ],
 "cambio": false,
 "relatorio": null
@@ -106610,8 +106343,8 @@ null,
 "data": "2026-05-15",
 "ano0": 2026,
 "var": {
-"ano0": 0.0259,
-"ano1": 0.0278
+"ano0": 0.0255,
+"ano1": 0.0277
 },
 "lucro_ano1": [
 7620.19,
@@ -106628,120 +106361,12 @@ null,
 "data": "2026-05-15",
 "ano0": 2026,
 "var": {
-"ano0": -0.1614,
+"ano0": -0.1617,
 "ano1": -0.0999
 },
 "lucro_ano1": [
 2842.38,
 2557.15
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "JBSS32",
-"empresa": "JBS",
-"setor_guia": "Food & Beverage",
-"de": "2026-05-12",
-"data": "2026-05-15",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-18442.77,
-null
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "INBR32",
-"empresa": "Inter & Co",
-"setor_guia": "Banks",
-"de": "2026-05-12",
-"data": "2026-05-15",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-2167.43,
-null
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "AZZA3",
-"empresa": "Azzas 2154",
-"setor_guia": "Retail",
-"de": "2026-05-15",
-"data": "2026-05-18",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-null,
-1109.31
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "BBAS3",
-"empresa": "Banco do Brasil",
-"setor_guia": "Banks",
-"de": "2026-05-15",
-"data": "2026-05-18",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-null,
-24379.92
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "CXSE3",
-"empresa": "Caixa Seguridade",
-"setor_guia": "Financials (ex-Banks)",
-"de": "2026-05-15",
-"data": "2026-05-18",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-5209.9,
-null
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "HYPE3",
-"empresa": "Hypera",
-"setor_guia": "Healthcare",
-"de": "2026-05-15",
-"data": "2026-05-18",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-2223.34,
-null
 ],
 "cambio": false,
 "relatorio": null
@@ -106764,73 +106389,19 @@ null
 "relatorio": null
 },
 {
-"tk": "JBSS32",
-"empresa": "JBS",
-"setor_guia": "Food & Beverage",
-"de": "2026-05-15",
-"data": "2026-05-18",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-null,
-18453.65
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "INBR32",
-"empresa": "Inter & Co",
-"setor_guia": "Banks",
-"de": "2026-05-15",
-"data": "2026-05-18",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-null,
-2162.54
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "CXSE3",
-"empresa": "Caixa Seguridade",
-"setor_guia": "Financials (ex-Banks)",
-"de": "2026-05-19",
+"tk": "USIM5",
+"empresa": "Usiminas",
+"setor_guia": "Metal & Mining",
+"de": "2026-05-12",
 "data": "2026-05-22",
 "ano0": 2026,
 "var": {
-"ano0": null,
-"ano1": null
+"ano0": 3.7748,
+"ano1": 1.4329
 },
 "lucro_ano1": [
-null,
-5226.47
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "HYPE3",
-"empresa": "Hypera",
-"setor_guia": "Healthcare",
-"de": "2026-05-19",
-"data": "2026-05-22",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-null,
-2218.61
+510.35,
+1241.61
 ],
 "cambio": false,
 "relatorio": null
@@ -106849,132 +106420,6 @@ null,
 "lucro_ano1": [
 16490.16,
 16817.79
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "CXSE3",
-"empresa": "Caixa Seguridade",
-"setor_guia": "Financials (ex-Banks)",
-"de": "2026-05-22",
-"data": "2026-05-25",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-5226.47,
-null
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "HYPE3",
-"empresa": "Hypera",
-"setor_guia": "Healthcare",
-"de": "2026-05-22",
-"data": "2026-05-25",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-2218.61,
-null
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "BRAV3",
-"empresa": "Brava Energia",
-"setor_guia": "Oil & Gas",
-"de": "2026-05-22",
-"data": "2026-05-25",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-1991.67,
-null
-],
-"cambio": true,
-"relatorio": null
-},
-{
-"tk": "CXSE3",
-"empresa": "Caixa Seguridade",
-"setor_guia": "Financials (ex-Banks)",
-"de": "2026-05-25",
-"data": "2026-05-28",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-null,
-5180.2
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "HYPE3",
-"empresa": "Hypera",
-"setor_guia": "Healthcare",
-"de": "2026-05-25",
-"data": "2026-05-28",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-null,
-2222.09
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "CXSE3",
-"empresa": "Caixa Seguridade",
-"setor_guia": "Financials (ex-Banks)",
-"de": "2026-05-28",
-"data": "2026-06-01",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-5180.2,
-null
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "HYPE3",
-"empresa": "Hypera",
-"setor_guia": "Healthcare",
-"de": "2026-05-28",
-"data": "2026-06-01",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-2222.09,
-null
 ],
 "cambio": false,
 "relatorio": null
@@ -107005,50 +106450,14 @@ null
 "data": "2026-06-08",
 "ano0": 2026,
 "var": {
-"ano0": 0.0401,
-"ano1": 0.0386
+"ano0": 0.0402,
+"ano1": 0.0387
 },
 "lucro_ano1": [
 7837.28,
 8144.16
 ],
 "cambio": true,
-"relatorio": null
-},
-{
-"tk": "CXSE3",
-"empresa": "Caixa Seguridade",
-"setor_guia": "Financials (ex-Banks)",
-"de": "2026-06-09",
-"data": "2026-06-11",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-null,
-5226.17
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "HYPE3",
-"empresa": "Hypera",
-"setor_guia": "Healthcare",
-"de": "2026-06-09",
-"data": "2026-06-11",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-null,
-2233.92
-],
-"cambio": false,
 "relatorio": null
 },
 {
@@ -107059,48 +106468,12 @@ null,
 "data": "2026-06-11",
 "ano0": 2026,
 "var": {
-"ano0": -0.0687,
-"ano1": -0.0459
+"ano0": -0.0688,
+"ano1": -0.0457
 },
 "lucro_ano1": [
 2078.02,
 1981.73
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "CXSE3",
-"empresa": "Caixa Seguridade",
-"setor_guia": "Financials (ex-Banks)",
-"de": "2026-06-11",
-"data": "2026-06-15",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-5226.17,
-null
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "HYPE3",
-"empresa": "Hypera",
-"setor_guia": "Healthcare",
-"de": "2026-06-11",
-"data": "2026-06-15",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-2233.92,
-null
 ],
 "cambio": false,
 "relatorio": null
@@ -107114,7 +106487,7 @@ null
 "ano0": 2026,
 "var": {
 "ano0": -0.1858,
-"ano1": -0.0737
+"ano1": -0.0738
 },
 "lucro_ano1": [
 1455.84,
@@ -107131,7 +106504,7 @@ null
 "data": "2026-06-16",
 "ano0": 2026,
 "var": {
-"ano1": -0.0296
+"ano1": -0.0298
 },
 "lucro_ano1": [
 205.2,
@@ -107148,8 +106521,8 @@ null
 "data": "2026-06-16",
 "ano0": 2026,
 "var": {
-"ano0": -0.0215,
-"ano1": -0.0228
+"ano0": -0.0218,
+"ano1": -0.0229
 },
 "lucro_ano1": [
 6643.83,
@@ -107166,8 +106539,8 @@ null
 "data": "2026-06-16",
 "ano0": 2026,
 "var": {
-"ano0": 0.0472,
-"ano1": 0.0604
+"ano0": 0.0469,
+"ano1": 0.0603
 },
 "lucro_ano1": [
 8430.59,
@@ -107184,8 +106557,8 @@ null
 "data": "2026-06-16",
 "ano0": 2026,
 "var": {
-"ano0": 0.0727,
-"ano1": 0.0899
+"ano0": 0.0724,
+"ano1": 0.0898
 },
 "lucro_ano1": [
 1567.73,
@@ -107202,8 +106575,8 @@ null
 "data": "2026-06-16",
 "ano0": 2026,
 "var": {
-"ano0": 0.0421,
-"ano1": 0.034
+"ano0": 0.0418,
+"ano1": 0.0338
 },
 "lucro_ano1": [
 1381.88,
@@ -107220,8 +106593,8 @@ null
 "data": "2026-06-16",
 "ano0": 2026,
 "var": {
-"ano0": -0.0291,
-"ano1": -0.0272
+"ano0": -0.0293,
+"ano1": -0.0274
 },
 "lucro_ano1": [
 1662.81,
@@ -107238,8 +106611,8 @@ null
 "data": "2026-06-16",
 "ano0": 2026,
 "var": {
-"ano0": -0.0276,
-"ano1": -0.0204
+"ano0": -0.0279,
+"ano1": -0.0206
 },
 "lucro_ano1": [
 773.29,
@@ -107256,8 +106629,8 @@ null
 "data": "2026-06-16",
 "ano0": 2026,
 "var": {
-"ano0": 0.0752,
-"ano1": 0.0515
+"ano0": 0.0749,
+"ano1": 0.0513
 },
 "lucro_ano1": [
 1977.89,
@@ -107274,8 +106647,8 @@ null
 "data": "2026-06-16",
 "ano0": 2026,
 "var": {
-"ano0": 0.0257,
-"ano1": 0.0422
+"ano0": 0.0254,
+"ano1": 0.042
 },
 "lucro_ano1": [
 59606.35,
@@ -107292,7 +106665,7 @@ null
 "data": "2026-06-16",
 "ano0": 2026,
 "var": {
-"ano1": -0.0199
+"ano1": -0.0201
 },
 "lucro_ano1": [
 1089.99,
@@ -107309,8 +106682,8 @@ null
 "data": "2026-06-16",
 "ano0": 2026,
 "var": {
-"ano0": 0.049,
-"ano1": 0.051
+"ano0": 0.0487,
+"ano1": 0.0509
 },
 "lucro_ano1": [
 3891.2,
@@ -107327,8 +106700,8 @@ null
 "data": "2026-06-16",
 "ano0": 2026,
 "var": {
-"ano0": -0.0325,
-"ano1": -0.0273
+"ano0": -0.0328,
+"ano1": -0.0274
 },
 "lucro_ano1": [
 2542.95,
@@ -107345,8 +106718,8 @@ null
 "data": "2026-06-16",
 "ano0": 2026,
 "var": {
-"ano0": 0.2428,
-"ano1": 0.0848
+"ano0": 0.2424,
+"ano1": 0.0847
 },
 "lucro_ano1": [
 1347.45,
@@ -107363,8 +106736,8 @@ null
 "data": "2026-06-16",
 "ano0": 2026,
 "var": {
-"ano0": 0.0588,
-"ano1": 0.0843
+"ano0": 0.0585,
+"ano1": 0.0842
 },
 "lucro_ano1": [
 849.54,
@@ -107381,8 +106754,8 @@ null
 "data": "2026-06-16",
 "ano0": 2026,
 "var": {
-"ano0": -0.0706,
-"ano1": -0.072
+"ano0": -0.0709,
+"ano1": -0.0721
 },
 "lucro_ano1": [
 1423.1,
@@ -107399,8 +106772,8 @@ null
 "data": "2026-06-16",
 "ano0": 2026,
 "var": {
-"ano0": -0.0541,
-"ano1": -0.051
+"ano0": -0.0544,
+"ano1": -0.0511
 },
 "lucro_ano1": [
 3021.57,
@@ -107417,8 +106790,8 @@ null
 "data": "2026-06-16",
 "ano0": 2026,
 "var": {
-"ano0": -0.0819,
-"ano1": -0.0869
+"ano0": -0.0821,
+"ano1": -0.087
 },
 "lucro_ano1": [
 1240.42,
@@ -107435,8 +106808,8 @@ null
 "data": "2026-06-16",
 "ano0": 2026,
 "var": {
-"ano0": 0.0553,
-"ano1": 0.0624
+"ano0": 0.055,
+"ano1": 0.0622
 },
 "lucro_ano1": [
 697.66,
@@ -107453,7 +106826,7 @@ null
 "data": "2026-06-18",
 "ano0": 2026,
 "var": {
-"ano1": 0.0311
+"ano1": 0.031
 },
 "lucro_ano1": [
 198.96,
@@ -107470,7 +106843,7 @@ null
 "data": "2026-06-18",
 "ano0": 2026,
 "var": {
-"ano1": 0.0228
+"ano1": 0.0227
 },
 "lucro_ano1": [
 6487.12,
@@ -107488,28 +106861,11 @@ null
 "ano0": 2026,
 "var": {
 "ano0": -0.046,
-"ano1": -0.058
+"ano1": -0.0581
 },
 "lucro_ano1": [
 8932.78,
 8414.16
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "CSAN3",
-"empresa": "Cosan",
-"setor_guia": "Agribusiness",
-"de": "2026-06-16",
-"data": "2026-06-18",
-"ano0": 2026,
-"var": {
-"ano0": null
-},
-"lucro_ano1": [
-3088.26,
-1498.48
 ],
 "cambio": false,
 "relatorio": null
@@ -107522,8 +106878,8 @@ null
 "data": "2026-06-18",
 "ano0": 2026,
 "var": {
-"ano0": -0.0205,
-"ano1": -0.389
+"ano0": -0.0206,
+"ano1": -0.3891
 },
 "lucro_ano1": [
 2326.02,
@@ -107540,30 +106896,12 @@ null
 "data": "2026-06-18",
 "ano0": 2026,
 "var": {
-"ano0": -0.0653,
-"ano1": -0.0775
+"ano0": -0.0654,
+"ano1": -0.0776
 },
 "lucro_ano1": [
 1707.31,
 1574.89
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "CXSE3",
-"empresa": "Caixa Seguridade",
-"setor_guia": "Financials (ex-Banks)",
-"de": "2026-06-16",
-"data": "2026-06-18",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-null,
-5224.32
 ],
 "cambio": false,
 "relatorio": null
@@ -107576,8 +106914,8 @@ null,
 "data": "2026-06-18",
 "ano0": 2026,
 "var": {
-"ano0": -0.0311,
-"ano1": -0.0384
+"ano0": -0.0312,
+"ano1": -0.0385
 },
 "lucro_ano1": [
 1427.66,
@@ -107594,7 +106932,7 @@ null,
 "data": "2026-06-18",
 "ano0": 2026,
 "var": {
-"ano1": -0.228
+"ano1": -0.2281
 },
 "lucro_ano1": [
 3237.58,
@@ -107612,7 +106950,7 @@ null,
 "ano0": 2026,
 "var": {
 "ano0": 0.0305,
-"ano1": 0.0296
+"ano1": 0.0295
 },
 "lucro_ano1": [
 1616.21,
@@ -107629,8 +106967,8 @@ null,
 "data": "2026-06-18",
 "ano0": 2026,
 "var": {
-"ano0": 0.0272,
-"ano1": 0.0212
+"ano0": 0.0271,
+"ano1": 0.0211
 },
 "lucro_ano1": [
 756.86,
@@ -107647,29 +106985,11 @@ null,
 "data": "2026-06-18",
 "ano0": 2026,
 "var": {
-"ano1": -0.039
+"ano1": -0.0391
 },
 "lucro_ano1": [
 4748.04,
 4562.47
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "HYPE3",
-"empresa": "Hypera",
-"setor_guia": "Healthcare",
-"de": "2026-06-16",
-"data": "2026-06-18",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-null,
-2211.03
 ],
 "cambio": false,
 "relatorio": null
@@ -107682,8 +107002,8 @@ null,
 "data": "2026-06-18",
 "ano0": 2026,
 "var": {
-"ano0": -0.0673,
-"ano1": -0.0475
+"ano0": -0.0674,
+"ano1": -0.0476
 },
 "lucro_ano1": [
 2078.02,
@@ -107700,8 +107020,8 @@ null,
 "data": "2026-06-18",
 "ano0": 2026,
 "var": {
-"ano0": -0.0262,
-"ano1": -0.0301
+"ano0": -0.0263,
+"ano1": -0.0302
 },
 "lucro_ano1": [
 62067.32,
@@ -107719,7 +107039,7 @@ null,
 "ano0": 2026,
 "var": {
 "ano0": 0.0184,
-"ano1": 0.0195
+"ano1": 0.0193
 },
 "lucro_ano1": [
 1067.38,
@@ -107737,7 +107057,7 @@ null,
 "ano0": 2026,
 "var": {
 "ano0": -0.042,
-"ano1": -0.0454
+"ano1": -0.0456
 },
 "lucro_ano1": [
 4086.42,
@@ -107755,7 +107075,7 @@ null,
 "ano0": 2026,
 "var": {
 "ano0": 0.0329,
-"ano1": 0.0305
+"ano1": 0.0304
 },
 "lucro_ano1": [
 2471.48,
@@ -107773,7 +107093,7 @@ null,
 "ano0": 2026,
 "var": {
 "ano0": -0.1962,
-"ano1": -0.0694
+"ano1": -0.0695
 },
 "lucro_ano1": [
 1460.54,
@@ -107790,8 +107110,8 @@ null,
 "data": "2026-06-18",
 "ano0": 2026,
 "var": {
-"ano0": -0.0523,
-"ano1": -0.0691
+"ano0": -0.0524,
+"ano1": -0.0692
 },
 "lucro_ano1": [
 920.43,
@@ -107809,7 +107129,7 @@ null,
 "ano0": 2026,
 "var": {
 "ano0": 0.0713,
-"ano1": 0.0752
+"ano1": 0.0751
 },
 "lucro_ano1": [
 1319.61,
@@ -107827,7 +107147,7 @@ null,
 "ano0": 2026,
 "var": {
 "ano0": 0.0517,
-"ano1": 0.0512
+"ano1": 0.0511
 },
 "lucro_ano1": [
 2865.21,
@@ -107845,7 +107165,7 @@ null,
 "ano0": 2026,
 "var": {
 "ano0": 0.1018,
-"ano1": 0.098
+"ano1": 0.0979
 },
 "lucro_ano1": [
 1131.74,
@@ -107863,7 +107183,7 @@ null,
 "ano0": 2026,
 "var": {
 "ano0": -0.0518,
-"ano1": -0.0516
+"ano1": -0.0517
 },
 "lucro_ano1": [
 740.55,
@@ -107873,19 +107193,18 @@ null,
 "relatorio": null
 },
 {
-"tk": "CXSE3",
-"empresa": "Caixa Seguridade",
-"setor_guia": "Financials (ex-Banks)",
-"de": "2026-06-18",
+"tk": "CSAN3",
+"empresa": "Cosan",
+"setor_guia": "Agribusiness",
+"de": "2026-06-15",
 "data": "2026-06-22",
 "ano0": 2026,
 "var": {
-"ano0": null,
-"ano1": null
+"ano1": -0.5282
 },
 "lucro_ano1": [
-5224.32,
-null
+3163.58,
+1492.58
 ],
 "cambio": false,
 "relatorio": null
@@ -107908,24 +107227,6 @@ null
 "relatorio": null
 },
 {
-"tk": "HYPE3",
-"empresa": "Hypera",
-"setor_guia": "Healthcare",
-"de": "2026-06-18",
-"data": "2026-06-22",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-2211.03,
-null
-],
-"cambio": false,
-"relatorio": null
-},
-{
 "tk": "CSMG3",
 "empresa": "Copasa",
 "setor_guia": "Utilities",
@@ -107933,8 +107234,8 @@ null
 "data": "2026-06-23",
 "ano0": 2026,
 "var": {
-"ano0": -0.0406,
-"ano1": 0.0374
+"ano0": -0.0407,
+"ano1": 0.0372
 },
 "lucro_ano1": [
 1418.66,
@@ -107951,156 +107252,12 @@ null
 "data": "2026-06-23",
 "ano0": 2026,
 "var": {
-"ano0": -0.0446,
-"ano1": 0.1076
+"ano0": -0.0447,
+"ano1": 0.1073
 },
 "lucro_ano1": [
 2498.38,
 2768.01
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "CXSE3",
-"empresa": "Caixa Seguridade",
-"setor_guia": "Financials (ex-Banks)",
-"de": "2026-06-23",
-"data": "2026-06-25",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-null,
-5191.07
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "HYPE3",
-"empresa": "Hypera",
-"setor_guia": "Healthcare",
-"de": "2026-06-23",
-"data": "2026-06-25",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-null,
-2215.0
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "CXSE3",
-"empresa": "Caixa Seguridade",
-"setor_guia": "Financials (ex-Banks)",
-"de": "2026-06-25",
-"data": "2026-06-30",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-5191.07,
-null
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "HYPE3",
-"empresa": "Hypera",
-"setor_guia": "Healthcare",
-"de": "2026-06-25",
-"data": "2026-06-30",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-2215.0,
-null
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "CXSE3",
-"empresa": "Caixa Seguridade",
-"setor_guia": "Financials (ex-Banks)",
-"de": "2026-06-30",
-"data": "2026-07-01",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-null,
-5180.87
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "HYPE3",
-"empresa": "Hypera",
-"setor_guia": "Healthcare",
-"de": "2026-06-30",
-"data": "2026-07-01",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-null,
-2208.03
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "CXSE3",
-"empresa": "Caixa Seguridade",
-"setor_guia": "Financials (ex-Banks)",
-"de": "2026-07-01",
-"data": "2026-07-02",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-5180.87,
-null
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "HYPE3",
-"empresa": "Hypera",
-"setor_guia": "Healthcare",
-"de": "2026-07-01",
-"data": "2026-07-02",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-2208.03,
-null
 ],
 "cambio": false,
 "relatorio": null
@@ -108113,7 +107270,7 @@ null
 "data": "2026-07-08",
 "ano0": 2026,
 "var": {
-"ano1": -0.2712
+"ano1": -0.2713
 },
 "lucro_ano1": [
 205.15,
@@ -108131,7 +107288,7 @@ null
 "ano0": 2026,
 "var": {
 "ano0": 0.1126,
-"ano1": 0.2234
+"ano1": 0.2231
 },
 "lucro_ano1": [
 4779.3,
@@ -108148,101 +107305,11 @@ null
 "data": "2026-07-08",
 "ano0": 2026,
 "var": {
-"ano1": -0.1285
+"ano1": -0.1286
 },
 "lucro_ano1": [
 9181.61,
 8004.54
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "CXSE3",
-"empresa": "Caixa Seguridade",
-"setor_guia": "Financials (ex-Banks)",
-"de": "2026-07-13",
-"data": "2026-07-14",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-null,
-5222.83
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "HYPE3",
-"empresa": "Hypera",
-"setor_guia": "Healthcare",
-"de": "2026-07-13",
-"data": "2026-07-14",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-null,
-2145.7
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "CXSE3",
-"empresa": "Caixa Seguridade",
-"setor_guia": "Financials (ex-Banks)",
-"de": "2026-07-14",
-"data": "2026-07-15",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-5222.83,
-null
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "HYPE3",
-"empresa": "Hypera",
-"setor_guia": "Healthcare",
-"de": "2026-07-14",
-"data": "2026-07-15",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-2145.7,
-null
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "CXSE3",
-"empresa": "Caixa Seguridade",
-"setor_guia": "Financials (ex-Banks)",
-"de": "2026-07-15",
-"data": "2026-07-20",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-null,
-5221.87
 ],
 "cambio": false,
 "relatorio": null
@@ -108255,47 +107322,12 @@ null,
 "data": "2026-07-20",
 "ano0": 2026,
 "var": {
+"ano0": 1.1967,
 "ano1": 0.5895
 },
 "lucro_ano1": [
 742.4,
 1180.02
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "HYPE3",
-"empresa": "Hypera",
-"setor_guia": "Healthcare",
-"de": "2026-07-15",
-"data": "2026-07-20",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-null,
-2154.27
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "CXSE3",
-"empresa": "Caixa Seguridade",
-"setor_guia": "Financials (ex-Banks)",
-"de": "2026-07-20",
-"data": "2026-07-21",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-5221.87,
-null
 ],
 "cambio": false,
 "relatorio": null
@@ -108308,30 +107340,11 @@ null
 "data": "2026-07-21",
 "ano0": 2026,
 "var": {
-"ano0": null,
-"ano1": 0.2671
+"ano1": 0.2682
 },
 "lucro_ano1": [
 531.7,
 674.3
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "HYPE3",
-"empresa": "Hypera",
-"setor_guia": "Healthcare",
-"de": "2026-07-20",
-"data": "2026-07-21",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-2154.27,
-null
 ],
 "cambio": false,
 "relatorio": null
@@ -108345,7 +107358,7 @@ null
 "ano0": 2026,
 "var": {
 "ano0": 0.1383,
-"ano1": -0.1195
+"ano1": -0.1196
 },
 "lucro_ano1": [
 4816.63,
@@ -108363,7 +107376,7 @@ null
 "ano0": 2026,
 "var": {
 "ano0": -0.019,
-"ano1": -0.0337
+"ano1": -0.0338
 },
 "lucro_ano1": [
 1180.0,
@@ -108381,7 +107394,7 @@ null
 "ano0": 2026,
 "var": {
 "ano0": 0.336,
-"ano1": 0.1556
+"ano1": 0.1555
 },
 "lucro_ano1": [
 1663.4,
@@ -108408,24 +107421,6 @@ null
 "relatorio": null
 },
 {
-"tk": "CXSE3",
-"empresa": "Caixa Seguridade",
-"setor_guia": "Financials (ex-Banks)",
-"de": "2026-07-23",
-"data": "2026-07-27",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-null,
-5223.53
-],
-"cambio": false,
-"relatorio": null
-},
-{
 "tk": "EGIE3",
 "empresa": "Engie Brasil Energia",
 "setor_guia": "Utilities",
@@ -108433,29 +107428,11 @@ null,
 "data": "2026-07-27",
 "ano0": 2026,
 "var": {
-"ano0": -0.1515
+"ano0": -0.1518
 },
 "lucro_ano1": [
 2772.98,
 2727.44
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "HYPE3",
-"empresa": "Hypera",
-"setor_guia": "Healthcare",
-"de": "2026-07-23",
-"data": "2026-07-27",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-null,
-2148.76
 ],
 "cambio": false,
 "relatorio": null
@@ -108468,7 +107445,7 @@ null,
 "data": "2026-07-27",
 "ano0": 2026,
 "var": {
-"ano0": -0.0406
+"ano0": -0.0409
 },
 "lucro_ano1": [
 1984.22,
@@ -108485,7 +107462,7 @@ null,
 "data": "2026-07-27",
 "ano0": 2026,
 "var": {
-"ano0": -0.0369
+"ano0": -0.0372
 },
 "lucro_ano1": [
 4880.69,
@@ -108507,42 +107484,6 @@ null,
 "lucro_ano1": [
 7888.54,
 7637.47
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "CXSE3",
-"empresa": "Caixa Seguridade",
-"setor_guia": "Financials (ex-Banks)",
-"de": "2026-07-27",
-"data": "2026-07-29",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-5223.53,
-null
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "HYPE3",
-"empresa": "Hypera",
-"setor_guia": "Healthcare",
-"de": "2026-07-27",
-"data": "2026-07-29",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-2148.76,
-null
 ],
 "cambio": false,
 "relatorio": null
@@ -108573,30 +107514,12 @@ null
 "data": "2026-08-05",
 "ano0": 2026,
 "var": {
-"ano0": -0.0377,
-"ano1": -0.0998
+"ano0": -0.0378,
+"ano1": -0.0999
 },
 "lucro_ano1": [
 2117.44,
 1905.35
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "CXSE3",
-"empresa": "Caixa Seguridade",
-"setor_guia": "Financials (ex-Banks)",
-"de": "2026-08-05",
-"data": "2026-08-06",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-null,
-5208.85
 ],
 "cambio": false,
 "relatorio": null
@@ -108609,30 +107532,12 @@ null,
 "data": "2026-08-06",
 "ano0": 2026,
 "var": {
-"ano0": 0.1147,
-"ano1": 0.0751
+"ano0": 0.1149,
+"ano1": 0.0752
 },
 "lucro_ano1": [
 772.3,
 828.95
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "HYPE3",
-"empresa": "Hypera",
-"setor_guia": "Healthcare",
-"de": "2026-08-05",
-"data": "2026-08-06",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-null,
-2145.22
 ],
 "cambio": false,
 "relatorio": null
@@ -108645,8 +107550,8 @@ null,
 "data": "2026-08-06",
 "ano0": 2026,
 "var": {
-"ano0": 0.1319,
-"ano1": 0.2332
+"ano0": 0.1321,
+"ano1": 0.2334
 },
 "lucro_ano1": [
 4317.67,
@@ -108663,8 +107568,8 @@ null,
 "data": "2026-08-10",
 "ano0": 2026,
 "var": {
-"ano0": -0.0288,
-"ano1": -0.0457
+"ano0": -0.0289,
+"ano1": -0.0458
 },
 "lucro_ano1": [
 31599.59,
@@ -108681,6 +107586,7 @@ null,
 "data": "2026-08-10",
 "ano0": 2026,
 "var": {
+"ano0": -0.5986,
 "ano1": -0.2546
 },
 "lucro_ano1": [
@@ -108698,8 +107604,8 @@ null,
 "data": "2026-08-10",
 "ano0": 2026,
 "var": {
-"ano0": -0.0559,
-"ano1": -0.0781
+"ano0": -0.056,
+"ano1": -0.0782
 },
 "lucro_ano1": [
 1301.66,
@@ -108716,7 +107622,7 @@ null,
 "data": "2026-08-10",
 "ano0": 2026,
 "var": {
-"ano1": -0.0395
+"ano1": -0.0396
 },
 "lucro_ano1": [
 2164.04,
@@ -108733,47 +107639,12 @@ null,
 "data": "2026-08-11",
 "ano0": 2026,
 "var": {
-"ano1": -0.0686
+"ano0": -0.7372,
+"ano1": -0.0684
 },
 "lucro_ano1": [
 1739.52,
 1621.62
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "CXSE3",
-"empresa": "Caixa Seguridade",
-"setor_guia": "Financials (ex-Banks)",
-"de": "2026-08-11",
-"data": "2026-08-12",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-5125.0,
-null
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "HYPE3",
-"empresa": "Hypera",
-"setor_guia": "Healthcare",
-"de": "2026-08-11",
-"data": "2026-08-12",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-2158.96,
-null
 ],
 "cambio": false,
 "relatorio": null
@@ -108786,7 +107657,7 @@ null
 "data": "2026-08-13",
 "ano0": 2026,
 "var": {
-"ano0": -0.1657,
+"ano0": -0.1656,
 "ano1": -0.0274
 },
 "lucro_ano1": [
@@ -108832,42 +107703,6 @@ null
 "relatorio": null
 },
 {
-"tk": "CXSE3",
-"empresa": "Caixa Seguridade",
-"setor_guia": "Financials (ex-Banks)",
-"de": "2026-08-13",
-"data": "2026-08-17",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-null,
-5122.86
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "HYPE3",
-"empresa": "Hypera",
-"setor_guia": "Healthcare",
-"de": "2026-08-13",
-"data": "2026-08-17",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-null,
-2172.07
-],
-"cambio": false,
-"relatorio": null
-},
-{
 "tk": "PRIO3",
 "empresa": "PRIO",
 "setor_guia": "Oil & Gas",
@@ -108892,85 +107727,13 @@ null,
 "data": "2026-08-18",
 "ano0": 2026,
 "var": {
-"ano0": 0.0355
+"ano0": 0.0354
 },
 "lucro_ano1": [
 6610.92,
 6681.94
 ],
 "cambio": false,
-"relatorio": null
-},
-{
-"tk": "CXSE3",
-"empresa": "Caixa Seguridade",
-"setor_guia": "Financials (ex-Banks)",
-"de": "2026-08-17",
-"data": "2026-08-18",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-5122.86,
-null
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "HYPE3",
-"empresa": "Hypera",
-"setor_guia": "Healthcare",
-"de": "2026-08-17",
-"data": "2026-08-18",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-2172.07,
-null
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "HAPV3",
-"empresa": "Hapvida",
-"setor_guia": "Healthcare",
-"de": "2026-08-18",
-"data": "2026-08-20",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-973.67,
-null
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "BRAV3",
-"empresa": "Brava Energia",
-"setor_guia": "Oil & Gas",
-"de": "2026-08-18",
-"data": "2026-08-20",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-null,
-2130.17
-],
-"cambio": true,
 "relatorio": null
 },
 {
@@ -108981,8 +107744,8 @@ null,
 "data": "2026-08-25",
 "ano0": 2026,
 "var": {
-"ano0": 0.0315,
-"ano1": 0.0254
+"ano0": 0.0307,
+"ano1": 0.0251
 },
 "lucro_ano1": [
 8447.4,
@@ -108999,30 +107762,12 @@ null,
 "data": "2026-08-25",
 "ano0": 2026,
 "var": {
-"ano0": -0.0489,
-"ano1": -0.0438
+"ano0": -0.0496,
+"ano1": -0.0441
 },
 "lucro_ano1": [
 1563.73,
 1493.51
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "CXSE3",
-"empresa": "Caixa Seguridade",
-"setor_guia": "Financials (ex-Banks)",
-"de": "2026-08-20",
-"data": "2026-08-25",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-null,
-5101.76
 ],
 "cambio": false,
 "relatorio": null
@@ -109035,30 +107780,12 @@ null,
 "data": "2026-08-25",
 "ano0": 2026,
 "var": {
-"ano0": 0.0668,
-"ano1": 0.0664
+"ano0": 0.0661,
+"ano1": 0.0662
 },
 "lucro_ano1": [
 5769.97,
 6146.47
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "HYPE3",
-"empresa": "Hypera",
-"setor_guia": "Healthcare",
-"de": "2026-08-20",
-"data": "2026-08-25",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-null,
-2159.94
 ],
 "cambio": false,
 "relatorio": null
@@ -109071,8 +107798,8 @@ null,
 "data": "2026-08-25",
 "ano0": 2026,
 "var": {
-"ano0": -0.0617,
-"ano1": -0.06
+"ano0": -0.0623,
+"ano1": -0.0602
 },
 "lucro_ano1": [
 1997.27,
@@ -109089,8 +107816,8 @@ null,
 "data": "2026-08-25",
 "ano0": 2026,
 "var": {
-"ano0": -0.0349,
-"ano1": -0.0449
+"ano0": -0.0356,
+"ano1": -0.0451
 },
 "lucro_ano1": [
 59954.3,
@@ -109107,8 +107834,8 @@ null,
 "data": "2026-08-25",
 "ano0": 2026,
 "var": {
-"ano0": -0.0327,
-"ano1": -0.0352
+"ano0": -0.0334,
+"ano1": -0.0355
 },
 "lucro_ano1": [
 1983.05,
@@ -109125,8 +107852,8 @@ null,
 "data": "2026-08-25",
 "ano0": 2026,
 "var": {
-"ano0": -0.0421,
-"ano1": -0.0378
+"ano0": -0.0428,
+"ano1": -0.0381
 },
 "lucro_ano1": [
 658.58,
@@ -109143,8 +107870,8 @@ null,
 "data": "2026-08-25",
 "ano0": 2026,
 "var": {
-"ano0": -0.0456,
-"ano1": -0.0497
+"ano0": -0.0462,
+"ano1": -0.0499
 },
 "lucro_ano1": [
 1090.47,
@@ -109161,8 +107888,8 @@ null,
 "data": "2026-08-25",
 "ano0": 2026,
 "var": {
-"ano0": -0.0937,
-"ano1": -0.0944
+"ano0": -0.0943,
+"ano1": -0.0946
 },
 "lucro_ano1": [
 6368.19,
@@ -109179,8 +107906,8 @@ null,
 "data": "2026-08-25",
 "ano0": 2026,
 "var": {
-"ano0": -0.0445,
-"ano1": -0.0543
+"ano0": -0.0451,
+"ano1": -0.0546
 },
 "lucro_ano1": [
 5213.05,
@@ -109197,29 +107924,12 @@ null,
 "data": "2026-08-25",
 "ano0": 2026,
 "var": {
-"ano0": 0.0221,
-"ano1": 0.0298
+"ano0": 0.0214,
+"ano1": 0.0296
 },
 "lucro_ano1": [
 15467.78,
 15911.76
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "TAEE11",
-"empresa": "Taesa",
-"setor_guia": "Utilities",
-"de": "2026-08-20",
-"data": "2026-08-25",
-"ano0": 2026,
-"var": {
-"ano0": 0.0141
-},
-"lucro_ano1": [
-1358.72,
-1366.88
 ],
 "cambio": false,
 "relatorio": null
@@ -109232,8 +107942,8 @@ null,
 "data": "2026-08-25",
 "ano0": 2026,
 "var": {
-"ano0": -0.0152,
-"ano1": -0.0179
+"ano0": -0.0159,
+"ano1": -0.0181
 },
 "lucro_ano1": [
 1420.85,
@@ -109250,8 +107960,8 @@ null,
 "data": "2026-08-25",
 "ano0": 2026,
 "var": {
-"ano0": -0.0225,
-"ano1": -0.0176
+"ano0": -0.0232,
+"ano1": -0.0179
 },
 "lucro_ano1": [
 3015.43,
@@ -109268,30 +107978,12 @@ null,
 "data": "2026-08-25",
 "ano0": 2026,
 "var": {
-"ano0": -0.0962,
-"ano1": -0.0965
+"ano0": -0.0968,
+"ano1": -0.0967
 },
 "lucro_ano1": [
 606.03,
 546.95
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "VBBR3",
-"empresa": "Vibra Energia",
-"setor_guia": "Oil & Gas",
-"de": "2026-08-20",
-"data": "2026-08-25",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-null,
-3555.87
 ],
 "cambio": false,
 "relatorio": null
@@ -109447,6 +108139,7 @@ null,
 "data": "2026-08-31",
 "ano0": 2026,
 "var": {
+"ano0": -0.4714,
 "ano1": -0.0372
 },
 "lucro_ano1": [
@@ -109653,23 +108346,6 @@ null,
 "relatorio": null
 },
 {
-"tk": "BBAS3",
-"empresa": "Banco do Brasil",
-"setor_guia": "Banks",
-"de": "2026-09-08",
-"data": "2026-09-09",
-"ano0": 2026,
-"var": {
-"ano0": null
-},
-"lucro_ano1": [
-21839.8,
-21839.8
-],
-"cambio": false,
-"relatorio": null
-},
-{
 "tk": "PETR4",
 "empresa": "Petrobras",
 "setor_guia": "Oil & Gas",
@@ -109758,150 +108434,6 @@ null,
 "relatorio": null
 },
 {
-"tk": "CYRE3",
-"empresa": "Cyrela",
-"setor_guia": "Real Estate",
-"de": "2026-09-15",
-"data": "2026-09-16",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-2343.18,
-null
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "POMO4",
-"empresa": "Marcopolo",
-"setor_guia": "Capital Goods",
-"de": "2026-09-15",
-"data": "2026-09-16",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-1228.04,
-null
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "RDOR3",
-"empresa": "Rede D'Or",
-"setor_guia": "Healthcare",
-"de": "2026-09-15",
-"data": "2026-09-16",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-6104.7,
-null
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "SUZB3",
-"empresa": "Suzano",
-"setor_guia": "Pulp & Paper",
-"de": "2026-09-15",
-"data": "2026-09-16",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-9118.28,
-null
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "CYRE3",
-"empresa": "Cyrela",
-"setor_guia": "Real Estate",
-"de": "2026-09-16",
-"data": "2026-09-17",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-null,
-2343.18
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "POMO4",
-"empresa": "Marcopolo",
-"setor_guia": "Capital Goods",
-"de": "2026-09-16",
-"data": "2026-09-17",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-null,
-1228.04
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "RDOR3",
-"empresa": "Rede D'Or",
-"setor_guia": "Healthcare",
-"de": "2026-09-16",
-"data": "2026-09-17",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-null,
-6104.7
-],
-"cambio": false,
-"relatorio": null
-},
-{
-"tk": "SUZB3",
-"empresa": "Suzano",
-"setor_guia": "Pulp & Paper",
-"de": "2026-09-16",
-"data": "2026-09-17",
-"ano0": 2026,
-"var": {
-"ano0": null,
-"ano1": null
-},
-"lucro_ano1": [
-null,
-9118.28
-],
-"cambio": false,
-"relatorio": null
-},
-{
 "tk": "PRIO3",
 "empresa": "PRIO",
 "setor_guia": "Oil & Gas",
@@ -109935,7 +108467,12 @@ null,
 5922.37
 ],
 "cambio": true,
-"relatorio": null
+"relatorio": {
+"id": 122936,
+"data": "2026-09-24",
+"empresa": "Oil & Gas",
+"titulo": "Question Handbook - 2026 LatAm CEO Conference"
+}
 },
 {
 "tk": "PRIO3",
@@ -109953,7 +108490,12 @@ null,
 5809.78
 ],
 "cambio": true,
-"relatorio": null
+"relatorio": {
+"id": 123070,
+"data": "2026-09-30",
+"empresa": "Brazil Oil & Gas",
+"titulo": "The Diesel Market Remains Tight, but Shortage Risk Seems Limited"
+}
 },
 {
 "tk": "PRIO3",
@@ -110007,7 +108549,12 @@ null,
 1424.76
 ],
 "cambio": false,
-"relatorio": null
+"relatorio": {
+"id": 123288,
+"data": "2026-10-08",
+"empresa": "Cury",
+"titulo": "Solid Q3, with 40% sales speed and massive FCF"
+}
 },
 {
 "tk": "DIRR3",
@@ -110035,14 +108582,19 @@ null,
 "data": "2026-10-09",
 "ano0": 2026,
 "var": {
-"ano0": null
+"ano1": -0.45
 },
 "lucro_ano1": [
 1195.0,
 657.25
 ],
 "cambio": false,
-"relatorio": null
+"relatorio": {
+"id": 123297,
+"data": "2026-10-08",
+"empresa": "MRV",
+"titulo": "Mixed Q3, with solid sales speed but weak FCF"
+}
 },
 {
 "tk": "PRIO3",
@@ -110060,7 +108612,12 @@ null,
 5649.33
 ],
 "cambio": true,
-"relatorio": null
+"relatorio": {
+"id": 123320,
+"data": "2026-10-09",
+"empresa": "Brazil Oil & Gas",
+"titulo": "A Quick Look on Today's Fuel Measures"
+}
 },
 {
 "tk": "TEND3",
@@ -110078,7 +108635,12 @@ null,
 906.98
 ],
 "cambio": false,
-"relatorio": null
+"relatorio": {
+"id": 123302,
+"data": "2026-10-08",
+"empresa": "Tenda",
+"titulo": "Weak 3Q26 operating figures, as expected"
+}
 },
 {
 "tk": "BRAV3",
@@ -110096,7 +108658,12 @@ null,
 314.87
 ],
 "cambio": true,
-"relatorio": null
+"relatorio": {
+"id": 123320,
+"data": "2026-10-09",
+"empresa": "Brazil Oil & Gas",
+"titulo": "A Quick Look on Today's Fuel Measures"
+}
 },
 {
 "tk": "PRIO3",
@@ -110114,7 +108681,12 @@ null,
 5569.09
 ],
 "cambio": true,
-"relatorio": null
+"relatorio": {
+"id": 123320,
+"data": "2026-10-09",
+"empresa": "Brazil Oil & Gas",
+"titulo": "A Quick Look on Today's Fuel Measures"
+}
 },
 {
 "tk": "PRIO3",
@@ -110132,7 +108704,12 @@ null,
 5658.78
 ],
 "cambio": true,
-"relatorio": null
+"relatorio": {
+"id": 123349,
+"data": "2026-10-13",
+"empresa": "Brazil Oil & Gas",
+"titulo": "Rio/SP NDR Takeaways: All Roads Lead to PBR"
+}
 },
 {
 "tk": "PRIO3",
@@ -110150,7 +108727,12 @@ null,
 5815.88
 ],
 "cambio": true,
-"relatorio": null
+"relatorio": {
+"id": 123397,
+"data": "2026-10-15",
+"empresa": "Petrobras",
+"titulo": "Another Month with Production Growth... All Eyes on November Strategic Plan"
+}
 }
 ]
 }

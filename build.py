@@ -1631,6 +1631,7 @@ def analise_valuation(M: dict) -> dict | None:
         return None
     PV = cvm_pl.carrega()
     FX = LC.fator_cambio(L)                       # efeito cambial nas empresas que o BTG modela em dólar (revisão sem câmbio)
+    SA0 = LC.serie_ajustada(L)
     P = analise_papeis(M) or {"linhas": []}
     por = {l["cod"]: l for l in P["linhas"]}
     pc = config.DATA / "ibov_comp.json"
@@ -1670,7 +1671,7 @@ def analise_valuation(M: dict) -> dict | None:
                       "pl0": preco / ult[2] if (preco and ult[2] and ult[2] > 0) else None,
                       "pl1": preco / ult[3] if (preco and ult[3] and ult[3] > 0) else None,
                       "cresc": (ult[3] / ult[2] - 1) if (ult[2] and ult[3] and ult[2] > 0) else None,
-                      "rev": LC.revisao(tk, L, FX), "mtm": "usd" if tk in FX[1] else ("mtm" if tk in FX[2] else ""),
+                      "rev": LC.revisao(tk, L, SA0), "mtm": "usd" if tk in FX[1] else ("mtm" if tk in FX[2] else ""),
                       "dpl": (pl - ser[0][1]) if (pl and ser) else None})
         if r["x"]:
             r["ev12"] = LC.ev_ebitda12(r["x"], preco_de(r["x"]["prim"]), hoje)
@@ -1697,7 +1698,15 @@ def analise_valuation(M: dict) -> dict | None:
                     continue
                 nu[d] = nu.get(d, 0) + q * fech[tk][d]
                 de[d] = de.get(d, 0) + q * e
-        return [[d, nu[d] / de[d]] for d in sorted(nu) if de[d] > 0]
+        tot = {}
+        for tk in sel:
+            q = (itens.get(tk) or {}).get("q")
+            if q:
+                for d, v in fech.get(tk, {}).items():
+                    tot[d] = tot.get(d, 0) + q * v
+        cob_d = {d: nu[d] / tot[d] for d in nu if tot.get(d)}
+        alvo = 0.9 * max(cob_d.values(), default=0)      # Petrobras e Vale não estão no guia antigo: a série só começa com o índice coberto
+        return [[d, nu[d] / de[d]] for d in sorted(nu) if de[d] > 0 and cob_d.get(d, 0) >= alvo]
 
     def agrega_hoje(sel):
         """Agregados de hoje com o preço de tela: P/L, P/VP, DY (quantidades teóricas) e EV/EBITDA (Σ EV ÷ Σ EBITDA por empresa)."""
@@ -1735,12 +1744,103 @@ def analise_valuation(M: dict) -> dict | None:
     for st, tks in setores.items():
         sr = agrega(tks)
         ah = agrega_hoje(tks)
-        luc = [(LC.lucro_sem_cambio(tk, L["btg"][tk][-1], FX), LC.lucro_sem_cambio(tk, L["btg"][tk][0], FX)) for tk in tks
-               if tk in L["btg"] and L["btg"][tk][-1][5] and L["btg"][tk][0][5] and L["btg"][tk][-1][5] > 0 and L["btg"][tk][0][5] > 0]
+        luc = [(SA0[tk][5][-1][1], SA0[tk][5][0][1]) for tk in tks if tk in SA0 and len(SA0[tk].get(5) or []) >= 2]
         rev = (sum(a for a, _ in luc) / sum(b for _, b in luc) - 1) if luc and sum(b for _, b in luc) > 0 else None
         tab_set.append({"setor": st, "n": len(tks), "tks": tks, "pl": ah["pl"] or (sr[-1][1] if sr else None), "pl_ini": sr[0][1] if sr else None,
                         "rev": rev, "pvp": ah["pvp"], "dy": ah["dy"], "ev": ah["ev"], "peso": sum((itens[tk].get("peso") or 0) for tk in tks)})
     tab_set.sort(key=lambda r: r["pl"] if r["pl"] else 999)
+    # ---------------------------------------------------------------- revisões de lucro (direção e intensidade)
+    from datetime import timedelta as _td
+    JAN = [("1 sem", 7), ("1 mês", 30), ("3 meses", 91)]
+    LIM = 0.01                                             # revisão abaixo de 1% = ruído
+    SA = LC.serie_ajustada(L)                              # lucro sem câmbio/movimentos comuns do guia, com o ruído de arredondamento
+    empresas = {}                                          # 1 ticker por empresa (PETR3/PETR4, BBDC3/BBDC4)
+    for r in linhas:
+        if r["cod"] in L["btg"] and r["setor"] not in ("—", "BDR"):
+            nome = LC.REV.get(r["cod"], (r["cod"], 0))[0]
+            empresas.setdefault(nome, r["cod"])
+    def rev_emp(tk, dias, i):
+        """(lucro hoje, lucro na base, ruído) da série ajustada"""
+        ser = (SA.get(tk) or {}).get(i) or []
+        if not ser:
+            return None
+        d1, v1, r1 = ser[-1]
+        lim_d = (date.fromisoformat(d1) - _td(days=dias)).isoformat()
+        base = next((x for x in reversed(ser) if x[0] <= lim_d), None)
+        return (v1, base[1], r1 + base[2]) if base else None
+    def celula(tks, dias, i):
+        pares = {tk: rev_emp(tk, dias, i) for tk in tks}
+        pares = {tk: v for tk, v in pares.items() if v}
+        if not pares:
+            return None
+        revs = {tk: b / a - 1 for tk, (b, a, _) in pares.items()}
+        ruid = {tk: r for tk, (_, _, r) in pares.items()}
+        up = sorted([tk for tk, v in revs.items() if v >= LIM + ruid[tk]], key=lambda t: -revs[t])
+        dn = sorted([tk for tk, v in revs.items() if v <= -LIM - ruid[tk]], key=lambda t: revs[t])
+        inten = sum(b for b, _, _ in pares.values()) / sum(a for _, a, _ in pares.values()) - 1
+        n = len(pares)
+        larga = lambda k: k >= 2 and k >= 0.4 * n
+        if inten <= -0.02 and larga(len(dn)):
+            rot = "cortes disseminados"
+        elif inten >= 0.02 and larga(len(up)):
+            rot = "upgrades disseminados"
+        elif inten <= -LIM or (dn and not up and inten < 0):
+            rot = "corte pontual"
+        elif inten >= LIM or (up and not dn and inten > 0):
+            rot = "upgrade pontual"
+        else:
+            rot = "estável"
+        # quem mais pesou (variação absoluta de lucro)
+        drv = max(pares, key=lambda t: abs(pares[t][0] - pares[t][1])) if (up or dn) else None
+        return {"inten": inten, "up": up, "dn": dn, "n": n, "rot": rot, "drv": drv, "revs": revs}
+    por_setor = {}
+    for nome, tk in empresas.items():
+        por_setor.setdefault(lin[tk]["setor"], []).append(tk)
+    mapa_rev = []
+    for st, tks in sorted(por_setor.items()):
+        cel = {j: celula(tks, d, 5) for j, d in JAN}
+        cel["1 mês " + str(int(hoje[:4]))] = celula(tks, 30, 4)
+        mapa_rev.append({"setor": st, "n": len(tks), "cel": cel, "peso": sum((itens.get(t) or {}).get("peso") or 0 for t in tks)})
+    todos = [tk for tk in empresas.values() if tk in itens]
+    mapa_ibov = {j: celula(todos, d, 5) for j, d in JAN} | {"1 mês " + str(int(hoje[:4])): celula(todos, 30, 4)}
+    # P/L 1 mês: preço × revisão × calendário (rolagem do 12m), por setor e Ibov, com as quantidades teóricas
+    def decomp(tks, dias=30):
+        t0 = (date.fromisoformat(hoje) - _td(days=dias)).isoformat()
+        p1 = p0 = e_now = e_now_g0 = e_t0 = 0.0
+        ok = 0
+        for tk in tks:
+            q, r = (itens.get(tk) or {}).get("q"), lin.get(tk)
+            if not (q and r and r["lpa"] and r["preco"]):
+                continue
+            ds = [d for d in sorted(fech.get(tk, {})) if d <= t0]
+            if not ds:
+                continue
+            d0 = ds[-1]
+            g0 = next((pt for pt in reversed(r["lpa"]) if pt[0] <= d0), None)
+            g1 = r["lpa"][-1]
+            if not g0:
+                continue
+            a, _ = LC.lpa12(g1, hoje); b, _ = LC.lpa12(g0, hoje); c, _ = LC.lpa12(g0, d0)
+            if not (a and b and c) or a <= 0 or b <= 0 or c <= 0:
+                continue
+            p1 += q * r["preco"]; p0 += q * fech[tk][d0]
+            e_now += q * a; e_now_g0 += q * b; e_t0 += q * c
+            ok += 1
+        if not ok or not (p0 and e_t0 and e_now_g0):
+            return None
+        preco, rev, cal = p1 / p0 - 1, e_now / e_now_g0 - 1, e_now_g0 / e_t0 - 1
+        return {"pl0": p0 / e_t0, "pl1": p1 / e_now, "preco": preco, "rev": rev, "cal": cal, "n": ok}
+    dec = [{"setor": st, **d} for st, tks in por_setor.items() for d in [decomp([t for t in tks if t in itens])] if d]
+    dec.sort(key=lambda d: d["pl1"] / d["pl0"] - 1)
+    dec_ibov = decomp(todos)
+    # eventos do último mês (gravados pelo coletor local com o relatório que os explica)
+    lim_ev = (date.fromisoformat(max(L.get("guias") or [hoje])) - _td(days=30)).isoformat()
+    tela = set(lin)
+    evs = [e for e in (L.get("eventos") or []) if e["data"] >= lim_ev and (e["tk"] in tela or any(t in tela for t in LC.MAPA_BTG.get(e["empresa"], [])))
+           and not (e["tk"] in FX[2] and max(abs(v) for v in e["var"].values() if v is not None) < 0.05)]   # PRIO: marcação diária fora da lista
+    evs.sort(key=lambda e: -max(abs(v) for v in e["var"].values() if v is not None) if any(v is not None for v in e["var"].values()) else 0)
+    revisoes = {"mapa": mapa_rev, "ibov": mapa_ibov, "janelas": [j for j, _ in JAN] + ["1 mês " + str(int(hoje[:4]))],
+                "dec": dec, "dec_ibov": dec_ibov, "eventos": evs[:14], "hist_ini": min(L.get("guias") or [hoje])}
     ah, ahx = agrega_hoje(cob), agrega_hoje(cob_ex)
     tudo = agrega_hoje([tk for tk in itens if tk in lin])
     s_ib, s_ex = agrega(cob), agrega(cob_ex)
@@ -1757,7 +1857,7 @@ def analise_valuation(M: dict) -> dict | None:
             "cob_peso": sum((itens[tk].get("peso") or 0) for tk in cob), "setores": tab_set, "ini": ini,
             "guia": max(L.get("guias") or [ini]), "sem": sorted(set(itens) - set(cob)), "tempo_real": P.get("tempo_real"),
             "ano0": next((r["ano0"] for r in linhas if r["ano0"]), int(hoje[:4])),
-            "pl_data": max((r["pl_data"] for r in linhas if r["pl_data"]), default=None)}
+            "pl_data": max((r["pl_data"] for r in linhas if r["pl_data"]), default=None), "revisoes": revisoes}
 
 
 def valuation_memo(M: dict) -> dict | None:
@@ -1769,6 +1869,78 @@ def valuation_memo(M: dict) -> dict | None:
             print(f"  valuation: {e}", file=sys.stderr)
             M["_valuation"] = None
     return M["_valuation"]
+
+
+REV_COR = {"cortes disseminados": "rgba(220,38,38,.20)", "corte pontual": "rgba(220,38,38,.07)",
+           "upgrades disseminados": "rgba(22,163,74,.20)", "upgrade pontual": "rgba(22,163,74,.08)", "estável": "transparent"}
+BTG_URL = "https://www.btgpactual.com/research/report-view/"
+
+
+def _rev_cel(c) -> str:
+    """Célula do mapa de revisões: intensidade (lucro do setor) + amplitude (↓ cortes ↑ altas / n), cor pelo rótulo."""
+    if not c:
+        return '<td class="mut" title="histórico de guias ainda curto para a janela">—</td>'
+    lst = lambda ks: ", ".join(f'{k} {pct(c["revs"][k], 0)}' for k in ks[:6])
+    tip = c["rot"] + (f' · cortes: {lst(c["dn"])}' if c["dn"] else "") + (f' · altas: {lst(c["up"])}' if c["up"] else "")
+    cor = dlt_cls(c["inten"] if abs(c["inten"]) >= 0.001 else None)
+    return (f'<td style="background:{REV_COR[c["rot"]]}" title="{tip}"><b class="{cor}">{pct(c["inten"])}</b>'
+            f'<small class="mut"> ↓{len(c["dn"])} ↑{len(c["up"])}/{c["n"]}</small></td>')
+
+
+def bloco_revisoes(V: dict) -> str:
+    """Revisões de lucro no slide de valuation: mapa setor × janela, P/L decomposto (preço, revisão, calendário) e eventos."""
+    R = V.get("revisoes")
+    if not R:
+        return ""
+    J = R["janelas"]
+    cab = "".join(f"<th>{j}</th>" for j in J)
+    chave = lambda m: (m["cel"].get("1 mês") or m["cel"].get("1 sem") or {"inten": 0})["inten"]
+    linhas = "".join(f'<tr><td style="text-align:left">{m["setor"]}<small> · {m["n"]}</small></td>' + "".join(_rev_cel(m["cel"].get(j)) for j in J) + "</tr>"
+                     for m in sorted(R["mapa"], key=chave))
+    linhas += '<tr style="border-top:2px solid var(--grid)"><td style="text-align:left"><b>Ibovespa</b></td>' + "".join(_rev_cel(R["ibov"].get(j)) for j in J) + "</tr>"
+    leg = "".join(f'<span><i style="background:{c};border:1px solid var(--grid)"></i>{k}</span>' for k, c in REV_COR.items() if k != "estável")
+    mapa = (f'<div><h2 style="font-size:13px;margin:0 0 4px">Revisões de lucro {V["ano0"] + 1} por setor · direção e intensidade</h2>'
+            f'<table class="mini" style="width:100%"><thead><tr><th style="text-align:left">Setor · empresas</th>{cab}</tr></thead><tbody>{linhas}</tbody></table>'
+            f'<div class="legend" style="margin-top:4px;font-size:11px">{leg}</div>'
+            f'<p class="note" style="font-size:11px;margin:2px 0 0">Valor = variação do lucro somado do setor na janela (guias do BTG, sem o câmbio nas empresas em dólar); '
+            f'↓/↑ = empresas com corte/alta ≥ 1%. Disseminado = lucro do setor ±2% e ≥ 40% das empresas na mesma direção. '
+            f'A última coluna é o lucro {V["ano0"]}. Passe o mouse para ver os nomes.</p></div>')
+
+    def dline(nome, d, forte=False):
+        if not d:
+            return ""
+        dp = d["pl1"] / d["pl0"] - 1
+        b = (lambda x: f"<b>{x}</b>") if forte else (lambda x: x)
+        return (f'<tr><td style="text-align:left">{b(nome)}</td><td>{num(d["pl0"], 1, suf="x")} → {b(num(d["pl1"], 1, suf="x"))}</td>'
+                f'<td class="{dlt_cls(-dp)}">{pct(dp)}</td><td class="{dlt_cls(d["preco"])}">{pct(d["preco"])}</td>'
+                f'<td class="{dlt_cls(d["rev"])}">{pct(d["rev"])}</td><td class="mut">{pct(d["cal"])}</td></tr>')
+    if R.get("dec") or R.get("dec_ibov"):
+        dec = (f'<div><h2 style="font-size:13px;margin:0 0 4px">Por que o P/L mudou · último mês</h2>'
+               f'<table class="mini" style="width:100%"><thead><tr><th style="text-align:left">Setor</th><th>P/L 12m</th><th>Δ P/L</th><th>Preço</th><th>Revisão</th><th>Calendário</th></tr></thead>'
+               f'<tbody>{dline("Ibovespa", R.get("dec_ibov"), True)}{"".join(dline(d["setor"], d) for d in R["dec"])}</tbody></table>'
+               f'<p class="note" style="font-size:11px;margin:2px 0 0">P/L de hoje ÷ P/L de 1 mês atrás = (1 + preço) ÷ [(1 + revisão) × (1 + calendário)]. '
+               f'Revisão = lucro 12m com o guia de hoje contra o de 1 mês atrás, na mesma data; calendário = o 12m à frente anda para {V["ano0"] + 1} com os dias. '
+               f'Revisão negativa com P/L subindo = o lucro caiu e o preço não acompanhou.</p></div>')
+    else:
+        dec = '<div><h2 style="font-size:13px;margin:0 0 4px">Por que o P/L mudou · último mês</h2><p class="note">Histórico de guias ainda curto (precisa de 1 mês).</p></div>'
+
+    def ev(e):
+        vs = e["var"]
+        def fv(k, ano):
+            if k not in vs:
+                return ""
+            return f'{ano} <b class="{dlt_cls(vs[k])}">{pct(vs[k], 0)}</b>' if vs[k] is not None else f"{ano} sem lucro positivo"
+        partes = " · ".join(x for x in (fv("ano1", e["ano0"] + 1), fv("ano0", e["ano0"])) if x)
+        r = e.get("relatorio")
+        rel = (f' · <a href="{BTG_URL}{r["id"]}" target="_blank" rel="noopener">{r["empresa"]}: {(r["titulo"] or "")[:70]}</a>' if r
+               else ' · <span class="mut">sem relatório identificado</span>')
+        cam = " <small class=mut>(sem câmbio)</small>" if e.get("cambio") else ""
+        return f'<li><b>{e["tk"]}</b> {partes}{cam} · {e["data"][8:]}/{e["data"][5:7]}{rel}</li>'
+    evs = "".join(ev(e) for e in R.get("eventos") or []) or "<li>Nenhuma revisão ≥ 1% no último mês.</li>"
+    eventos = (f'<div><h2 style="font-size:13px;margin:0 0 4px">Maiores revisões do mês e o relatório que as explica</h2>'
+               f'<ul class="sinais" style="font-size:11.6px;line-height:1.35">{evs}</ul></div>')
+    return (f'<div style="display:grid;grid-template-columns:5fr 4fr;gap:14px;align-items:start;margin-bottom:10px">{mapa}'
+            f'<div style="display:grid;gap:10px">{dec}{eventos}</div></div>')
 
 
 def slide_valuation(M: dict, V: dict | None = None) -> tuple[str, str] | None:
@@ -1835,11 +2007,12 @@ def slide_valuation(M: dict, V: dict | None = None) -> tuple[str, str] | None:
                  f'<td class="mut" style="text-align:left">{"" if r["base"] in ("guia", "") else "P/L do guia sobre o fechamento"}</td></tr>' for r in Ls)
     tab = (f'<table class="mini"><thead><tr><th>Papel</th><th>Preço</th><th>P/L 12m</th><th>P/L {a0}</th><th>P/L {a0 + 1}</th><th>EV/EBITDA 12m</th><th>P/VP</th><th>DY 12m</th>'
            f'<th>Lucro {a0 + 1} ÷ {a0}</th><th>Rev. lucro {a0 + 1}</th><th>Δ P/L</th><th>P/L 12m desde {dd}</th><th></th></tr></thead><tbody>{tr}</tbody></table>')
+    bloco_rev = bloco_revisoes(V)
     corpo = (f'<div class="tiles strip" style="grid-template-columns:repeat(6,1fr);margin-bottom:10px">{tiles}</div>'
              f'<div style="display:grid;grid-template-columns:5fr 6fr;gap:14px;align-items:start;margin-bottom:10px">'
              f'<div class="panel" style="padding:10px 14px 4px"><div class="legend"><span><i style="background:{S1}"></i>Ibovespa</span>'
              f'<span><i style="background:{S2}"></i>ex-Petrobras e Vale</span></div>{g}</div><div>{t_set}</div></div>'
-             f'<div style="overflow-x:auto">{tab}</div>')
+             f'{bloco_rev}<div style="overflow-x:auto">{tab}</div>')
     hora = (f'preços de tela {V["tempo_real"][11:16]} (MT5) · guia {gd}' if V.get("tempo_real") else f'último fechamento · guia {gd}')
     return slide("Macro", "valuation", "Valuation · múltiplos 12 meses à frente", corpo,
                  "Quanto o mercado paga pelo lucro, pelo EBITDA e pelo patrimônio, papel a papel e no agregado, e se o múltiplo mexeu por preço ou por revisão.",
@@ -2479,10 +2652,14 @@ def slide_painel(M: dict, sgs: dict, mercado_micro: dict, minhas: list[dict], co
     VV = valuation_memo(M)
     if VV and VV.get("ibov_hoje"):
         ib0 = VV["ibov"][0] if VV.get("ibov") else None
-        revs = sorted([r for r in VV["linhas"] if r["rev"] is not None and abs(r["rev"]) >= 0.03], key=lambda r: -abs(r["rev"]))[:4]
+        RV = VV.get("revisoes") or {}
+        jan = "1 mês" if any(m["cel"].get("1 mês") for m in RV.get("mapa", [])) else "1 sem"
+        destaques = sorted([(m["setor"], m["cel"][jan]) for m in RV.get("mapa", []) if m["cel"].get(jan) and m["cel"][jan]["rot"] != "estável"],
+                           key=lambda x: -abs(x[1]["inten"]))[:3]
+        txt_rev = "; ".join(f'{st} {c["rot"]} ({pct(c["inten"])}, ↓{len(c["dn"])} ↑{len(c["up"])} de {c["n"]})' for st, c in destaques)
         sinais.append(f'<b>Valuation:</b> Ibovespa a {num(VV["ibov_hoje"], 1, suf="x")} P/L 12m à frente (ex-Petro e Vale {num(VV["ibov_ex_hoje"], 1, suf="x")})'
                       + (f', {num(VV["ibov_hoje"] - ib0[1], 1, "+" if VV["ibov_hoje"] > ib0[1] else "", "x")} desde {ib0[0][8:]}/{ib0[0][5:7]}' if ib0 else "")
-                      + (("; revisão de lucro " + str(VV["linhas"][0]["ano0"] + 1) + ": " + ", ".join(f'{r["cod"]} {pct(r["rev"], 0)}' for r in revs)) if revs else "")
+                      + (f"; revisões de lucro ({jan}): {txt_rev}" if txt_rev else f"; revisões de lucro ({jan}): nenhum setor com revisão relevante")
                       + '. <a href="#valuation">ver valuation</a>')
     sinais += sinais_cob                                     # assertividade do Focus fica no slide próprio (Painel precisa caber numa tela)
     CB = carteira_btg()                                       # carteira recomendada do BTG: só o que toca a cobertura (entrada, saída, peso)

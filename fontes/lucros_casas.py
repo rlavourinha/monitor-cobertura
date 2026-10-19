@@ -58,6 +58,48 @@ def _num(v):
     return float(v) if isinstance(v, (int, float)) else None
 
 
+GUIAS_ANTIGOS = BTG_DIR / "guias"           # guias buscados para trás no portal (baixa_guias_antigos), fora do índice da coleta
+
+
+def baixa_guias_antigos(meses: int = 6) -> str:
+    """Busca no portal do BTG (sessão Playwright da coleta, fontes/btg.py) os LatAm Valuation Summary dos últimos `meses`
+    que ainda não estão no disco e grava em data/btg/guias/<id>.xlsx. Pagina a lista de documentos (100 por vez)."""
+    from datetime import timedelta
+    from fontes.btg import Portal
+    GUIAS_ANTIGOS.mkdir(parents=True, exist_ok=True)
+    tem = {f.stem for f in (BTG_DIR / "pdf").glob("*.pdf")} | {f.stem for f in GUIAS_ANTIGOS.glob("*.xlsx")}
+    lim = (date.today() - timedelta(days=int(meses * 30.5))).isoformat()
+    novos, vistos, ini = [], 0, 1
+    pi = GUIAS_ANTIGOS / "indice.json"
+    idx = json.loads(pi.read_text(encoding="utf-8")) if pi.exists() else {}
+    with Portal(headless=True) as p:
+        if not p.abrir_lista():
+            raise RuntimeError("sessão do portal BTG expirada (python btg_relatorios.py --login)")
+        while True:
+            docs = p.listar(100, ini)
+            if not docs:
+                break
+            vistos += len(docs)
+            for d in docs:
+                if (d.get("company_sector") or "").strip() == "LatAm Valuation Summary" and str(d["document_id"]) not in tem:
+                    novos.append((d["publish_date"][:10], d["document_id"]))
+            for d in docs:
+                if (d.get("company_sector") or "").strip() == "LatAm Valuation Summary":
+                    idx[str(d["document_id"])] = d["publish_date"][:10]
+            if min(d["publish_date"][:10] for d in docs) < lim:
+                break
+            ini += 100
+        (GUIAS_ANTIGOS / "indice.json").write_text(json.dumps(dict(sorted(idx.items())), indent=0), encoding="utf-8")
+        for dt, id_ in sorted(novos):
+            if dt < lim:
+                continue
+            try:
+                (GUIAS_ANTIGOS / f"{id_}.xlsx").write_bytes(p.pdf(id_))
+            except Exception as e:
+                print(f"  guia {id_} ({dt}): {e}", file=sys.stderr)
+    return f"{len([n for n in novos if n[0] >= lim])} guias novos de {vistos} documentos listados (desde {lim})"
+
+
 def guias_btg() -> list[tuple[str, Path]]:
     """(data de fechamento do guia, caminho) de cada Stock Guide já baixado, em ordem de data. A data vem da 2ª linha
     ("Closing prices as of dd/mm/aaaa"); o arquivo é .pdf no nome mas é xlsx (zip)."""
@@ -72,13 +114,63 @@ def guias_btg() -> list[tuple[str, Path]]:
         f = BTG_DIR / "pdf" / f"{k}.pdf"
         if f.exists() and f.read_bytes()[:2] == b"PK":
             out.append((r.get("data") or "", f))
-    return sorted(out)
+    pi = GUIAS_ANTIGOS / "indice.json"
+    idx = json.loads(pi.read_text(encoding="utf-8")) if pi.exists() else {}
+    for f in GUIAS_ANTIGOS.glob("*.xlsx") if GUIAS_ANTIGOS.exists() else []:
+        if f.read_bytes()[:2] == b"PK":
+            out.append((idx.get(f.stem, ""), f))
+    return sorted(out, key=lambda t: (t[0], t[1].stem))
 
 
-def le_guia(f: Path) -> tuple[str | None, list[dict]]:
-    """Linhas do Brasil de um Stock Guide: nome, setor, moeda, mcap (mn), preço, P/L 26/27."""
+def _le_guia_comp(wb, data_pub: str | None) -> tuple[str | None, list[dict]]:
+    """Formato antigo do Stock Guide (aba COMP, até ago/2026): Company, Ticker, Rating, Currency, Price, Target, Upside,
+    Mkt Cap (USD bn), ..., EV/EBITDA, P/E, Div. Yield, P/BV, Net Debt (USD bn), Net Debt/EBITDA (2 anos cada), Origin.
+    Sem data no arquivo (vem do índice do portal). P/L arredondado em 1 casa: o lucro implícito tem ruído de até
+    0,05 ÷ P/L. Valor de mercado em dólar: o lucro em R$ mn é preenchido depois (LPA × ações do guia novo)."""
+    ws = wb["COMP"]
+    rows = list(ws.iter_rows(values_only=True))
+    hi = next((i for i, r in enumerate(rows) if r and "Ticker" in r and "Company" in r), None)
+    if hi is None:
+        return None, []
+    h1, h2 = rows[hi], rows[hi + 1]
+    col = {}
+    atual = None
+    for i, (x, y) in enumerate(zip(h1, h2)):
+        if x is not None:
+            atual = str(x).strip()
+        if atual and y is not None:
+            col[(atual, str(y).strip())] = i
+        elif x is not None:
+            col[(atual, "")] = i
+    anos = sorted({int(k[1][:4]) for k in col if k[0] == "P/E" and k[1][:4].isdigit()})[:2]
+    if len(anos) < 2:
+        return None, []
+    g = lambda r, k: r[col[k]] if k in col and col[k] < len(r) else None
+    out = []
+    for r in rows[hi + 2:]:
+        if not r or g(r, ("Origin", "")) != "Brazil":
+            continue
+        tk = str(g(r, ("Ticker", "")) or "").strip().upper()
+        if tk not in REV:
+            continue
+        out.append({"nome": REV[tk][0], "ticker": tk, "setor": None, "moeda": g(r, ("Share", "Currency")), "mcap": None,
+                    "preco": _num(g(r, ("Share", "Price"))), "ano0": anos[0], "arred": True,
+                    "pe0": _num(g(r, ("P/E", f"{anos[0]}E"))), "pe1": _num(g(r, ("P/E", f"{anos[1]}E"))),
+                    "ev0": None, "ev1": None, "nd0": None, "nd1": None,
+                    "dy0": _num(g(r, ("Div. Yield", f"{anos[0]}E"))), "dy1": _num(g(r, ("Div. Yield", f"{anos[1]}E")))})
+    return data_pub, out
+
+
+def le_guia(f: Path, data_pub: str | None = None) -> tuple[str | None, list[dict]]:
+    """Linhas do Brasil de um Stock Guide: nome, setor, moeda, mcap (mn), preço, P/L 26/27 (formato novo, aba única
+    'Stock Guide', desde ago/2026) ou o formato antigo (aba COMP)."""
     import openpyxl
     wb = openpyxl.load_workbook(io.BytesIO(f.read_bytes()), read_only=True, data_only=True)
+    if "COMP" in wb.sheetnames:
+        try:
+            return _le_guia_comp(wb, data_pub)
+        finally:
+            wb.close()
     ws = wb.worksheets[0]
     data, cab, out = None, None, []
     for row in ws.iter_rows(values_only=True):
@@ -111,11 +203,12 @@ def le_guia(f: Path) -> tuple[str | None, list[dict]]:
 def atualiza() -> dict:
     """Relê todos os guias do BTG e regrava data/lucros_casas.json. Um ponto por data de fechamento do guia."""
     btg: dict[str, dict[str, list]] = {}
+    setor_guia: dict[str, str] = {}
     datas = []
     nao_mapeados = set()
-    for _, f in guias_btg():
+    for dpub, f in guias_btg():
         try:
-            d, linhas = le_guia(f)
+            d, linhas = le_guia(f, dpub or None)
         except Exception as e:
             print(f"  guia {f.name}: {e}", file=sys.stderr)
             continue
@@ -140,24 +233,43 @@ def atualiza() -> dict:
             e1, dl1 = ebitda_dl(l["ev1"], l["nd1"])
             dps = lambda dy: round(dy * p, 6) if (p and dy is not None) else None
             reg = [d, l["ano0"], lpa(l["pe0"]), lpa(l["pe1"]), luc(l["pe0"]), luc(l["pe1"]), p, l["moeda"],
-                   m, e0, e1, dl0, dl1, dps(l["dy0"]), dps(l["dy1"])]
+                   m, e0, e1, dl0, dl1, dps(l["dy0"]), dps(l["dy1"]), bool(l.get("arred"))]
+            if l.get("ticker"):                          # formato antigo: preço é do ticker da linha
+                tks = [l["ticker"]] + [t for t in tks if t != l["ticker"] and not t.endswith("11")]
             for tk in tks:
                 btg.setdefault(tk, {})[d] = reg
+                setor_guia[tk] = l["setor"]
+    # formato antigo não tem valor de mercado em R$: lucro (R$ mn) = LPA × ações implícitas no guia novo mais recente
+    for tk, ss in btg.items():
+        novos = [v for _, v in sorted(ss.items()) if not v[15] and v[8] and v[6]]
+        if not novos:
+            continue
+        acoes = novos[-1][8] / novos[-1][6]              # mn de ações (ou units) na unidade do preço do guia
+        for v in ss.values():
+            if v[15]:
+                v[4] = round(v[2] * acoes, 2) if v[2] else None
+                v[5] = round(v[3] * acoes, 2) if v[3] else None
     out = {"atualizado": date.today().isoformat(), "guias": sorted(set(datas)), "arquivos": sorted(f.stem for _, f in guias_btg()),
            "fonte": "BTG Pactual Stock Guide (LatAm Valuation Summary): LPA = último preço ÷ P/L; lucro = valor de mercado ÷ P/L; EBITDA = valor de mercado ÷ (EV/EBITDA − DL/EBITDA); DL = DL/EBITDA × EBITDA; DPA = DY × preço (R$ mn)",
            "campos": ["data_guia", "ano0", "lpa_ano0", "lpa_ano1", "lucro_ano0", "lucro_ano1", "preco_guia", "moeda",
-                      "mcap", "ebitda_ano0", "ebitda_ano1", "div_liq_ano0", "div_liq_ano1", "dpa_ano0", "dpa_ano1"],
+                      "mcap", "ebitda_ano0", "ebitda_ano1", "div_liq_ano0", "div_liq_ano1", "dpa_ano0", "dpa_ano1", "pl_arredondado"],
            "btg": {tk: [v for _, v in sorted(s.items())] for tk, s in sorted(btg.items())}}
     ant = json.loads(ARQ.read_text(encoding="utf-8")) if ARQ.exists() else {}
     # preserva pontos antigos cujo guia não está mais no disco (data/btg/pdf é local e pode ser limpo)
     for tk, pts in (ant.get("btg") or {}).items():
         tem = {p[0] for p in out["btg"].get(tk, [])}
-        extra = [p for p in pts if p[0] not in tem and len(p) == 15]
+        extra = [p for p in pts if p[0] not in tem and len(p) == 16]
         if extra:
             out["btg"][tk] = sorted(out["btg"].get(tk, []) + extra)
     out["guias"] = sorted(set(out["guias"]) | set(ant.get("guias") or []))
     if "bba" in ant:
         out["bba"] = ant["bba"]
+    out["setor_guia"] = {**(ant.get("setor_guia") or {}), **setor_guia}
+    try:
+        out["eventos"] = eventos_revisao(out)
+    except Exception as e:
+        print(f"  eventos de revisão: {e}", file=sys.stderr)
+        out["eventos"] = ant.get("eventos") or []
     ARQ.write_text(json.dumps(out, ensure_ascii=False, indent=0), encoding="utf-8")
     out["_nao_mapeados"] = sorted(nao_mapeados)
     return out
@@ -215,7 +327,54 @@ def lpas(tk: str, L: dict, fech: dict[str, dict[str, float]]) -> list[tuple[str,
             continue
         f = c / pg
         out.append((d, a0, l0 * f if l0 else None, l1 * f if l1 else None, "fechamento"))
-    return out
+    ok = {p[0] for p in pts_validos(tk, L)}
+    return [x for x in out if x[0] in ok]
+
+
+def pts_validos(tk: str, L: dict) -> list[list]:
+    """Pontos do guia do ticker sem os do formato antigo (até ago/2026) que não servem: (a) o ticker inteiro quando o
+    lucro antigo não emenda com o 1º ponto do formato novo (diferença > 25%: unidade diferente, ex. COGN3, BRAV3);
+    (b) pontos que destoam mais de 30% da mediana de ±10 vizinhos antigos (trechos com P/L absurdo, ex. SBSP3 05/2026)."""
+    from statistics import median
+    pts = (L.get("btg") or {}).get(tk, [])
+    velhos = [p for p in pts if len(p) > 15 and p[15]]
+    if not velhos:
+        return pts
+    novos = [p for p in pts if not (len(p) > 15 and p[15])]
+    if novos and velhos[-1][3] and novos[0][3] and not (0.75 < novos[0][3] / velhos[-1][3] < 1.33):
+        return novos
+    bons = []
+    for i, x in enumerate(velhos):
+        viz = [v[3] for v in velhos[max(0, i - 10):i + 11] if v[3] and v is not x]
+        if x[3] and viz and abs(x[3] / median(viz) - 1) > 0.30:
+            continue
+        bons.append(x)
+    return bons + novos
+
+
+def _filtra_antigos(tk: str, L: dict, out: list[tuple]) -> list[tuple]:
+    """Pontos do formato antigo (até ago/2026) só entram se (a) emendam com o 1º ponto do formato novo (LPA do ano
+    seguinte a menos de 25%: senão a unidade era outra, ex. COGN3, BRAV3) e (b) não destoam mais de 30% da mediana
+    de ±3 vizinhos antigos (dias isolados com P/L absurdo no guia antigo, ex. SBSP3 30/04/2026)."""
+    from statistics import median
+    arred = {p[0] for p in (L.get("btg") or {}).get(tk, []) if len(p) > 15 and p[15]}
+    if not arred:
+        return out
+    novos = [x for x in out if x[0] not in arred]
+    velhos = [x for x in out if x[0] in arred]
+    if not velhos:
+        return out
+    if novos and velhos[-1][3] and novos[0][3]:
+        r = novos[0][3] / velhos[-1][3]
+        if not (0.75 < r < 1.33):
+            return novos
+    bons = []
+    for i, x in enumerate(velhos):
+        viz = [v[3] for v in velhos[max(0, i - 3):i + 4] if v[3] and v is not x]
+        if x[3] and viz and abs(x[3] / median(viz) - 1) > 0.30:
+            continue
+        bons.append(x)
+    return sorted(bons + novos)
 
 
 def extras(tk: str, L: dict, fech: dict[str, dict[str, float]]) -> list[dict]:
@@ -299,6 +458,7 @@ def fator_cambio(L: dict) -> tuple[dict[str, float], set[str]]:
     B = L.get("btg") or {}
     datas = sorted({p[0] for pts in B.values() for p in pts})
     por = {tk: {p[0]: p[5] for p in pts if p[5] and p[5] > 0} for tk, pts in B.items()}
+    arred = {(tk, p[0]): bool(len(p) > 15 and p[15]) for tk, pts in B.items() for p in pts}   # formato antigo: ruído, fora da detecção
     F, acc, fatores = {}, 1.0, {}
     for i, d in enumerate(datas):
         if i:
@@ -306,7 +466,7 @@ def fator_cambio(L: dict) -> tuple[dict[str, float], set[str]]:
             c, vistos = Counter(), set()
             for tk, s in por.items():
                 nome = REV.get(tk, (tk, 0))[0]
-                if d in s and d0 in s and nome not in vistos and s[d] != s[d0]:
+                if d in s and d0 in s and nome not in vistos and s[d] != s[d0] and not (arred.get((tk, d)) or arred.get((tk, d0))):
                     vistos.add(nome)
                     c[round(s[d] / s[d0], 4)] += 1
             f, n = (c.most_common(1)[0] if c else (1.0, 0))
@@ -323,7 +483,8 @@ def fator_cambio(L: dict) -> tuple[dict[str, float], set[str]]:
     # lucro que muda em quase todo guia sem seguir só o câmbio (PRIO: ~2× o fator, marcação de câmbio e Brent)
     mtm = set()
     for tk, s in por.items():
-        pares = [(datas[i - 1], d) for i, d in enumerate(datas) if i and d in s and datas[i - 1] in s]
+        pares = [(datas[i - 1], d) for i, d in enumerate(datas) if i and d in s and datas[i - 1] in s
+                 and not (arred.get((tk, d)) or arred.get((tk, datas[i - 1])))]
         if tk not in usd and len(pares) >= 4 and sum(1 for a, b in pares if s[a] != s[b]) >= 0.6 * len(pares):
             mtm.add(tk)
     return F, usd, mtm
@@ -335,13 +496,143 @@ def revisao(tk: str, L: dict, FX: tuple | None = None) -> float | None:
     pts = (L.get("btg") or {}).get(tk) or []
     if len(pts) < 2:
         return None
-    F, usd, mtm = FX or fator_cambio(L)
-    (d0, b0), (d1, b1) = (pts[0][0], pts[0][5]), (pts[-1][0], pts[-1][5])
-    if not (b0 and b1 and b0 > 0 and b1 > 0):
+    SA = FX if isinstance(FX, dict) else serie_ajustada(L)
+    s5 = (SA.get(tk) or {}).get(5) or []
+    if len(s5) < 2:
         return None
-    if tk in usd or tk in mtm:
-        b0, b1 = b0 / F.get(d0, 1.0), b1 / F.get(d1, 1.0)
-    return b1 / b0 - 1
+    return s5[-1][1] / s5[0][1] - 1
+
+
+# palavras do campo "empresa"/título dos relatórios do BTG por setor do guia (para achar o relatório de uma revisão setorial)
+SETOR_CHAVES = {
+    "Real Estate": ["homebuilder", "real estate", "malls", "incorporad"], "Oil & Gas": ["oil", "gas", "petro"],
+    "Metal & Mining": ["mining", "steel", "metal", "iron ore"], "Pulp & Paper": ["pulp", "paper"],
+    "Banks": ["bank"], "Financials (ex-Banks)": ["insur", "financ", "exchange", "payment"],
+    "Utilities": ["utilit", "energy", "power", "sanitation", "water"], "Retail": ["retail", "consumer", "apparel", "drugstore", "pharmac"],
+    "Food & Beverage": ["food", "beverage", "protein", "meat"], "Healthcare": ["health", "hospital", "pharma"],
+    "Education": ["educa"], "Telecom": ["telecom"], "Technology": ["tech", "software"], "Capital Goods": ["capital goods", "industrial"],
+    "Car Rental": ["rental", "car rental", "localiza", "leasing"], "Infrastructure": ["infra", "toll", "railroad", "logistic"],
+    "Logistics": ["logistic"], "Agribusiness": ["agri", "sugar", "ethanol"],
+}
+
+
+def serie_ajustada(L: dict) -> dict[str, dict[int, list[tuple[str, float, float]]]]:
+    """Lucro de cada ticker por guia (i = 4 ano corrente, 5 ano seguinte, R$ mn) SEM os movimentos comuns que não são
+    revisão de analista, para medir revisões:
+    - formato novo: as empresas que o BTG modela em dólar mudam juntas com o câmbio do guia;
+    - formato antigo (até ago/2026): o P/L era calculado em dólar com câmbio de projeção no lucro e à vista no valor de
+      mercado (hipótese não confirmada: em 19/10/2026 a mediana entre guias antigos ficou em 0,999; o que há é ruído de
+      arredondamento do P/L, tratado pelo campo de ruído).
+    Por par de guias consecutivos, cada razão de lucro é dividida pela mediana das razões do seu grupo (dólar × reais;
+    mínimo 3 empresas). Na emenda formato antigo → novo (25/08/2026), salto > 10% corta a série (unidade diferente). A série é encadeada e reancorada no último guia (nível = lucro real de hoje). Cada ponto leva o
+    ruído de arredondamento do P/L (formato antigo: 0,05 ÷ P/L; novo: 0)."""
+    from statistics import median
+    F, usd, mtm = fator_cambio(L)
+    B = L.get("btg") or {}
+    prims = {MAPA_BTG[n][0] for n in MAPA_BTG if MAPA_BTG[n][0] in B}
+    def ruido(pt, i):
+        lpa = pt[2] if i == 4 else pt[3]
+        return (0.05 * lpa / pt[6]) if (len(pt) > 15 and pt[15] and lpa and pt[6]) else 0.0
+    rz: dict[tuple, list[float]] = {}
+    V = {tk: pts_validos(tk, L) for tk in B}
+    for tk in prims:
+        pts = V[tk]
+        g = "usd" if tk in usd else "brl"
+        for a, b in zip(pts, pts[1:]):
+            if a[1] != b[1]:
+                continue
+            for i in (4, 5):
+                if a[i] and b[i] and a[i] > 0 and b[i] > 0:
+                    rz.setdefault((a[0], b[0], g, i), []).append(b[i] / a[i])
+    med = {k: (median(v) if len(v) >= 3 else 1.0) for k, v in rz.items()}
+    out = {}
+    for tk in B:
+        pts = V[tk]
+        if not pts:
+            continue
+        g = "usd" if tk in usd else "brl"
+        res = {}
+        for i in (4, 5):
+            ult = pts[-1]
+            if not (ult[i] and ult[i] > 0):
+                res[i] = []
+                continue
+            serie = [(ult[0], ult[i], ruido(ult, i))]
+            nivel = ult[i]
+            for a, b in zip(reversed(pts[:-1]), reversed(pts[1:])):
+                if a[1] != b[1] or not (a[i] and b[i] and a[i] > 0 and b[i] > 0):
+                    break
+                adj = (b[i] / a[i]) / med.get((a[0], b[0], g, i), 1.0)
+                troca = len(a) > 15 and len(b) > 15 and a[15] and not b[15]
+                if (troca and abs(adj - 1) > 0.10) or not (0.2 < adj < 5):
+                    break                       # emenda do formato antigo com unidade diferente (COGN3, IGTI11, BRAV3) ou erro: corta a série
+                nivel = nivel / adj
+                serie.append((a[0], nivel, ruido(a, i)))
+            res[i] = serie[::-1]
+        out[tk] = res
+    return out
+
+
+def revisao_janela(serie: list[tuple[str, float, float]], dias: int, fim: str | None = None) -> tuple[float, float] | None:
+    """(revisão, ruído) entre o ponto mais recente e o último ponto ≥ `dias` antes dele."""
+    from datetime import timedelta
+    if not serie:
+        return None
+    d1, v1, r1 = serie[-1]
+    lim = (date.fromisoformat(fim or d1) - timedelta(days=dias)).isoformat()
+    base = next(((d, v, r) for d, v, r in reversed(serie) if d <= lim), None)
+    if not base:
+        return None
+    return v1 / base[1] - 1, r1 + base[2]
+
+
+def eventos_revisao(L: dict, limiar: float = 0.01) -> list[dict]:
+    """Toda mudança de lucro (ano corrente ou seguinte) ≥ limiar entre dois guias consecutivos, sem o efeito cambial,
+    por empresa (1º ticker do mapa), com o relatório do BTG publicado entre os dois guias que trata da empresa (nome no
+    campo empresa/título) ou do setor dela (SETOR_CHAVES). O índice dos relatórios só existe neste PC (data/btg)."""
+    FX = fator_cambio(L)
+    F, usd, mtm = FX
+    SA = serie_ajustada(L)
+    p = BTG_DIR / "indice.json"
+    I = list(json.loads(p.read_text(encoding="utf-8")).values()) if p.exists() else []
+    out = []
+    for nome, tks in MAPA_BTG.items():
+        tk = tks[0]
+        pts = pts_validos(tk, L)
+        sa = {i: {d: (v, r) for d, v, r in (SA.get(tk) or {}).get(i, [])} for i in (4, 5)}
+        for a, b in zip(pts, pts[1:]):
+            if a[1] != b[1]:
+                continue
+            var = {}
+            for k, i in (("ano0", 4), ("ano1", 5)):
+                x0, x1 = a[i], b[i]
+                if x0 and x1 and x0 > 0 and x1 > 0:
+                    if a[0] not in sa[i] or b[0] not in sa[i]:
+                        continue
+                    (v0, r0), (v1, r1) = sa[i][a[0]], sa[i][b[0]]
+                    v = v1 / v0 - 1
+                    if abs(v) >= limiar + r0 + r1:
+                        var[k] = round(v, 4)
+                # lucro que some num guia e volta no seguinte (16-17/09/2026) é buraco do guia, não revisão: ignorado
+            if not var:
+                continue
+            # relatório publicado entre o guia anterior (inclusive: o guia daquele dia ainda não o incorporava) e o guia da revisão
+            cand = [r for r in I if a[0] <= (r.get("data") or "") <= b[0] and (r.get("empresa") or "") != "LatAm Valuation Summary"]
+            n = nome.lower().split()[0]
+            setor = (L.get("setor_guia") or {}).get(tk, "")
+            chaves = SETOR_CHAVES.get(setor, [])
+            def nota(r):
+                emp, txt = (r.get("empresa") or "").lower(), f'{r.get("empresa") or ""} {r.get("titulo") or ""}'.lower()
+                if re.search(rf"\b{re.escape(n)}", txt):
+                    return 2
+                periodico = re.search(r"daily|weekly|monitor|tracker|summary|morning|guide|macro", txt)
+                return 1 if (any(re.search(rf"\b{re.escape(c)}", emp) for c in chaves) and not periodico) else 0
+            cand = sorted([r for r in cand if nota(r)], key=lambda r: (-nota(r), r.get("data") or ""))
+            rel = cand[0] if cand else None
+            out.append({"tk": tk, "empresa": nome, "setor_guia": setor, "de": a[0], "data": b[0], "ano0": b[1],
+                        "var": var, "lucro_ano1": [a[5], b[5]], "cambio": tk in usd or tk in mtm,
+                        "relatorio": {"id": rel["id"], "data": rel.get("data"), "empresa": rel.get("empresa"), "titulo": rel.get("titulo")} if rel else None})
+    return sorted(out, key=lambda e: e["data"])
 
 
 def lucro_sem_cambio(tk: str, pt: list, FX: tuple) -> float | None:
@@ -373,6 +664,8 @@ def pl12_hoje(tk: str, preco: float | None, hoje: str | None = None, L: dict | N
 
 if __name__ == "__main__":
     sys.stdout.reconfigure(encoding="utf-8")
+    if "--historico" in sys.argv:
+        print(baixa_guias_antigos(int(sys.argv[sys.argv.index("--historico") + 1]) if len(sys.argv) > sys.argv.index("--historico") + 1 else 6))
     R = atualiza()
     print(f"{len(R['guias'])} guias ({R['guias'][0] if R['guias'] else '—'} → {R['guias'][-1] if R['guias'] else '—'}), {len(R['btg'])} papéis")
     print("sem mapa:", len(R["_nao_mapeados"]))
