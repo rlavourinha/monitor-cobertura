@@ -53,6 +53,11 @@ MAPA_BTG: dict[str, list[str]] = {
     "PagBank": ["PAGS34"], "PicPay": ["PICS"], "Pague Menos": ["PGMN3"],
     "Sanepar": ["SAPR3", "SAPR11"],                 # guia cota a ON; a unit (1 ON + 4 PN) recebe LPA × 5 (UNIT_LPA)
 }
+# Erro do Stock Guide (formato novo, desde 25/08/2026): lucro convertido pelo dólar duas vezes -> P/L ~5× maior.
+# Evidência: Brava 38x/30x no guia × 7,0x/5,6x na nota setorial do próprio BTG (Brazil Oil & Gas, 18/10/2026, Table 1);
+# Stone 24,5x no 1º guia novo × 4,2x no último antigo (razão 5,5 com dólar a 5,15). Correção: P/L do guia ÷ dólar do dia
+# e EBITDA × dólar (a DL/EBITDA do guia está certa: Brava 1,65x × 1,8x na nota); EV/EBITDA da Brava sai 3,1x × 3,2x na nota.
+CORRIGE_DOLAR = {"Stone", "Brava Energia"}
 # unit que recebe o LPA por ação da classe cotada no guia multiplicado pelo nº de ações da unit
 UNIT_LPA = {"SAPR11": 5}
 # empresas só listadas fora (sem BDR): preço e P/L do próprio guia, uma vez por dia
@@ -235,13 +240,17 @@ def atualiza() -> dict:
                 nao_mapeados.add(l["nome"])
                 continue
             p, m = l["preco"], l["mcap"]
+            if l["nome"] in CORRIGE_DOLAR and not l.get("arred") and dolar(d):
+                fx = dolar(d)
+                l = {**l, "pe0": l["pe0"] / fx if l["pe0"] else None, "pe1": l["pe1"] / fx if l["pe1"] else None, "fx_ebitda": fx}
             lpa = lambda pe: round(p / pe, 6) if (p and pe and pe > 0) else None
             luc = lambda pe: round(m / pe, 2) if (m and pe and pe > 0) else None
             def ebitda_dl(x, n):
-                """EV/EBITDA = x e DL/EBITDA = n com EV = mcap + DL  ->  EBITDA = mcap ÷ (x − n), DL = n × EBITDA."""
+                """EV/EBITDA = x e DL/EBITDA = n com EV = mcap + DL  ->  EBITDA = mcap ÷ (x − n), DL = n × EBITDA.
+                Nos nomes de CORRIGE_DOLAR o EBITDA do guia vem ÷ dólar e a DL/EBITDA está certa: EBITDA × dólar."""
                 if not (m and x and n is not None and x - n > 0):
                     return None, None
-                e = m / (x - n)
+                e = m / (x - n) * (l.get("fx_ebitda") or 1)
                 return round(e, 2), round(n * e, 2)
             e0, dl0 = ebitda_dl(l["ev0"], l["nd0"])
             e1, dl1 = ebitda_dl(l["ev1"], l["nd1"])
