@@ -64,7 +64,8 @@ def snapshot() -> dict | None:
     C = json.loads((config.DATA / "ibov_comp.json").read_text(encoding="utf-8"))
     # carteira do Ibovespa + BDRs acompanhados + cobertura (SAUD3 saiu do índice e precisa continuar no vigia)
     import trades
-    cods = sorted({i["cod"] for i in C.get("itens", [])} | set(getattr(config, "BDRS", [])) | set(getattr(config, "UNIVERSO", {})) | trades.tickers())   # + papéis dos trades (trades.json)
+    cods = sorted({i["cod"] for i in C.get("itens", [])} | set(getattr(config, "BDRS", [])) | set(getattr(config, "UNIVERSO", {})) | trades.tickers()
+                  | (set(getattr(config, "VALUATION_EXTRA", [])) - {"PICS"}))   # + papéis dos trades (trades.json)
     _poda_market_watch(set(cods))
     out = {}
     hoje = date.today().isoformat()

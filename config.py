@@ -123,7 +123,7 @@ BDRS = ["ROXO34", "MELI34", "STOC34", "AURA33", "INBR32", "JBSS32", "XPBR31",   
         "LILY34", "FCXO34", "CHVX34", "JPMC34", "BERK34"]                                           # leitura setorial
 # Valuation: papéis fora do Ibovespa que entram no slide de valuation (lucro do BTG Stock Guide; os BDRs da lista BDRS
 # já entram). Precisam estar em fontes/lucros_casas.MAPA_BTG e ter preço no vigia/COTAHIST.
-VALUATION_EXTRA = ["SAUD3", "ROXO34", "XPBR31", "EZTC3"]
+VALUATION_EXTRA = ["SAUD3", "ROXO34", "XPBR31", "EZTC3", "PGMN3", "SAPR11", "PAGS34", "PICS"]   # PICS = PicPay na Nasdaq (sem BDR)
 # painel de papéis: limites dos alertas
 ALERTA_Z = 2.0            # |retorno do dia| ≥ 2 desvios-padrão dos retornos diários (60 pregões)
 ALERTA_VOL = 2.0          # volume financeiro do dia ≥ 2× a média de 21 pregões

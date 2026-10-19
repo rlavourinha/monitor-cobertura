@@ -50,9 +50,15 @@ MAPA_BTG: dict[str, list[str]] = {
     "EZTEC": ["EZTC3"], "Brava Energia": ["BRAV3"],
     # cotadas em dólar no guia (NYSE/Nasdaq): BDR na B3, LPA convertido pelo dólar e pela razão do BDR (BDR_RAZAO)
     "Nubank": ["ROXO34"], "XP Inc": ["XPBR31"], "Stone": ["STOC34"], "MercadoLibre": ["MELI34"],
+    "PagBank": ["PAGS34"], "PicPay": ["PICS"], "Pague Menos": ["PGMN3"],
+    "Sanepar": ["SAPR3", "SAPR11"],                 # guia cota a ON; a unit (1 ON + 4 PN) recebe LPA × 5 (UNIT_LPA)
 }
+# unit que recebe o LPA por ação da classe cotada no guia multiplicado pelo nº de ações da unit
+UNIT_LPA = {"SAPR11": 5}
+# empresas só listadas fora (sem BDR): preço e P/L do próprio guia, uma vez por dia
+SO_EXTERIOR = {"PICS"}
 # ações americanas por BDR invertido: preço do BDR = preço em US$ × dólar ÷ razão (medido em 19/10/2026)
-BDR_RAZAO = {"ROXO34": 6, "XPBR31": 1, "STOC34": 1, "MELI34": 120}
+BDR_RAZAO = {"ROXO34": 6, "XPBR31": 1, "STOC34": 1, "MELI34": 120, "PAGS34": 5}
 # tickers do formato antigo do guia (aba COMP) para os nomes do mapa
 ALIAS_ANTIGO = {"NU US": "Nubank", "XP US": "XP Inc", "STNE US": "Stone", "MELI US": "MercadoLibre"}
 # Braskem fica de fora: no guia de out/26 a linha repete valor de mercado e preço do Banrisul (erro do guia). le_guia
@@ -352,6 +358,9 @@ def lpas(tk: str, L: dict, fech: dict[str, dict[str, float]]) -> list[tuple[str,
     prim = MAPA_BTG[nome][0] if nome else tk
     for pt in (L.get("btg") or {}).get(tk, []):
         d, a0, l0, l1, pg = pt[0], pt[1], pt[2], pt[3], pt[6]
+        if tk in SO_EXTERIOR:
+            out.append((d, a0, l0, l1, "guia (exterior)"))
+            continue
         if pt[7] == "USD" and tk in BDR_RAZAO:
             f = (dolar(d) or 0) / BDR_RAZAO[tk]
             if f:
@@ -359,7 +368,8 @@ def lpas(tk: str, L: dict, fech: dict[str, dict[str, float]]) -> list[tuple[str,
             continue
         cp = (fech.get(prim) or {}).get(d)
         if pg and cp and abs(pg / cp - 1) <= TOL_PRECO:
-            out.append((d, a0, l0, l1, "guia"))
+            k = UNIT_LPA.get(tk, 1) if tk != prim else 1
+            out.append((d, a0, l0 * k if l0 else None, l1 * k if l1 else None, "guia"))
             continue
         c = (fech.get(tk) or {}).get(d)
         if not (pg and c):
@@ -370,12 +380,32 @@ def lpas(tk: str, L: dict, fech: dict[str, dict[str, float]]) -> list[tuple[str,
     return [x for x in out if x[0] in ok]
 
 
+def _sem_picos(pts: list[list], lim: float = 0.40) -> list[list]:
+    """Tira pontos isolados: LPA do ano seguinte > lim acima (ou abaixo) do ponto anterior E do seguinte, que voltam ao
+    nível (erro de um dia no guia, ex. PagBank 27/08/2026 com P/L 2027 de 1,8x). Revisão real persiste e fica."""
+    out = []
+    for i, p in enumerate(pts):
+        if 0 < i < len(pts) - 1 and p[3] and pts[i - 1][3] and pts[i + 1][3]:
+            a, b = p[3] / pts[i - 1][3] - 1, p[3] / pts[i + 1][3] - 1
+            if (a > lim and b > lim) or (a < -lim / (1 + lim) and b < -lim / (1 + lim)):
+                continue
+        out.append(p)
+    # razão lucro ano seguinte ÷ ano corrente muito fora do padrão da empresa (> 2× a mediana): erro de digitação no guia
+    # que dura alguns dias (PagBank 25-28/08/2026: 2027 = 3,5× 2026, depois 1,07×)
+    from statistics import median
+    rz = [p[3] / p[2] for p in out if p[2] and p[3] and p[2] > 0 and p[3] > 0]
+    if len(rz) >= 5:
+        m = median(rz)
+        out = [p for p in out if not (p[2] and p[3] and p[2] > 0 and p[3] > 0 and not (m / 2 <= p[3] / p[2] <= m * 2))]
+    return out
+
+
 def pts_validos(tk: str, L: dict) -> list[list]:
     """Pontos do guia do ticker sem os do formato antigo (até ago/2026) que não servem: (a) o ticker inteiro quando o
     lucro antigo não emenda com o 1º ponto do formato novo (diferença > 25%: unidade diferente, ex. COGN3, BRAV3);
     (b) pontos que destoam mais de 30% da mediana de ±10 vizinhos antigos (trechos com P/L absurdo, ex. SBSP3 05/2026)."""
     from statistics import median
-    pts = (L.get("btg") or {}).get(tk, [])
+    pts = _sem_picos((L.get("btg") or {}).get(tk, []))
     velhos = [p for p in pts if len(p) > 15 and p[15]]
     if not velhos:
         return pts

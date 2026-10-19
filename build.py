@@ -1655,6 +1655,8 @@ def analise_valuation(M: dict) -> dict | None:
     def preco_de(tk):
         l = por.get(tk) or {}
         f_tk = sorted((fech.get(tk) or {}).items())
+        if tk in LC.SO_EXTERIOR:                          # PicPay: sem BDR, preço do último guia (US$)
+            return (L["btg"].get(tk) or [[None] * 7])[-1][6]
         return l.get("preco") or (TRp.get(tk) or {}).get("preco") or (f_tk[-1][1] if f_tk else None)
 
     import trades as _tr
