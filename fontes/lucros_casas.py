@@ -98,7 +98,10 @@ def le_guia(f: Path) -> tuple[str | None, list[dict]]:
         g = lambda k: row[cab[k]] if k in cab and cab[k] < len(row) else None
         out.append({"nome": str(g("Company")).strip(), "setor": g("Sector"), "moeda": g("Currency"),
                     "mcap": _num(g("Market Cap (mn)")), "preco": _num(g("Last Price")),
-                    "ano0": anos[0], "pe0": _num(row[cab[f"P/E {anos[0]}E"]]), "pe1": _num(row[cab[f"P/E {anos[1]}E"]])})
+                    "ano0": anos[0], "pe0": _num(g(f"P/E {anos[0]}E")), "pe1": _num(g(f"P/E {anos[1]}E")),
+                    "ev0": _num(g(f"EV/EBITDA {anos[0]}E")), "ev1": _num(g(f"EV/EBITDA {anos[1]}E")),
+                    "nd0": _num(g(f"Net Debt/EBITDA {anos[0]}E")), "nd1": _num(g(f"Net Debt/EBITDA {anos[1]}E")),
+                    "dy0": _num(g(f"Dividend Yield {anos[0]}E")), "dy1": _num(g(f"Dividend Yield {anos[1]}E"))})
     wb.close()
     from collections import Counter
     dup = Counter((l["mcap"], l["preco"]) for l in out)
@@ -127,18 +130,29 @@ def atualiza() -> dict:
             p, m = l["preco"], l["mcap"]
             lpa = lambda pe: round(p / pe, 6) if (p and pe and pe > 0) else None
             luc = lambda pe: round(m / pe, 2) if (m and pe and pe > 0) else None
-            reg = [d, l["ano0"], lpa(l["pe0"]), lpa(l["pe1"]), luc(l["pe0"]), luc(l["pe1"]), p, l["moeda"]]
+            def ebitda_dl(x, n):
+                """EV/EBITDA = x e DL/EBITDA = n com EV = mcap + DL  ->  EBITDA = mcap ÷ (x − n), DL = n × EBITDA."""
+                if not (m and x and n is not None and x - n > 0):
+                    return None, None
+                e = m / (x - n)
+                return round(e, 2), round(n * e, 2)
+            e0, dl0 = ebitda_dl(l["ev0"], l["nd0"])
+            e1, dl1 = ebitda_dl(l["ev1"], l["nd1"])
+            dps = lambda dy: round(dy * p, 6) if (p and dy is not None) else None
+            reg = [d, l["ano0"], lpa(l["pe0"]), lpa(l["pe1"]), luc(l["pe0"]), luc(l["pe1"]), p, l["moeda"],
+                   m, e0, e1, dl0, dl1, dps(l["dy0"]), dps(l["dy1"])]
             for tk in tks:
                 btg.setdefault(tk, {})[d] = reg
     out = {"atualizado": date.today().isoformat(), "guias": sorted(set(datas)), "arquivos": sorted(f.stem for _, f in guias_btg()),
-           "fonte": "BTG Pactual Stock Guide (LatAm Valuation Summary): LPA = último preço ÷ P/L; lucro = valor de mercado ÷ P/L (R$ mn)",
-           "campos": ["data_guia", "ano0", "lpa_ano0", "lpa_ano1", "lucro_ano0", "lucro_ano1", "preco_guia", "moeda"],
+           "fonte": "BTG Pactual Stock Guide (LatAm Valuation Summary): LPA = último preço ÷ P/L; lucro = valor de mercado ÷ P/L; EBITDA = valor de mercado ÷ (EV/EBITDA − DL/EBITDA); DL = DL/EBITDA × EBITDA; DPA = DY × preço (R$ mn)",
+           "campos": ["data_guia", "ano0", "lpa_ano0", "lpa_ano1", "lucro_ano0", "lucro_ano1", "preco_guia", "moeda",
+                      "mcap", "ebitda_ano0", "ebitda_ano1", "div_liq_ano0", "div_liq_ano1", "dpa_ano0", "dpa_ano1"],
            "btg": {tk: [v for _, v in sorted(s.items())] for tk, s in sorted(btg.items())}}
     ant = json.loads(ARQ.read_text(encoding="utf-8")) if ARQ.exists() else {}
     # preserva pontos antigos cujo guia não está mais no disco (data/btg/pdf é local e pode ser limpo)
     for tk, pts in (ant.get("btg") or {}).items():
         tem = {p[0] for p in out["btg"].get(tk, [])}
-        extra = [p for p in pts if p[0] not in tem]
+        extra = [p for p in pts if p[0] not in tem and len(p) == 15]
         if extra:
             out["btg"][tk] = sorted(out["btg"].get(tk, []) + extra)
     out["guias"] = sorted(set(out["guias"]) | set(ant.get("guias") or []))
@@ -202,6 +216,46 @@ def lpas(tk: str, L: dict, fech: dict[str, dict[str, float]]) -> list[tuple[str,
         f = c / pg
         out.append((d, a0, l0 * f if l0 else None, l1 * f if l1 else None, "fechamento"))
     return out
+
+
+def extras(tk: str, L: dict, fech: dict[str, dict[str, float]]) -> list[dict]:
+    """Por guia: EBITDA, dívida líquida, valor de mercado e preço de referência da empresa (papel principal) e DPA na
+    unidade do ticker. EV/EBITDA é da empresa: o valor de mercado anda com o preço do papel principal."""
+    out = []
+    nome, _ = REV.get(tk, (None, 0))
+    prim = MAPA_BTG[nome][0] if nome else tk
+    for pt in (L.get("btg") or {}).get(tk, []):
+        if len(pt) < 15:
+            continue
+        d, a0, pg, mcap = pt[0], pt[1], pt[6], pt[8]
+        cp = (fech.get(prim) or {}).get(d)
+        ok = bool(pg and cp and abs(pg / cp - 1) <= TOL_PRECO)
+        ref = pg if ok else cp                       # preço do papel principal que corresponde ao mcap do guia
+        c = (fech.get(tk) or {}).get(d)
+        f = 1.0 if ok else ((c / pg) if (c and pg) else None)
+        out.append({"d": d, "a0": a0, "mcap": mcap, "ref": ref, "prim": prim, "e0": pt[9], "e1": pt[10], "dl0": pt[11], "dl1": pt[12],
+                    "dpa0": pt[13] * f if (pt[13] is not None and f) else None, "dpa1": pt[14] * f if (pt[14] is not None and f) else None})
+    return out
+
+
+def ev_ebitda12(x: dict, preco_prim: float | None, d: str) -> float | None:
+    """EV/EBITDA 12m à frente: (mcap do guia × preço do principal ÷ preço de referência + DL 12m) ÷ EBITDA 12m."""
+    if not (x and preco_prim and x["ref"] and x["mcap"] and x["e0"] and x["e1"] and x["dl0"] is not None and x["dl1"] is not None):
+        return None
+    if int(d[:4]) != x["a0"]:
+        return None
+    w = peso_ano(d)
+    eb = w * x["e0"] + (1 - w) * x["e1"]
+    ev = x["mcap"] * preco_prim / x["ref"] + w * x["dl0"] + (1 - w) * x["dl1"]
+    return ev / eb if eb > 0 else None
+
+
+def dy12(x: dict, preco: float | None, d: str) -> float | None:
+    """Dividend yield 12m à frente: DPA de ano0 e ano0+1 interpolado ÷ preço."""
+    if not (x and preco and x["dpa0"] is not None and x["dpa1"] is not None) or int(d[:4]) != x["a0"]:
+        return None
+    w = peso_ano(d)
+    return (w * x["dpa0"] + (1 - w) * x["dpa1"]) / preco
 
 
 def lpa12(pt: tuple, d: str) -> tuple[float | None, str]:

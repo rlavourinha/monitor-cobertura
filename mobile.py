@@ -490,10 +490,12 @@ details{border-top:1px solid var(--grid)}details summary{list-style:none;display
 details summary::-webkit-details-marker{display:none}details summary::before{content:"›";color:var(--mut);width:10px;display:inline-block;transition:transform .15s}details[open] summary::before{transform:rotate(90deg)}
 details summary span{flex:1;font-weight:600}details summary small{color:var(--mut);font-size:12px}details summary b{font-weight:600}details table{margin:0 0 8px;font-size:13.5px}details td,details th{padding:4px 0}
 footer{font-size:12px;color:var(--mut);padding:8px 2px 0;line-height:1.4}footer a{color:var(--s1)}
+.vset summary .n{font-size:15px}.vset summary .n,.vcab .n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.vset summary>b,.vset summary>span:not(.n),.vcab>b,.vcab>span:not(.n){width:48px;flex:none;text-align:right}
+.vcab{display:flex;gap:8px;font-size:12px;color:var(--mut);padding:8px 0 4px 18px}.vcab b{font-weight:500}.vset table{font-size:13px;margin:0 0 10px}
 """
 
 def bloco_valuation(M: dict) -> str:
-    """P/L 12m à frente do Ibov (lucro do BTG Stock Guide agregado pela carteira) e por setor; papéis com maior Δ."""
+    """Múltiplos 12m à frente do Ibov (BTG Stock Guide + PL da CVM) e por setor; tocar no setor abre as empresas (<details>)."""
     try:
         V = B.valuation_memo(M)
     except Exception:
@@ -503,21 +505,30 @@ def bloco_valuation(M: dict) -> str:
     ib, ini = V["ibov"], V["ini"]
     dd = f"{ini[8:]}/{ini[5:7]}"
     dx = lambda v: B.num(v, 1, "+" if (v or 0) > 0 else "", "x")
+    x1 = lambda v: B.num(v, 1, suf="x")
     ntnb = ((M.get("ntnb_2035") or [[None, None]])[-1] or [None, None])[1]
     ey = 1 / V["ibov_hoje"]
-    tiles = (_tile("Ibov P/L 12m", B.num(V["ibov_hoje"], 1, suf="x"), f'{dx(V["ibov_hoje"] - ib[0][1])} desde {dd}' if ib else "")
-             + _tile("Ex-Petro e Vale", B.num(V["ibov_ex_hoje"], 1, suf="x"), f'{dx(V["ibov_ex_hoje"] - V["ibov_ex"][0][1])} desde {dd}' if V.get("ibov_ex") else "")
+    tiles = (_tile("Ibov P/L 12m", x1(V["ibov_hoje"]), f'{dx(V["ibov_hoje"] - ib[0][1])} desde {dd}' if ib else "")
+             + _tile("Ex-Petro e Vale", x1(V["ibov_ex_hoje"]), f'EV/EBITDA {x1(V.get("ibov_ev"))}')
+             + _tile("P/VP · DY 12m", f'{B.num(V.get("ibov_pvp"), 2, suf="x")}', f'DY {B.pct(V.get("ibov_dy"), 1, sinal=False)}')
              + _tile("Earnings yield", B.pct(ey, 1, sinal=False), f'EY − NTN-B 2035: {B.num(ey * 100 - ntnb, 1, suf=" pp")}' if ntnb else ""))
-    rows = "".join(f'<tr><td>{html.escape(r["setor"])}</td><td><b>{B.num(r["pl"], 1, suf="x")}</b></td><td class="{B.dlt_cls(-(r["pl"] - r["pl_ini"]))}">{dx(r["pl"] - r["pl_ini"])}</td>'
-                   f'<td class="{B.dlt_cls(r["rev"])}">{B.pct(r["rev"])}</td></tr>' for r in V["setores"])
-    a1 = V["linhas"][0]["ano0"] + 1
-    mov = sorted([r for r in V["linhas"] if r["dpl"] is not None and r["pl12"]], key=lambda r: -abs(r["dpl"] / r["pl12"]))[:8]
-    rows2 = "".join(f'<tr><td>{r["cod"]}</td><td><b>{B.num(r["pl12"], 1, suf="x")}</b></td><td class="{B.dlt_cls(-r["dpl"])}">{dx(r["dpl"])}</td>'
-                    f'<td class="{B.dlt_cls(r["rev"])}">{B.pct(r["rev"])}</td></tr>' for r in mov)
-    return _card("Valuation · P/L 12m à frente", f'<div class="tiles">{tiles}</div>'
-                 f'<table><thead><tr><th>Setor</th><th>P/L</th><th>Δ</th><th>Rev. lucro {a1}</th></tr></thead><tbody>{rows}</tbody></table>'
-                 f'<table style="margin-top:8px"><thead><tr><th>Mais mexeu</th><th>P/L</th><th>Δ</th><th>Rev. lucro</th></tr></thead><tbody>{rows2}</tbody></table>'
-                 f'<p class="nota">Preço de tela ÷ lucro por ação de {a1 - 1} e {a1} do BTG Stock Guide, interpolado por dias até 31/12. Agregados com as quantidades teóricas da carteira do Ibovespa. Δ e revisão desde {dd}; Δ negativo = ficou mais barato.</p>',
+    lin = {r["cod"]: r for r in V["linhas"]}
+    a1 = V["ano0"] + 1
+    def emp(tk):
+        r = lin[tk]
+        return (f'<tr><td>{tk}</td><td><b>{x1(r["pl12"])}</b></td><td>{x1(r["ev12"])}</td><td>{B.num(r["pvp"], 1, suf="x")}</td>'
+                f'<td>{B.pct(r["dy12"], 0, sinal=False)}</td><td class="{B.dlt_cls(r["rev"])}">{B.pct(r["rev"], 0)}</td></tr>')
+    sets = ""
+    for r in V["setores"]:
+        d_pl = (r["pl"] - r["pl_ini"]) if (r["pl"] and r["pl_ini"]) else None
+        filhos = "".join(emp(tk) for tk in sorted(r["tks"], key=lambda t: lin[t]["pl12"] or 999))
+        sets += (f'<details class="vset"><summary><span class="n">{html.escape(r["setor"])}</span><b>{x1(r["pl"])}</b>'
+                 f'<span class="{B.dlt_cls(-d_pl if d_pl is not None else None)}">{dx(d_pl)}</span><span class="{B.dlt_cls(r["rev"])}">{B.pct(r["rev"])}</span></summary>'
+                 f'<table><thead><tr><th>Papel</th><th>P/L</th><th>EV/EB.</th><th>P/VP</th><th>DY</th><th>Rev.</th></tr></thead><tbody>{filhos}</tbody></table></details>')
+    cab = f'<div class="vset vcab"><span class="n">Setor (toque abre)</span><b>P/L</b><span>Δ</span><span>Rev. {str(a1)[2:]}</span></div>'
+    return _card("Valuation · múltiplos 12m", f'<div class="tiles">{tiles}</div>{cab}{sets}'
+                 f'<p class="nota">Preço de tela ÷ lucro, EBITDA e dividendo de {a1 - 1} e {a1} do BTG Stock Guide, interpolados por dias até 31/12; P/VP com o PL dos controladores do último ITR (CVM). '
+                 f'Agregados com as quantidades teóricas da carteira do Ibovespa. Δ e revisão desde {dd}; Δ negativo = ficou mais barato.</p>',
                  f'guia de {V["guia"][8:]}/{V["guia"][5:7]}')
 
 

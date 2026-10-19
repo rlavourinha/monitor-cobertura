@@ -1618,13 +1618,18 @@ def slide_papeis_ibov(M: dict) -> tuple[str, str] | None:
 
 
 def analise_valuation(M: dict) -> dict | None:
-    """P/L 12 meses à frente de cada papel do screening com o lucro das casas (fontes/lucros_casas.py: BTG Stock Guide):
-    preço de tela ÷ LPA do ano corrente e do seguinte interpolado por dias até 31/12. Agregados do Ibovespa e por setor =
-    Σ q·preço ÷ Σ q·LPA com as quantidades teóricas da carteira (ibov_comp.json), série diária desde o 1º guia guardado."""
-    from fontes import b3 as _b3, lucros_casas as LC
+    """Múltiplos 12 meses à frente de cada papel do screening com o preço de tela:
+    - P/L e dividend yield: LPA/DPA do ano corrente e do seguinte do BTG Stock Guide (fontes/lucros_casas.py), interpolados
+      por dias até 31/12;
+    - EV/EBITDA: EBITDA e dívida líquida do guia (empresa), valor de mercado do guia andando com o preço do papel principal;
+    - P/VP: patrimônio dos controladores do último ITR/DFP na CVM ÷ ações em circulação (fontes/cvm_pl.py).
+    Agregados do Ibovespa e por setor com as quantidades teóricas da carteira (ibov_comp.json): Σ q·preço ÷ Σ q·LPA,
+    Σ q·preço ÷ Σ q·VPA, Σ q·DPA ÷ Σ q·preço; EV/EBITDA = Σ EV ÷ Σ EBITDA por empresa. P/L com série diária desde o 1º guia."""
+    from fontes import b3 as _b3, lucros_casas as LC, cvm_pl
     L = LC.carrega()
     if not L.get("btg"):
         return None
+    PV = cvm_pl.carrega()
     P = analise_papeis(M) or {"linhas": []}
     por = {l["cod"]: l for l in P["linhas"]}
     pc = config.DATA / "ibov_comp.json"
@@ -1635,27 +1640,42 @@ def analise_valuation(M: dict) -> dict | None:
     fech = {tk: {r[0]: r[1] for r in v if r[1]} for tk, v in S.items()}
     hoje = date.today().isoformat()
     sem_pv = ("PETR3", "PETR4", "VALE3")
-    linhas = []
-    for tk in sorted((set(por) | set(config.UNIVERSO)) & set(L["btg"])):
-        pts = LC.lpas(tk, L, fech)
-        if not pts:
-            continue
+
+    def preco_de(tk):
         l = por.get(tk) or {}
         f_tk = sorted((fech.get(tk) or {}).items())
-        preco = l.get("preco") or (f_tk[-1][1] if f_tk else None)
-        ult = pts[-1]
-        e12, obs = LC.lpa12(ult, hoje)
-        b1, b0 = L["btg"][tk][-1][5], L["btg"][tk][0][5]          # lucro do ano seguinte: último e 1º guia (R$ mn)
-        ser = LC.serie_pl(tk, L, fech)
-        pl = preco / e12 if (preco and e12 and e12 > 0) else None
+        return l.get("preco") or (f_tk[-1][1] if f_tk else None)
+
+    linhas = []
+    for tk in sorted((set(por) | set(config.UNIVERSO)) & (set(L["btg"]) | set(PV))):
+        pts = LC.lpas(tk, L, fech) if tk in L["btg"] else []
+        X = LC.extras(tk, L, fech) if tk in L["btg"] else []
+        pv = PV.get(tk) or {}
+        if not pts and not pv:
+            continue
+        l = por.get(tk) or {}
+        preco = preco_de(tk)
         it = itens.get(tk) or {}
-        linhas.append({"cod": tk, "setor": it.get("setor") or l.get("setor") or "—", "peso": it.get("peso"), "preco": preco,
-                       "pl12": pl, "obs": obs, "ano0": ult[1],
-                       "pl0": preco / ult[2] if (preco and ult[2] and ult[2] > 0) else None,
-                       "pl1": preco / ult[3] if (preco and ult[3] and ult[3] > 0) else None,
-                       "cresc": (ult[3] / ult[2] - 1) if (ult[2] and ult[3] and ult[2] > 0) else None,
-                       "rev": (b1 / b0 - 1) if (b1 and b0 and b1 > 0 and b0 > 0) else None,
-                       "dpl": (pl - ser[0][1]) if (pl and ser) else None, "base": ult[4], "serie": ser, "lpa": pts})
+        r = {"cod": tk, "setor": it.get("setor") or l.get("setor") or "—", "peso": it.get("peso"), "preco": preco, "pl12": None, "obs": "",
+             "ano0": None, "pl0": None, "pl1": None, "cresc": None, "rev": None, "dpl": None, "base": "", "serie": [], "lpa": pts,
+             "ev12": None, "dy12": None, "x": X[-1] if X else None,
+             "pvp": (preco / pv["vpa"]) if (preco and pv.get("vpa") and pv["vpa"] > 0) else None, "vpa": pv.get("vpa"), "pl_data": pv.get("data")}
+        if pts:
+            ult = pts[-1]
+            e12, obs = LC.lpa12(ult, hoje)
+            b1, b0 = L["btg"][tk][-1][5], L["btg"][tk][0][5]          # lucro do ano seguinte: último e 1º guia (R$ mn)
+            ser = LC.serie_pl(tk, L, fech)
+            pl = preco / e12 if (preco and e12 and e12 > 0) else None
+            r.update({"pl12": pl, "obs": obs, "ano0": ult[1], "base": ult[4], "serie": ser,
+                      "pl0": preco / ult[2] if (preco and ult[2] and ult[2] > 0) else None,
+                      "pl1": preco / ult[3] if (preco and ult[3] and ult[3] > 0) else None,
+                      "cresc": (ult[3] / ult[2] - 1) if (ult[2] and ult[3] and ult[2] > 0) else None,
+                      "rev": (b1 / b0 - 1) if (b1 and b0 and b1 > 0 and b0 > 0) else None,
+                      "dpl": (pl - ser[0][1]) if (pl and ser) else None})
+        if r["x"]:
+            r["ev12"] = LC.ev_ebitda12(r["x"], preco_de(r["x"]["prim"]), hoje)
+            r["dy12"] = LC.dy12(r["x"], preco, hoje)
+        linhas.append(r)
     lin = {r["cod"]: r for r in linhas}
 
     def agrega(sel):
@@ -1680,35 +1700,54 @@ def analise_valuation(M: dict) -> dict | None:
         return [[d, nu[d] / de[d]] for d in sorted(nu) if de[d] > 0]
 
     def agrega_hoje(sel):
-        """Mesmo agregado com o preço de tela (tempo real no pregão) e o LPA do último guia."""
-        nu = de = 0.0
+        """Agregados de hoje com o preço de tela: P/L, P/VP, DY (quantidades teóricas) e EV/EBITDA (Σ EV ÷ Σ EBITDA por empresa)."""
+        a = {"pl": [0.0, 0.0], "pvp": [0.0, 0.0], "dy": [0.0, 0.0]}
+        ev = eb = 0.0
+        empresas = set()
+        w = LC.peso_ano(hoje)
         for tk in sel:
             r, q = lin.get(tk), (itens.get(tk) or {}).get("q")
-            if r and q and r["preco"]:
+            if not (r and q and r["preco"]):
+                continue
+            v = q * r["preco"]
+            if r["lpa"]:
                 e, _ = LC.lpa12(r["lpa"][-1], hoje)
                 if e is not None:
-                    nu += q * r["preco"]; de += q * e
-        return nu / de if de > 0 else None
+                    a["pl"][0] += v; a["pl"][1] += q * e
+            if r["vpa"] and r["vpa"] > 0:
+                a["pvp"][0] += v; a["pvp"][1] += q * r["vpa"]
+            if r["dy12"] is not None:
+                a["dy"][0] += q * r["dy12"] * r["preco"]; a["dy"][1] += v
+            x = r["x"]
+            if x and r["ev12"] and x["prim"] not in empresas:
+                empresas.add(x["prim"])
+                eb12 = w * x["e0"] + (1 - w) * x["e1"]
+                ev += r["ev12"] * eb12; eb += eb12
+        return {k: (n / d if d > 0 else None) for k, (n, d) in a.items()} | {"ev": ev / eb if eb > 0 else None}
 
-    cob = [tk for tk in itens if tk in lin]
+    cob = [tk for tk in itens if tk in lin and lin[tk]["lpa"]]
     cob_ex = [tk for tk in cob if tk not in sem_pv]
     setores = {}
-    for tk in cob:
-        setores.setdefault(lin[tk]["setor"], []).append(tk)
+    for tk in itens:
+        if tk in lin:
+            setores.setdefault(lin[tk]["setor"], []).append(tk)
     tab_set = []
     for st, tks in setores.items():
         sr = agrega(tks)
-        if not sr:
-            continue
-        luc = [(L["btg"][tk][-1][5], L["btg"][tk][0][5]) for tk in tks if L["btg"][tk][-1][5] and L["btg"][tk][0][5]]
+        ah = agrega_hoje(tks)
+        luc = [(L["btg"][tk][-1][5], L["btg"][tk][0][5]) for tk in tks if tk in L["btg"] and L["btg"][tk][-1][5] and L["btg"][tk][0][5]]
         rev = (sum(a for a, _ in luc) / sum(b for _, b in luc) - 1) if luc and sum(b for _, b in luc) > 0 else None
-        tab_set.append({"setor": st, "n": len(tks), "pl": agrega_hoje(tks) or sr[-1][1], "pl_ini": sr[0][1], "rev": rev,
-                        "peso": sum((itens[tk].get("peso") or 0) for tk in tks)})
-    tab_set.sort(key=lambda r: r["pl"])
-    return {"linhas": linhas, "ibov": agrega(cob), "ibov_ex": agrega(cob_ex), "ibov_hoje": agrega_hoje(cob),
-            "ibov_ex_hoje": agrega_hoje(cob_ex), "cob_peso": sum((itens[tk].get("peso") or 0) for tk in cob),
-            "setores": tab_set, "ini": ini, "guia": max(L.get("guias") or [ini]), "sem": sorted(set(itens) - set(cob)),
-            "tempo_real": P.get("tempo_real")}
+        tab_set.append({"setor": st, "n": len(tks), "tks": tks, "pl": ah["pl"] or (sr[-1][1] if sr else None), "pl_ini": sr[0][1] if sr else None,
+                        "rev": rev, "pvp": ah["pvp"], "dy": ah["dy"], "ev": ah["ev"], "peso": sum((itens[tk].get("peso") or 0) for tk in tks)})
+    tab_set.sort(key=lambda r: r["pl"] if r["pl"] else 999)
+    ah, ahx = agrega_hoje(cob), agrega_hoje(cob_ex)
+    tudo = agrega_hoje([tk for tk in itens if tk in lin])
+    return {"linhas": linhas, "ibov": agrega(cob), "ibov_ex": agrega(cob_ex), "ibov_hoje": ah["pl"], "ibov_ex_hoje": ahx["pl"],
+            "ibov_pvp": tudo["pvp"], "ibov_dy": ah["dy"], "ibov_ev": ahx["ev"],
+            "cob_peso": sum((itens[tk].get("peso") or 0) for tk in cob), "setores": tab_set, "ini": ini,
+            "guia": max(L.get("guias") or [ini]), "sem": sorted(set(itens) - set(cob)), "tempo_real": P.get("tempo_real"),
+            "ano0": next((r["ano0"] for r in linhas if r["ano0"]), int(hoje[:4])),
+            "pl_data": max((r["pl_data"] for r in linhas if r["pl_data"]), default=None)}
 
 
 def valuation_memo(M: dict) -> dict | None:
@@ -1723,7 +1762,7 @@ def valuation_memo(M: dict) -> dict | None:
 
 
 def slide_valuation(M: dict, V: dict | None = None) -> tuple[str, str] | None:
-    """Valuation: P/L 12m à frente do Ibovespa (agregado), por setor e por papel, com a revisão do lucro desde o 1º guia."""
+    """Valuation: múltiplos 12m à frente do Ibovespa (agregado), por setor (clique abre as empresas) e por papel."""
     V = V or valuation_memo(M)
     if not V or not V["linhas"]:
         return None
@@ -1732,22 +1771,39 @@ def slide_valuation(M: dict, V: dict | None = None) -> tuple[str, str] | None:
     ib, ibx, h_ib, h_ex = V["ibov"], V["ibov_ex"], V["ibov_hoje"], V["ibov_ex_hoje"]
     ntnb = ((M.get("ntnb_2035") or [[None, None]])[-1] or [None, None])[1]
     ey = 1 / h_ib if h_ib else None
-    a0 = V["linhas"][0]["ano0"]
+    a0 = V["ano0"]
     def dx(v):
         return num(v, 1, "+" if (v or 0) > 0 else "", "x")
+    def x1(v):
+        return num(v, 1, suf="x")
+    pld = V.get("pl_data") or ""
     tiles = "".join(f'<div class="tile"><div class="l">{l}</div><div class="v">{v}</div><div class="d">{s}</div></div>' for l, v, s in (
-        ("Ibovespa · P/L 12m à frente", num(h_ib, 1, suf="x"), f"{dx(h_ib - ib[0][1])} desde {dd} · cobre {num(V['cob_peso'], 0, suf='%')} do índice" if (h_ib and ib) else "—"),
-        ("Ex-Petrobras e Vale", num(h_ex, 1, suf="x"), f"{dx(h_ex - ibx[0][1])} desde {dd}" if (h_ex and ibx) else "—"),
-        ("Earnings yield", pct(ey, 1, sinal=False), "lucro 12m ÷ valor de mercado, nominal"),
-        ("EY − NTN-B 2035", num((ey * 100 - ntnb) if (ey and ntnb) else None, 1, suf=" pp"), f"NTN-B 2035 a {num(ntnb, 2, suf='%')} (juro real)"),
-        ("Último guia", gd, f"BTG Stock Guide · {len(V['linhas'])} papéis")))
-    g = svg_linhas("pl-ibov", [("Ibovespa", S1, ib), ("Ex-Petro e Vale", S2, ibx)], 1, suf="x", W=760, H=190,
+        ("Ibovespa · P/L 12m", x1(h_ib), f"{dx(h_ib - ib[0][1])} desde {dd} · cobre {num(V['cob_peso'], 0, suf='%')} do índice" if (h_ib and ib) else "—"),
+        ("Ex-Petrobras e Vale", x1(h_ex), f"{dx(h_ex - ibx[0][1])} desde {dd}" if (h_ex and ibx) else "—"),
+        ("EV/EBITDA 12m", x1(V.get("ibov_ev")), "ex-Petro e Vale, sem bancos (Σ EV ÷ Σ EBITDA)"),
+        ("P/VP", num(V.get("ibov_pvp"), 2, suf="x"), f"PL dos controladores na CVM ({pld[8:]}/{pld[5:7]}/{pld[2:4]})" if pld else "CVM"),
+        ("Dividend yield 12m", pct(V.get("ibov_dy"), 1, sinal=False), "dividendos esperados ÷ preço"),
+        ("EY − NTN-B 2035", num((ey * 100 - ntnb) if (ey and ntnb) else None, 1, suf=" pp"), f"EY {pct(ey, 1, sinal=False)} · NTN-B {num(ntnb, 2, suf='%')}")))
+    g = svg_linhas("pl-ibov", [("Ibovespa", S1, ib), ("Ex-Petro e Vale", S2, ibx)], 1, suf="x", W=700, H=190,
                    titulo="P/L 12 meses à frente, agregado (Σ valor ÷ Σ lucro, quantidades teóricas da carteira)")
-    ts = "".join(f'<tr><td style="text-align:left">{r["setor"]}<small> · {r["n"]}</small></td><td>{num(r["peso"], 1, suf="%")}</td><td><b>{num(r["pl"], 1, suf="x")}</b></td>'
-                 f'<td class="{dlt_cls(-(r["pl"] - r["pl_ini"]))}">{dx(r["pl"] - r["pl_ini"])}</td><td class="{dlt_cls(r["rev"])}">{pct(r["rev"])}</td></tr>'
-                 for r in V["setores"])
-    t_set = (f'<table class="mini" style="width:100%"><thead><tr><th style="text-align:left">Setor · papéis</th><th>Peso</th><th>P/L 12m</th>'
-             f'<th>Δ desde {dd}</th><th>Rev. lucro {a0 + 1}</th></tr></thead><tbody>{ts}</tbody></table>')
+    lin = {r["cod"]: r for r in V["linhas"]}
+    def emp(tk):
+        r = lin[tk]
+        return (f'<tr class="vs-emp" data-s="{{i}}" hidden><td style="text-align:left;padding-left:16px">{tk}</td><td>{num(r["peso"], 1, suf="%")}</td>'
+                f'<td><b>{x1(r["pl12"])}</b>{"*" if r["obs"] else ""}</td><td>{x1(r["ev12"])}</td><td>{num(r["pvp"], 2, suf="x")}</td><td>{pct(r["dy12"], 1, sinal=False)}</td>'
+                f'<td class="{dlt_cls(-r["dpl"] if r["dpl"] is not None else None)}">{dx(r["dpl"])}</td><td class="{dlt_cls(r["rev"])}">{pct(r["rev"])}</td></tr>')
+    ts = ""
+    for i, r in enumerate(V["setores"]):
+        d_pl = (r["pl"] - r["pl_ini"]) if (r["pl"] and r["pl_ini"]) else None
+        filhos = "".join(emp(tk).replace("{i}", str(i)) for tk in sorted(r["tks"], key=lambda t: lin[t]["pl12"] or 999))
+        ts += (f'<tr class="vs-set" data-s="{i}" style="cursor:pointer" title="clique para abrir as empresas"><td style="text-align:left"><span class="vs-seta">▸</span> {r["setor"]}<small> · {r["n"]}</small></td>'
+               f'<td>{num(r["peso"], 1, suf="%")}</td><td><b>{x1(r["pl"])}</b></td><td>{x1(r["ev"])}</td><td>{num(r["pvp"], 2, suf="x")}</td><td>{pct(r["dy"], 1, sinal=False)}</td>'
+               f'<td class="{dlt_cls(-d_pl if d_pl is not None else None)}">{dx(d_pl)}</td><td class="{dlt_cls(r["rev"])}">{pct(r["rev"])}</td></tr>{filhos}')
+    t_set = (f'<table class="mini vs-tab" style="width:100%"><thead><tr><th style="text-align:left">Setor · papéis <small>(clique abre)</small></th><th>Peso</th><th>P/L 12m</th>'
+             f'<th>EV/EBITDA</th><th>P/VP</th><th>DY</th><th>Δ P/L</th><th>Rev. lucro {a0 + 1}</th></tr></thead><tbody>{ts}</tbody></table>'
+             '<script>document.querySelectorAll(".vs-tab .vs-set").forEach(function(tr){tr.addEventListener("click",function(){'
+             'var s=tr.getAttribute("data-s"),ab=tr.classList.toggle("aberto");tr.querySelector(".vs-seta").textContent=ab?"▾":"▸";'
+             'tr.parentNode.querySelectorAll("tr.vs-emp").forEach(function(e){if(e.getAttribute("data-s")===s)e.hidden=!ab;});});});</script>')
     def spark(ser):
         if len(ser) < 2:
             return ""
@@ -1756,23 +1812,25 @@ def slide_valuation(M: dict, V: dict | None = None) -> tuple[str, str] | None:
         return f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" style="vertical-align:middle"><polyline points="{pts}" fill="none" stroke="var(--s1)" stroke-width="1.3"/></svg>'
     Ls = sorted(V["linhas"], key=lambda r: (r["setor"], r["pl12"] if r["pl12"] else 999))
     tr = "".join(f'<tr><td class="tk">{r["cod"]}<small>{r["setor"]}</small></td><td>{num(r["preco"], 2)}</td>'
-                 f'<td title="{r["obs"]}"><b>{num(r["pl12"], 1, suf="x")}</b>{"*" if r["obs"] else ""}</td><td>{num(r["pl0"], 1, suf="x")}</td><td>{num(r["pl1"], 1, suf="x")}</td>'
+                 f'<td title="{r["obs"]}"><b>{x1(r["pl12"])}</b>{"*" if r["obs"] else ""}</td><td>{x1(r["pl0"])}</td><td>{x1(r["pl1"])}</td>'
+                 f'<td>{x1(r["ev12"])}</td><td title="VPA {num(r["vpa"], 2)} · PL de {r["pl_data"] or "—"}">{num(r["pvp"], 2, suf="x")}</td><td>{pct(r["dy12"], 1, sinal=False)}</td>'
                  f'<td class="{dlt_cls(r["cresc"])}">{pct(r["cresc"], 0)}</td><td class="{dlt_cls(r["rev"])}">{pct(r["rev"])}</td>'
                  f'<td class="{dlt_cls(-r["dpl"] if r["dpl"] is not None else None)}">{dx(r["dpl"])}</td><td>{spark(r["serie"])}</td>'
-                 f'<td class="mut" style="text-align:left">{"" if r["base"] == "guia" else "P/L do guia sobre o fechamento"}</td></tr>' for r in Ls)
-    tab = (f'<table class="mini"><thead><tr><th>Papel</th><th>Preço</th><th>P/L 12m</th><th>P/L {a0}</th><th>P/L {a0 + 1}</th><th>Lucro {a0 + 1} ÷ {a0}</th>'
-           f'<th>Rev. lucro {a0 + 1}</th><th>Δ P/L</th><th>P/L 12m desde {dd}</th><th></th></tr></thead><tbody>{tr}</tbody></table>')
-    corpo = (f'<div class="tiles strip" style="grid-template-columns:repeat(5,1fr);margin-bottom:10px">{tiles}</div>'
-             f'<div style="display:grid;grid-template-columns:3fr 2fr;gap:14px;align-items:start;margin-bottom:10px">'
+                 f'<td class="mut" style="text-align:left">{"" if r["base"] in ("guia", "") else "P/L do guia sobre o fechamento"}</td></tr>' for r in Ls)
+    tab = (f'<table class="mini"><thead><tr><th>Papel</th><th>Preço</th><th>P/L 12m</th><th>P/L {a0}</th><th>P/L {a0 + 1}</th><th>EV/EBITDA 12m</th><th>P/VP</th><th>DY 12m</th>'
+           f'<th>Lucro {a0 + 1} ÷ {a0}</th><th>Rev. lucro {a0 + 1}</th><th>Δ P/L</th><th>P/L 12m desde {dd}</th><th></th></tr></thead><tbody>{tr}</tbody></table>')
+    corpo = (f'<div class="tiles strip" style="grid-template-columns:repeat(6,1fr);margin-bottom:10px">{tiles}</div>'
+             f'<div style="display:grid;grid-template-columns:5fr 6fr;gap:14px;align-items:start;margin-bottom:10px">'
              f'<div class="panel" style="padding:10px 14px 4px"><div class="legend"><span><i style="background:{S1}"></i>Ibovespa</span>'
              f'<span><i style="background:{S2}"></i>ex-Petrobras e Vale</span></div>{g}</div><div>{t_set}</div></div>'
              f'<div style="overflow-x:auto">{tab}</div>')
-    return slide("Macro", "valuation", "Valuation · P/L 12 meses à frente", corpo,
-                 "Quanto o mercado paga pelo lucro esperado, papel a papel e no agregado, e se o múltiplo mexeu por preço ou por revisão de lucro.",
-                 f"Lucro: BTG Pactual Stock Guide (LatAm Valuation Summary, diário). LPA = último preço do guia ÷ P/L {a0}E e {a0 + 1}E; P/L 12m = preço de tela ÷ LPA "
-                 f"de {a0} e {a0 + 1} interpolado por dias até 31/12 (nunca o múltiplo pronto). Agregado = Σ q·preço ÷ Σ q·LPA com as quantidades teóricas da carteira atual; "
-                 f"fora do guia: {', '.join(V['sem']) or '—'}. * = guia sem lucro {a0} (usa só {a0 + 1}). Rev. lucro e Δ P/L = desde o 1º guia guardado ({dd}); "
-                 f"Δ negativo (verde) = ficou mais barato. Histórico em data/lucros_casas.json, um ponto por guia.")
+    return slide("Macro", "valuation", "Valuation · múltiplos 12 meses à frente", corpo,
+                 "Quanto o mercado paga pelo lucro, pelo EBITDA e pelo patrimônio, papel a papel e no agregado, e se o múltiplo mexeu por preço ou por revisão.",
+                 f"BTG Pactual Stock Guide (LatAm Valuation Summary, diário): LPA = preço do guia ÷ P/L {a0}E e {a0 + 1}E; DPA = DY × preço; EBITDA = valor de mercado ÷ "
+                 f"(EV/EBITDA − DL/EBITDA) e DL = DL/EBITDA × EBITDA. Tudo 12m à frente = {a0} e {a0 + 1} interpolados por dias até 31/12, com o preço de tela (nunca o "
+                 f"múltiplo pronto). P/VP = preço ÷ (PL dos controladores do último ITR/DFP na CVM ÷ ações em circulação). Agregados com as quantidades teóricas da "
+                 f"carteira atual; fora do guia: {', '.join(V['sem']) or '—'}. * = guia sem lucro {a0} (usa só {a0 + 1}). Rev. lucro e Δ P/L desde o 1º guia guardado "
+                 f"({dd}); Δ negativo (verde) = ficou mais barato. Histórico em data/lucros_casas.json e data/pl_cvm.json.")
 
 
 def analise_volume(M: dict) -> dict | None:
