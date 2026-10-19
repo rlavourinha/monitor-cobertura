@@ -11821,5 +11821,249 @@ null
 0.437555
 ]
 ]
+},
+"setor_guia": {
+"CSAN3": "Agribusiness",
+"BBAS3": "Banks",
+"BBDC4": "Banks",
+"BBDC3": "Banks",
+"INBR32": "Banks",
+"ITUB4": "Banks",
+"SANB11": "Banks",
+"EMBJ3": "Capital Goods",
+"POMO4": "Capital Goods",
+"WEGE3": "Capital Goods",
+"RENT3": "Car Rental",
+"VAMO3": "Car Rental",
+"COGN3": "Education",
+"YDUQ3": "Education",
+"B3SA3": "Financials (ex-Banks)",
+"BBSE3": "Financials (ex-Banks)",
+"CXSE3": "Financials (ex-Banks)",
+"PSSA3": "Financials (ex-Banks)",
+"ABEV3": "Food & Beverage",
+"JBSS32": "Food & Beverage",
+"MBRF3": "Food & Beverage",
+"BEEF3": "Food & Beverage",
+"SAUD3": "Healthcare",
+"FLRY3": "Healthcare",
+"HAPV3": "Healthcare",
+"HYPE3": "Healthcare",
+"RDOR3": "Healthcare",
+"MOTV3": "Infrastructure",
+"RAIL3": "Infrastructure",
+"CSNA3": "Metal & Mining",
+"CMIN3": "Metal & Mining",
+"GGBR4": "Metal & Mining",
+"USIM5": "Metal & Mining",
+"VALE3": "Metal & Mining",
+"BRAV3": "Oil & Gas",
+"PRIO3": "Oil & Gas",
+"PETR4": "Oil & Gas",
+"PETR3": "Oil & Gas",
+"UGPA3": "Oil & Gas",
+"VBBR3": "Oil & Gas",
+"KLBN11": "Pulp & Paper",
+"SUZB3": "Pulp & Paper",
+"ALOS3": "Real Estate",
+"CURY3": "Real Estate",
+"CYRE3": "Real Estate",
+"DIRR3": "Real Estate",
+"EZTC3": "Real Estate",
+"IGTI11": "Real Estate",
+"MRVE3": "Real Estate",
+"MULT3": "Real Estate",
+"TEND3": "Real Estate",
+"ASAI3": "Retail",
+"AZZA3": "Retail",
+"CEAB3": "Retail",
+"LREN3": "Retail",
+"MGLU3": "Retail",
+"NATU3": "Retail",
+"RADL3": "Retail",
+"SMFT3": "Retail",
+"VIVA3": "Retail",
+"TOTS3": "Technology",
+"TIMS3": "Telecom",
+"VIVT3": "Telecom",
+"AURE3": "Utilities",
+"AXIA3": "Utilities",
+"CPFE3": "Utilities",
+"CMIG4": "Utilities",
+"CSMG3": "Utilities",
+"CPLE3": "Utilities",
+"ENGI11": "Utilities",
+"ENEV3": "Utilities",
+"EGIE3": "Utilities",
+"EQTL3": "Utilities",
+"ISAE4": "Utilities",
+"SBSP3": "Utilities",
+"TAEE11": "Utilities"
+},
+"eventos": [
+{
+"tk": "PRIO3",
+"empresa": "PRIO",
+"setor_guia": "Oil & Gas",
+"de": "2026-10-07",
+"data": "2026-10-08",
+"ano0": 2026,
+"var": {
+"ano0": -0.0376,
+"ano1": -0.0376
+},
+"lucro_ano1": [
+5894.74,
+5459.1
+],
+"cambio": true,
+"relatorio": {
+"id": 123279,
+"data": "2026-10-08",
+"empresa": "LatAm Oil & Gas",
+"titulo": "Daily Fuel | October 8th, 2026"
 }
+},
+{
+"tk": "CURY3",
+"empresa": "Cury",
+"setor_guia": "Real Estate",
+"de": "2026-10-08",
+"data": "2026-10-09",
+"ano0": 2026,
+"var": {
+"ano0": -0.0235,
+"ano1": -0.046
+},
+"lucro_ano1": [
+1493.51,
+1424.76
+],
+"cambio": false,
+"relatorio": null
+},
+{
+"tk": "DIRR3",
+"empresa": "Direcional",
+"setor_guia": "Real Estate",
+"de": "2026-10-08",
+"data": "2026-10-09",
+"ano0": 2026,
+"var": {
+"ano0": -0.1896,
+"ano1": -0.2011
+},
+"lucro_ano1": [
+1375.87,
+1099.22
+],
+"cambio": false,
+"relatorio": null
+},
+{
+"tk": "MRVE3",
+"empresa": "MRV",
+"setor_guia": "Real Estate",
+"de": "2026-10-08",
+"data": "2026-10-09",
+"ano0": 2026,
+"var": {
+"ano0": null,
+"ano1": -0.45
+},
+"lucro_ano1": [
+1195.0,
+657.25
+],
+"cambio": false,
+"relatorio": null
+},
+{
+"tk": "PRIO3",
+"empresa": "PRIO",
+"setor_guia": "Oil & Gas",
+"de": "2026-10-08",
+"data": "2026-10-09",
+"ano0": 2026,
+"var": {
+"ano0": 0.0334,
+"ano1": 0.0334
+},
+"lucro_ano1": [
+5459.1,
+5649.33
+],
+"cambio": true,
+"relatorio": {
+"id": 123320,
+"data": "2026-10-09",
+"empresa": "Brazil Oil & Gas",
+"titulo": "A Quick Look on Today's Fuel Measures"
+}
+},
+{
+"tk": "TEND3",
+"empresa": "Tenda",
+"setor_guia": "Real Estate",
+"de": "2026-10-08",
+"data": "2026-10-09",
+"ano0": 2026,
+"var": {
+"ano0": 0.0618,
+"ano1": 0.0697
+},
+"lucro_ano1": [
+847.87,
+906.98
+],
+"cambio": false,
+"relatorio": null
+},
+{
+"tk": "BRAV3",
+"empresa": "Brava Energia",
+"setor_guia": "Oil & Gas",
+"de": "2026-10-08",
+"data": "2026-10-09",
+"ano0": 2026,
+"var": {
+"ano0": 0.032,
+"ano1": 0.032
+},
+"lucro_ano1": [
+304.68,
+314.87
+],
+"cambio": true,
+"relatorio": {
+"id": 123320,
+"data": "2026-10-09",
+"empresa": "Brazil Oil & Gas",
+"titulo": "A Quick Look on Today's Fuel Measures"
+}
+},
+{
+"tk": "PRIO3",
+"empresa": "PRIO",
+"setor_guia": "Oil & Gas",
+"de": "2026-10-15",
+"data": "2026-10-16",
+"ano0": 2026,
+"var": {
+"ano0": 0.0136,
+"ano1": 0.0136
+},
+"lucro_ano1": [
+5661.04,
+5815.88
+],
+"cambio": true,
+"relatorio": {
+"id": 123454,
+"data": "2026-10-16",
+"empresa": "LatAm Oil & Gas",
+"titulo": "Daily Fuel | October 16th, 2026"
+}
+}
+]
 }
