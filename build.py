@@ -1595,14 +1595,15 @@ def slide_papeis_ibov(M: dict) -> tuple[str, str] | None:
         return None
     zlim, vlim = getattr(config, "ALERTA_Z", 2.0), getattr(config, "ALERTA_VOL", 2.0)
     L = sorted(P["linhas"], key=lambda l: (-(abs(l["z"]) if l["z"] is not None else 0)))
+    _pl = {r["cod"]: r for r in ((valuation_memo(M) or {}).get("linhas") or [])}
     def cls_z(l):
         return ' style="background:rgba(220,38,38,.08)"' if (l["z"] is not None and abs(l["z"]) >= zlim) else (' style="background:rgba(37,99,235,.07)"' if (l["vrel"] and l["vrel"] >= vlim) else "")
     tr = "".join(f'<tr{cls_z(l)}><td class="tk">{l["cod"]}<small>{l["setor"]}</small></td><td>{num(l["peso"], 1, suf="%") if l["peso"] else "—"}</td><td>{num(l["preco"], 2)}</td>'
                  f'<td class="{dlt_cls(l["r1"])}">{pct(l["r1"])}</td><td class="{dlt_cls(l["r5"])}">{pct(l["r5"])}</td><td class="{dlt_cls(l["r21"])}">{pct(l["r21"])}</td>'
                  f'<td class="{dlt_cls(l["z"])}">{num(l["z"], 1) if l["z"] is not None else "—"}</td><td>{num(l["sig"] * 100, 1, suf="%") if l["sig"] else "—"}</td>'
-                 f'<td{" class=up" if l["vrel"] and l["vrel"] >= vlim else ""}>{num(l["vrel"], 1, suf="×") if l["vrel"] else "—"}</td><td>{num(l["vol"] / 1e6, 0)}</td><td class="mut" style="text-align:left">{"; ".join(l["flags"])}</td></tr>'
+                 f'<td{" class=up" if l["vrel"] and l["vrel"] >= vlim else ""}>{num(l["vrel"], 1, suf="×") if l["vrel"] else "—"}</td><td>{num(l["vol"] / 1e6, 0)}</td><td>{num((_pl.get(l["cod"]) or {}).get("pl12"), 1, suf="x")}</td><td class="mut" style="text-align:left">{"; ".join(l["flags"])}</td></tr>'
                  for l in L)
-    tab = (f'<table class="mini"><thead><tr><th>Papel</th><th>Peso</th><th>Preço</th><th>Dia</th><th>5 d</th><th>21 d</th><th>z do dia</th><th>σ diário</th><th>Vol. × méd. 21 d</th><th>Vol. R$ mi</th><th style="text-align:left">Alerta</th></tr></thead><tbody>{tr}</tbody></table>')
+    tab = (f'<table class="mini"><thead><tr><th>Papel</th><th>Peso</th><th>Preço</th><th>Dia</th><th>5 d</th><th>21 d</th><th>z do dia</th><th>σ diário</th><th>Vol. × méd. 21 d</th><th>Vol. R$ mi</th><th><a href="#valuation">P/L 12m</a></th><th style="text-align:left">Alerta</th></tr></thead><tbody>{tr}</tbody></table>')
     al = "".join(f'<li><b>{a["cod"]}</b> · {a["txt"]}</li>' for a in P["alertas"]) or "<li>Nenhum papel fora do padrão hoje.</li>"
     sobe = sorted([l for l in L if l["r1"] is not None], key=lambda l: -l["r1"])[:5]; cai = sorted([l for l in L if l["r1"] is not None], key=lambda l: l["r1"])[:5]
     def mini(lst, tit):
@@ -1614,6 +1615,164 @@ def slide_papeis_ibov(M: dict) -> tuple[str, str] | None:
     return slide("Macro", "papeis-ibov", "Papéis do Ibovespa · variação e alertas", corpo,
                  f"Os {P['n']} papéis do índice e os BDRs acompanhados, ordenados pelo tamanho do movimento do dia em desvios-padrão. Vermelho = oscilação fora do padrão (≥ {num(zlim, 0)}σ); azul = volume fora do padrão (≥ {num(vlim, 0)}× a média).",
                  f"Fechamentos e volumes B3 (COTAHIST); último preço intraday do Yahoo quando mais novo que o fechamento. z = ln(1 + retorno do dia) ÷ desvio-padrão dos retornos diários de 60 pregões; volume relativo = volume financeiro do último pregão fechado ÷ média dos 21 anteriores. Limites em config.ALERTA_Z e config.ALERTA_VOL.")
+
+
+def analise_valuation(M: dict) -> dict | None:
+    """P/L 12 meses à frente de cada papel do screening com o lucro das casas (fontes/lucros_casas.py: BTG Stock Guide):
+    preço de tela ÷ LPA do ano corrente e do seguinte interpolado por dias até 31/12. Agregados do Ibovespa e por setor =
+    Σ q·preço ÷ Σ q·LPA com as quantidades teóricas da carteira (ibov_comp.json), série diária desde o 1º guia guardado."""
+    from fontes import b3 as _b3, lucros_casas as LC
+    L = LC.carrega()
+    if not L.get("btg"):
+        return None
+    P = analise_papeis(M) or {"linhas": []}
+    por = {l["cod"]: l for l in P["linhas"]}
+    pc = config.DATA / "ibov_comp.json"
+    C = json.loads(pc.read_text(encoding="utf-8")) if pc.exists() else {}
+    itens = {i["cod"]: i for i in C.get("itens", [])}
+    ini = min(p[0] for pts in L["btg"].values() for p in pts)
+    S = _b3.series_todas(("fechamento",), desde=ini)
+    fech = {tk: {r[0]: r[1] for r in v if r[1]} for tk, v in S.items()}
+    hoje = date.today().isoformat()
+    sem_pv = ("PETR3", "PETR4", "VALE3")
+    linhas = []
+    for tk in sorted((set(por) | set(config.UNIVERSO)) & set(L["btg"])):
+        pts = LC.lpas(tk, L, fech)
+        if not pts:
+            continue
+        l = por.get(tk) or {}
+        f_tk = sorted((fech.get(tk) or {}).items())
+        preco = l.get("preco") or (f_tk[-1][1] if f_tk else None)
+        ult = pts[-1]
+        e12, obs = LC.lpa12(ult, hoje)
+        b1, b0 = L["btg"][tk][-1][5], L["btg"][tk][0][5]          # lucro do ano seguinte: último e 1º guia (R$ mn)
+        ser = LC.serie_pl(tk, L, fech)
+        pl = preco / e12 if (preco and e12 and e12 > 0) else None
+        it = itens.get(tk) or {}
+        linhas.append({"cod": tk, "setor": it.get("setor") or l.get("setor") or "—", "peso": it.get("peso"), "preco": preco,
+                       "pl12": pl, "obs": obs, "ano0": ult[1],
+                       "pl0": preco / ult[2] if (preco and ult[2] and ult[2] > 0) else None,
+                       "pl1": preco / ult[3] if (preco and ult[3] and ult[3] > 0) else None,
+                       "cresc": (ult[3] / ult[2] - 1) if (ult[2] and ult[3] and ult[2] > 0) else None,
+                       "rev": (b1 / b0 - 1) if (b1 and b0 and b1 > 0 and b0 > 0) else None,
+                       "dpl": (pl - ser[0][1]) if (pl and ser) else None, "base": ult[4], "serie": ser, "lpa": pts})
+    lin = {r["cod"]: r for r in linhas}
+
+    def agrega(sel):
+        """Série diária Σ q·fechamento ÷ Σ q·LPA 12m dos papéis em sel (só os que têm LPA no dia)."""
+        nu, de = {}, {}
+        for tk in sel:
+            q = (itens.get(tk) or {}).get("q")
+            pts = lin[tk]["lpa"] if tk in lin else []
+            if not q or not pts:
+                continue
+            j = -1
+            for d in sorted(fech.get(tk, {})):
+                if d < pts[0][0]:
+                    continue
+                while j + 1 < len(pts) and pts[j + 1][0] <= d:
+                    j += 1
+                e, _ = LC.lpa12(pts[j], d)
+                if e is None:
+                    continue
+                nu[d] = nu.get(d, 0) + q * fech[tk][d]
+                de[d] = de.get(d, 0) + q * e
+        return [[d, nu[d] / de[d]] for d in sorted(nu) if de[d] > 0]
+
+    def agrega_hoje(sel):
+        """Mesmo agregado com o preço de tela (tempo real no pregão) e o LPA do último guia."""
+        nu = de = 0.0
+        for tk in sel:
+            r, q = lin.get(tk), (itens.get(tk) or {}).get("q")
+            if r and q and r["preco"]:
+                e, _ = LC.lpa12(r["lpa"][-1], hoje)
+                if e is not None:
+                    nu += q * r["preco"]; de += q * e
+        return nu / de if de > 0 else None
+
+    cob = [tk for tk in itens if tk in lin]
+    cob_ex = [tk for tk in cob if tk not in sem_pv]
+    setores = {}
+    for tk in cob:
+        setores.setdefault(lin[tk]["setor"], []).append(tk)
+    tab_set = []
+    for st, tks in setores.items():
+        sr = agrega(tks)
+        if not sr:
+            continue
+        luc = [(L["btg"][tk][-1][5], L["btg"][tk][0][5]) for tk in tks if L["btg"][tk][-1][5] and L["btg"][tk][0][5]]
+        rev = (sum(a for a, _ in luc) / sum(b for _, b in luc) - 1) if luc and sum(b for _, b in luc) > 0 else None
+        tab_set.append({"setor": st, "n": len(tks), "pl": agrega_hoje(tks) or sr[-1][1], "pl_ini": sr[0][1], "rev": rev,
+                        "peso": sum((itens[tk].get("peso") or 0) for tk in tks)})
+    tab_set.sort(key=lambda r: r["pl"])
+    return {"linhas": linhas, "ibov": agrega(cob), "ibov_ex": agrega(cob_ex), "ibov_hoje": agrega_hoje(cob),
+            "ibov_ex_hoje": agrega_hoje(cob_ex), "cob_peso": sum((itens[tk].get("peso") or 0) for tk in cob),
+            "setores": tab_set, "ini": ini, "guia": max(L.get("guias") or [ini]), "sem": sorted(set(itens) - set(cob)),
+            "tempo_real": P.get("tempo_real")}
+
+
+def valuation_memo(M: dict) -> dict | None:
+    """analise_valuation uma vez por build (o painel, o slide do Ibov e o de valuation usam o mesmo resultado)."""
+    if "_valuation" not in M:
+        try:
+            M["_valuation"] = analise_valuation(M)
+        except Exception as e:
+            print(f"  valuation: {e}", file=sys.stderr)
+            M["_valuation"] = None
+    return M["_valuation"]
+
+
+def slide_valuation(M: dict, V: dict | None = None) -> tuple[str, str] | None:
+    """Valuation: P/L 12m à frente do Ibovespa (agregado), por setor e por papel, com a revisão do lucro desde o 1º guia."""
+    V = V or valuation_memo(M)
+    if not V or not V["linhas"]:
+        return None
+    S1, S2 = "var(--s1)", "var(--s2)"
+    ini = V["ini"]; dd = f"{ini[8:]}/{ini[5:7]}"; gd = f'{V["guia"][8:]}/{V["guia"][5:7]}'
+    ib, ibx, h_ib, h_ex = V["ibov"], V["ibov_ex"], V["ibov_hoje"], V["ibov_ex_hoje"]
+    ntnb = ((M.get("ntnb_2035") or [[None, None]])[-1] or [None, None])[1]
+    ey = 1 / h_ib if h_ib else None
+    a0 = V["linhas"][0]["ano0"]
+    def dx(v):
+        return num(v, 1, "+" if (v or 0) > 0 else "", "x")
+    tiles = "".join(f'<div class="tile"><div class="l">{l}</div><div class="v">{v}</div><div class="d">{s}</div></div>' for l, v, s in (
+        ("Ibovespa · P/L 12m à frente", num(h_ib, 1, suf="x"), f"{dx(h_ib - ib[0][1])} desde {dd} · cobre {num(V['cob_peso'], 0, suf='%')} do índice" if (h_ib and ib) else "—"),
+        ("Ex-Petrobras e Vale", num(h_ex, 1, suf="x"), f"{dx(h_ex - ibx[0][1])} desde {dd}" if (h_ex and ibx) else "—"),
+        ("Earnings yield", pct(ey, 1, sinal=False), "lucro 12m ÷ valor de mercado, nominal"),
+        ("EY − NTN-B 2035", num((ey * 100 - ntnb) if (ey and ntnb) else None, 1, suf=" pp"), f"NTN-B 2035 a {num(ntnb, 2, suf='%')} (juro real)"),
+        ("Último guia", gd, f"BTG Stock Guide · {len(V['linhas'])} papéis")))
+    g = svg_linhas("pl-ibov", [("Ibovespa", S1, ib), ("Ex-Petro e Vale", S2, ibx)], 1, suf="x", W=760, H=190,
+                   titulo="P/L 12 meses à frente, agregado (Σ valor ÷ Σ lucro, quantidades teóricas da carteira)")
+    ts = "".join(f'<tr><td style="text-align:left">{r["setor"]}<small> · {r["n"]}</small></td><td>{num(r["peso"], 1, suf="%")}</td><td><b>{num(r["pl"], 1, suf="x")}</b></td>'
+                 f'<td class="{dlt_cls(-(r["pl"] - r["pl_ini"]))}">{dx(r["pl"] - r["pl_ini"])}</td><td class="{dlt_cls(r["rev"])}">{pct(r["rev"])}</td></tr>'
+                 for r in V["setores"])
+    t_set = (f'<table class="mini" style="width:100%"><thead><tr><th style="text-align:left">Setor · papéis</th><th>Peso</th><th>P/L 12m</th>'
+             f'<th>Δ desde {dd}</th><th>Rev. lucro {a0 + 1}</th></tr></thead><tbody>{ts}</tbody></table>')
+    def spark(ser):
+        if len(ser) < 2:
+            return ""
+        vs = [v for _, v in ser]; lo, hi = min(vs), max(vs); W, H = 70, 16
+        pts = " ".join(f"{i / (len(vs) - 1) * W:.1f},{H - 1 - ((v - lo) / (hi - lo) * (H - 2) if hi > lo else H / 2):.1f}" for i, v in enumerate(vs))
+        return f'<svg width="{W}" height="{H}" viewBox="0 0 {W} {H}" style="vertical-align:middle"><polyline points="{pts}" fill="none" stroke="var(--s1)" stroke-width="1.3"/></svg>'
+    Ls = sorted(V["linhas"], key=lambda r: (r["setor"], r["pl12"] if r["pl12"] else 999))
+    tr = "".join(f'<tr><td class="tk">{r["cod"]}<small>{r["setor"]}</small></td><td>{num(r["preco"], 2)}</td>'
+                 f'<td title="{r["obs"]}"><b>{num(r["pl12"], 1, suf="x")}</b>{"*" if r["obs"] else ""}</td><td>{num(r["pl0"], 1, suf="x")}</td><td>{num(r["pl1"], 1, suf="x")}</td>'
+                 f'<td class="{dlt_cls(r["cresc"])}">{pct(r["cresc"], 0)}</td><td class="{dlt_cls(r["rev"])}">{pct(r["rev"])}</td>'
+                 f'<td class="{dlt_cls(-r["dpl"] if r["dpl"] is not None else None)}">{dx(r["dpl"])}</td><td>{spark(r["serie"])}</td>'
+                 f'<td class="mut" style="text-align:left">{"" if r["base"] == "guia" else "P/L do guia sobre o fechamento"}</td></tr>' for r in Ls)
+    tab = (f'<table class="mini"><thead><tr><th>Papel</th><th>Preço</th><th>P/L 12m</th><th>P/L {a0}</th><th>P/L {a0 + 1}</th><th>Lucro {a0 + 1} ÷ {a0}</th>'
+           f'<th>Rev. lucro {a0 + 1}</th><th>Δ P/L</th><th>P/L 12m desde {dd}</th><th></th></tr></thead><tbody>{tr}</tbody></table>')
+    corpo = (f'<div class="tiles strip" style="grid-template-columns:repeat(5,1fr);margin-bottom:10px">{tiles}</div>'
+             f'<div style="display:grid;grid-template-columns:3fr 2fr;gap:14px;align-items:start;margin-bottom:10px">'
+             f'<div class="panel" style="padding:10px 14px 4px"><div class="legend"><span><i style="background:{S1}"></i>Ibovespa</span>'
+             f'<span><i style="background:{S2}"></i>ex-Petrobras e Vale</span></div>{g}</div><div>{t_set}</div></div>'
+             f'<div style="overflow-x:auto">{tab}</div>')
+    return slide("Macro", "valuation", "Valuation · P/L 12 meses à frente", corpo,
+                 "Quanto o mercado paga pelo lucro esperado, papel a papel e no agregado, e se o múltiplo mexeu por preço ou por revisão de lucro.",
+                 f"Lucro: BTG Pactual Stock Guide (LatAm Valuation Summary, diário). LPA = último preço do guia ÷ P/L {a0}E e {a0 + 1}E; P/L 12m = preço de tela ÷ LPA "
+                 f"de {a0} e {a0 + 1} interpolado por dias até 31/12 (nunca o múltiplo pronto). Agregado = Σ q·preço ÷ Σ q·LPA com as quantidades teóricas da carteira atual; "
+                 f"fora do guia: {', '.join(V['sem']) or '—'}. * = guia sem lucro {a0} (usa só {a0 + 1}). Rev. lucro e Δ P/L = desde o 1º guia guardado ({dd}); "
+                 f"Δ negativo (verde) = ficou mais barato. Histórico em data/lucros_casas.json, um ponto por guia.")
 
 
 def analise_volume(M: dict) -> dict | None:
@@ -2238,6 +2397,14 @@ def slide_painel(M: dict, sgs: dict, mercado_micro: dict, minhas: list[dict], co
     if PP and PP.get("alertas"):
         top = PP["alertas"][:6]
         sinais.append(f"<b>Fora do padrão{' (' + PP['tempo_real'][11:] + ')' if PP.get('tempo_real') else ''}:</b> " + "; ".join(f'<b>{a["cod"]}</b> {a["txt"]}' for a in top) + f'. <a href="#papeis-ibov">ver todos</a>')
+    VV = valuation_memo(M)
+    if VV and VV.get("ibov_hoje"):
+        ib0 = VV["ibov"][0] if VV.get("ibov") else None
+        revs = sorted([r for r in VV["linhas"] if r["rev"] is not None and abs(r["rev"]) >= 0.03], key=lambda r: -abs(r["rev"]))[:4]
+        sinais.append(f'<b>Valuation:</b> Ibovespa a {num(VV["ibov_hoje"], 1, suf="x")} P/L 12m à frente (ex-Petro e Vale {num(VV["ibov_ex_hoje"], 1, suf="x")})'
+                      + (f', {num(VV["ibov_hoje"] - ib0[1], 1, "+" if VV["ibov_hoje"] > ib0[1] else "", "x")} desde {ib0[0][8:]}/{ib0[0][5:7]}' if ib0 else "")
+                      + (("; revisão de lucro " + str(VV["linhas"][0]["ano0"] + 1) + ": " + ", ".join(f'{r["cod"]} {pct(r["rev"], 0)}' for r in revs)) if revs else "")
+                      + '. <a href="#valuation">ver valuation</a>')
     sinais += sinais_cob                                     # assertividade do Focus fica no slide próprio (Painel precisa caber numa tela)
     CB = carteira_btg()                                       # carteira recomendada do BTG: só o que toca a cobertura (entrada, saída, peso)
     if CB:
@@ -4324,15 +4491,19 @@ def secao_macro(mercado_micro: dict) -> list[tuple[str, str]]:
     # --- Ibov = lucro / (Ke - g)
     pb = config.DATA / "bloomberg_macro.json"
     bbg = json.loads(pb.read_text(encoding="utf-8")) if pb.exists() else {}
-    pe = config.IBOV_PE_FWD or bbg.get("ibov_pe_fwd")
+    _vv = valuation_memo(M) or {}
+    pe = config.IBOV_PE_FWD or bbg.get("ibov_pe_fwd") or _vv.get("ibov_hoje")
     ey = (1 / pe) if pe else None
     premio = (ey * 100 - ntnb35) if (ey and ntnb35) else None
-    ibov_txt = (f'<div class="tiles"><div class="tile"><div class="l">P/L Ibov 12m à frente</div><div class="v">{num(pe, 1, suf="x")}</div><div class="d">{("Bloomberg " + bbg.get("data", "")) if bbg.get("ibov_pe_fwd") and not config.IBOV_PE_FWD else ("config.IBOV_PE_FWD (manual)" if pe else "aguardando Bloomberg (IBOV Index BEST_PE_RATIO)")}</div></div>'
+    _fonte_pe = (("Bloomberg " + bbg.get("data", "")) if bbg.get("ibov_pe_fwd") and not config.IBOV_PE_FWD else
+                 "config.IBOV_PE_FWD (manual)" if config.IBOV_PE_FWD else
+                 (f'lucro BTG Stock Guide, agregado · <a href="#valuation">ver valuation</a>' if pe else "sem lucro das casas"))
+    ibov_txt = (f'<div class="tiles"><div class="tile"><div class="l">P/L Ibov 12m à frente</div><div class="v">{num(pe, 1, suf="x")}</div><div class="d">{_fonte_pe}</div></div>'
                 f'<div class="tile"><div class="l">Earnings yield (1/P/L)</div><div class="v">{pct(ey, 1, sinal=False)}</div><div class="d">lucro ÷ preço, nominal</div></div>'
                 f'<div class="tile"><div class="l">NTN-B 2035 (juro real)</div><div class="v">{num(ntnb35, 2, suf="%")}</div><div class="d">Tesouro Direto {ntnb.get("data", "—")}</div></div>'
                 f'<div class="tile"><div class="l">EY − NTN-B</div><div class="v">{num(premio, 1, suf=" pp")}</div><div class="d">prêmio implícito aproximado (EY nominal vs juro real)</div></div></div>'
                 f'<p class="note">Modelo do esboço: Ibov = Lucro ÷ (Ke − g). Com P/L à frente e juro real observados, o que sobra é (Ke − g) implícito = earnings yield. '
-                f'Quando o P/L vier da ponte Bloomberg, o painel passa a acompanhar a série do prêmio ao longo do tempo.</p>')
+                f'O P/L vem do lucro das casas (BTG Stock Guide) agregado pela carteira; a série diária está no slide de valuation.</p>')
 
     # --- atividade e crédito
     def serie(cod):
@@ -4458,6 +4629,9 @@ def secao_macro(mercado_micro: dict) -> list[tuple[str, str]]:
     spp = slide_papeis_ibov(M)
     if spp:
         S.append(spp)
+    svv = slide_valuation(M)
+    if svv:
+        S.append(svv)
     srh = slide_rpm_historico(M, sgs)
     if srh:
         S.append(srh)
@@ -4488,7 +4662,7 @@ def secao_macro(mercado_micro: dict) -> list[tuple[str, str]]:
     S.append(slide("Macro", "ibov-modelo", "Ibov = Lucro ÷ (Ke − g)",
                    f'<div class="formula">Ibov = Lucro ÷ (K<sub>e</sub> − g)</div>{ibov_txt.replace(chr(10), "")}',
                    "Com o P/L à frente e o juro real observados, o que sobra é o (Ke − g) implícito.",
-                   "P/L do Ibov: ponte Bloomberg (IBOV Index BEST_PE_RATIO) ou config.IBOV_PE_FWD."))
+                   "P/L do Ibov: config.IBOV_PE_FWD (manual) > ponte Bloomberg > lucro do BTG Stock Guide agregado pela carteira teórica."))
     S.append(slide("Macro", "mercado-5a", "Câmbio, petróleo e volatilidade",
                    f'<div class="grid3">{"".join(g_merc[2:])}</div>',
                    "USD/BRL, Brent e VIX, série completa. O seletor estreita a janela.", "Yahoo Finance, fechamentos diários."))
@@ -4567,10 +4741,13 @@ def build() -> None:
         n_an = (est[a0]["c"] or {}).get("n_analistas")
         novo_m = any(est[a]["m"] and est[a]["m"]["data"] >= hoje[:8] for a in config.ANOS_FISCAIS)
 
-        try:                                       # P/E 12 meses à frente com lucro das casas (trades.json: multiplos_cobertura)
-            import trades as _tr
-            _mc = (json.loads(_tr.ARQ.read_text(encoding="utf-8")).get("multiplos_cobertura") or {}).get(tk)
-            pe12 = _tr.multiplo(_mc, preco, hoje, _tr._fx(hoje)) if _mc and preco else None
+        try:                                       # P/E 12 meses à frente: Stock Guide diário (lucros_casas) > trades.json multiplos_cobertura
+            from fontes import lucros_casas as _lc
+            pe12 = _lc.pl12_hoje(tk, preco, hoje)
+            if not pe12:
+                import trades as _tr
+                _mc = (json.loads(_tr.ARQ.read_text(encoding="utf-8")).get("multiplos_cobertura") or {}).get(tk)
+                pe12 = _tr.multiplo(_mc, preco, hoje, _tr._fx(hoje)) if _mc and preco else None
         except Exception:
             pe12 = None
         linhas_resumo.append(f'''<tr><td class="tk"><a href="#{tk}-preco" style="color:inherit;text-decoration:none">{tk}</a><small>{v["nome"]}</small></td>
@@ -4627,7 +4804,7 @@ def build() -> None:
     S.append(slide("Cobertura", "universo", "Universo coberto",
                    f'''<div class="panel"><table class="big"><thead><tr><th>Empresa</th><th>Preço</th><th>Dia</th><th>Ano*</th><th>P/E 12m</th><th>P/L {a0} meu</th><th>cons.</th><th>P/L {a1} meu</th><th>cons.</th><th>Δ lucro {a0}</th><th>Upside meu</th><th>cons.</th></tr></thead><tbody>{"".join(linhas_resumo)}</tbody></table></div>''',
                    f"Preço intraday sobre histórico B3. P/L = preço ÷ lucro por ação estimado. Δ = minha estimativa de lucro {a0} contra o consenso.",
-                   "* Ano = desde o 1º pregão do ano; série iniciada este ano (SAUD3) = desde a listagem. P/E 12m: lucro 2026 e 2027 do BTG Stock Guide interpolados por dias até 31/12, com o preço de tela. Minha estimativa: estimativas/minhas.csv ou aba E-A do modelo. Consenso: Bloomberg (ponte) > Yahoo."))
+                   "* Ano = desde o 1º pregão do ano; série iniciada este ano (SAUD3) = desde a listagem. P/E 12m: lucro 2026 e 2027 do BTG Stock Guide mais recente (diário) interpolados por dias até 31/12, com o preço de tela. Minha estimativa: estimativas/minhas.csv ou aba E-A do modelo. Consenso: Bloomberg (ponte) > Yahoo."))
     for tk, lst in slides_emp:
         for titulo, sid, corpo, lede, nota in lst:
             S.append(slide(tk, sid, titulo, corpo, lede, nota))

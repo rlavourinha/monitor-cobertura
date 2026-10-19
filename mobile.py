@@ -492,6 +492,35 @@ details summary span{flex:1;font-weight:600}details summary small{color:var(--mu
 footer{font-size:12px;color:var(--mut);padding:8px 2px 0;line-height:1.4}footer a{color:var(--s1)}
 """
 
+def bloco_valuation(M: dict) -> str:
+    """P/L 12m à frente do Ibov (lucro do BTG Stock Guide agregado pela carteira) e por setor; papéis com maior Δ."""
+    try:
+        V = B.valuation_memo(M)
+    except Exception:
+        V = None
+    if not V or not V.get("ibov_hoje"):
+        return ""
+    ib, ini = V["ibov"], V["ini"]
+    dd = f"{ini[8:]}/{ini[5:7]}"
+    dx = lambda v: B.num(v, 1, "+" if (v or 0) > 0 else "", "x")
+    ntnb = ((M.get("ntnb_2035") or [[None, None]])[-1] or [None, None])[1]
+    ey = 1 / V["ibov_hoje"]
+    tiles = (_tile("Ibov P/L 12m", B.num(V["ibov_hoje"], 1, suf="x"), f'{dx(V["ibov_hoje"] - ib[0][1])} desde {dd}' if ib else "")
+             + _tile("Ex-Petro e Vale", B.num(V["ibov_ex_hoje"], 1, suf="x"), f'{dx(V["ibov_ex_hoje"] - V["ibov_ex"][0][1])} desde {dd}' if V.get("ibov_ex") else "")
+             + _tile("Earnings yield", B.pct(ey, 1, sinal=False), f'EY − NTN-B 2035: {B.num(ey * 100 - ntnb, 1, suf=" pp")}' if ntnb else ""))
+    rows = "".join(f'<tr><td>{html.escape(r["setor"])}</td><td><b>{B.num(r["pl"], 1, suf="x")}</b></td><td class="{B.dlt_cls(-(r["pl"] - r["pl_ini"]))}">{dx(r["pl"] - r["pl_ini"])}</td>'
+                   f'<td class="{B.dlt_cls(r["rev"])}">{B.pct(r["rev"])}</td></tr>' for r in V["setores"])
+    a1 = V["linhas"][0]["ano0"] + 1
+    mov = sorted([r for r in V["linhas"] if r["dpl"] is not None and r["pl12"]], key=lambda r: -abs(r["dpl"] / r["pl12"]))[:8]
+    rows2 = "".join(f'<tr><td>{r["cod"]}</td><td><b>{B.num(r["pl12"], 1, suf="x")}</b></td><td class="{B.dlt_cls(-r["dpl"])}">{dx(r["dpl"])}</td>'
+                    f'<td class="{B.dlt_cls(r["rev"])}">{B.pct(r["rev"])}</td></tr>' for r in mov)
+    return _card("Valuation · P/L 12m à frente", f'<div class="tiles">{tiles}</div>'
+                 f'<table><thead><tr><th>Setor</th><th>P/L</th><th>Δ</th><th>Rev. lucro {a1}</th></tr></thead><tbody>{rows}</tbody></table>'
+                 f'<table style="margin-top:8px"><thead><tr><th>Mais mexeu</th><th>P/L</th><th>Δ</th><th>Rev. lucro</th></tr></thead><tbody>{rows2}</tbody></table>'
+                 f'<p class="nota">Preço de tela ÷ lucro por ação de {a1 - 1} e {a1} do BTG Stock Guide, interpolado por dias até 31/12. Agregados com as quantidades teóricas da carteira do Ibovespa. Δ e revisão desde {dd}; Δ negativo = ficou mais barato.</p>',
+                 f'guia de {V["guia"][8:]}/{V["guia"][5:7]}')
+
+
 PAGE = """<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#f4f1ea" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#0e1013" media="(prefers-color-scheme: dark)">
@@ -511,7 +540,7 @@ def build_mobile() -> None:
     DP = _j("dap_curva.json", {}) or {}                        # juro real (DAP = cupom de IPCA), gravado pelo vigia como o DI
     IB = _ibov_hoje(M)
     corpo = "".join([bloco_hoje(M, IB, DI), bloco_intraday(IB), bloco_alertas(IB), bloco_cobertura(mercado, minhas, cons, IB), bloco_trades(M),
-                     bloco_setores(C, IB), bloco_fluxo(), bloco_liquidez(IB), bloco_di(DI), bloco_dap(DP), bloco_ust()])
+                     bloco_setores(C, IB), bloco_valuation(M), bloco_fluxo(), bloco_liquidez(IB), bloco_di(DI), bloco_dap(DP), bloco_ust()])
     page = PAGE.replace("/*CSS*/", CSS).replace("/*VERSAO*/", B.versao()).replace("/*DATA*/", B.carimbo_build()).replace("/*CORPO*/", corpo)
     config.OUTPUT.mkdir(parents=True, exist_ok=True)
     SAIDA.write_text(page, encoding="utf-8")

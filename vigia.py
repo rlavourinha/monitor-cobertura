@@ -416,7 +416,7 @@ def publicar(res: dict) -> None:
         git("add", str(INTRADAY.relative_to(config.RAIZ)))
     if DIARIO.exists():
         git("add", str(DIARIO.relative_to(config.RAIZ)))
-    for p in (di.ARQ, di.HIST, dap.ARQ, dap.HIST):
+    for p in (di.ARQ, di.HIST, dap.ARQ, dap.HIST, config.DATA / "lucros_casas.json"):
         if p.exists():
             git("add", str(p.relative_to(config.RAIZ)))
     if git("diff", "--cached", "--quiet").returncode == 0:
@@ -474,6 +474,12 @@ def main() -> int:
     except Exception as e:
         print(f"poda do Market Watch: {e}")
     registrar_diario(res)
+    try:                                               # lucro das casas: relê o Stock Guide do BTG quando a coleta baixou um novo
+        from fontes import lucros_casas
+        if lucros_casas.atualiza_se_novo():
+            print("lucros_casas: guia novo do BTG processado")
+    except Exception as e:
+        print(f"lucros_casas: {e}")
     print(f"{res['hora']}: {len(res['papeis'])} papéis, {len(res['alertas'])} alertas, {n} enviados; pregão {res['fracao_pregao']:.0%}; intraday {ni} séries")
     if "--sem-push" not in sys.argv and "--forcar" not in sys.argv:
         publicar(res)
