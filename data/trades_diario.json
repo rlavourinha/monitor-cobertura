@@ -1132,18 +1132,18 @@
   }
  },
  "2026-10-19": {
-  "hora": "2026-10-19 14:20",
+  "hora": "2026-10-19 14:35",
   "book": {
    "bruto": 217837.33,
    "comprado": 135144.49,
    "vendido": 82692.84,
    "liquido": 52451.65,
-   "resultado": 10251.35,
+   "resultado": 9890.35,
    "ret": 0.05,
-   "res_dia": 293.0,
+   "res_dia": -68.0,
    "fx": 5.07,
-   "res_comprado": 6416.51,
-   "res_vendido": 3834.84,
+   "res_comprado": 6367.51,
+   "res_vendido": 3522.84,
    "n": 6,
    "n_abertos": 6
   },
@@ -1158,33 +1158,33 @@
     "res_dia": -260.0,
     "mult": {
      "rotulo": "P/E 12m",
-     "valor": 13.946
+     "valor": 13.944
     }
    },
    "ENEV3": {
     "lado": "comprado",
     "qtd": 1000,
     "pm": 27.383,
-    "preco": 31.46,
-    "resultado": 4077.0,
-    "ret": 0.14889,
-    "res_dia": -40.0,
+    "preco": 31.51,
+    "resultado": 4127.0,
+    "ret": 0.15071,
+    "res_dia": 10.0,
     "mult": {
      "rotulo": "EV/EBITDA 12m",
-     "valor": 13.18
+     "valor": 13.196
     }
    },
    "XPBR31": {
     "lado": "comprado",
     "qtd": 300,
     "pm": 147.8123,
-    "preco": 152.45,
-    "resultado": 1391.31,
-    "ret": 0.03138,
-    "res_dia": 837.0,
+    "preco": 152.12,
+    "resultado": 1292.31,
+    "ret": 0.02914,
+    "res_dia": 738.0,
     "mult": {
      "rotulo": "P/E 12m",
-     "valor": 12.374
+     "valor": 12.345
     }
    },
    "EZTC3": {
@@ -1204,26 +1204,26 @@
     "lado": "vendido",
     "qtd": 1800,
     "pm": 23.3038,
-    "preco": 22.29,
-    "resultado": 1824.84,
-    "ret": 0.0435,
-    "res_dia": -324.0,
+    "preco": 22.43,
+    "resultado": 1572.84,
+    "ret": 0.0375,
+    "res_dia": -576.0,
     "mult": {
      "rotulo": "P/E 12m",
-     "valor": 17.173
+     "valor": 17.281
     }
    },
    "CYRE3": {
     "lado": "vendido",
     "qtd": 1200,
     "pm": 33.955,
-    "preco": 32.28,
-    "resultado": 2010.0,
-    "ret": 0.04933,
-    "res_dia": -96.0,
+    "preco": 32.33,
+    "resultado": 1950.0,
+    "ret": 0.04786,
+    "res_dia": -156.0,
     "mult": {
      "rotulo": "P/B",
-     "valor": 1.26
+     "valor": 1.261
     }
    }
   }
