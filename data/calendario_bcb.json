@@ -1,37 +1,7 @@
 {
- "atualizado": "2026-10-03 19:03",
+ "atualizado": "2026-10-20 08:48",
  "fonte": "www.bcb.gov.br/api/servico/sitebcb/calendario/anual",
  "eventos": [
-  {
-   "data": "2026-10-05",
-   "hora": "08:30",
-   "evento": "Relatório Focus",
-   "lista": "Focus"
-  },
-  {
-   "data": "2026-10-07",
-   "hora": "14:30",
-   "evento": "Índice de Commodities – Brasil (IC-Br)",
-   "lista": "Índice de Commodities – Brasil (IC-Br)"
-  },
-  {
-   "data": "2026-10-13",
-   "hora": "08:30",
-   "evento": "Relatório Focus",
-   "lista": "Focus"
-  },
-  {
-   "data": "2026-10-16",
-   "hora": "09:00",
-   "evento": "Índice de Atividade Econômica do Banco Central (IBC-Br)",
-   "lista": "Índice de atividade econômica (IBC-Br)"
-  },
-  {
-   "data": "2026-10-19",
-   "hora": "08:30",
-   "evento": "Relatório Focus",
-   "lista": "Focus"
-  },
   {
    "data": "2026-10-21",
    "hora": "",
@@ -285,6 +255,18 @@
    "lista": "Índice de atividade econômica (IBC-Br)"
   },
   {
+   "data": "2027-01-20",
+   "hora": "",
+   "evento": "Reunião da Comoc",
+   "lista": "Reuniões do CMN e COMOC"
+  },
+  {
+   "data": "2027-01-21",
+   "hora": "",
+   "evento": "Reunião do CMN",
+   "lista": "Reuniões do CMN e COMOC"
+  },
+  {
    "data": "2027-01-25",
    "hora": "08:30",
    "evento": "Estatísticas do setor externo",
@@ -334,9 +316,21 @@
   },
   {
    "data": "2027-02-24",
+   "hora": "",
+   "evento": "Reunião da Comoc",
+   "lista": "Reuniões do CMN e COMOC"
+  },
+  {
+   "data": "2027-02-24",
    "hora": "08:30",
    "evento": "Estatísticas do setor externo",
    "lista": "Estatísticas do setor externo"
+  },
+  {
+   "data": "2027-02-25",
+   "hora": "",
+   "evento": "Reunião do CMN",
+   "lista": "Reuniões do CMN e COMOC"
   },
   {
    "data": "2027-02-25",
@@ -393,6 +387,18 @@
    "lista": "Atas e Comunicados do Copom"
   },
   {
+   "data": "2027-03-24",
+   "hora": "",
+   "evento": "Reunião da Comoc",
+   "lista": "Reuniões do CMN e COMOC"
+  },
+  {
+   "data": "2027-03-25",
+   "hora": "",
+   "evento": "Reunião do CMN",
+   "lista": "Reuniões do CMN e COMOC"
+  },
+  {
    "data": "2027-03-25",
    "hora": "08:00",
    "evento": "Relatório de Política Monetária",
@@ -415,6 +421,18 @@
    "hora": "08:30",
    "evento": "Estatísticas fiscais",
    "lista": "Estatísticas fiscais"
+  },
+  {
+   "data": "2027-04-20",
+   "hora": "",
+   "evento": "Reunião da Comoc",
+   "lista": "Reuniões do CMN e COMOC"
+  },
+  {
+   "data": "2027-04-22",
+   "hora": "",
+   "evento": "Reunião do CMN",
+   "lista": "Reuniões do CMN e COMOC"
   },
   {
    "data": "2027-04-26",
@@ -454,9 +472,21 @@
   },
   {
    "data": "2027-05-25",
+   "hora": "",
+   "evento": "Reunião da Comoc",
+   "lista": "Reuniões do CMN e COMOC"
+  },
+  {
+   "data": "2027-05-25",
    "hora": "08:30",
    "evento": "Estatísticas do setor externo",
    "lista": "Estatísticas do setor externo"
+  },
+  {
+   "data": "2027-05-26",
+   "hora": "",
+   "evento": "Reunião do CMN",
+   "lista": "Reuniões do CMN e COMOC"
   },
   {
    "data": "2027-05-28",
@@ -513,6 +543,18 @@
    "lista": "Atas e Comunicados do Copom"
   },
   {
+   "data": "2027-06-23",
+   "hora": "",
+   "evento": "Reunião da Comoc",
+   "lista": "Reuniões do CMN e COMOC"
+  },
+  {
+   "data": "2027-06-24",
+   "hora": "",
+   "evento": "Reunião do CMN",
+   "lista": "Reuniões do CMN e COMOC"
+  },
+  {
    "data": "2027-06-24",
    "hora": "08:00",
    "evento": "Relatório de Política Monetária",
@@ -543,6 +585,18 @@
    "lista": "Estatísticas do setor externo"
   },
   {
+   "data": "2027-07-28",
+   "hora": "",
+   "evento": "Reunião da Comoc",
+   "lista": "Reuniões do CMN e COMOC"
+  },
+  {
+   "data": "2027-07-29",
+   "hora": "",
+   "evento": "Reunião do CMN",
+   "lista": "Reuniões do CMN e COMOC"
+  },
+  {
    "data": "2027-07-29",
    "hora": "08:30",
    "evento": "Estatísticas monetárias e de crédito",
@@ -571,6 +625,18 @@
    "hora": "08:00",
    "evento": "Ata da Reunião do Copom",
    "lista": "Atas e Comunicados do Copom"
+  },
+  {
+   "data": "2027-08-25",
+   "hora": "",
+   "evento": "Reunião da Comoc",
+   "lista": "Reuniões do CMN e COMOC"
+  },
+  {
+   "data": "2027-08-26",
+   "hora": "",
+   "evento": "Reunião do CMN",
+   "lista": "Reuniões do CMN e COMOC"
   },
   {
    "data": "2027-08-27",
@@ -646,15 +712,39 @@
   },
   {
    "data": "2027-09-29",
+   "hora": "",
+   "evento": "Reunião da Comoc",
+   "lista": "Reuniões do CMN e COMOC"
+  },
+  {
+   "data": "2027-09-29",
    "hora": "08:30",
    "evento": "Estatísticas fiscais",
    "lista": "Estatísticas fiscais"
   },
   {
    "data": "2027-09-30",
+   "hora": "",
+   "evento": "Reunião do CMN",
+   "lista": "Reuniões do CMN e COMOC"
+  },
+  {
+   "data": "2027-09-30",
    "hora": "08:00",
    "evento": "Relatório de Política Monetária",
    "lista": "Relatório de Política Monetária"
+  },
+  {
+   "data": "2027-10-20",
+   "hora": "",
+   "evento": "Reunião da Comoc",
+   "lista": "Reuniões do CMN e COMOC"
+  },
+  {
+   "data": "2027-10-21",
+   "hora": "",
+   "evento": "Reunião do CMN",
+   "lista": "Reuniões do CMN e COMOC"
   },
   {
    "data": "2027-10-25",
@@ -691,6 +781,18 @@
    "hora": "08:00",
    "evento": "Ata da Reunião do Copom",
    "lista": "Atas e Comunicados do Copom"
+  },
+  {
+   "data": "2027-11-17",
+   "hora": "",
+   "evento": "Reunião da Comoc",
+   "lista": "Reuniões do CMN e COMOC"
+  },
+  {
+   "data": "2027-11-18",
+   "hora": "",
+   "evento": "Reunião do CMN",
+   "lista": "Reuniões do CMN e COMOC"
   },
   {
    "data": "2027-11-23",
@@ -757,6 +859,18 @@
    "hora": "08:00",
    "evento": "Relatório de Política Monetária",
    "lista": "Relatório de Política Monetária"
+  },
+  {
+   "data": "2027-12-22",
+   "hora": "",
+   "evento": "Reunião da Comoc",
+   "lista": "Reuniões do CMN e COMOC"
+  },
+  {
+   "data": "2027-12-23",
+   "hora": "",
+   "evento": "Reunião do CMN",
+   "lista": "Reuniões do CMN e COMOC"
   },
   {
    "data": "2027-12-23",

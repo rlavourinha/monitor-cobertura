@@ -517,11 +517,21 @@ def semanal_pl_cvm():
     return cvm_pl.atualiza()
 
 
+def diario_smll_comp():
+    """Carteira teórica do SMLL (B3) em data/smll_comp.json: códigos, pesos e quantidades teóricas (valuation das small caps)."""
+    from fontes import b3
+    C = b3.carteira_ibov("SMLL")
+    if not C.get("itens"):
+        raise RuntimeError("carteira do SMLL vazia")
+    _grava_json(config.DATA / "smll_comp.json", C)
+    return f'{len(C["itens"])} papéis ({C.get("data")})'
+
+
 JANELAS = {
     "intraday": [("cotações universo", intraday_universo), ("cotações mercado", intraday_mercado), ("cotações Ibovespa", intraday_ibov_comp)],
     "diario": [("B3 COTAHIST", diario_cotahist), ("B3 ações", diario_acoes), ("Tesouro NTN-B", diario_tesouro),
                ("ANBIMA ETTJ", diario_ettj), ("curva Tesouro", diario_curva_tesouro),
-               ("SGS diários", diario_sgs), ("TIPS 10a (FRED)", diario_tips), ("curva Treasuries (UST)", diario_ust), ("Yahoo histórico", diario_yahoo_hist), ("Ibovespa composição", diario_ibov_comp),
+               ("SGS diários", diario_sgs), ("TIPS 10a (FRED)", diario_tips), ("curva Treasuries (UST)", diario_ust), ("Yahoo histórico", diario_yahoo_hist), ("Ibovespa composição", diario_ibov_comp), ("SMLL composição", diario_smll_comp),
                ("consenso Yahoo", diario_consenso_yahoo), ("cotas de fundos CVM", diario_cotas_fundos), ("Ibovespa DY", diario_ibov_dy), ("fluxo por investidor", diario_fluxo_investidores), ("curva do Brent", diario_brent_curva),
                ("minhas estimativas", diario_minhas), ("cotações universo", intraday_universo), ("cotações mercado", intraday_mercado),
                ("cotações Ibovespa", intraday_ibov_comp)],

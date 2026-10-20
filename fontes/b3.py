@@ -72,6 +72,12 @@ def _volume_total(dados: bytes) -> None:
 def tickers_alvo() -> set[str]:
     """Universo coberto + papéis da carteira do Ibovespa (do cache data/ibov_comp.json ou direto da B3)."""
     t = set(config.UNIVERSO) | set(getattr(config, "BDRS", [])) | set(getattr(config, "VALUATION_EXTRA", [])) | {"SAPR3"}
+    try:                                                                          # SMLL (valuation das small caps)
+        ps = config.DATA / "smll_comp.json"
+        if ps.exists():
+            t |= {i["cod"] for i in json.loads(ps.read_text(encoding="utf-8")).get("itens", [])}
+    except Exception:
+        pass
     p = config.DATA / "ibov_comp.json"
     try:
         itens = json.loads(p.read_text(encoding="utf-8")).get("itens", []) if p.exists() else carteira_ibov()["itens"]
@@ -237,9 +243,9 @@ SETOR_MACRO = {  # subsetor da B3 -> setor agregado do painel (prefixo do texto 
 SETOR_EXCECAO = {"Explor Im": "Imobiliário", "Constr Civil": "Imobiliário"}
 
 
-def carteira_ibov() -> dict:
-    """Carteira teórica do Ibovespa do dia (B3), com peso (%) e subsetor -> {'data', 'itens': [{cod, nome, peso, subsetor, setor}]}."""
-    payload = {"language": "pt-br", "pageNumber": 1, "pageSize": 200, "index": "IBOV", "segment": "2"}
+def carteira_ibov(indice: str = "IBOV") -> dict:
+    """Carteira teórica do dia (B3) de um índice (IBOV, SMLL...), com peso (%) e subsetor -> {'data', 'itens': [{cod, nome, peso, subsetor, setor}]}."""
+    payload = {"language": "pt-br", "pageNumber": 1, "pageSize": 200, "index": indice, "segment": "2"}
     b64 = base64.b64encode(json.dumps(payload).encode()).decode()
     req = urllib.request.Request(URL_INDICE.format(ep="GetPortfolioDay", b64=b64), headers=UA)
     with urllib.request.urlopen(req, timeout=60) as r:

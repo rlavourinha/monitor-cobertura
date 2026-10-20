@@ -40,7 +40,7 @@ MAPA_BTG: dict[str, list[str]] = {
     "Equatorial Energia": ["EQTL3"], "Fleury": ["FLRY3"], "Gerdau": ["GGBR4"], "Hapvida": ["HAPV3"], "Hypera": ["HYPE3"],
     "Iguatemi": ["IGTI11"], "ISA Energia Brasil": ["ISAE4"], "Itaú Unibanco": ["ITUB4"], "Klabin": ["KLBN11"],
     "Lojas Renner": ["LREN3"], "MBRF": ["MBRF3"], "Magazine Luiza": ["MGLU3"], "Motiva": ["MOTV3"], "MRV": ["MRVE3"],
-    "Multiplan": ["MULT3"], "Natura": ["NATU3"], "Petrobras": ["PETR4", "PETR3"], "Marcopolo": ["POMO4"], "PRIO": ["PRIO3"],
+    "Multiplan": ["MULT3"], "Natura": ["NATU3"], "Petrobras": ["PETR4", "PETR3"], "Marcopolo": ["POMO4", "POMO3"], "PRIO": ["PRIO3"],
     "Porto Seguro": ["PSSA3"], "RD Saúde": ["RADL3"], "Rumo": ["RAIL3"], "Rede D'Or": ["RDOR3"], "Localiza": ["RENT3"],
     "Santander Brasil": ["SANB11"], "Sabesp": ["SBSP3"], "Smart Fit": ["SMFT3"], "Suzano": ["SUZB3"], "Taesa": ["TAEE11"],
     "Tenda": ["TEND3"], "TIM": ["TIMS3"], "Totvs": ["TOTS3"], "Ultrapar": ["UGPA3"], "Usiminas": ["USIM5"], "Vale": ["VALE3"],
@@ -52,6 +52,11 @@ MAPA_BTG: dict[str, list[str]] = {
     "Nubank": ["ROXO34"], "XP Inc": ["XPBR31"], "Stone": ["STOC34"], "MercadoLibre": ["MELI34"],
     "PagBank": ["PAGS34"], "PicPay": ["PICS"], "Pague Menos": ["PGMN3"],
     "Sanepar": ["SAPR3", "SAPR11"],                 # guia cota a ON; a unit (1 ON + 4 PN) recebe LPA × 5 (UNIT_LPA)
+    # nomes do formato novo que o mapa automático (ticker do guia antigo) não acha pelo nome
+    "Banco ABC Brasil": ["ABCB4"], "Bemobi": ["BMOB3"], "Compass": ["PASS3"], "GPA": ["PCAR3"], "Grupo Mateus": ["GMAT3"],
+    "HBR Realty": ["HBRE3"], "IRB Brasil": ["IRBR3"], "LOG CP": ["LOGG3"], "Lojas Quero-Quero": ["LJQQ3"],
+    "Mitre Realty": ["MTRE3"], "Orizon": ["ORVR3"], "Priner": ["PRNR3"], "Ser Educacional": ["SEER3"], "Wiz Co": ["WIZC3"],
+    "Ânima": ["ANIM3"],
 }
 # Erro do Stock Guide (formato novo, desde 25/08/2026): lucro convertido pelo dólar duas vezes -> P/L ~5× maior.
 # Evidência: Brava 38x/30x no guia × 7,0x/5,6x na nota setorial do próprio BTG (Brazil Oil & Gas, 18/10/2026, Table 1);
@@ -69,6 +74,36 @@ ALIAS_ANTIGO = {"NU US": "Nubank", "XP US": "XP Inc", "STNE US": "Stone", "MELI 
 # Braskem fica de fora: no guia de out/26 a linha repete valor de mercado e preço do Banrisul (erro do guia). le_guia
 # descarta qualquer linha com (valor de mercado, preço) idênticos aos de outra empresa.
 # Fora do Stock Guide (holdings e o próprio BTG): BPAC11, BRAP4, GOAU4, ITSA4.
+
+
+def _norm(nome: str) -> str:
+    """nome comparável entre os formatos do guia: sem acento, pontuação e caixa ("Itaú Unibanco" = "Itau Unibanco")."""
+    import unicodedata
+    s = unicodedata.normalize("NFKD", str(nome or "")).encode("ascii", "ignore").decode().lower()
+    return re.sub(r"[^a-z0-9]", "", s)
+
+
+RE_TICKER_B3 = re.compile(r"^[A-Z]{4}\d{1,2}$")
+
+
+def mapa_automatico(guias: list[tuple[str, Path]]) -> dict[str, str]:
+    """nome normalizado -> ticker B3, a partir da coluna Ticker do formato antigo do guia (aba COMP). Serve para as
+    empresas fora do MAPA_BTG no formato novo (que só tem o nome). O guia antigo mais recente prevalece."""
+    import openpyxl
+    out: dict[str, str] = {}
+    for _, f in guias:
+        try:
+            wb = openpyxl.load_workbook(io.BytesIO(f.read_bytes()), read_only=True, data_only=True)
+        except Exception:
+            continue
+        if "COMP" in wb.sheetnames:
+            for r in wb["COMP"].iter_rows(values_only=True):
+                if r and len(r) > 25 and r[25] == "Brazil" and r[1] and r[2]:
+                    tk = str(r[2]).strip().upper()
+                    if RE_TICKER_B3.match(tk):
+                        out[_norm(r[1])] = tk
+        wb.close()
+    return out
 
 
 def _num(v):
@@ -168,11 +203,13 @@ def _le_guia_comp(wb, data_pub: str | None) -> tuple[str | None, list[dict]]:
         tk = str(g(r, ("Ticker", "")) or "").strip().upper()
         if not r or (g(r, ("Origin", "")) != "Brazil" and tk not in ALIAS_ANTIGO):
             continue
+        if g(r, ("Origin", "")) == "Brazil" and tk not in REV and not RE_TICKER_B3.match(tk):
+            continue
         if tk in ALIAS_ANTIGO:
             tk = MAPA_BTG[ALIAS_ANTIGO[tk]][0]
-        if tk not in REV:
+        if tk not in REV and not RE_TICKER_B3.match(tk):
             continue
-        out.append({"nome": REV[tk][0], "ticker": tk, "setor": None, "moeda": g(r, ("Share", "Currency")), "mcap": None,
+        out.append({"nome": REV[tk][0] if tk in REV else str(g(r, ("Company", "")) or tk).strip(), "ticker": tk, "setor": None, "moeda": g(r, ("Share", "Currency")), "mcap": None,
                     "preco": _num(g(r, ("Share", "Price"))), "ano0": anos[0], "arred": True,
                     "pe0": _num(g(r, ("P/E", f"{anos[0]}E"))), "pe1": _num(g(r, ("P/E", f"{anos[1]}E"))),
                     "ev0": None, "ev1": None, "nd0": None, "nd1": None,
@@ -225,6 +262,7 @@ def atualiza() -> dict:
     setor_guia: dict[str, str] = {}
     datas = []
     nao_mapeados = set()
+    AUTO = mapa_automatico(guias_btg())
     for dpub, f in guias_btg():
         try:
             d, linhas = le_guia(f, dpub or None)
@@ -235,7 +273,9 @@ def atualiza() -> dict:
             continue
         datas.append(d)
         for l in linhas:
-            tks = MAPA_BTG.get(l["nome"])
+            tks = MAPA_BTG.get(l["nome"]) or ([AUTO[_norm(l["nome"])]] if _norm(l["nome"]) in AUTO and not l.get("ticker") else None)
+            if l.get("ticker") and not tks:
+                tks = [l["ticker"]]
             if not tks:
                 nao_mapeados.add(l["nome"])
                 continue
@@ -258,7 +298,7 @@ def atualiza() -> dict:
             reg = [d, l["ano0"], lpa(l["pe0"]), lpa(l["pe1"]), luc(l["pe0"]), luc(l["pe1"]), p, l["moeda"],
                    m, e0, e1, dl0, dl1, dps(l["dy0"]), dps(l["dy1"]), bool(l.get("arred"))]
             if l.get("ticker"):                          # formato antigo: preço é do ticker da linha
-                tks = [l["ticker"]] + [t for t in tks if t != l["ticker"] and not t.endswith("11")]
+                tks = [l["ticker"]] + [t for t in tks if t != l["ticker"] and not t.endswith("11") and t in MAPA_BTG.get(l["nome"], [])]
             for tk in tks:
                 btg.setdefault(tk, {})[d] = reg
                 setor_guia[tk] = l["setor"]
