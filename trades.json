@@ -157,6 +157,42 @@
     }
    ],
    "nota_lotes": "PM = média ponderada dos lotes; data = início da posição"
+  },
+  {
+   "ticker": "RENT3",
+   "nome": "Localiza",
+   "lado": "comprado",
+   "qtd": 1000,
+   "preco": 52.39,
+   "data": "2026-10-20",
+   "tese": "",
+   "mult": {
+    "tipo": "pe",
+    "moeda": "BRL",
+    "lucro26": 4509.52,
+    "lucro27": 4924.43,
+    "acoes": 1123.0,
+    "razao_bdr": 1,
+    "fonte": "BTG Stock Guide 19/10/2026 (lucro = valor de mercado ÷ P/E; ações = valor de mercado ÷ preço)"
+   }
+  },
+  {
+   "ticker": "TIMS3",
+   "nome": "TIM",
+   "lado": "vendido",
+   "qtd": 2800,
+   "preco": 19.14,
+   "data": "2026-10-20",
+   "tese": "",
+   "mult": {
+    "tipo": "pe",
+    "moeda": "BRL",
+    "lucro26": 4274.97,
+    "lucro27": 4978.09,
+    "acoes": 2388.7,
+    "razao_bdr": 1,
+    "fonte": "BTG Stock Guide 19/10/2026 (lucro = valor de mercado ÷ P/E; ações = valor de mercado ÷ preço)"
+   }
   }
  ],
  "multiplos_cobertura": {
