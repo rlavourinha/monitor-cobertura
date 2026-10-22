@@ -240,6 +240,10 @@ def main() -> int:
     if a.login:
         return 0 if bba.login_interativo() else 1
     if a.conhecidos:
+        try:                                   # batimento: a coleta agendada disparou (lido por saude_rotinas.py)
+            (config.DATA / "bba" / "ultima_execucao.txt").write_text(datetime.now().strftime("%Y-%m-%d %H:%M"), encoding="utf-8")
+        except Exception:
+            pass
         return modo_conhecidos(a.dias)
     if a.clip:
         return modo_clip(a.arquivo)
