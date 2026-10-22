@@ -1466,5 +1466,129 @@
     }
    }
   }
+ },
+ "2026-10-22": {
+  "fonte": "intraday (vigia)",
+  "hora": "2026-10-22 11:05",
+  "book": {
+   "bruto": 323819.33,
+   "comprado": 187534.49,
+   "vendido": 136284.84,
+   "liquido": 51249.65,
+   "resultado": 7757.35,
+   "ret": 0.02,
+   "res_dia": -2025.0,
+   "fx": 5.05,
+   "res_comprado": 8344.51,
+   "res_vendido": -587.16,
+   "n": 8,
+   "n_abertos": 8
+  },
+  "trades": {
+   "ROXO34": {
+    "lado": "comprado",
+    "qtd": 2000,
+    "pm": 11.6559,
+    "preco": 12.6,
+    "resultado": 1888.2,
+    "ret": 0.081,
+    "res_dia": -280.0,
+    "mult": {
+     "rotulo": "P/E 12m",
+     "valor": 14.395
+    }
+   },
+   "ENEV3": {
+    "lado": "comprado",
+    "qtd": 1000,
+    "pm": 27.383,
+    "preco": 31.97,
+    "resultado": 4587.0,
+    "ret": 0.16751,
+    "res_dia": -200.0,
+    "mult": {
+     "rotulo": "EV/EBITDA 12m",
+     "valor": 13.322
+    }
+   },
+   "XPBR31": {
+    "lado": "comprado",
+    "qtd": 300,
+    "pm": 147.8123,
+    "preco": 148.33,
+    "resultado": 155.31,
+    "ret": 0.0035,
+    "res_dia": -1947.0,
+    "mult": {
+     "rotulo": "P/E 12m",
+     "valor": 12.087
+    }
+   },
+   "EZTC3": {
+    "lado": "comprado",
+    "qtd": 2200,
+    "pm": 18.23,
+    "preco": 18.9,
+    "resultado": 1474.0,
+    "ret": 0.03675,
+    "res_dia": -638.0,
+    "mult": {
+     "rotulo": "P/B",
+     "valor": 1.002
+    }
+   },
+   "B3SA3": {
+    "lado": "vendido",
+    "qtd": 1800,
+    "pm": 23.3038,
+    "preco": 23.1,
+    "resultado": 366.84,
+    "ret": 0.00875,
+    "res_dia": 738.0,
+    "mult": {
+     "rotulo": "P/E 12m",
+     "valor": 17.787
+    }
+   },
+   "CYRE3": {
+    "lado": "vendido",
+    "qtd": 1200,
+    "pm": 33.955,
+    "preco": 34.05,
+    "resultado": -114.0,
+    "ret": -0.0028,
+    "res_dia": 408.0,
+    "mult": {
+     "rotulo": "P/B",
+     "valor": 1.329
+    }
+   },
+   "RENT3": {
+    "lado": "comprado",
+    "qtd": 1000,
+    "pm": 52.39,
+    "preco": 52.63,
+    "resultado": 240.0,
+    "ret": 0.00458,
+    "res_dia": 90.0,
+    "mult": {
+     "rotulo": "P/E 12m",
+     "valor": 12.199
+    }
+   },
+   "TIMS3": {
+    "lado": "vendido",
+    "qtd": 2800,
+    "pm": 19.14,
+    "preco": 19.44,
+    "resultado": -840.0,
+    "ret": -0.01567,
+    "res_dia": -196.0,
+    "mult": {
+     "rotulo": "P/E 12m",
+     "valor": 9.588
+    }
+   }
+  }
  }
 }
