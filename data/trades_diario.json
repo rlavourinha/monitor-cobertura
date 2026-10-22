@@ -1249,7 +1249,7 @@
     "res_dia": 940.0,
     "mult": {
      "rotulo": "P/E 12m",
-     "valor": 14.6
+     "valor": 14.641
     }
    },
    "ENEV3": {
@@ -1275,7 +1275,7 @@
     "res_dia": 2304.0,
     "mult": {
      "rotulo": "P/E 12m",
-     "valor": 12.987
+     "valor": 13.024
     }
    },
    "EZTC3": {
@@ -1371,7 +1371,7 @@
     "res_dia": 20.0,
     "mult": {
      "rotulo": "P/E 12m",
-     "valor": 14.65
+     "valor": 14.644
     }
    },
    "ENEV3": {
@@ -1397,7 +1397,7 @@
     "res_dia": -1224.0,
     "mult": {
      "rotulo": "P/E 12m",
-     "valor": 12.693
+     "valor": 12.688
     }
    },
    "EZTC3": {
