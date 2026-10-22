@@ -24,6 +24,32 @@ def carrega() -> list[dict]:
     return T
 
 
+def lotes(t: dict) -> list[dict]:
+    """Lotes da posição (data, qtd, preço). Sem 'lotes' no trades.json, a entrada única (data, qtd, preco)."""
+    return [dict(l) for l in t.get("lotes") or []] or [{"data": t["data"], "qtd": t["qtd"], "preco": t["preco"]}]
+
+
+def posicao(t: dict, d: str) -> tuple[float, float | None]:
+    """(quantidade, preço médio) no fechamento do dia d: só os lotes com data ≤ d (antes: EZTC3/B3SA3/CYRE3/XPBR31 eram
+    marcados com a quantidade cheia desde o 1º lote, ao PM final)."""
+    ls = [l for l in lotes(t) if l["data"] <= d]
+    q = sum(l["qtd"] for l in ls)
+    return q, (sum(l["qtd"] * l["preco"] for l in ls) / q if q else None)
+
+
+def pnl_dia(t: dict, d: str, px: float, px_ant: float | None) -> tuple[float, float]:
+    """(resultado do dia, base) em d: lote antigo anda do fechamento anterior; lote de hoje anda do preço de entrada.
+    base = valor das posições no início do dia (para o retorno encadeado do book)."""
+    pnl = base = 0.0
+    for l in lotes(t):
+        if l["data"] > d:
+            continue
+        p0 = l["preco"] if (l["data"] == d or px_ant is None) else px_ant
+        pnl += t["sinal"] * l["qtd"] * (px - p0)
+        base += l["qtd"] * p0
+    return pnl, base
+
+
 def tickers() -> set[str]:
     return {t["ticker"] for t in carrega()}
 
@@ -106,9 +132,9 @@ def marca(hoje: str | None = None, ibov_hist: list | None = None) -> dict:
             out.append({**t, "preco_atual": None})
             continue
         res = t["sinal"] * t["qtd"] * (preco - t["preco"])
-        base_dia = t["preco"] if t["data"] >= (hora[:10] or hoje) else fech_ant   # entrou hoje: resultado do dia = desde a entrada
-        dia = t["sinal"] * (preco / base_dia - 1) if base_dia else None
-        res_dia = t["sinal"] * t["qtd"] * (preco - base_dia) if base_dia else None
+        d_px = hora[:10] or hoje
+        res_dia, base_d = pnl_dia(t, d_px, preco, fech_ant)        # por lote: lote de hoje anda do preço de entrada
+        dia = res_dia / base_d if base_d else None
         if t.get("saida") and t["saida"]["data"] < hoje:
             dia, res_dia = None, 0.0                          # encerrado: não mexe mais
         out.append({**t, "preco_atual": preco, "hora": hora, "resultado": res, "ret": res / t["notional"], "dia": dia,
@@ -141,15 +167,19 @@ def marca(hoje: str | None = None, ibov_hist: list | None = None) -> dict:
                     continue
                 if d == hoje and x.get("hora", "")[:10] == hoje:
                     px = x["preco_atual"]
+                elif x.get("saida") and x["saida"]["data"] == d:
+                    px = x["saida"]["preco"]
                 else:
                     px = next((v for dd, v in reversed(series[x["ticker"]]) if dd <= d), None)
                 if px is None:
                     continue
-                p0 = prev.get(x["ticker"], x["preco"])
-                pnl += x["sinal"] * x["qtd"] * (px - p0)
-                base += x["qtd"] * p0
+                p_d, b_d = pnl_dia(x, d, px, prev.get(x["ticker"]))
+                pnl += p_d
+                base += b_d
                 prev[x["ticker"]] = px
-                cur_tr[x["ticker"]].append([d, x["sinal"] * (px / x["preco"] - 1) * 100])
+                q, pm = posicao(x, d)
+                if pm:
+                    cur_tr[x["ticker"]].append([d, x["sinal"] * (px / pm - 1) * 100])
             if base:
                 acc *= 1 + pnl / base
                 curva.append([d, (acc - 1) * 100])
@@ -182,15 +212,66 @@ def marca(hoje: str | None = None, ibov_hist: list | None = None) -> dict:
     return R
 
 
+def historico_fechamentos(fx_de=None) -> dict:
+    """Histórico diário do book só com FECHAMENTOS OFICIAIS (COTAHIST), um registro por pregão, lote a lote. Corrige o
+    histórico antigo (até 22/10/2026), que gravava o último preço do vigia (~17:30, antes do leilão: diferenças de até 1,7%),
+    criava registros em fim de semana/feriado pela data do relógio e marcava lotes futuros desde o 1º lote."""
+    from fontes import b3
+    T = carrega()
+    if not T:
+        return {}
+    S = {t["ticker"]: dict(b3.serie(t["ticker"])) for t in T}
+    d0 = min(l["data"] for t in T for l in lotes(t))
+    dias = sorted({d for s in S.values() for d in s if d >= d0})
+    H, prev = {}, {}
+    for d in dias:
+        linhas = {}
+        for t in T:
+            if min(l["data"] for l in lotes(t)) > d or (t.get("saida") and t["saida"]["data"] < d):
+                continue
+            px = t["saida"]["preco"] if (t.get("saida") and t["saida"]["data"] == d) else S[t["ticker"]].get(d)
+            if px is None:
+                continue
+            q, pm = posicao(t, d)
+            pd_, _ = pnl_dia(t, d, px, prev.get(t["ticker"]))
+            prev[t["ticker"]] = px
+            res = t["sinal"] * q * (px - pm)
+            m = multiplo(t.get("mult"), px, d, fx_de(d) if fx_de else None)
+            linhas[t["ticker"]] = {"lado": t["lado"], "qtd": q, "pm": round(pm, 4), "preco": px, "resultado": round(res, 2),
+                                   "ret": round(res / (q * pm), 5), "res_dia": round(pd_, 2),
+                                   "mult": ({"rotulo": m["rotulo"], "valor": round(m["valor"], 3)} if m and m.get("valor") else None)}
+        if not linhas:
+            continue
+        com = sum(x["qtd"] * x["pm"] for x in linhas.values() if x["lado"] == "comprado")
+        ven = sum(x["qtd"] * x["pm"] for x in linhas.values() if x["lado"] == "vendido")
+        rt = sum(x["resultado"] for x in linhas.values())
+        H[d] = {"hora": d, "fonte": "fechamento B3",
+                "book": {"bruto": round(com + ven, 2), "comprado": round(com, 2), "vendido": round(ven, 2), "liquido": round(com - ven, 2),
+                         "resultado": round(rt, 2), "ret": round(rt / (com + ven), 5) if com + ven else None,
+                         "res_dia": round(sum(x["res_dia"] for x in linhas.values()), 2),
+                         "res_comprado": round(sum(x["resultado"] for x in linhas.values() if x["lado"] == "comprado"), 2),
+                         "res_vendido": round(sum(x["resultado"] for x in linhas.values() if x["lado"] == "vendido"), 2),
+                         "n": len(linhas)},
+                "trades": linhas}
+    return H
+
+
 def _registra(R: dict, hoje: str) -> None:
-    """Histórico das marcações (data/trades_diario.json): uma entrada por dia, sobrescrita a cada build, com preço e resultado
-    por trade e do book. Fica guardado mesmo que trades.json mude (trade encerrado ou editado)."""
+    """Histórico das marcações (data/trades_diario.json). Pregões com fechamento oficial: reconstruídos do COTAHIST
+    (historico_fechamentos). Pregão em andamento (preço do vigia mais novo que o último fechamento): uma entrada intraday
+    com a DATA DO PREÇO, que o fechamento oficial substitui quando sai. Nunca grava fim de semana/feriado."""
     try:
+        from fontes import lucros_casas as _lc
         p = config.DATA / "trades_diario.json"
-        H = json.loads(p.read_text(encoding="utf-8")) if p.exists() else {}
-        hora = R["hora"] or hoje
+        H = historico_fechamentos(_lc.dolar)
+        ult = max(H) if H else ""
+        hs = [x.get("hora", "") for x in R["trades"] if x.get("preco_atual") is not None and not x.get("saida")]
+        hora = max(hs) if hs else ""
         d = hora[:10]
-        H[d] = {"hora": hora, "book": {k: round(v, 2) if isinstance(v, float) else v for k, v in R["book"].items()},
+        if not d or d <= ult or len(hora) < 16:          # sem preço intraday mais novo que o último fechamento oficial
+            p.write_text(json.dumps(dict(sorted(H.items())), ensure_ascii=False, indent=1), encoding="utf-8")
+            return
+        H[d] = {"fonte": "intraday (vigia)", "hora": hora, "book": {k: round(v, 2) if isinstance(v, float) else v for k, v in R["book"].items()},
                 "trades": {x["ticker"]: {"lado": x["lado"], "qtd": x["qtd"], "pm": x["preco"], "preco": x.get("preco_atual"),
                                          "resultado": round(x["resultado"], 2) if x.get("resultado") is not None else None,
                                          "ret": round(x["ret"], 5) if x.get("ret") is not None else None,
