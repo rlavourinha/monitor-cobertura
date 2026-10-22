@@ -527,6 +527,9 @@ def diario_smll_comp():
     return f'{len(C["itens"])} papéis ({C.get("data")})'
 
 
+CRITICAS = {"B3 COTAHIST"}           # sem elas o site publicaria preço velho: aí o job falha de propósito
+
+
 JANELAS = {
     "intraday": [("cotações universo", intraday_universo), ("cotações mercado", intraday_mercado), ("cotações Ibovespa", intraday_ibov_comp)],
     "diario": [("B3 COTAHIST", diario_cotahist), ("B3 ações", diario_acoes), ("Tesouro NTN-B", diario_tesouro),
@@ -591,12 +594,18 @@ def main() -> int:
         passos = JANELAS[a.janela or "tudo"]
     nome = a.janela or ("so-focus-longo" if a.so_focus_longo else "so-macro" if a.so_macro else "tudo")
     print(f"Janela: {nome} ({len(passos)} passos)")
-    falhas = sum(0 if _passo(n, fn) else 1 for n, fn in passos)
+    res = {n: _passo(n, fn) for n, fn in passos}
+    falhas = sum(1 for ok in res.values() if not ok)
     est = _le_json(ESTADO, {})
     est["_janelas"] = {**est.get("_janelas", {}), nome: datetime.now().strftime("%Y-%m-%d %H:%M")}
     _grava_json(ESTADO, est)
     print(f"Concluído: {len(passos) - falhas} ok, {falhas} com erro")
-    return 1 if falhas else 0
+    # Só interrompe a publicação se falhar fonte crítica ou mais da metade: em 21/10/2026 o FRED (TIPS) veio vazio, o
+    # coletor saiu com 1 e o GitHub não publicou o fechamento do dia. Falha avulsa fica vermelha em "Fontes e atualizações".
+    criticas = [n for n, ok in res.items() if not ok and n in CRITICAS]
+    if criticas:
+        print(f"Falha em fonte crítica: {', '.join(criticas)}")
+    return 1 if (criticas or falhas > len(passos) / 2) else 0
 
 
 if __name__ == "__main__":
