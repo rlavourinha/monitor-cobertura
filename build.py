@@ -808,9 +808,10 @@ def svg_curva_ust(W=540, H=150, cab: bool = True) -> str:
     def antes(dias):                                       # último dia com dado até d0 − dias
         alvo = (date.fromisoformat(d0) - timedelta(days=dias)).isoformat()
         return next((d for d in reversed(ds) if d <= alvo), None)
-    S1, S2, S3, MUT = "var(--s1)", "var(--s2)", "var(--s3)", "var(--axis)"
+    S1, S2, S3, S4, MUT = "var(--s1)", "var(--s2)", "var(--s3)", "var(--s4)", "var(--axis)"
+    d_ant = ds[-2] if len(ds) > 1 else None                # dia anterior com dado (delta do dia)
     comp = [(antes(365), "1 ano", MUT, "stroke-dasharray:5 3;stroke-width:1.4"), (antes(30), "1 mês", S3, "stroke-width:1.4"),
-            (antes(7), "1 semana", S2, "stroke-width:1.4"), (d0, "hoje", S1, "stroke-width:2.4")]
+            (antes(7), "1 semana", S2, "stroke-width:1.4"), (d_ant, "dia anterior", S4, "stroke-width:1.6"), (d0, "hoje", S1, "stroke-width:2.4")]
     comp = [c for c in comp if c[0]]
     ys = [v for d, *_ in comp for v in S[d] if v is not None]
     lo, hi = min(ys) - 0.15, max(ys) + 0.15
@@ -818,19 +819,20 @@ def svg_curva_ust(W=540, H=150, cab: bool = True) -> str:
     n = len(rot)
     X = lambda i: ML + i / (n - 1) * (W - ML - MR)
     Y = lambda v: MT + (hi - v) / (hi - lo) * (H - MT - MB)
-    hoje = S[d0]; mes = S[antes(30)] if antes(30) else None
+    hoje = S[d0]; mes = S[antes(30)] if antes(30) else None; ant = S[d_ant] if d_ant else None
     def dbp(i, ref):
         return None if (ref is None or ref[i] is None or hoje[i] is None) else round((hoje[i] - ref[i]) * 100)
     i2, i10, i30 = rot.index("2a"), rot.index("10a"), rot.index("30a")
     deltas = " · ".join(f"{rot[i]} {dbp(i, mes):+d}" for i in (i2, i10, i30) if dbp(i, mes) is not None)
+    deltas_d = " · ".join(f"{rot[i]} {dbp(i, ant):+d}" for i in (i2, i10, i30) if dbp(i, ant) is not None)
     s2s10 = round((hoje[i10] - hoje[i2]) * 100) if hoje[i10] is not None and hoje[i2] is not None else None
-    titulo = f"Curva de Treasuries (% a.a.) em {d0[8:]}/{d0[5:7]} · Δ 1 mês, bps: {deltas}" + (f" · 2s10s {s2s10:+d} bps" if s2s10 is not None else "")
+    titulo = f"Treasuries (% a.a.) {d0[8:]}/{d0[5:7]} · Δ 1 dia, bps: {deltas_d or deltas}" + (f" · 2s10s {s2s10:+d} bps" if s2s10 is not None else "")
     out = [f'<text class="sub" x="{ML}" y="12">{titulo}</text>'] if cab else []
     x = ML
     for d, lab, cor, est in (comp[::-1] if cab else []):
-        leg = f"{lab} ({d[8:]}/{d[5:7]}/{d[2:4]})"
+        leg = f"{lab.replace('dia anterior', 'dia ant.')} ({d[8:]}/{d[5:7]}{'/' + d[2:4] if lab == '1 ano' else ''})"
         out.append(f'<line x1="{x:.0f}" x2="{x + 14:.0f}" y1="23" y2="23" style="stroke:{cor};{est}"/><text class="tick" x="{x + 18:.0f}" y="27">{leg}</text>')
-        x += 18 + 5 * len(leg) + 16                         # ~4,5 px por caractere na fonte do eixo + folga
+        x += 18 + 4.8 * len(leg) + 12                       # ~4,5 px por caractere na fonte do eixo + folga (5 linhas cabem em 540)
     for t in ticks(lo, hi, 3):
         if lo <= t <= hi:
             out.append(f'<line class="grid" x1="{ML}" x2="{W - MR}" y1="{Y(t):.1f}" y2="{Y(t):.1f}"/><text class="tick" x="{ML - 5}" y="{Y(t) + 4:.1f}" text-anchor="end">{num(t, 1)}</text>')

@@ -413,9 +413,10 @@ def bloco_ust() -> str:
     def antes(dias):
         alvo = (date.fromisoformat(d0) - timedelta(days=dias)).isoformat()
         return next((d for d in reversed(ds) if d <= alvo), None)
-    VERDE = "#1baf7a"                                        # o CSS do celular não tem --s3/--axis
-    g = B.svg_curva_ust(W=400, H=170, cab=False).replace("var(--axis)", "var(--mut)").replace("var(--s3)", VERDE)
-    cores = [("hoje", "var(--s1)", d0), ("1 semana", "var(--s2)", antes(7)), ("1 mês", VERDE, antes(30)), ("1 ano", "var(--mut)", antes(365))]
+    VERDE, AMBAR = "#1baf7a", "#c98500"                      # o CSS do celular não tem --s3/--s4/--axis
+    g = B.svg_curva_ust(W=400, H=170, cab=False).replace("var(--axis)", "var(--mut)").replace("var(--s3)", VERDE).replace("var(--s4)", AMBAR)
+    cores = [("hoje", "var(--s1)", d0), ("dia ant.", AMBAR, ds[-2] if len(ds) > 1 else None), ("1 semana", "var(--s2)", antes(7)),
+             ("1 mês", VERDE, antes(30)), ("1 ano", "var(--mut)", antes(365))]
     leg = "".join(f'<span style="margin-right:10px;white-space:nowrap"><i style="display:inline-block;width:12px;height:3px;background:{c};vertical-align:3px;margin-right:4px"></i>{l} {d[8:]}/{d[5:7]}{"/" + d[2:4] if l == "1 ano" else ""}</span>' for l, c, d in cores if d)
     h = S[d0]
     rows = ""
@@ -425,7 +426,7 @@ def bloco_ust() -> str:
         rows += f'<tr><td>{k}</td><td>{B.num(h[i], 2)}%</td>{cel}</tr>'
     i2, i10 = rot.index("2a"), rot.index("10a")
     s2s10 = (h[i10] - h[i2]) * 100
-    tab = f'<table><thead><tr><th>Prazo</th><th>Hoje</th><th>Δ 1 sem</th><th>Δ 1 mês</th><th>Δ 1 ano</th></tr></thead><tbody>{rows}</tbody></table>'
+    tab = f'<table><thead><tr><th>Prazo</th><th>Hoje</th><th>Δ 1 dia</th><th>Δ 1 sem</th><th>Δ 1 mês</th><th>Δ 1 ano</th></tr></thead><tbody>{rows}</tbody></table>'
     return _card("Juros americanos", f'<p class="nota" style="margin-top:0">{leg}</p>{g}{tab}<p class="nota">Treasuries nominais (par yield, U.S. Treasury). Δ em bps. Inclinação 2a–10a: {s2s10:+.0f} bps.</p>', f"{d0[8:]}/{d0[5:7]}")
 
 

@@ -25,7 +25,10 @@ import config
 ESTADO = config.DATA / "saude_estado.json"
 REPETE_H = 6
 # coletas pelo Chrome: horários previstos (dias úteis) e tolerância para o atraso do agendador
-COLETAS = {"bba": ("Itaú BBA", [time(8, 55), time(18, 55)]), "bradesco": ("Bradesco", [time(9, 5), time(19, 5)])}
+# Itaú BBA: desde 23/10 a coleta roda dentro da visita de sessão (a cada 3 h, uma aba só); o batimento só é gravado
+# quando a sessão está ok, e a sessão caída já é avisada pelo sessao.json
+COLETAS = {"bba": ("Itaú BBA", [time(7, 40), time(10, 40), time(13, 40), time(16, 40), time(19, 40), time(22, 40)]),
+           "bradesco": ("Bradesco", [time(9, 5), time(19, 5)])}
 TOLERANCIA = timedelta(minutes=75)
 # tarefas do Windows: nome -> horas máximas desde a última execução em dia útil (None = só olha o resultado)
 TAREFAS = {"Monitor BTG relatorios": 14, "Monitor checagem de precos": 30, "Monitor cartas de gestao": 30}
@@ -53,9 +56,11 @@ def _ler(p, padrao=None):
 
 def checa_coletas(agora: datetime) -> list[str]:
     out = []
+    s = _ler(config.DATA / "bba" / "sessao.json")
+    bba_caiu = bool(s) and '"login"' in s
     for casa, (nome, horarios) in COLETAS.items():
         prev = _ultimo_previsto(agora, horarios)
-        if not prev:
+        if not prev or (casa == "bba" and bba_caiu):    # sessão caída já vira aviso próprio abaixo
             continue
         ult = _ler(config.DATA / casa / "ultima_execucao.txt")
         try:
@@ -70,7 +75,7 @@ def checa_coletas(agora: datetime) -> list[str]:
         try:
             S = json.loads(s)
             if S.get("estado") == "login":
-                out.append(f"Itaú BBA: sessão do portal caiu ({S.get('hora')}). Entre de novo no portal no Chrome (código).")
+                out.append(f"Itaú BBA: sessão do portal caiu ({S.get('hora')}). Entre de novo no portal no Chrome (senha salva, só clicar em Continuar).")
             elif S.get("hora") and datetime.strptime(S["hora"], "%Y-%m-%d %H:%M") < agora - timedelta(hours=9):
                 out.append(f"Itaú BBA: a visita de manutenção da sessão não roda desde {S['hora']}.")
         except Exception:
