@@ -293,13 +293,14 @@ def bloco_trades(M: dict) -> str:
         R = trades.marca(ibov_hist=(M.get("hist") or {}).get("Ibovespa"))
     except Exception as e:
         return ""
-    T = [x for x in R["trades"] if x.get("preco_atual") is not None]
+    T = [x for x in R["trades"] if x.get("preco_atual") is not None and not x.get("saida")]   # só o que está aberto
     if not T:
         return ""
     bk, cv = R["book"], R["curva"]
     def sg(v, dec=0, suf=""):
         return B.num(v, dec, "+" if (v or 0) > 0 else "", suf)
-    tiles = (_tile("Resultado do book", f'R$ {sg(bk["resultado"])}', f'{sg((bk["ret"] or 0) * 100, 2, "%")} do bruto · {bk["n_abertos"]} abertos', B.dlt_cls(bk["resultado"]))
+    tiles = (_tile("Realizado", f'R$ {sg(bk.get("realizado"))}', f'{bk.get("n_encerrados", 0)} trades zerados', B.dlt_cls(bk.get("realizado")))
+             + _tile("Em aberto", f'R$ {sg(bk["resultado"])}', f'{sg((bk["ret"] or 0) * 100, 2, "%")} do bruto · {bk["n_abertos"]} abertos', B.dlt_cls(bk["resultado"]))
              + _tile("Resultado do dia", f'R$ {sg(bk.get("res_dia"))}', "contra o fechamento anterior", B.dlt_cls(bk.get("res_dia")))
              + _tile("Comprado / vendido", f'{B.num(bk["comprado"] / 1000, 0)} / {B.num(bk["vendido"] / 1000, 0)} mil', f'CDI {sg(cv["cdi"][-1][1], 2, "%") if cv.get("cdi") else "—"} · Ibov {sg(cv["ibov"][-1][1], 1, "%") if cv.get("ibov") else "—"} no período'))
     rows = "".join(f'<tr><td><b>{x["ticker"]}</b> <small class="{"up" if x["sinal"] > 0 else "dn"}">{x["lado"][:4]}</small></td><td>{B.num(x["preco_atual"], 2)}</td>'

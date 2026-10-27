@@ -136,20 +136,25 @@ def marca(hoje: str | None = None, ibov_hist: list | None = None) -> dict:
         res_dia, base_d = pnl_dia(t, d_px, preco, fech_ant)        # por lote: lote de hoje anda do preço de entrada
         dia = res_dia / base_d if base_d else None
         if t.get("saida") and t["saida"]["data"] < hoje:
-            dia, res_dia = None, 0.0                          # encerrado: não mexe mais
+            dia, res_dia, base_d = None, 0.0, 0.0             # encerrado: não mexe mais
         out.append({**t, "preco_atual": preco, "hora": hora, "resultado": res, "ret": res / t["notional"], "dia": dia,
-                    "res_dia": res_dia, "saldo": t["sinal"] * t["qtd"] * preco, "mult": multiplo(t.get("mult"), preco, hoje, fx)})
+                    "res_dia": res_dia, "base_dia": base_d, "saldo": t["sinal"] * t["qtd"] * preco, "mult": multiplo(t.get("mult"), preco, hoje, fx)})
     ab = [x for x in out if x.get("preco_atual") is not None]
-    bruto = sum(x["notional"] for x in ab)
-    comprado = sum(x["notional"] for x in ab if x["sinal"] > 0 and not x.get("saida"))
-    vendido = sum(x["notional"] for x in ab if x["sinal"] < 0 and not x.get("saida"))
-    res_tot = sum(x["resultado"] for x in ab)
+    # book em aberto (bruto, resultado, peso) só com as posições vivas; o que foi zerado vira "realizado"
+    vivos = [x for x in ab if not x.get("saida")]
+    enc = [x for x in ab if x.get("saida")]
+    bruto = sum(x["notional"] for x in vivos)
+    comprado = sum(x["notional"] for x in vivos if x["sinal"] > 0)
+    vendido = sum(x["notional"] for x in vivos if x["sinal"] < 0)
+    res_tot = sum(x["resultado"] for x in vivos)
     book = {"bruto": bruto, "comprado": comprado, "vendido": vendido, "liquido": comprado - vendido,
             "resultado": res_tot, "ret": res_tot / bruto if bruto else None,
-            "res_dia": sum((x.get("res_dia") or 0) for x in ab), "fx": fx,
-            "res_comprado": sum(x["resultado"] for x in ab if x["sinal"] > 0),
-            "res_vendido": sum(x["resultado"] for x in ab if x["sinal"] < 0),
-            "n": len(ab), "n_abertos": sum(1 for x in ab if not x.get("saida"))}
+            "res_dia": sum((x.get("res_dia") or 0) for x in ab), "base_dia": sum((x.get("base_dia") or 0) for x in ab), "fx": fx,
+            "res_comprado": sum(x["resultado"] for x in vivos if x["sinal"] > 0),
+            "res_vendido": sum(x["resultado"] for x in vivos if x["sinal"] < 0),
+            "realizado": sum(x["resultado"] for x in enc), "notional_encerrado": sum(x["notional"] for x in enc),
+            "ult_saida": max((x["saida"]["data"] for x in enc), default=""),
+            "n": len(ab), "n_abertos": len(vivos), "n_encerrados": len(enc)}
     curva_out: dict = {}
     if ab:
         d0 = min(x["data"] for x in ab)
@@ -296,19 +301,21 @@ def slide_trades(M: dict | None = None) -> tuple[str, str] | None:
         return B.num(v, dec, "+" if (v or 0) > 0 else "", suf)
 
     d0 = cv.get("d0", "")
+    us = bk.get("ult_saida") or ""
     tiles = "".join(f'<div class="tile"><div class="l">{l}</div><div class="v {c}">{v}</div><div class="d">{d}</div></div>' for l, v, c, d in (
-        ("Resultado do book", f'R$ {sinal(bk["resultado"])}', B.dlt_cls(bk["resultado"]),
+        ("Realizado · encerrados", f'R$ {sinal(bk["realizado"])}', B.dlt_cls(bk["realizado"]),
+         f'{bk["n_encerrados"]} trades zerados{" (último " + us[8:10] + "/" + us[5:7] + ")" if us else ""} · {sinal(bk["realizado"] / bk["notional_encerrado"] * 100 if bk.get("notional_encerrado") else None, 1, "%")} do notional'),
+        ("Resultado em aberto", f'R$ {sinal(bk["resultado"])}', B.dlt_cls(bk["resultado"]),
          f'{sinal(bk["ret"] * 100 if bk["ret"] is not None else None, 2, "%")} do bruto · {bk["n_abertos"]} trades abertos'),
         ("Resultado do dia", f'R$ {sinal(bk["res_dia"])}', B.dlt_cls(bk["res_dia"]),
-         f'{sinal(bk["res_dia"] / bk["bruto"] * 100 if bk["bruto"] else None, 2, "%")} do bruto · contra o fechamento anterior'),
+         f'{sinal(bk["res_dia"] / bk["base_dia"] * 100 if bk.get("base_dia") else None, 2, "%")} das posições do dia (inclui as zeradas hoje) · contra o fechamento anterior'),
         ("Comprado", f'R$ {B.num(bk["comprado"] / 1000, 1)} mil', "", f'resultado R$ {sinal(bk["res_comprado"])}'),
-        ("Vendido", f'R$ {B.num(bk["vendido"] / 1000, 1)} mil', "", f'resultado R$ {sinal(bk["res_vendido"])}'),
-        ("Exposição líquida", f'R$ {sinal(bk["liquido"] / 1000, 1)} mil', "", f'bruto R$ {B.num(bk["bruto"] / 1000, 1)} mil'),
+        ("Vendido", f'R$ {B.num(bk["vendido"] / 1000, 1)} mil', "", f'resultado R$ {sinal(bk["res_vendido"])} · líquido R$ {sinal(bk["liquido"] / 1000, 1)} mil'),
         (f"Referência desde {d0[8:10]}/{d0[5:7]}" if d0 else "Referência",
          f'{sinal(cv["cdi"][-1][1], 2, "%") if cv.get("cdi") else "—"} CDI', "",
          f'Ibovespa {sinal(cv["ibov"][-1][1], 1, "%") if cv.get("ibov") else "—"}')))
     rows = []
-    for x in sorted(T, key=lambda x: (bool(x.get("saida")), -(x.get("resultado") or 0))):
+    for x in sorted([x for x in T if not x.get("saida")], key=lambda x: -(x.get("resultado") or 0)):   # só o que está aberto
         if x.get("preco_atual") is None:
             rows.append(f'<tr><td class="tk">{x["ticker"]}<small>{x.get("nome", "")}</small></td><td colspan="11" class="mut">sem preço</td></tr>')
             continue
@@ -336,7 +343,8 @@ def slide_trades(M: dict | None = None) -> tuple[str, str] | None:
         g1 = B.svg_linhas("trades-book", [("Book", S1, cv["book"]), ("CDI", MUT, cv["cdi"]), ("Ibovespa", S2, cv["ibov"])], 2, suf="%",
                           W=560, H=240, refs=[("zero", 0.0)], titulo="Book acumulado, retornos diários encadeados (%)", livre=True)
         cores = [S1, S2, "var(--s3)", "var(--s4)", "var(--dn)", MUT]
-        ser = [(tk, cores[i % len(cores)], pts) for i, (tk, pts) in enumerate(cv["trades"].items()) if pts]
+        vivos = {x["ticker"] for x in T if not x.get("saida")}
+        ser = [(tk, cores[i % len(cores)], pts) for i, (tk, pts) in enumerate((tk, p) for tk, p in cv["trades"].items() if tk in vivos) if pts]
         g2 = B.svg_linhas("trades-cada", ser, 1, suf="%", W=1140, H=240, refs=[("zero", 0.0)],
                           titulo="Cada trade desde a entrada (%, vendido com sinal invertido)", livre=True)
     corpo = (f'<div class="tiles strip" style="grid-template-columns:repeat(6,1fr);margin-bottom:10px">{tiles}</div>'
