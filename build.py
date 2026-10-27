@@ -1346,19 +1346,47 @@ def seleciona_nomes(emp: list, minimo: int = 4, maximo: int = 8) -> tuple[list, 
     return top, bot, cab
 
 
+def _alinha(base: list[list], outra: list[list]) -> list[list]:
+    """[[data, valor da outra série no último dia <= data]] nas datas de `base` (a outra pode ter outro calendário)."""
+    j, v, out = 0, None, []
+    for r in base:
+        while j < len(outra) and outra[j][0] <= r[0]:
+            v = outra[j][1]; j += 1
+        if v is not None:
+            out.append([r[0], v])
+    return out
+
+
 def premio_real(M: dict) -> tuple[list[list], float | None]:
-    """Prêmio de juro real do Brasil: NTN-B 2035 (Tesouro, real) menos TIPS de 10 anos (FRED DFII10), em p.p., com a média
-    histórica. Série diária nas datas da NTN-B, usando o último TIPS disponível até cada data."""
-    n35 = M.get("ntnb_2035") or []; tips = M.get("tips10") or []
+    """Prêmio de juro real do Brasil: NTN-B com duration constante de 10 anos (Tesouro; sem ela, a NTN-B 2035) menos TIPS de
+    10 anos (FRED DFII10), em p.p., com a média histórica. Série diária nas datas da NTN-B, com o último TIPS até cada data."""
+    n35 = M.get("ntnb_d10") or M.get("ntnb_2035") or []; tips = M.get("tips10") or []
     if not n35 or not tips:
         return [], None
     ti = 0; tv = None; prem = []
-    for d, v in n35:
+    for d, v, *_ in n35:
         while ti < len(tips) and tips[ti][0] <= d:
             tv = tips[ti][1]; ti += 1
         if tv is not None and v is not None:
             prem.append([d, v - tv])
     return prem, (sum(p[1] for p in prem) / len(prem) if prem else None)
+
+
+def svg_juro_real(M: dict, c_br: str, c_us: str, c_uk: str, W: int = 260, H: int = 130) -> str:
+    br = [[r[0], r[1]] for r in (M.get("ntnb_d10") or [])]
+    if not br:
+        return '<div class="empty small">Juro real 10 anos: rode a janela diária (NTN-B no Tesouro Direto).</div>'
+    tips, uk = M.get("tips10") or [], M.get("uk_real10") or []
+    prem, med = premio_real(M)
+    pm = {d: v for d, v in prem}
+    series = [("Brasil (NTN-B dur. 10a)", c_br, [[d, v, (num(pm[d], 2) + " p.p.") if d in pm else None] for d, v in br])]
+    if tips:
+        series.append(("EUA (TIPS 10a)", c_us, [[d, v] for d, v in tips if d >= br[0][0]]))
+    if uk:
+        series.append(("Reino Unido (gilt indexado 10a)", c_uk, [[d, v] for d, v in uk if d >= br[0][0]]))
+    ult = lambda p: num(p[-1][1], 2) if p else "—"   # o título identifica cada linha pelo nível de hoje (o quadro é pequeno p/ legenda)
+    tit = f"Juro real 10a: BR {ult(br)} · EUA {ult(tips)} · UK {ult(uk)}%"
+    return svg_linhas("painel-premio", series, 2, suf="%", W=W, H=H, ini=5, titulo=tit, extras=["prêmio s/ TIPS"], livre=True)
 
 
 def linha_variaveis_painel(M: dict) -> str:
@@ -1415,13 +1443,9 @@ def linha_variaveis_painel(M: dict) -> str:
                              ativos=ativos, alts=alts, titulo_base="fechamento (R$)")
     else:
         g_ativo = '<div class="empty small">Sem papéis.</div>'
-    # 7º: prêmio de juro real do Brasil = NTN-B 2035 (real) − TIPS 10 anos (FRED DFII10), em p.p.; linha = média histórica
-    prem, med = premio_real(M)
-    if prem:
-        g_prem = svg_linhas("painel-premio", [("NTN-B 2035 − TIPS 10a", S1, prem)], 2, suf=" p.p.", W=260, H=130, ini=5,
-                            refs=[(f"média {num(med, 1)}", med)] if med else None, titulo="Prêmio de juro real: NTN-B 2035 − TIPS 10 anos (p.p.)")
-    else:
-        g_prem = '<div class="empty small">Prêmio de juro real: rode a janela diária (TIPS 10a via FRED).</div>'
+    # 7º: juro real de 10 anos — Brasil (NTN-B com duration constante de 10 anos) × EUA (TIPS 10a, FRED) × Reino Unido (BoE,
+    # curva real spot de 10 anos): dois juros reais sem risco de crédito como régua; prêmio BR − TIPS no título e no tooltip
+    g_prem = svg_juro_real(M, S1, S2, "var(--s3)")
     # câmbio: PTAX oficial (BCB SGS 1, desde 1994) com o último ponto intraday do Yahoo; sem PTAX, Yahoo desde 2003
     ptax = (M.get("sgs", {}).get("1") or {}).get("serie") or []
     fx = [[d, v] for d, v in ptax] if len(ptax) > 2000 else [[d, v] for d, v in (M.get("hist", {}).get("USD/BRL") or [])]

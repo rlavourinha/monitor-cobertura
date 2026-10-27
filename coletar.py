@@ -139,8 +139,9 @@ def diario_acoes():
 
 def diario_tesouro():
     c = tesouro.ntnb()
-    _atualiza_macro(ntnb=c, ntnb_2035=tesouro.ntnb_historico("2035"))
-    return f"curva {c.get('data')} ({len(c.get('curva', []))} venc.)"
+    d10 = tesouro.ntnb_duration(10)       # juro real com duration constante de 10 anos (NTN-B interpolada)
+    _atualiza_macro(ntnb=c, ntnb_2035=tesouro.ntnb_historico("2035"), ntnb_d10=d10)
+    return f"curva {c.get('data')} ({len(c.get('curva', []))} venc.); duration 10a {d10[-1][0] if d10 else '—'} {d10[-1][1] if d10 else ''}%"
 
 
 def diario_ettj():
@@ -155,10 +156,21 @@ def diario_curva_tesouro():
 
 def diario_tips():
     """TIPS de 10 anos (FRED DFII10): juro real americano, para o prêmio de juro real do Brasil (NTN-B 2035 − TIPS)."""
-    s = fred.serie("DFII10", "2010-01-01")
+    s = fred.serie("DFII10", "2006-01-01")
     if not s:
         raise RuntimeError("FRED DFII10 vazio")
     _atualiza_macro(tips10=s)
+    return f"{len(s)} pontos, último {s[-1][0]} {s[-1][1]}%"
+
+
+def diario_uk_real():
+    """Juro real de 10 anos do Reino Unido (Bank of England, curva real spot dos gilts indexados): 3ª referência de juro
+    real de país sem risco de crédito, ao lado do TIPS, no gráfico de juro real 10 anos."""
+    from fontes import boe
+    s = boe.atualiza()
+    if not s:
+        raise RuntimeError("BoE: curva real vazia")
+    _atualiza_macro(uk_real10=s)
     return f"{len(s)} pontos, último {s[-1][0]} {s[-1][1]}%"
 
 
@@ -534,7 +546,7 @@ JANELAS = {
     "intraday": [("cotações universo", intraday_universo), ("cotações mercado", intraday_mercado), ("cotações Ibovespa", intraday_ibov_comp)],
     "diario": [("B3 COTAHIST", diario_cotahist), ("B3 ações", diario_acoes), ("Tesouro NTN-B", diario_tesouro),
                ("ANBIMA ETTJ", diario_ettj), ("curva Tesouro", diario_curva_tesouro),
-               ("SGS diários", diario_sgs), ("TIPS 10a (FRED)", diario_tips), ("curva Treasuries (UST)", diario_ust), ("Yahoo histórico", diario_yahoo_hist), ("Ibovespa composição", diario_ibov_comp), ("SMLL composição", diario_smll_comp),
+               ("SGS diários", diario_sgs), ("TIPS 10a (FRED)", diario_tips), ("juro real 10a UK (BoE)", diario_uk_real), ("curva Treasuries (UST)", diario_ust), ("Yahoo histórico", diario_yahoo_hist), ("Ibovespa composição", diario_ibov_comp), ("SMLL composição", diario_smll_comp),
                ("consenso Yahoo", diario_consenso_yahoo), ("cotas de fundos CVM", diario_cotas_fundos), ("Ibovespa DY", diario_ibov_dy), ("fluxo por investidor", diario_fluxo_investidores), ("curva do Brent", diario_brent_curva),
                ("minhas estimativas", diario_minhas), ("cotações universo", intraday_universo), ("cotações mercado", intraday_mercado),
                ("cotações Ibovespa", intraday_ibov_comp)],

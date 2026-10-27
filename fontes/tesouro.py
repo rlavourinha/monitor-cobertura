@@ -64,3 +64,51 @@ def ntnb_historico(vencimento_prefixo: str = "2035") -> list[list]:
                 d = _iso(r["Data Base"])
                 pts.setdefault(d, float(r["Taxa Compra Manha"].replace(",", ".")))
     return sorted([[d, t] for d, t in pts.items()])
+
+
+def _fluxos(base: date, venc: date) -> list[tuple[float, float]]:
+    """[(anos até o pagamento, fluxo por 100 de VNA)]: cupons semestrais de 6% a.a. (2,9563%) restantes e o principal."""
+    cupom = 100 * (1.06 ** 0.5 - 1)
+    out, a, m = [], venc.year, venc.month
+    while date(a, m, 15) > base:
+        dt = date(a, m, 15)
+        out.append(((dt - base).days / 365.25, cupom + (100 if dt == venc else 0)))
+        m -= 6
+        if m <= 0:
+            m, a = m + 12, a - 1
+    return out
+
+
+def ntnb_duration(alvo: float = 10.0, desde: str = "2006-01-01") -> list[list]:
+    """Juro real com duration constante: em cada dia, a taxa das NTN-B com juros semestrais interpolada linearmente no ponto
+    de duration de Macaulay = alvo, entre o título logo abaixo e o logo acima. [[data, taxa%, "venc/venc"], ...].
+    Começa em 2006: em 2005 a taxa do Tesouro Direto quase não mudava (171 de 251 dias iguais ao anterior)."""
+    if not CACHE.exists():
+        return []
+    por_dia: dict[str, dict[date, float]] = {}
+    with CACHE.open(encoding="latin-1", newline="") as fh:
+        for r in csv.DictReader(fh, delimiter=";"):
+            if r["Tipo Titulo"] != "Tesouro IPCA+ com Juros Semestrais":
+                continue
+            d = _iso(r["Data Base"])
+            if d < desde:
+                continue
+            taxa = float(r["Taxa Compra Manha"].replace(",", ".") or 0) or float(r["Taxa Venda Manha"].replace(",", ".") or 0)
+            if taxa:
+                por_dia.setdefault(d, {})[date.fromisoformat(_iso(r["Data Vencimento"]))] = taxa
+    out = []
+    for d in sorted(por_dia):
+        base = date.fromisoformat(d)
+        tit = []
+        for venc, taxa in por_dia[d].items():
+            if venc <= base:
+                continue
+            y = 1 + taxa / 100
+            fl = [(t, c / y ** t) for t, c in _fluxos(base, venc)]
+            tit.append((sum(t * v for t, v in fl) / sum(v for _, v in fl), taxa, venc.year))
+        tit.sort()
+        baixo = [x for x in tit if x[0] <= alvo]; alto = [x for x in tit if x[0] > alvo]
+        if baixo and alto:
+            (d0, t0, v0), (d1, t1, v1) = baixo[-1], alto[0]
+            out.append([d, round(t0 + (t1 - t0) * (alvo - d0) / (d1 - d0), 3), f"{v0}/{v1}"])
+    return out

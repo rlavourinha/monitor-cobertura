@@ -430,6 +430,57 @@ def bloco_ust() -> str:
     return _card("Juros americanos", f'<p class="nota" style="margin-top:0">{leg}</p>{g}{tab}<p class="nota">Treasuries nominais (par yield, U.S. Treasury). Δ em bps. Inclinação 2a–10a: {s2s10:+.0f} bps.</p>', f"{d0[8:]}/{d0[5:7]}")
 
 
+def bloco_juro_real(M: dict) -> str:
+    """Juro real de 10 anos: Brasil (NTN-B com duration constante de 10 anos) × EUA (TIPS) × Reino Unido (BoE), série inteira
+    desde 2006, e tabela com o nível de hoje e as variações; prêmio do Brasil sobre o TIPS na última linha."""
+    br = [[r[0], r[1]] for r in (M.get("ntnb_d10") or [])]
+    if len(br) < 2:
+        return ""
+    VERDE = "#1baf7a"
+    tips = [r for r in (M.get("tips10") or []) if r[0] >= br[0][0]]
+    uk = [r for r in (M.get("uk_real10") or []) if r[0] >= br[0][0]]
+    prem, med = B.premio_real(M)
+    S = [("Brasil", "var(--s1)", br), ("EUA (TIPS)", "var(--s2)", tips), ("Reino Unido", VERDE, uk)]
+    S = [x for x in S if x[2]]
+    W, H, ML, MR, MT, MB = 400, 170, 26, 44, 8, 18
+    t0, t1 = date.fromisoformat(br[0][0]), date.fromisoformat(max(x[2][-1][0] for x in S))
+    lo = min(0, min(v for _, _, p in S for _, v in p)); hi = max(v for _, _, p in S for _, v in p) * 1.05
+    X = lambda d: ML + (date.fromisoformat(d) - t0).days / max(1, (t1 - t0).days) * (W - ML - MR)
+    Y = lambda v: MT + (hi - v) / (hi - lo) * (H - MT - MB)
+    o = [f'<svg class="chart" viewBox="0 0 {W} {H}" role="img" aria-label="Juro real de 10 anos: Brasil, EUA e Reino Unido">']
+    for t in range(int(lo) - (lo < 0), int(hi) + 1, 2):
+        if lo <= t <= hi:
+            o.append(f'<line x1="{ML}" x2="{W - MR}" y1="{Y(t):.1f}" y2="{Y(t):.1f}" class="grid"/><text class="tick" x="{ML - 4}" y="{Y(t) + 4:.1f}" text-anchor="end">{t}</text>')
+    for a in range(t0.year + 1, t1.year + 1, 4):
+        o.append(f'<text class="tick" x="{X(f"{a}-01-01"):.1f}" y="{H - 5}" text-anchor="middle">{str(a)[2:]}</text>')
+    for _, cor, p in S:
+        passo = max(1, len(p) // 900)                       # ~900 pontos por linha bastam na largura do celular
+        pts = p[::passo] + ([p[-1]] if (len(p) - 1) % passo else [])
+        o.append(f'<path class="line" style="stroke:{cor};stroke-width:1.4" d="{" ".join(f"{chr(77) if i == 0 else chr(76)}{X(d):.1f},{Y(v):.1f}" for i, (d, v) in enumerate(pts))}"/>')
+    ys = sorted(((Y(p[-1][1]), cor, p[-1][1]) for _, cor, p in S), key=lambda x: x[0])
+    ult = -99
+    for y, cor, v in ys:                                     # rótulos de fim de linha sem sobreposição
+        y = max(y, ult + 12); ult = y
+        o.append(f'<text class="endlab" x="{W - MR + 4}" y="{y + 4:.1f}" style="fill:{cor}">{B.num(v, 2)}</text>')
+    o.append("</svg>")
+    leg = "".join(f'<span style="margin-right:10px;white-space:nowrap"><i style="display:inline-block;width:12px;height:3px;background:{c};vertical-align:3px;margin-right:4px"></i>{n}</span>' for n, c, _ in S)
+    def antes(p, dias):
+        alvo = (date.fromisoformat(p[-1][0]) - timedelta(days=dias)).isoformat()
+        return next((v for d, v in reversed(p) if d <= alvo), None)
+    def linha(nome, p, suf="%"):
+        h = p[-1][1]
+        cel = "".join(f'<td class="{B.dlt_cls(-(h - a))}">{(h - a) * 100:+.0f}</td>' if a is not None else "<td>—</td>"
+                      for a in (p[-2][1] if len(p) > 1 else None, antes(p, 30), antes(p, 365)))
+        return f'<tr><td>{nome}</td><td>{B.num(h, 2)}{suf}</td>{cel}</tr>'
+    rows = "".join(linha(n, p) for n, _, p in S) + (linha("Prêmio BR−EUA", prem, " p.p.") if prem else "")
+    tab = f'<table><thead><tr><th></th><th>Hoje</th><th>Δ 1 dia</th><th>Δ 1 mês</th><th>Δ 1 ano</th></tr></thead><tbody>{rows}</tbody></table>'
+    d = br[-1][0]
+    return _card("Juro real 10 anos", f'<p class="nota" style="margin-top:0">{leg}</p>{"".join(o)}{tab}'
+                 f'<p class="nota">% a.a. acima da inflação. Brasil: NTN-B com juros semestrais interpolada no ponto de duration de 10 anos (Tesouro Direto, taxa da manhã). '
+                 f'EUA: TIPS de 10 anos (FRED). Reino Unido: curva real spot de 10 anos do Bank of England (gilts indexados ao RPI). '
+                 f'Δ em bps. Prêmio BR−EUA médio desde 2006: {B.num(med, 1)} p.p.</p>', f"{d[8:]}/{d[5:7]}")
+
+
 def bloco_di(DI: dict) -> str:
     vert = DI.get("vertices") or {}
     if not vert:
@@ -569,7 +620,7 @@ def build_mobile() -> None:
     DP = _j("dap_curva.json", {}) or {}                        # juro real (DAP = cupom de IPCA), gravado pelo vigia como o DI
     IB = _ibov_hoje(M)
     corpo = "".join([bloco_hoje(M, IB, DI), bloco_intraday(IB), bloco_alertas(IB), bloco_cobertura(mercado, minhas, cons, IB), bloco_trades(M),
-                     bloco_setores(C, IB), bloco_valuation(M), bloco_fluxo(), bloco_liquidez(IB), bloco_di(DI), bloco_dap(DP), bloco_ust()])
+                     bloco_setores(C, IB), bloco_valuation(M), bloco_fluxo(), bloco_liquidez(IB), bloco_di(DI), bloco_dap(DP), bloco_juro_real(M), bloco_ust()])
     page = PAGE.replace("/*CSS*/", CSS).replace("/*VERSAO*/", B.versao()).replace("/*DATA*/", B.carimbo_build()).replace("/*CORPO*/", corpo)
     config.OUTPUT.mkdir(parents=True, exist_ok=True)
     SAIDA.write_text(page, encoding="utf-8")
