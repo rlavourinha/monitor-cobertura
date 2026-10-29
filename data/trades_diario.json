@@ -2001,18 +2001,18 @@
  },
  "2026-10-29": {
   "fonte": "intraday (vigia)",
-  "hora": "2026-10-29 12:30",
+  "hora": "2026-10-29 14:15",
   "book": {
    "bruto": 71726.69,
    "comprado": 71726.69,
    "vendido": 0,
    "liquido": 71726.69,
-   "resultado": -21403.69,
+   "resultado": -21527.69,
    "ret": -0.3,
-   "res_dia": -1581.0,
+   "res_dia": -1705.0,
    "base_dia": 51904.0,
-   "fx": 5.39,
-   "res_comprado": -21403.69,
+   "fx": 5.43,
+   "res_comprado": -21527.69,
    "res_vendido": 0,
    "realizado": -5456.96,
    "notional_encerrado": 275478.64,
@@ -2032,33 +2032,33 @@
     "res_dia": 0.0,
     "mult": {
      "rotulo": "P/E 12m",
-     "valor": 11.816
+     "valor": 11.736
     }
    },
    "ENEV3": {
     "lado": "comprado",
     "qtd": 1000,
     "pm": 27.383,
-    "preco": 26.08,
-    "resultado": -1303.0,
-    "ret": -0.04758,
-    "res_dia": -300.0,
+    "preco": 25.86,
+    "resultado": -1523.0,
+    "ret": -0.05562,
+    "res_dia": -520.0,
     "mult": {
      "rotulo": "EV/EBITDA 12m",
-     "valor": 11.501
+     "valor": 11.434
     }
    },
    "XPBR31": {
     "lado": "comprado",
     "qtd": 300,
     "pm": 147.8123,
-    "preco": 80.81,
-    "resultado": -20100.69,
-    "ret": -0.45329,
-    "res_dia": -1281.0,
+    "preco": 81.13,
+    "resultado": -20004.69,
+    "ret": -0.45113,
+    "res_dia": -1185.0,
     "mult": {
      "rotulo": "P/E 12m",
-     "valor": 6.163
+     "valor": 6.146
     }
    },
    "EZTC3": {
