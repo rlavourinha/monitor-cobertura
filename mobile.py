@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import html
 import json
+import math
 from datetime import date, datetime, timedelta
 
 import config
@@ -482,6 +483,127 @@ def bloco_juro_real(M: dict) -> str:
                  f'Δ em bps. Prêmio BR−EUA médio desde 2006: {B.num(med, 1)} p.p.</p>', f"{d[8:]}/{d[5:7]}")
 
 
+def svg_linhas_m(S: list[tuple[str, str, list[list]]], W=400, H=160, dec=1, passo_anos=4, zero=False, rotulo="") -> str:
+    """Linhas estáticas para o celular (série inteira, sem interação): eixo de anos, grade e rótulo de fim de linha.
+    S = [(nome, cor, [[data ISO, v], ...]), ...]; 4º item opcional = estilo CSS extra da linha."""
+    S = [s for s in S if len(s[2]) > 1]
+    if not S:
+        return ""
+    ML, MR, MT, MB = 30, 44, 8, 18
+    t0 = min(date.fromisoformat(s[2][0][0]) for s in S); t1 = max(date.fromisoformat(s[2][-1][0]) for s in S)
+    vs = [v for s in S for _, v in s[2]]
+    lo, hi = min(vs + ([0] if zero else [])), max(vs + ([0] if zero else []))
+    pad = (hi - lo) * 0.06 or 1; lo, hi = lo - pad, hi + pad
+    X = lambda d: ML + (date.fromisoformat(d) - t0).days / max(1, (t1 - t0).days) * (W - ML - MR)
+    Y = lambda v: MT + (hi - v) / (hi - lo) * (H - MT - MB)
+    passo = next(p for p in (1, 2, 2.5, 5, 10, 20, 25, 50, 100) if (hi - lo) / p <= 5)
+    o = [f'<svg class="chart" viewBox="0 0 {W} {H}" role="img" aria-label="{rotulo}">']
+    t = math.ceil(lo / passo) * passo
+    while t <= hi:
+        o.append(f'<line x1="{ML}" x2="{W - MR}" y1="{Y(t):.1f}" y2="{Y(t):.1f}" class="{"ref" if zero and abs(t) < 1e-9 else "grid"}"/>'
+                 f'<text class="tick" x="{ML - 4}" y="{Y(t) + 4:.1f}" text-anchor="end">{B.num(t, 0 if passo >= 1 else 1)}</text>')
+        t += passo
+    for a in range(t0.year + 1, t1.year + 1, passo_anos):
+        o.append(f'<text class="tick" x="{X(f"{a}-01-01"):.1f}" y="{H - 5}" text-anchor="middle">{str(a)[2:]}</text>')
+    for s in S:
+        o.append(f'<path class="line" style="stroke:{s[1]};stroke-width:1.5;{s[3] if len(s) > 3 else ""}" '
+                 f'd="{" ".join(f"{chr(77) if i == 0 else chr(76)}{X(d):.1f},{Y(v):.1f}" for i, (d, v) in enumerate(s[2]))}"/>')
+    ult = -99
+    for y, cor, v in sorted(((Y(s[2][-1][1]), s[1], s[2][-1][1]) for s in S), key=lambda x: x[0]):
+        y = max(y, ult + 12); ult = y
+        o.append(f'<text class="endlab" x="{W - MR + 4}" y="{y + 4:.1f}" style="fill:{cor}">{B.num(v, dec)}</text>')
+    o.append("</svg>")
+    return "".join(o)
+
+
+def _legenda_m(S) -> str:
+    return '<p class="nota" style="margin:2px 0 0">' + "".join(
+        f'<span style="margin-right:10px;white-space:nowrap"><i style="display:inline-block;width:12px;height:3px;background:{c};vertical-align:3px;margin-right:4px"></i>{n}</span>'
+        for n, c, *_ in S) + "</p>"
+
+
+def bloco_contas_nacionais(M: dict) -> str:
+    """Contas Nacionais Trimestrais do IBGE: PIB (t/t−1, contra o ano anterior, 4 trimestres), componentes, investimento e
+    poupança; mesmos dados dos slides contas-* do Painel (data/contas_nacionais.json)."""
+    from fontes import ibge
+    D = ibge.ler()
+    T = D.get("taxas") or {}
+    if not T.get("4t", {}).get("pib"):
+        return ""
+    I, R, tq = ibge.indicadores(D), D["rotulos"], ibge.tri(D["ultimo"])
+    ult = lambda k, v, n=0: (T[v].get(k) or [[None, None]] * (n + 1))[-1 - n][1]
+    sg = lambda v, dec=1: B.num(v, dec, "+" if v and v > 0 else "", "%") if v is not None else "—"
+    inv, poup, fin = I.get("inv_4t") or [], I.get("poup_4t") or [], I.get("fin_4t") or []
+    fp = (M.get("focus_todos") or {}).get("PIB Total") or {}
+    a0 = str((M.get("anos") or [date.today().year])[0])
+    f0 = (fp.get(a0) or [[None, None]])[-1][1]; f1 = (fp.get(str(int(a0) + 1)) or [[None, None]])[-1][1]
+    tiles = (_tile(f"PIB t/t−1 ({tq})", sg(ult("pib", "tt")), f"dessaz.; anterior {sg(ult('pib', 'tt', 1))}", B.dlt_cls(ult("pib", "tt")))
+             + _tile("PIB 4 trimestres", sg(ult("pib", "4t")), f"contra {tq[:2]}{int(tq[2:]) - 1:02d}: {sg(ult('pib', 'aa'))}")
+             + _tile("Investimento", B.num(inv[-1][1], 1, suf="% PIB") if inv else "—", "FBCF, 4 trimestres")
+             + _tile("Poupança", B.num(poup[-1][1], 1, suf="% PIB") if poup else "—",
+                     f"financ. externo {B.num(fin[-1][1], 1, suf='%')}" if fin else ""))
+    S1 = [("acumulado em 4 tri", "var(--ink)", T["4t"]["pib"]), ("contra o ano anterior", "var(--s1)", T["aa"]["pib"], "stroke-width:1")]
+    g1 = svg_linhas_m(S1, zero=True, rotulo="PIB: crescimento em volume")
+    rows = []
+    for k in ["pib", "agro", "industria", "servicos", "familias", "governo", "fbcf", "exportacao", "importacao"]:
+        if T["tt"].get(k):
+            v = [ult(k, "tt"), ult(k, "aa"), ult(k, "4t")]
+            nome = "<b>PIB</b>" if k == "pib" else R[k].replace("Investimento (FBCF)", "Investimento").replace("Consumo das famílias", "Famílias").replace("Consumo do governo", "Governo")
+            rows.append(f'<tr><td>{nome}</td>{"".join(f"<td class={chr(34)}{B.dlt_cls(x)}{chr(34)}>{sg(x)}</td>" for x in v)}</tr>')
+            if k == "servicos":
+                rows.append('<tr><td colspan="4" style="color:var(--mut);font-size:12px;padding-top:8px">Demanda</td></tr>')
+            if k == "pib":
+                rows.append('<tr><td colspan="4" style="color:var(--mut);font-size:12px;padding-top:8px">Oferta</td></tr>')
+    tab = f'<table><thead><tr><th></th><th>t/t−1</th><th>a/a</th><th>4 tri</th></tr></thead><tbody>{"".join(rows)}</tbody></table>'
+    S2 = [("investimento", "#1baf7a", inv), ("poupança", "var(--s1)", poup)]
+    g2 = svg_linhas_m(S2, rotulo="Investimento e poupança, % do PIB")
+    foco = f"Focus PIB {a0}: {B.num(f0, 1, suf='%')} · {int(a0) + 1}: {B.num(f1, 1, suf='%')}. " if f0 is not None else ""
+    return _card("Contas nacionais", f'<div class="tiles">{tiles}</div><p class="nota" style="margin:10px 0 0"><b>PIB, crescimento em volume (%)</b></p>'
+                 f'{_legenda_m(S1)}{g1}{tab}<p class="nota" style="margin:12px 0 0"><b>Investimento e poupança (% do PIB, 4 trimestres)</b></p>{_legenda_m(S2)}{g2}'
+                 f'<p class="nota">{foco}IBGE, Contas Nacionais Trimestrais (SIDRA 5932, 1846 e 2072), desde 1996. t/t−1 com ajuste sazonal; a/a = contra o mesmo '
+                 f'trimestre do ano anterior; 4 tri = acumulado em 4 trimestres. Investimento = FBCF ÷ PIB; a diferença para a poupança é o financiamento externo.</p>', tq)
+
+
+def bloco_divida(M: dict) -> str:
+    """Dívida pública: bruta (DBGG) e líquida (DLSP) em % do PIB, a dinâmica r − g e o Focus por ano de referência
+    (mesmos dados dos slides focus-divida e divida-rg do Painel)."""
+    sgs = M.get("sgs") or {}
+    db, dl = (sgs.get("13762") or {}).get("serie") or [], (sgs.get("4513") or {}).get("serie") or []
+    if len(db) < 13:
+        return ""
+    D = B._divida_rg(sgs)
+    u = D[-1] if D else None
+    mes = f"{db[-1][0][5:7]}/{db[-1][0][2:4]}"
+    sg = lambda v, dec=1, suf=" p.p.": B.num(v, dec, "+" if v and v > 0 else "", suf)
+    tiles = (_tile("Dívida bruta", B.num(db[-1][1], 1, suf="% PIB"), f"{sg(db[-1][1] - db[-13][1])} em 12 meses")
+             + _tile("Dívida líquida", B.num(dl[-1][1], 1, suf="% PIB"), f"{sg(dl[-1][1] - dl[-13][1])} em 12 meses" if len(dl) > 13 else ""))
+    if u:
+        tiles += (_tile("r − g", sg(u["rg"]), f"r {B.num(u['r'], 1, suf='%')} · g {B.num(u['g'], 1, suf='%')}")
+                  + _tile("Primário que falta", sg(u["est"] - u["prim"], 1, " p.p."), f"efetivo {B.num(u['prim'], 1, suf='%')} · estabiliza {B.num(u['est'], 1, suf='%')}"))
+    S1 = [("bruta (DBGG)", "var(--ink)", db), ("líquida (DLSP)", "var(--s1)", dl)]
+    g1 = svg_linhas_m(S1, rotulo="Dívida pública, % do PIB")
+    dirp = config.DATA / "focus_longo"
+    a0 = (M.get("anos") or [date.today().year])[0]
+    rows = []
+    for ano in range(a0, a0 + 5):
+        cel = []
+        for ind in ("Dívida bruta do governo geral", "Dívida líquida do setor público"):
+            f = dirp / f"{ind.replace(' ', '_')}_{ano}.json"
+            s = [r for r in (json.loads(f.read_text(encoding="utf-8")) if f.exists() else []) if r[1] is not None]
+            if not s:
+                cel += ["<td>—</td>", "<td>—</td>"]; continue
+            alvo = (date.fromisoformat(s[-1][0]) - timedelta(days=91)).isoformat()
+            a3 = next((r[1] for r in reversed(s) if r[0] <= alvo), None)
+            d3 = round(s[-1][1] - a3, 1) + 0.0 if a3 is not None else None
+            cel += [f"<td>{B.num(s[-1][1], 1, suf='%')}</td>", f'<td class="{B.dlt_cls(-(d3 or 0))}">{sg(d3, 1, "") if d3 is not None else "—"}</td>']
+        rows.append(f"<tr><td>{ano}</td>{''.join(cel)}</tr>")
+    tab = ('<table><thead><tr><th>Focus</th><th>Bruta</th><th>Δ 3m</th><th>Líquida</th><th>Δ 3m</th></tr></thead><tbody>' + "".join(rows) + "</tbody></table>")
+    return _card("Dívida pública", f'<div class="tiles">{tiles}</div>{_legenda_m(S1)}{svg_linhas_m(S1, passo_anos=3, rotulo="Dívida pública")}{tab}'
+                 f'<p class="nota">BCB SGS 13762 (DBGG, metodologia 2008) e 4513 (DLSP), % do PIB, mensal. r = juro implícito (NFSP nominal − primário, '
+                 f'sobre a dívida bruta média de 12 meses); g = PIB nominal de 12 meses; primário que estabiliza = d × (r − g)/(1 + g). '
+                 f'Focus: mediana por ano de referência; Δ 3m em p.p. (vermelho = expectativa de dívida subiu).</p>', mes)
+
+
 def bloco_di(DI: dict) -> str:
     vert = DI.get("vertices") or {}
     if not vert:
@@ -621,7 +743,7 @@ def build_mobile() -> None:
     DP = _j("dap_curva.json", {}) or {}                        # juro real (DAP = cupom de IPCA), gravado pelo vigia como o DI
     IB = _ibov_hoje(M)
     corpo = "".join([bloco_hoje(M, IB, DI), bloco_intraday(IB), bloco_alertas(IB), bloco_cobertura(mercado, minhas, cons, IB), bloco_trades(M),
-                     bloco_setores(C, IB), bloco_valuation(M), bloco_fluxo(), bloco_liquidez(IB), bloco_di(DI), bloco_dap(DP), bloco_juro_real(M), bloco_ust()])
+                     bloco_setores(C, IB), bloco_valuation(M), bloco_fluxo(), bloco_liquidez(IB), bloco_di(DI), bloco_dap(DP), bloco_juro_real(M), bloco_ust(), bloco_divida(M), bloco_contas_nacionais(M)])
     page = PAGE.replace("/*CSS*/", CSS).replace("/*VERSAO*/", B.versao()).replace("/*DATA*/", B.carimbo_build()).replace("/*CORPO*/", corpo)
     config.OUTPUT.mkdir(parents=True, exist_ok=True)
     SAIDA.write_text(page, encoding="utf-8")

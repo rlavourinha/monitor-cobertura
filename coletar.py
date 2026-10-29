@@ -474,6 +474,14 @@ def diario_cotas_fundos():
     return f"{n} cotas"
 
 
+def mensal_contas_nacionais():
+    """IBGE, Contas Nacionais Trimestrais (SIDRA 5932, 1621, 1846, 2072): PIB e componentes, nível dessazonalizado,
+    valores correntes e contas econômicas (poupança, financiamento externo), série completa em data/contas_nacionais.json."""
+    from fontes import ibge
+    D = ibge.atualiza()
+    return f"último trimestre {ibge.tri(D['ultimo'])}, {len(D['taxas']['tt']['pib'])} trimestres"
+
+
 def mensal_carteiras_cvm():
     """Carteiras dos fundos de config.FUNDOS_CVM nos últimos meses já sem sigilo (CDA da CVM, ~25 MB por mês, cache)."""
     n = 0
@@ -551,7 +559,7 @@ JANELAS = {
                ("minhas estimativas", diario_minhas), ("cotações universo", intraday_universo), ("cotações mercado", intraday_mercado),
                ("cotações Ibovespa", intraday_ibov_comp)],
     "semanal": [("Focus", semanal_focus), ("Focus longo", semanal_focus_longo), ("Ibovespa DY histórico", semanal_ibov_dy_hist), ("PL CVM (P/VP)", semanal_pl_cvm)],
-    "mensal": [("SGS mensais", mensal_sgs), ("realizado anual", mensal_realizado), ("carteiras CVM", mensal_carteiras_cvm)],
+    "mensal": [("SGS mensais", mensal_sgs), ("realizado anual", mensal_realizado), ("carteiras CVM", mensal_carteiras_cvm), ("IBGE contas nacionais", mensal_contas_nacionais)],
 }
 JANELAS["tudo"] = JANELAS["mensal"] + JANELAS["semanal"] + JANELAS["diario"]
 def mt5_extrato_intraday():

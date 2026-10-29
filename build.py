@@ -3571,6 +3571,103 @@ def slide_divida_rg(sgs: dict) -> tuple[str, str] | None:
                  "(inclui swaps do BC) sobre a dívida bruta, aproximação do custo médio, não a taxa implícita oficial. Série desde dez/2007.")
 
 
+CN_OFERTA = ["agro", "industria", "transformacao", "extrativa", "construcao", "servicos"]
+CN_DEMANDA = ["familias", "governo", "fbcf", "exportacao", "importacao"]
+
+
+def slides_contas_nacionais(M: dict) -> list[tuple[str, str]]:
+    """Contas Nacionais Trimestrais do IBGE (data/contas_nacionais.json, coletar --janela mensal), série completa desde 1996:
+    PIB (crescimento e nível), componentes da oferta e da demanda, investimento, poupança e financiamento externo."""
+    from fontes import ibge
+    D = ibge.ler()
+    T = D.get("taxas") or {}
+    if not T.get("4t", {}).get("pib"):
+        return []
+    S1, S2, S3, S4 = "var(--s1)", "var(--s2)", "var(--s3)", "var(--s4)"
+    I, R, tq = ibge.indicadores(D), D["rotulos"], ibge.tri(D["ultimo"])
+    pt = lambda pts, dec=2: [[d, round(v, dec), ibge.tri(d)] for d, v in pts]
+    ult = lambda k, var: (T.get(var, {}).get(k) or [[None, None]])[-1][1]
+    ant = lambda k, var, n=1: (T.get(var, {}).get(k) or [])[-1 - n][1] if len(T.get(var, {}).get(k) or []) > n else None
+    sinal = lambda v, dec=1, suf="%": num(v, dec, "+" if v and v > 0 else "", suf) if v is not None else "—"
+    ano_fech = [p for p in T["ano"]["pib"] if p[0][5:7] == "12"]
+    fp = (M.get("focus_todos") or {}).get("PIB Total") or {}
+    a0 = str(M["anos"][0])
+    foc = [((fp.get(a) or [[None, None]])[-1]) for a in (a0, str(int(a0) + 1))]
+    inv, poup, fin = I.get("inv_4t") or [], I.get("poup_4t") or [], I.get("fin_4t") or []
+    tiles = "".join(f'<div class="tile"><div class="l">{l}</div><div class="v">{v}</div><div class="d">{s}</div></div>' for l, v, s in (
+        (f"PIB · t/t−1 dessaz. ({tq})", sinal(ult("pib", "tt")), f"trimestre anterior: {sinal(ant('pib', 'tt'))}"),
+        (f"PIB · contra o {tq[:2]}{int(tq[2:]) - 1:02d}", sinal(ult("pib", "aa")), f"trimestre anterior: {sinal(ant('pib', 'aa'))}"),
+        ("PIB · 4 trimestres", sinal(ult("pib", "4t")), f"{ano_fech[-1][0][:4]}: {sinal(ano_fech[-1][1])}" if ano_fech else ""),
+        ("Taxa de investimento", num(inv[-1][1], 1, suf="% PIB") if inv else "—",
+         f"FBCF, 4 trimestres; no trimestre: {num(I['inv_tri'][-1][1], 1, suf='%')}" if inv else ""),
+        ("Poupança bruta", num(poup[-1][1], 1, suf="% PIB") if poup else "—",
+         f"necessidade de financiamento externo: {num(-fin[-1][1], 1, suf='% PIB')}" if fin and fin[-1][1] < 0 else ""),
+        (f"Focus PIB {a0} · {int(a0) + 1}", " · ".join(num(f[1], 1, suf="%") if f[1] is not None else "—" for f in foc),
+         f"mediana de {foc[0][0][8:]}/{foc[0][0][5:7]}" if foc[0][0] else "")))
+    g_pib = svg_linhas("cn-pib", [("acumulado em 4 trimestres", "var(--ink)", pt(T["4t"]["pib"])),
+                                  ("contra o mesmo trimestre do ano anterior", S1, pt(T["aa"]["pib"]))],
+                       1, suf="%", W=640, H=300, refs=[("0", 0.0)], gap=120, coluna=True, extras=["trimestre"],
+                       titulo="PIB: crescimento em volume (%)")
+    nivel = (D.get("nivel_sa") or {}).get("pib") or []
+    g_niv = svg_linhas("cn-nivel", [("PIB dessazonalizado", "var(--ink)", pt(nivel, 1))], 1, W=420, H=300, gap=120,
+                       extras=["trimestre"], titulo="PIB em nível (índice de volume dessazonalizado, média 1995 = 100)")
+    leg = (f'<div class="legend"><span><i style="background:var(--ink)"></i>acumulado em 4 trimestres</span>'
+           f'<span><i style="background:{S1}"></i>contra o mesmo trimestre do ano anterior</span></div>')
+    # tabela: todas as aberturas, último trimestre e o anterior
+    def linha_tab(k, recuo=False):
+        part = (I.get(f"part_{k}") or [[None, None]])[-1][1]
+        cel = lambda v: f'<td class="{dlt_cls(v)}">{sinal(v)}</td>' if v is not None else "<td>—</td>"
+        nome = ("&nbsp;&nbsp;&nbsp;" if recuo else "") + R.get(k, k)
+        return (f'<tr><td class="tk"{" style=font-weight:400" if recuo else ""}>{nome}</td>{cel(ult(k, "tt"))}{cel(ant(k, "tt"))}{cel(ult(k, "aa"))}'
+                f'{cel(ult(k, "4t"))}{cel(ult(k, "ano"))}<td>{num(part, 1, suf="%") if part is not None else ""}</td></tr>')
+    sec = lambda t: f'<tr><td colspan="7" style="font-weight:700;padding-top:8px">{t}</td></tr>'
+    tq_ant = ibge.tri(T["tt"]["pib"][-2][0])
+    tab = (f'<table class="mini"><thead><tr><th></th><th>t/t−1 {tq}</th><th>t/t−1 {tq_ant}</th><th>contra {tq[:2]}{int(tq[2:]) - 1:02d}</th>'
+           f'<th>4 trimestres</th><th>no ano</th><th>% do PIB</th></tr></thead><tbody>{linha_tab("pib")}'
+           + sec("Oferta") + "".join(linha_tab(k, k in ("transformacao", "extrativa", "construcao")) for k in CN_OFERTA)
+           + sec("Demanda") + "".join(linha_tab(k) for k in CN_DEMANDA) + "</tbody></table>")
+    out = [slide("Macro", "contas-pib", f"Contas nacionais · PIB até o {tq}",
+                 f'<div class="tiles strip" style="grid-template-columns:repeat(6,1fr);margin-bottom:10px">{tiles}</div>{leg}'
+                 f'<div class="grid2" style="grid-template-columns:1.5fr 1fr;align-items:start"><div>{g_pib}</div><div>{g_niv}</div></div>',
+                 "O realizado do IBGE desde 1996, que o Focus projeta: crescimento acumulado em 4 trimestres e contra o mesmo trimestre do ano anterior, e o nível do PIB dessazonalizado.",
+                 "IBGE, Contas Nacionais Trimestrais (SIDRA 5932: taxas de variação do volume; 1621: índice dessazonalizado, média 1995 = 100). Focus: BCB, PIB Total, mediana.")]
+    # componentes: um gráfico por componente (acumulado em 4 trimestres), mesma escala de leitura
+    pal = {"familias": S1, "governo": S2, "fbcf": S3, "exportacao": S4, "importacao": "var(--axis)", "agro": S3, "industria": S2, "servicos": S1}
+    gs = [svg_linhas(f"cn-{k}", [(R[k], pal[k], pt(T["4t"][k]))], 1, suf="%", W=260, H=180, refs=[("0", 0.0)], gap=120,
+                     extras=["trimestre"], titulo=f"{R[k]} · 4 trimestres (%)") for k in CN_DEMANDA + ["agro", "industria", "servicos"] if T["4t"].get(k)]
+    out.append(slide("Macro", "contas-comp", "Contas nacionais · oferta e demanda",
+                     f'<div class="grid2" style="grid-template-columns:repeat(4,1fr);gap:12px">{"".join(f"<div>{g}</div>" for g in gs)}</div>'
+                     f'<div class="grid2" style="grid-template-columns:1fr;margin-top:12px"><div>{tab}</div></div>',
+                     f"Cada componente no seu gráfico (crescimento em volume acumulado em 4 trimestres) e a tabela com todas as aberturas no {tq}.",
+                     "IBGE, SIDRA 5932 (t/t−1 com ajuste sazonal; contra o mesmo trimestre do ano anterior; acumulado em 4 trimestres e no ano) e 1846 "
+                     "(valores correntes: % do PIB = soma de 4 trimestres do componente ÷ PIB dos mesmos 4 trimestres; importação entra com sinal negativo no PIB)."))
+    # investimento, poupança e financiamento externo (% do PIB): trimestre (fino) + 4 trimestres
+    def par(nome, tri_, t4, cor, cid, tit, zero=False):
+        series = [(f"{nome} · 4 trimestres", cor, pt(t4))] + ([(f"{nome} · trimestre", "var(--axis)", pt(tri_), "stroke-width:1")] if tri_ else [])
+        return svg_linhas(cid, series, 1, suf="%", W=360, H=260, gap=120, refs=[("0", 0.0)] if zero else None, coluna=True,
+                          extras=["trimestre"], titulo=tit)
+    g3 = [par("investimento", I.get("inv_tri"), inv, S3, "cn-inv", "Taxa de investimento: FBCF ÷ PIB (%)"),
+          par("poupança", I.get("poup_tri"), poup, S1, "cn-poup", "Poupança bruta ÷ PIB (%)"),
+          par("financiamento", None, fin, S2, "cn-fin", "Financiamento externo ÷ PIB, 4 trimestres (%)", zero=True)]
+    partes = [(k, I.get(f"part_{k}")) for k in ("familias", "governo", "fbcf", "exportacao", "importacao")]
+    anos_tab = sorted({d[:4] for d, _ in (partes[0][1] or []) if d[5:7] == "12"})[-8:]
+    def p_ano(s, a):
+        v = dict(s or {}).get(f"{a}-12-01")
+        return f"<td>{num(v, 1, suf='%')}</td>" if v is not None else "<td>—</td>"
+    tab_p = (f'<table class="mini"><thead><tr><th>% do PIB (ano)</th>{"".join(f"<th>{a}</th>" for a in anos_tab)}<th>4 tri até {tq}</th></tr></thead><tbody>'
+             + "".join(f'<tr><td class="tk">{R[k]}</td>{"".join(p_ano(s, a) for a in anos_tab)}<td><b>{num(s[-1][1], 1, suf="%")}</b></td></tr>' for k, s in partes if s))
+    for nome, s in (("Poupança bruta", poup), ("Financiamento externo", fin)):
+        if s:
+            tab_p += f'<tr><td class="tk">{nome}</td>{"".join(p_ano(s, a) for a in anos_tab)}<td><b>{num(s[-1][1], 1, suf="%")}</b></td></tr>'
+    tab_p += "</tbody></table>"
+    out.append(slide("Macro", "contas-inv", "Contas nacionais · investimento e poupança",
+                     f'<div class="grid3">{"".join(f"<div>{g}</div>" for g in g3)}</div><div class="grid2" style="grid-template-columns:1fr;margin-top:12px"><div>{tab_p}</div></div>',
+                     "Quanto o país investe e quanto poupa, em % do PIB. A diferença é a necessidade de financiamento externo (o déficit em conta corrente das contas nacionais).",
+                     "IBGE, SIDRA 1846 (valores correntes) e 2072 (contas econômicas trimestrais: poupança bruta, capacidade/necessidade de financiamento). "
+                     "Linha cheia = soma de 4 trimestres ÷ PIB dos mesmos 4 trimestres; linha fina = o trimestre (tem sazonalidade). Série desde 1996 (contas econômicas desde 2000)."))
+    return out
+
+
 def slides_focus(M: dict, sgs: dict) -> list[tuple[str, str]]:
     """Slides com o Focus completo: painéis por grupo, dispersão, mensal, trimestral, 12/24m, Top 5."""
     S1, S2, MUT = "var(--s1)", "var(--s2)", "var(--axis)"
@@ -4968,6 +5065,7 @@ def secao_macro(mercado_micro: dict) -> list[tuple[str, str]]:
                    "Mesmo formato: média e faixa mínimo–máximo, PIB e câmbio para " + f"{a0} e {a1}.",
                    "BCB Olinda, ExpectativasMercadoAnuais, baseCalculo 0."))
     S += slides_focus(M, sgs)
+    S += slides_contas_nacionais(M)
     S += slides_assertividade()
     S.append(slide("Macro", "selic", "Trajetória esperada da Selic",
                    f'<div class="panel">{g_selic}</div>',
