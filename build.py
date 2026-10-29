@@ -3599,14 +3599,14 @@ def slides_contas_nacionais(M: dict) -> list[tuple[str, str]]:
         (f"PIB · contra o {tq[:2]}{int(tq[2:]) - 1:02d}", sinal(ult("pib", "aa")), f"trimestre anterior: {sinal(ant('pib', 'aa'))}"),
         ("PIB · 4 trimestres", sinal(ult("pib", "4t")), f"{ano_fech[-1][0][:4]}: {sinal(ano_fech[-1][1])}" if ano_fech else ""),
         ("Taxa de investimento", num(inv[-1][1], 1, suf="% PIB") if inv else "—",
-         f"FBCF, 4 trimestres; no trimestre: {num(I['inv_tri'][-1][1], 1, suf='%')}" if inv else ""),
+         f"FBCF, 4 trimestres; no&nbsp;trimestre:&nbsp;{num(I['inv_tri'][-1][1], 1, suf='%')}" if inv else ""),
         ("Poupança bruta", num(poup[-1][1], 1, suf="% PIB") if poup else "—",
-         f"necessidade de financiamento externo: {num(-fin[-1][1], 1, suf='% PIB')}" if fin and fin[-1][1] < 0 else ""),
+         f"necessidade de financiamento externo:&nbsp;{num(-fin[-1][1], 1, suf='%&nbsp;PIB')}" if fin and fin[-1][1] < 0 else ""),
         (f"Focus PIB {a0} · {int(a0) + 1}", " · ".join(num(f[1], 1, suf="%") if f[1] is not None else "—" for f in foc),
          f"mediana de {foc[0][0][8:]}/{foc[0][0][5:7]}" if foc[0][0] else "")))
     g_pib = svg_linhas("cn-pib", [("acumulado em 4 trimestres", "var(--ink)", pt(T["4t"]["pib"])),
                                   ("contra o mesmo trimestre do ano anterior", S1, pt(T["aa"]["pib"]))],
-                       1, suf="%", W=640, H=300, refs=[("0", 0.0)], gap=120, coluna=True, extras=["trimestre"],
+                       1, suf="%", W=640, H=300, refs=[("", 0.0)], gap=120, coluna=True, extras=["trimestre"],
                        titulo="PIB: crescimento em volume (%)")
     nivel = (D.get("nivel_sa") or {}).get("pib") or []
     g_niv = svg_linhas("cn-nivel", [("PIB dessazonalizado", "var(--ink)", pt(nivel, 1))], 1, W=420, H=300, gap=120,
@@ -3620,7 +3620,7 @@ def slides_contas_nacionais(M: dict) -> list[tuple[str, str]]:
         nome = ("&nbsp;&nbsp;&nbsp;" if recuo else "") + R.get(k, k)
         return (f'<tr><td class="tk"{" style=font-weight:400" if recuo else ""}>{nome}</td>{cel(ult(k, "tt"))}{cel(ant(k, "tt"))}{cel(ult(k, "aa"))}'
                 f'{cel(ult(k, "4t"))}{cel(ult(k, "ano"))}<td>{num(part, 1, suf="%") if part is not None else ""}</td></tr>')
-    sec = lambda t: f'<tr><td colspan="7" style="font-weight:700;padding-top:8px">{t}</td></tr>'
+    sec = lambda t: f'<tr><td colspan="7" style="font-weight:700;padding-top:5px">{t}</td></tr>'
     tq_ant = ibge.tri(T["tt"]["pib"][-2][0])
     tab = (f'<table class="mini"><thead><tr><th></th><th>t/t−1 {tq}</th><th>t/t−1 {tq_ant}</th><th>contra {tq[:2]}{int(tq[2:]) - 1:02d}</th>'
            f'<th>4 trimestres</th><th>no ano</th><th>% do PIB</th></tr></thead><tbody>{linha_tab("pib")}'
@@ -3633,7 +3633,7 @@ def slides_contas_nacionais(M: dict) -> list[tuple[str, str]]:
                  "IBGE, Contas Nacionais Trimestrais (SIDRA 5932: taxas de variação do volume; 1621: índice dessazonalizado, média 1995 = 100). Focus: BCB, PIB Total, mediana.")]
     # componentes: um gráfico por componente (acumulado em 4 trimestres), mesma escala de leitura
     pal = {"familias": S1, "governo": S2, "fbcf": S3, "exportacao": S4, "importacao": "var(--axis)", "agro": S3, "industria": S2, "servicos": S1}
-    gs = [svg_linhas(f"cn-{k}", [(R[k], pal[k], pt(T["4t"][k]))], 1, suf="%", W=260, H=180, refs=[("0", 0.0)], gap=120,
+    gs = [svg_linhas(f"cn-{k}", [(R[k], pal[k], pt(T["4t"][k]))], 1, suf="%", W=260, H=144, refs=[("", 0.0)], gap=120, coluna=True,
                      extras=["trimestre"], titulo=f"{R[k]} · 4 trimestres (%)") for k in CN_DEMANDA + ["agro", "industria", "servicos"] if T["4t"].get(k)]
     out.append(slide("Macro", "contas-comp", "Contas nacionais · oferta e demanda",
                      f'<div class="grid2" style="grid-template-columns:repeat(4,1fr);gap:12px">{"".join(f"<div>{g}</div>" for g in gs)}</div>'
@@ -3644,7 +3644,7 @@ def slides_contas_nacionais(M: dict) -> list[tuple[str, str]]:
     # investimento, poupança e financiamento externo (% do PIB): trimestre (fino) + 4 trimestres
     def par(nome, tri_, t4, cor, cid, tit, zero=False):
         series = [(f"{nome} · 4 trimestres", cor, pt(t4))] + ([(f"{nome} · trimestre", "var(--axis)", pt(tri_), "stroke-width:1")] if tri_ else [])
-        return svg_linhas(cid, series, 1, suf="%", W=360, H=260, gap=120, refs=[("0", 0.0)] if zero else None, coluna=True,
+        return svg_linhas(cid, series, 1, suf="%", W=360, H=260, gap=120, refs=[("", 0.0)] if zero else None, coluna=True,
                           extras=["trimestre"], titulo=tit)
     g3 = [par("investimento", I.get("inv_tri"), inv, S3, "cn-inv", "Taxa de investimento: FBCF ÷ PIB (%)"),
           par("poupança", I.get("poup_tri"), poup, S1, "cn-poup", "Poupança bruta ÷ PIB (%)"),
@@ -4251,6 +4251,7 @@ main{margin-left:232px}
 .tiles.fltiles{grid-template-columns:repeat(5,1fr);gap:8px;margin:0}.fltiles .tile{padding:5px 10px;border-radius:10px}.fltiles .tile .l{font-size:10.5px}.fltiles .tile .v{font-size:17px;margin-top:0}.fltiles .tile .d{font-size:10.5px;margin-top:1px;line-height:1.3}.fltiles .tile .d .it{white-space:nowrap}
 td.varjan{font-weight:600}th.varjan-h{white-space:nowrap}
 .painel .tabvar table.mini{font-size:11.5px}.painel .tabvar table.mini td,.painel .tabvar table.mini th{padding:2px 5px}.painel .tabvar table.mini th{font-size:9.5px}
+#contas-comp table.mini td,#contas-comp table.mini th{padding:1px 6px;line-height:1.35}#contas-comp .grid2>div{padding:10px 14px 6px}#contas-comp .janela{margin-bottom:3px}
 #papeis-ibov table.mini{font-size:11.5px}#papeis-ibov table.mini td,#papeis-ibov table.mini th{padding:2px 6px}#papeis-ibov .tk small{font-size:10px}
 #setores-perf tr[data-setor]{cursor:pointer}#setores-perf tr[data-setor]:hover td{background:var(--chip)}#setores-perf .volta{color:var(--acc);text-decoration:none;font-size:11px}
 /* painéis e grids */

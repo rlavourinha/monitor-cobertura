@@ -483,7 +483,7 @@ def bloco_juro_real(M: dict) -> str:
                  f'Δ em bps. Prêmio BR−EUA médio desde 2006: {B.num(med, 1)} p.p.</p>', f"{d[8:]}/{d[5:7]}")
 
 
-def svg_linhas_m(S: list[tuple[str, str, list[list]]], W=400, H=160, dec=1, passo_anos=4, zero=False, rotulo="") -> str:
+def svg_linhas_m(S: list[tuple[str, str, list[list]]], W=340, H=160, dec=1, passo_anos=4, zero=False, rotulo="") -> str:
     """Linhas estáticas para o celular (série inteira, sem interação): eixo de anos, grade e rótulo de fim de linha.
     S = [(nome, cor, [[data ISO, v], ...]), ...]; 4º item opcional = estilo CSS extra da linha."""
     S = [s for s in S if len(s[2]) > 1]
@@ -501,7 +501,8 @@ def svg_linhas_m(S: list[tuple[str, str, list[list]]], W=400, H=160, dec=1, pass
     t = math.ceil(lo / passo) * passo
     while t <= hi:
         o.append(f'<line x1="{ML}" x2="{W - MR}" y1="{Y(t):.1f}" y2="{Y(t):.1f}" class="{"ref" if zero and abs(t) < 1e-9 else "grid"}"/>'
-                 f'<text class="tick" x="{ML - 4}" y="{Y(t) + 4:.1f}" text-anchor="end">{B.num(t, 0 if passo >= 1 else 1)}</text>')
+                 + (f'<text class="tick" x="{ML - 4}" y="{Y(t) + 4:.1f}" text-anchor="end">{B.num(t, 0 if passo >= 1 else 1)}</text>'
+                    if Y(t) < H - MB - 6 else ""))                    # colado no eixo x: só a grade (o rótulo bateria no ano)
         t += passo
     for a in range(t0.year + 1, t1.year + 1, passo_anos):
         o.append(f'<text class="tick" x="{X(f"{a}-01-01"):.1f}" y="{H - 5}" text-anchor="middle">{str(a)[2:]}</text>')
@@ -510,7 +511,7 @@ def svg_linhas_m(S: list[tuple[str, str, list[list]]], W=400, H=160, dec=1, pass
                  f'd="{" ".join(f"{chr(77) if i == 0 else chr(76)}{X(d):.1f},{Y(v):.1f}" for i, (d, v) in enumerate(s[2]))}"/>')
     ult = -99
     for y, cor, v in sorted(((Y(s[2][-1][1]), s[1], s[2][-1][1]) for s in S), key=lambda x: x[0]):
-        y = max(y, ult + 12); ult = y
+        y = max(y, ult + 14); ult = y                       # endlab de 12 px: 14 px de folga entre rótulos
         o.append(f'<text class="endlab" x="{W - MR + 4}" y="{y + 4:.1f}" style="fill:{cor}">{B.num(v, dec)}</text>')
     o.append("</svg>")
     return "".join(o)
@@ -579,7 +580,7 @@ def bloco_divida(M: dict) -> str:
              + _tile("Dívida líquida", B.num(dl[-1][1], 1, suf="% PIB"), f"{sg(dl[-1][1] - dl[-13][1])} em 12 meses" if len(dl) > 13 else ""))
     if u:
         tiles += (_tile("r − g", sg(u["rg"]), f"r {B.num(u['r'], 1, suf='%')} · g {B.num(u['g'], 1, suf='%')}")
-                  + _tile("Primário que falta", sg(u["est"] - u["prim"], 1, " p.p."), f"efetivo {B.num(u['prim'], 1, suf='%')} · estabiliza {B.num(u['est'], 1, suf='%')}"))
+                  + _tile("Primário que falta", sg(u["est"] - u["prim"], 1, " p.p."), f"efetivo&nbsp;{B.num(u['prim'], 1, suf='%')} · estabiliza&nbsp;{B.num(u['est'], 1, suf='%')}"))
     S1 = [("bruta (DBGG)", "var(--ink)", db), ("líquida (DLSP)", "var(--s1)", dl)]
     g1 = svg_linhas_m(S1, rotulo="Dívida pública, % do PIB")
     dirp = config.DATA / "focus_longo"
