@@ -542,7 +542,7 @@ def bloco_contas_nacionais(M: dict) -> str:
              + _tile("PIB 4 trimestres", sg(ult("pib", "4t")), f"contra {tq[:2]}{int(tq[2:]) - 1:02d}: {sg(ult('pib', 'aa'))}")
              + _tile("Investimento", B.num(inv[-1][1], 1, suf="% PIB") if inv else "—", "FBCF, 4 trimestres")
              + _tile("Poupança", B.num(poup[-1][1], 1, suf="% PIB") if poup else "—",
-                     f"financ. externo {B.num(fin[-1][1], 1, suf='%')}" if fin else ""))
+                     (f"necessidade de financ. {B.num(-fin[-1][1], 1, suf='%')}" if fin[-1][1] < 0 else f"capacidade de financ. {B.num(fin[-1][1], 1, suf='%')}") if fin else ""))
     S1 = [("acumulado em 4 tri", "var(--ink)", T["4t"]["pib"]), ("contra o ano anterior", "var(--s1)", T["aa"]["pib"], "stroke-width:1")]
     g1 = svg_linhas_m(S1, zero=True, rotulo="PIB: crescimento em volume")
     rows = []
@@ -582,7 +582,6 @@ def bloco_divida(M: dict) -> str:
         tiles += (_tile("r − g", sg(u["rg"]), f"r {B.num(u['r'], 1, suf='%')} · g {B.num(u['g'], 1, suf='%')}")
                   + _tile("Primário que falta", sg(u["est"] - u["prim"], 1, " p.p."), f"efetivo&nbsp;{B.num(u['prim'], 1, suf='%')} · estabiliza&nbsp;{B.num(u['est'], 1, suf='%')}"))
     S1 = [("bruta (DBGG)", "var(--ink)", db), ("líquida (DLSP)", "var(--s1)", dl)]
-    g1 = svg_linhas_m(S1, rotulo="Dívida pública, % do PIB")
     dirp = config.DATA / "focus_longo"
     a0 = (M.get("anos") or [date.today().year])[0]
     rows = []
