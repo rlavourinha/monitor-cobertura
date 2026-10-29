@@ -3571,6 +3571,80 @@ def slide_divida_rg(sgs: dict) -> tuple[str, str] | None:
                  "(inclui swaps do BC) sobre a dívida bruta, aproximação do custo médio, não a taxa implícita oficial. Série desde dez/2007.")
 
 
+def _divida_pib(sgs: dict) -> list[dict]:
+    """Série mensal da alavancagem pública: PIB nominal de 12 meses (4382), dívida bruta do governo geral (13761/13762) e
+    líquida do setor público (4478/4513), em R$ e % do PIB, com o crescimento nominal de 12 meses de cada uma."""
+    S = {c: {d[:7]: v for d, v in ((sgs.get(c) or {}).get("serie") or [])} for c in ("13761", "13762", "4478", "4513", "4382")}
+    if not all(S.values()):
+        return []
+    ant = lambda m: f"{int(m[:4]) - 1}{m[4:]}"
+    out = []
+    for m in sorted(S["13762"]):
+        a = ant(m)
+        if not all(m in S[c] and a in S[c] for c in S):
+            continue
+        cres = lambda c: (S[c][m] / S[c][a] - 1) * 100
+        out.append({"m": m, "pib": S["4382"][m], "db": S["13761"][m], "dbp": S["13762"][m], "dl": S["4478"][m], "dlp": S["4513"][m],
+                    "g_pib": cres("4382"), "g_db": cres("13761"), "g_dl": cres("4478"),
+                    "d_dbp": S["13762"][m] - S["13762"][a], "d_dlp": S["4513"][m] - S["4513"][a]})
+    return out
+
+
+def slide_divida_pib(sgs: dict) -> tuple[str, str] | None:
+    """Alavancagem pública: a dívida (bruta e líquida) contra o PIB nominal, em crescimento de 12 meses e em R$, e a tabela
+    trimestral desde 2015 (fim de trimestre; PIB real acumulado em 4 trimestres do IBGE)."""
+    D = _divida_pib(sgs)
+    if len(D) < 24:
+        return None
+    from fontes import ibge
+    real = {d[:7]: v for d, v in ((ibge.ler().get("taxas") or {}).get("4t", {}).get("pib") or [])}
+    S1, S2, S3 = "var(--s1)", "var(--s2)", "var(--s3)"
+    pt = lambda k, f=1.0: [[f"{x['m']}-01", round(x[k] * f, 2)] for x in D]
+    g1 = svg_linhas("divpib-cres", [("dívida bruta (R$)", S2, pt("g_db")), ("dívida líquida (R$)", S3, pt("g_dl")), ("PIB nominal", S1, pt("g_pib"))],
+                    1, suf="%", W=640, H=240, refs=[("", 0.0)], coluna=True, gap=70,
+                    titulo="Crescimento nominal em 12 meses (%): dívida × PIB")
+    g2 = svg_linhas("divpib-nivel", [("PIB 12 meses", S1, pt("pib", 1e-3)), ("dívida bruta", S2, pt("db", 1e-3)), ("dívida líquida", S3, pt("dl", 1e-3))],
+                    0, W=420, H=240, coluna=True, gap=70, titulo="Em R$ bilhões correntes")   # R$ bi como a tabela: "R$ … tri" não cabia na margem
+    u = D[-1]
+    mes = f"{u['m'][5:]}/{u['m'][2:4]}"
+    sg = lambda v, dec=1, suf="%": num(v, dec, "+" if v > 0 else "", suf)
+    dif = u["g_db"] - u["g_pib"]
+    tiles = "".join(f'<div class="tile"><div class="l">{l}</div><div class="v">{v}</div><div class="d">{s}</div></div>' for l, v, s in (
+        (f"Dívida bruta ({mes})", num(u["db"] / 1e6, 2, "R$ ", " tri"), f"{sg(u['g_db'])} em 12 meses"),
+        ("PIB nominal 12 meses", num(u["pib"] / 1e6, 2, "R$ ", " tri"), f"{sg(u['g_pib'])} em 12 meses"),
+        ("Dívida − PIB", sg(dif, 1, " p.p."), "dívida bruta a/a − PIB a/a"),
+        ("Dívida bruta ÷ PIB", num(u["dbp"], 1, suf="%"), f"{sg(u['d_dbp'], 1, ' p.p.')} em 12 meses"),
+        ("Dívida líquida", num(u["dl"] / 1e6, 2, "R$ ", " tri"), f"{sg(u['g_dl'])} em 12 meses"),
+        ("Dívida líquida ÷ PIB", num(u["dlp"], 1, suf="%"), f"{sg(u['d_dlp'], 1, ' p.p.')} em 12 meses")))
+    leg = (f'<div class="legend"><span><i style="background:{S2}"></i>dívida bruta (DBGG)</span><span><i style="background:{S3}"></i>dívida líquida (DLSP)</span>'
+           f'<span><i style="background:{S1}"></i>PIB nominal 12 meses</span></div>')
+    cel = lambda v, dec=1, suf="%": f'<td class="{dlt_cls(v)}">{sg(v, dec, suf)}</td>' if v is not None else "<td>—</td>"
+    neu = lambda v, dec=1, suf="%": f"<td>{sg(v, dec, suf)}</td>"                                  # dívida em R$: sem cor
+    inv = lambda v: f'<td class="{dlt_cls(-v)}">{sg(v, 1, "")}</td>'                                # alavancagem subiu = vermelho
+    th = 'style="position:sticky;top:0;background:var(--bg)"'
+    linhas = []
+    for x in reversed(D):
+        if x["m"][5:] not in ("03", "06", "09", "12") or x["m"] < "2015":
+            continue
+        r = real.get(x["m"])
+        linhas.append(f'<tr><td class="tk">{int(x["m"][5:]) // 3}T{x["m"][2:4]}</td><td>{num(x["pib"] / 1e3, 0)}</td>{cel(x["g_pib"])}{cel(r)}'
+                      f'<td>{num(x["db"] / 1e3, 0)}</td>{neu(x["g_db"])}<td><b>{num(x["dbp"], 1, suf="%")}</b></td>{inv(x["d_dbp"])}'
+                      f'<td>{num(x["dl"] / 1e3, 0)}</td>{neu(x["g_dl"])}<td><b>{num(x["dlp"], 1, suf="%")}</b></td>{inv(x["d_dlp"])}</tr>')
+    cab = ["Tri", "PIB 12m (R$ bi)", "PIB nominal a/a", "PIB real 4 tri", "Bruta (R$ bi)", "a/a", "Bruta ÷ PIB", "Δ 12m p.p.",
+           "Líquida (R$ bi)", "a/a", "Líquida ÷ PIB", "Δ 12m p.p."]
+    tab = (f'<div style="max-height:188px;overflow-y:auto"><table class="mini" style="width:100%"><thead><tr>{"".join(f"<th {th}>{c}</th>" for c in cab)}</tr></thead>'
+           f'<tbody>{"".join(linhas)}</tbody></table></div>')
+    corpo = (f'<div class="tiles strip" style="grid-template-columns:repeat(6,1fr);margin-bottom:10px">{tiles}</div>{leg}'
+             f'<div class="grid2" style="grid-template-columns:1.5fr 1fr;align-items:start"><div>{g1}</div><div>{g2}</div></div>'
+             f'<div class="grid2" style="grid-template-columns:1fr;margin-top:10px"><div>{tab}</div></div>')
+    return slide("Macro", "divida-pib", "Alavancagem pública · dívida × PIB", corpo,
+                 "A razão dívida/PIB é a corrida entre o numerador e o denominador: quando a dívida em R$ cresce mais rápido que o PIB nominal, a alavancagem sobe. "
+                 "Em 2021–22 a inflação inflou o PIB e derrubou a razão; agora a dívida cresce o dobro do PIB.",
+                 "BCB SGS 13761/13762 (dívida bruta do governo geral, R$ e % do PIB, metodologia 2008), 4478/4513 (dívida líquida do setor público, R$ e % do PIB) e "
+                 "4382 (PIB de 12 meses a preços correntes, a mesma base dos percentuais; o último mês é estimativa do BCB até o IBGE divulgar o trimestre). "
+                 "PIB real: IBGE, SIDRA 5932, acumulado em 4 trimestres. Tabela: fim de trimestre desde 2015, mais recente no topo; Δ 12m em vermelho = alavancagem subiu.")
+
+
 CN_OFERTA = ["agro", "industria", "transformacao", "extrativa", "construcao", "servicos"]
 CN_DEMANDA = ["familias", "governo", "fbcf", "exportacao", "importacao"]
 
@@ -3860,6 +3934,9 @@ def slides_focus(M: dict, sgs: dict) -> list[tuple[str, str]]:
     sd = slide_divida_rg(sgs)
     if sd:
         out.append(sd)
+    sp = slide_divida_pib(sgs)
+    if sp:
+        out.append(sp)
 
     # --- Top 5 vs mercado
     t5 = M.get("focus_top5", {}).get("linhas", [])

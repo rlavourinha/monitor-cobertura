@@ -598,10 +598,26 @@ def bloco_divida(M: dict) -> str:
             cel += [f"<td>{B.num(s[-1][1], 1, suf='%')}</td>", f'<td class="{B.dlt_cls(-(d3 or 0))}">{sg(d3, 1, "") if d3 is not None else "—"}</td>']
         rows.append(f"<tr><td>{ano}</td>{''.join(cel)}</tr>")
     tab = ('<table><thead><tr><th>Focus</th><th>Bruta</th><th>Δ 3m</th><th>Líquida</th><th>Δ 3m</th></tr></thead><tbody>' + "".join(rows) + "</tbody></table>")
-    return _card("Dívida pública", f'<div class="tiles">{tiles}</div>{_legenda_m(S1)}{svg_linhas_m(S1, passo_anos=3, rotulo="Dívida pública")}{tab}'
+    # alavancagem: dívida em R$ × PIB nominal (crescimento de 12 meses) e os últimos 8 trimestres
+    P = B._divida_pib(sgs)
+    alav = ""
+    if P:
+        g = [("dívida bruta (R$)", "var(--s2)", [[f"{x['m']}-01", x["g_db"]] for x in P]), ("PIB nominal", "var(--s1)", [[f"{x['m']}-01", x["g_pib"]] for x in P])]
+        tri = [x for x in P if x["m"][5:] in ("03", "06", "09", "12")][-8:][::-1]
+        cel = lambda v, suf="%", sinal=1: f'<td class="{B.dlt_cls(sinal * v)}">{sg(v, 1, suf)}</td>'
+        tab_a = ('<table><thead><tr><th>Tri</th><th>Bruta a/a</th><th>PIB a/a</th><th>Bruta ÷ PIB</th><th>Δ 12m</th></tr></thead><tbody>'
+                 + "".join(f'<tr><td>{int(x["m"][5:]) // 3}T{x["m"][2:4]}</td><td>{sg(x["g_db"], 1, "%")}</td>{cel(x["g_pib"])}<td>{B.num(x["dbp"], 1, suf="%")}</td>{cel(x["d_dbp"], "", -1)}</tr>' for x in tri)
+                 + "</tbody></table>")
+        u2 = P[-1]
+        alav = (f'<h3 class="sub" style="margin:16px 0 6px">Dívida × PIB · crescimento em 12 meses</h3>'
+                f'<div class="tiles">{_tile("Dívida bruta (R$)", sg(u2["g_db"], 1, "%"), B.num(u2["db"] / 1e6, 2, "R$&nbsp;", "&nbsp;tri"))}'
+                f'{_tile("PIB nominal", sg(u2["g_pib"], 1, "%"), B.num(u2["pib"] / 1e6, 2, "R$&nbsp;", "&nbsp;tri em 12m"))}</div>'
+                f'{_legenda_m(g)}{svg_linhas_m(g, passo_anos=3, zero=True, rotulo="Dívida × PIB")}{tab_a}')
+    return _card("Dívida pública", f'<div class="tiles">{tiles}</div>{_legenda_m(S1)}{svg_linhas_m(S1, passo_anos=3, rotulo="Dívida pública")}{tab}{alav}'
                  f'<p class="nota">BCB SGS 13762 (DBGG, metodologia 2008) e 4513 (DLSP), % do PIB, mensal. r = juro implícito (NFSP nominal − primário, '
                  f'sobre a dívida bruta média de 12 meses); g = PIB nominal de 12 meses; primário que estabiliza = d × (r − g)/(1 + g). '
-                 f'Focus: mediana por ano de referência; Δ 3m em p.p. (vermelho = expectativa de dívida subiu).</p>', mes)
+                 f'Focus: mediana por ano de referência; Δ 3m em p.p. (vermelho = expectativa de dívida subiu). Dívida × PIB: 13761 (DBGG, R$) e 4382 (PIB de 12 meses, R$ correntes; '
+                 f'o último mês é estimativa do BCB); Δ 12m da razão em p.p., vermelho = alavancagem subiu.</p>', mes)
 
 
 def bloco_di(DI: dict) -> str:

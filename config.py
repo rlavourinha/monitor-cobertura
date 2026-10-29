@@ -98,6 +98,7 @@ SGS_SERIES = {
     # dinâmica da dívida (slide r − g): juro implícito = (NFSP nominal − primário) × PIB 12 m ÷ DBGG média de 12 meses
     13761: ("Dívida bruta do governo geral (R$ mi)", "2006-12-01"),
     4382: ("PIB acumulado 12 meses, valores correntes (R$ mi)", "2005-01-01"),
+    4478: ("Dívida líquida do setor público (R$ mi)", "2006-12-01"),
     5727: ("NFSP nominal, setor público consolidado, 12 meses (% PIB)", "2006-01-01"),
     5793: ("NFSP primário, setor público consolidado, 12 meses (% PIB; + = déficit)", "2006-01-01"),
 }
