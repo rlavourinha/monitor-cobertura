@@ -330,21 +330,49 @@ def _comp() -> list[dict]:
     return json.loads((config.DATA / "ibov_comp.json").read_text(encoding="utf-8")).get("itens", [])
 
 
+# nomes que o modelo usa para recortes que não são setor da B3 (26-28/10: "Bancos", "Varejo", "Energia Elétrica", "Bebidas",
+# "Infraestrutura", "Transporte e Logística" derrubavam o gráfico): nome normalizado -> trechos do subsetor B3 (ibov_comp.json)
+SETOR_ALIAS = {
+    "bancos": ["Interms Financs"], "banco": ["Interms Financs"], "seguradoras": ["Previd  Seguros"], "seguros": ["Previd  Seguros"],
+    "varejo": ["Consumo Cíclico / Comércio", "Cons N Cíclico / Comércio Distr.", "Tecid Vest Calç"],
+    "comercio": ["Consumo Cíclico / Comércio", "Cons N Cíclico / Comércio Distr."],
+    "energia eletrica": ["Energ Elétrica"], "energia": ["Energ Elétrica"], "eletricas": ["Energ Elétrica"], "setor eletrico": ["Energ Elétrica"],
+    "saneamento": ["Água Saneamento"], "infraestrutura": ["Energ Elétrica", "Água Saneamento", "Bens Indls/Transporte"],
+    "transporte": ["Bens Indls/Transporte", "RENT3", "VAMO3"], "logistica": ["Bens Indls/Transporte", "RENT3", "VAMO3"],
+    "transporte e logistica": ["Bens Indls/Transporte", "RENT3", "VAMO3"], "mobilidade": ["Bens Indls/Transporte", "RENT3", "VAMO3"],
+    "bebidas": ["Bebidas"], "alimentos": ["Alimentos Processados"], "proteinas": ["Alimentos Processados"], "frigorificos": ["Alimentos Processados"],
+    "construcao civil": ["Constr Civil"], "incorporadoras": ["Constr Civil"], "construtoras": ["Constr Civil"], "homebuilders": ["Constr Civil"],
+    "shoppings": ["Explor Imóveis"], "mineracao": ["Mineração"], "siderurgia": ["Sid Metalurgia"], "papel e celulose": ["Madeira e Papel"],
+    "celulose": ["Madeira e Papel"], "educacao": ["COGN3", "YDUQ3"], "locadoras": ["RENT3", "VAMO3"], "aluguel de carros": ["RENT3"],
+    "telecomunicacoes": ["Telecomunicação"], "hospitais": ["SM Hosp"], "farmacias": ["Saúde/Comércio"], "petroleo": ["Petróleo"],
+}
+
+
+def _cods_setor(setor: str, comp: list[dict]) -> tuple[str, list[str]]:
+    """(rótulo, códigos) do recorte pedido: setor B3 exato, aproximado, alias de subsetor, ou trecho do subsetor."""
+    import unicodedata
+    norm = lambda s: re.sub(r"\s+", " ", unicodedata.normalize("NFKD", s or "").encode("ascii", "ignore").decode().lower()).strip()
+    cods = [i["cod"] for i in comp if i.get("setor") == setor]
+    if cods:
+        return setor, cods
+    alvo = norm(setor)
+    setores = sorted({i.get("setor") for i in comp if i.get("setor")})
+    cand = [s for s in setores if norm(s) == alvo] or [s for s in setores if norm(s).startswith(alvo) or alvo.startswith(norm(s))] \
+        or [s for s in setores if alvo in norm(s) or norm(s) in alvo]
+    if cand:
+        return cand[0], [i["cod"] for i in comp if i.get("setor") == cand[0]]
+    trechos = SETOR_ALIAS.get(alvo) or [alvo]
+    cods = [i["cod"] for i in comp if any(norm(t) in norm(i.get("subsetor")) or t == i["cod"] for t in trechos)]
+    if not cods:
+        raise ValueError(f"setor '{setor}' não existe; setores: {', '.join(setores)}")
+    return setor, cods
+
+
 def g_setor(setor: str) -> Path:
     from fontes import b3
-    comp = _comp()
-    cods = [i["cod"] for i in comp if i.get("setor") == setor]
-    if not cods:                                   # o modelo escreve "Consumo" / "imobiliario"; a base tem "Consumo cíclico", "Imobiliário"
-        import unicodedata
-        norm = lambda s: unicodedata.normalize("NFKD", s or "").encode("ascii", "ignore").decode().lower().strip()
-        alvo = norm(setor)
-        setores = sorted({i.get("setor") for i in comp if i.get("setor")})
-        cand = [s for s in setores if norm(s) == alvo] or [s for s in setores if norm(s).startswith(alvo) or alvo.startswith(norm(s))] \
-            or [s for s in setores if alvo in norm(s) or norm(s) in alvo]
-        if not cand:
-            raise ValueError(f"setor '{setor}' não existe; setores: {', '.join(setores)}")
-        setor = cand[0]
-        cods = [i["cod"] for i in comp if i.get("setor") == setor]
+    setor, cods = _cods_setor(setor, _comp())
+    if len(cods) == 1:                             # recorte de um papel só (ex.: Bebidas = ABEV3): gráfico do papel
+        return g_papel(cods[0])
     h = {d: v for d, v in _macro().get("hist", {}).get("Ibovespa", []) if v}
     series = {c: dict(b3.serie(c)) for c in cods}
     datas = sorted(d for d in h if d >= "2019-01-01")
@@ -516,7 +544,7 @@ def enviar(arq: str, sem_telegram: bool = False, sem_push: bool = False) -> dict
         ok = telegram.enviar_foto(p, legenda, silencioso=True, bot=_bot()) if p else telegram.enviar(legenda, silencioso=True, bot=_bot())
         enviados += bool(ok)
         if not ok:
-            falhas.append(b["titulo"])
+            falhas.append(f"{b['titulo']} ({telegram.ultimo_erro[:80]})")
     LEIT.mkdir(parents=True, exist_ok=True)
     (LEIT / f"{nome}.html").write_text(_html(digest, pngs), encoding="utf-8")
     (LEIT / f"{nome}.json").write_text(json.dumps(digest, ensure_ascii=False, indent=1), encoding="utf-8")
@@ -646,7 +674,7 @@ def enviar_jornais(arq: str, sem_telegram: bool = False, sem_push: bool = False)
         ok = telegram.enviar_foto(p, legenda, silencioso=True, bot=_bot()) if p else telegram.enviar(legenda, silencioso=True, bot=_bot())
         enviados += bool(ok)
         if not ok:
-            falhas.append(b["titulo"])
+            falhas.append(f"{b['titulo']} ({telegram.ultimo_erro[:80]})")
     lista = _lista_jornais(digest, its); digest["_lista"] = lista
     if not sem_telegram and lista and not telegram.enviar(lista, silencioso=True, bot=_bot()):
         falhas.append("lista de matérias")

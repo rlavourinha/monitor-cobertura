@@ -115,8 +115,15 @@ jobs:
           git add -A data consenso
           if git diff --cached --quiet; then echo "nada mudou"; exit 0; fi
           git commit -m "atualização ${{ steps.janela.outputs.janela }} $(TZ=America/Sao_Paulo date '+%Y-%m-%d %H:%M')"
-          git pull --rebase --autostash origin "${{ github.ref_name }}"
-          git push origin HEAD:"${{ github.ref_name }}"
+          # 26/10/2026: o push do laptop (vigia, trades) mexeu nos mesmos JSON durante a coleta e o rebase parou em conflito
+          # (data/estado.json, ibov_comp.json, trades_diario.json); a coleta do dia se perdeu. Em conflito vale a versão
+          # recém-coletada (-X theirs = o commit do bot, no rebase); push rejeitado por corrida tenta de novo.
+          for i in 1 2 3; do
+            if git pull --rebase --autostash -X theirs origin "${{ github.ref_name }}" && git push origin HEAD:"${{ github.ref_name }}"; then exit 0; fi
+            git rebase --abort 2>/dev/null || true
+            sleep $(( i * 15 ))
+          done
+          exit 1
 
       - name: Publicar no GitHub Pages
         run: mkdir -p site && cp output/monitor.html site/index.html && cp output/mobile.html site/m.html
@@ -124,5 +131,15 @@ jobs:
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site
-      - id: deploy
+      # dois runs (grupos de concorrência push e dados) podem publicar ao mesmo tempo: o 2º leva "in progress deployment"
+      # (26/10/2026, 2 falhas). Espera o deploy anterior terminar e tenta de novo.
+      - id: deploy1
+        continue-on-error: true
         uses: actions/deploy-pages@v4
+      - if: steps.deploy1.outcome == 'failure'
+        run: sleep 90
+      - id: deploy2
+        if: steps.deploy1.outcome == 'failure'
+        uses: actions/deploy-pages@v4
+      - id: deploy
+        run: echo "page_url=${{ steps.deploy1.outputs.page_url || steps.deploy2.outputs.page_url }}" >> "$GITHUB_OUTPUT"
