@@ -1698,11 +1698,16 @@ def analise_valuation(M: dict) -> dict | None:
 
     linhas = []
     extra = set(getattr(config, "VALUATION_EXTRA", []))
+    from datetime import timedelta as _td0
+    lim_guia = (date.fromisoformat(max(L.get("guias") or [hoje])) - _td0(days=30)).isoformat()
     for tk in sorted((set(por) | set(config.UNIVERSO) | extra) & (set(L["btg"]) | set(PV))):
         pts = LC.lpas(tk, L, fech) if tk in L["btg"] else []
         X = LC.extras(tk, L, fech) if tk in L["btg"] else []
         pv = PV.get(tk) or {}
-        if not pts and not pv:
+        velho = pts[-1][0] if (pts and pts[-1][0] < lim_guia) else None
+        if velho:                 # empresa que saiu do guia (BPAC11 em mai/26, JBS congelada): lucro velho não entra no múltiplo
+            pts, X = [], []
+        if not pts and not pv and not velho:
             continue
         l = por.get(tk) or {}
         preco = preco_de(tk)
@@ -1712,6 +1717,8 @@ def analise_valuation(M: dict) -> dict | None:
              "ano0": None, "pl0": None, "pl1": None, "cresc": None, "rev": None, "dpl": None, "base": "", "serie": [], "lpa": pts,
              "ev12": None, "dy12": None, "x": X[-1] if X else None,
              "pvp": (preco / pv["vpa"]) if (preco and pv.get("vpa") and pv["vpa"] > 0) else None, "vpa": pv.get("vpa"), "pl_data": pv.get("data")}
+        if velho:
+            r["obs"] = f"fora do guia desde {velho[8:]}/{velho[5:7]}"
         if pts:
             ult = pts[-1]
             e12, obs = LC.lpa12(ult, hoje)
@@ -1890,9 +1897,11 @@ def analise_valuation(M: dict) -> dict | None:
             return None
         preco, rev, cal = p1 / p0 - 1, e_now / e_now_g0 - 1, e_now_g0 / e_t0 - 1
         return {"pl0": p0 / e_t0, "pl1": p1 / e_now, "preco": preco, "rev": rev, "cal": cal, "n": ok}
-    dec = [{"setor": st, **d} for st, tks in por_setor.items() for d in [decomp([t for t in tks if t in itens])] if d]
+    # nível do P/L: todas as classes da carteira (o mapa de revisões é por empresa; aqui, PETR3 e PETR4 pesam as duas,
+    # senão o Ibov da decomposição sai sem 9,7% de Petrobras e diverge do tile)
+    dec = [{"setor": st, **d} for st, tks in setores.items() for d in [decomp([t for t in tks if t in itens])] if d]
     dec.sort(key=lambda d: d["pl1"] / d["pl0"] - 1)
-    dec_ibov = decomp(todos)
+    dec_ibov = decomp(cob)
     # eventos do último mês (gravados pelo coletor local com o relatório que os explica)
     lim_ev = (date.fromisoformat(max(L.get("guias") or [hoje])) - _td(days=30)).isoformat()
     tela = set(lin)
@@ -2020,10 +2029,10 @@ def slide_valuation(M: dict, V: dict | None = None) -> tuple[str, str] | None:
         return num(v, 1, suf="x")
     pld = V.get("pl_data") or ""
     tiles = "".join(f'<div class="tile"><div class="l">{l}</div><div class="v">{v}</div><div class="d">{s}</div></div>' for l, v, s in (
-        ("Ibovespa · P/L 12m", x1(h_ib), f"{dx(h_ib - ib[0][1])} desde {dd} · cobre {num(V['cob_peso'], 0, suf='%')} do índice" if (h_ib and ib) else "—"),
-        ("Ex-Petrobras e Vale", x1(h_ex), f"{dx(h_ex - ibx[0][1])} desde {dd}" if (h_ex and ibx) else "—"),
+        ("Ibovespa · P/L 12m", x1(h_ib), f"{dx(h_ib - ib[0][1])} desde {ib[0][0][8:]}/{ib[0][0][5:7]} · cobre {num(V['cob_peso'], 0, suf='%')} do índice" if (h_ib and ib) else "—"),
+        ("Ex-Petrobras e Vale", x1(h_ex), f"{dx(h_ex - ibx[0][1])} desde {ibx[0][0][8:]}/{ibx[0][0][5:7]}" if (h_ex and ibx) else "—"),
         ("EV/EBITDA 12m", x1(V.get("ibov_ev")), "EV atual ÷ EBITDA 12m · ex-Petro e Vale, sem bancos"),
-        ("P/VP", num(V.get("ibov_pvp"), 2, suf="x"), f"PL dos controladores na CVM ({pld[8:]}/{pld[5:7]}/{pld[2:4]})" if pld else "CVM"),
+        ("P/VP", num(V.get("ibov_pvp"), 2, suf="x"), f"PL dos controladores, último ITR na CVM (até {pld[5:7]}/{pld[2:4]})" if pld else "CVM"),
         ("Dividend yield 12m", pct(V.get("ibov_dy"), 1, sinal=False), "dividendos esperados ÷ preço"),
         ("EY − NTN-B 2035", num((ey * 100 - ntnb) if (ey and ntnb) else None, 1, suf=" pp"), f"EY {pct(ey, 1, sinal=False)} · NTN-B {num(ntnb, 2, suf='%')}")))
     g = svg_linhas("pl-ibov", [("Ibovespa", S1, ib), ("Ex-Petro e Vale", S2, ibx)], 1, suf="x", W=700, H=190,
@@ -2066,7 +2075,7 @@ def slide_valuation(M: dict, V: dict | None = None) -> tuple[str, str] | None:
                  f'<td>{x1(r["ev12"])}</td><td title="VPA {num(r["vpa"], 2)} · PL de {r["pl_data"] or "—"}">{num(r["pvp"], 2, suf="x")}</td><td>{pct(r["dy12"], 1, sinal=False)}</td>'
                  f'<td class="{dlt_cls(r["cresc"])}">{pct(r["cresc"], 0)}</td><td class="{dlt_cls(r["rev"])}"{marca_t(r)}>{pct(r["rev"])}{marca(r)}</td>'
                  f'<td class="{dlt_cls(-r["dpl"] if r["dpl"] is not None else None)}">{dx(r["dpl"])}</td><td>{spark(r["serie"])}</td>'
-                 f'<td class="mut" style="text-align:left">{"" if r["base"] in ("guia", "") else "P/L do guia sobre o fechamento"}</td></tr>' for r in Ls)
+                 f'<td class="mut" style="text-align:left">{r["obs"] if r["obs"].startswith("fora") else ("" if r["base"] in ("guia", "") else "P/L do guia sobre o fechamento")}</td></tr>' for r in Ls)
     tab = (f'<table class="mini"><thead><tr><th>Papel</th><th>Preço</th><th>P/L 12m</th><th>P/L {a0}</th><th>P/L {a0 + 1}</th><th>EV/EBITDA 12m</th><th>P/VP</th><th>DY 12m</th>'
            f'<th>Lucro {a0 + 1} ÷ {a0}</th><th>Rev. lucro {a0 + 1}</th><th>Δ P/L</th><th>P/L 12m desde {dd}</th><th></th></tr></thead><tbody>{tr}</tbody></table>')
     bloco_rev = bloco_revisoes(V)

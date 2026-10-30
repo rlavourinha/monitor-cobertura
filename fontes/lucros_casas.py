@@ -244,6 +244,9 @@ def le_guia(f: Path, data_pub: str | None = None) -> tuple[str | None, list[dict
         if not row or (row[cab["Country"]] != "Brazil" and str(row[0] or "").strip() not in MAPA_BTG):   # MercadoLibre = Argentina
             continue
         g = lambda k: row[cab[k]] if k in cab and cab[k] < len(row) else None
+        rets = [g(k) for k in ("1D", "30D", "MTD", "YTD", "LTM") if k in cab]
+        if rets and all(v in (0, None) for v in rets):
+            continue              # linha congelada no guia (JBS: preço de 39,03 e retornos zerados desde a saída da B3)
         out.append({"nome": str(g("Company")).strip(), "setor": g("Sector"), "moeda": g("Currency"),
                     "mcap": _num(g("Market Cap (mn)")), "preco": _num(g("Last Price")),
                     "ano0": anos[0], "pe0": _num(g(f"P/E {anos[0]}E")), "pe1": _num(g(f"P/E {anos[1]}E")),
@@ -335,6 +338,12 @@ def atualiza() -> dict:
         extra = [p for p in pts if p[0] not in tem and len(p) == 16]
         if extra:
             out["btg"][tk] = sorted(out["btg"].get(tk, []) + extra)
+    # linha congelada (JBS: mesmo preço e valor de mercado guia após guia desde a saída da B3): fora, inclusive os pontos preservados
+    for tk, pts in list(out["btg"].items()):
+        novos = [p for p in pts if not p[15]]
+        if len(novos) >= 5 and len({(p[6], p[8]) for p in novos[-5:]}) == 1:
+            chave = (novos[-1][6], novos[-1][8])
+            out["btg"][tk] = [p for p in pts if p[15] or (p[6], p[8]) != chave]
     out["guias"] = sorted(set(out["guias"]) | set(ant.get("guias") or []))
     if "bba" in ant:
         out["bba"] = ant["bba"]
@@ -506,6 +515,8 @@ def extras(tk: str, L: dict, fech: dict[str, dict[str, float]]) -> list[dict]:
             continue
         d, a0, pg, mcap = pt[0], pt[1], pt[6], pt[8]
         cp = (fech.get(prim) or {}).get(d)
+        if cp is None and fech.get(prim) and d > max(fech[prim]):
+            continue              # guia mais novo que o último fechamento B3 (sai às 23h): espera o fechamento, como lpas()
         ok = bool(pg and cp and abs(pg / cp - 1) <= TOL_PRECO)
         ref = pg if ok else cp                       # preço do papel principal que corresponde ao mcap do guia
         c = (fech.get(tk) or {}).get(d)
