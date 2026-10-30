@@ -101,6 +101,12 @@ SGS_SERIES = {
     4478: ("Dívida líquida do setor público (R$ mi)", "2006-12-01"),
     5727: ("NFSP nominal, setor público consolidado, 12 meses (% PIB)", "2006-01-01"),
     5793: ("NFSP primário, setor público consolidado, 12 meses (% PIB; + = déficit)", "2006-01-01"),
+    # slides de ciclos do PIB (2014–16 × hoje): inflação, preços monitorados, Selic efetiva e balanço das famílias
+    13522: ("IPCA acumulado 12 meses (%)", "2000-01-01"),
+    4449: ("IPCA preços monitorados, mensal (%)", "2000-01-01"),
+    4189: ("Selic efetiva mensal anualizada (% a.a.)", "2000-01-01"),
+    29034: ("Comprometimento de renda das famílias com dívida, dessaz. (%)", "2005-01-01"),
+    29037: ("Endividamento das famílias em relação à renda de 12 meses (%)", "2005-01-01"),
 }
 # Focus fiscal: série completa por ano de referência (data/focus_longo), para ver como a expectativa de dívida se move.
 FOCUS_FISCAL_INDICADORES = ["Dívida bruta do governo geral", "Dívida líquida do setor público"]

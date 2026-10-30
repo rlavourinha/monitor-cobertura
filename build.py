@@ -639,7 +639,8 @@ def svg_linhas(cid: str, series: list[tuple[str, str, list[list]]], dec=1, pref=
                bandas: dict[int, list[list]] | None = None, extras: list[str] | None = None, ini: int = 0,
                curtas: bool = False, sombra_desde: str | None = None, gap: int = 45, livre: bool = False, coluna: bool = False,
                nominal: bool = False, resol: dict[str, list[list]] | None = None,
-               ativos: list[str] | None = None, alts: dict[str, list[list]] | None = None, titulo_base: str = "") -> str:
+               ativos: list[str] | None = None, alts: dict[str, list[list]] | None = None, titulo_base: str = "",
+               periodos: list[list[str]] | None = None) -> str:
     """Gráfico de linhas genérico (1 a 4 séries), crosshair via JS. series = [(nome, cor_css, [[data, v, ...extras], ...])].
     bandas = {índice da série: [[data, mínimo, máximo], ...]} desenha a faixa sombreada na cor da série (formato mín–máx + média).
     extras = nomes dos campos adicionais de cada ponto (p[2:]), exibidos no tooltip.
@@ -651,7 +652,8 @@ def svg_linhas(cid: str, series: list[tuple[str, str, list[list]]], dec=1, pref=
     nominal = série acumulada (ex.: fluxo): a janela rebaseia cada série em zero no seu início, então o rótulo de fim e a
     variação da seleção mostram o movimento NOMINAL do período (v1 − v0), não a variação percentual.
     resol = {"5 min": pts, "1 min": pts, ...}: séries alternativas da 1ª série em outra resolução (datas "AAAA-MM-DD HH:MM");
-    o gráfico ganha o seletor "preço: diário / 5 min / 1 min" (JS troca a série e esconde os chips de janela no intraday)."""
+    o gráfico ganha o seletor "preço: diário / 5 min / 1 min" (JS troca a série e esconde os chips de janela no intraday).
+    periodos = [[início, fim, rótulo], ...]: faixas verticais sombreadas atrás das linhas (ex.: recessões do CODACE)."""
     ML, MR, MT, MB = 56, 16, 22 if titulo else 12, 30
     if coluna:
         MR += 44
@@ -678,6 +680,12 @@ def svg_linhas(cid: str, series: list[tuple[str, str, list[list]]], dec=1, pref=
             out.append(f'<line class="grid" x1="{ML}" x2="{W - MR}" y1="{Y(t):.1f}" y2="{Y(t):.1f}"/>'
                        f'<text class="tick" x="{ML - 6}" y="{Y(t) + 4:.1f}" text-anchor="end">{num(t if abs(t) > 1e-9 else 0.0, 0 if abs(t) >= 1000 else dec)}</text>')   # sem "-0,00"
     out += _xticks(d0, d1, X, H - 10, W - ML - MR)
+    for p0, p1, rot in (periodos or []):           # faixas de período (recessões): atrás das linhas, rótulo só se couber
+        a, b = max(datetime.fromisoformat(p0).toordinal(), d0), min(datetime.fromisoformat(p1).toordinal(), d1)
+        if b > a:
+            out.append(f'<rect class="rec" x="{X(a):.1f}" y="{MT}" width="{X(b) - X(a):.1f}" height="{H - MT - MB}"/>')
+            if X(b) - X(a) >= 5.6 * len(rot) + 6:
+                out.append(f'<text class="reclab" x="{(X(a) + X(b)) / 2:.1f}" y="{MT + 11}" text-anchor="middle">{rot}</text>')
     refs = [(r[0], r[1], r[2] if len(r) > 2 else "var(--mut)") for r in (refs or []) if r[1] is not None]
     itens = sorted(refs, key=lambda r: r[1])
     obst = [[ML, ML + 5.6 * len(titulo), 0, 16]] if titulo else []      # título e rótulos de referência: obstáculos p/ rótulos livres
@@ -743,7 +751,7 @@ def svg_linhas(cid: str, series: list[tuple[str, str, list[list]]], dec=1, pref=
     data_js = json.dumps({"series": [{"n": n, "cor": c, "pts": [_r(p) for p in pts], "st": st} for (n, c, pts), st in zip(series, estilos)], "bandas": {str(k): [_r(p) for p in v] for k, v in bandas.items()},
                           "refs": [[r[0], r[1], r[2]] for r in refs], "pref": pref, "suf": suf, "dec": dec, "extras": extras or [],
                           "titulo": titulo, "W": W, "H": H, "ML": ML, "MR": MR, "MT": MT, "MB": MB, "gap": gap, "livre": livre, "coluna": coluna,
-                          "nominal": nominal, "resol": resol or {}, "alts": alts or {}, "tituloBase": titulo_base})
+                          "nominal": nominal, "resol": resol or {}, "alts": alts or {}, "tituloBase": titulo_base, "periodos": periodos or []})
     anos_total = (d1 - d0) / 365.25
     ini = ini if (ini and ini < anos_total) else 0        # janela inicial (anos); 0 = máx
     chips = "".join(f'<button data-a="{a}"{" disabled" if a >= anos_total else ""}{" class=on" if a == ini else ""}>{a}a</button>' for a in ((2, 3, 5, 10) if curtas else (1, 2, 3, 5, 10)))
@@ -3751,6 +3759,105 @@ def slides_contas_nacionais(M: dict) -> list[tuple[str, str]]:
     return out
 
 
+def slides_ciclos(M: dict, sgs: dict) -> list[tuple[str, str]]:
+    """Ciclos do PIB: por que 2014–16 foi tão fundo e o que é diferente agora. Faixas = recessões do CODACE/FGV.
+    Fontes: IBGE (contas nacionais, PNAD), FUNCEX via Ipeadata (termos de troca) e BCB SGS."""
+    import math
+    from fontes import ibge, ciclos
+    D, C = ibge.ler(), ciclos.ler()
+    T = D.get("taxas") or {}
+    if not T.get("4t", {}).get("pib"):
+        return []
+    I = ibge.indicadores(D)
+    rec = ciclos.recessoes()
+    S1, S2, S3, S4 = "var(--s1)", "var(--s2)", "var(--s3)", "var(--s4)"
+    ser = lambda cod: (sgs.get(str(cod)) or {}).get("serie") or []
+    pib4 = T["4t"]["pib"]
+    nivel = (D.get("nivel_sa") or {}).get("pib") or []
+    inv = I.get("inv_4t") or []
+    tt = C.get("termos_troca") or []
+    tt12 = [[tt[i][0], sum(v for _, v in tt[i - 11:i + 1]) / 12] for i in range(11, len(tt))]
+    ipca12 = ser(13522)
+    mon12 = _acum12(ser(4449))
+    ip = {d: v for d, v in ipca12}
+    se = ser(4189)
+    jr = []                                                     # juro real ex-post: Selic efetiva acumulada em 12 meses ÷ IPCA 12 meses
+    for i in range(11, len(se)):
+        d = se[i][0]
+        if d in ip:
+            f = math.prod((1 + v / 100) ** (1 / 12) for _, v in se[i - 11:i + 1])
+            jr.append([d, (f / (1 + ip[d] / 100) - 1) * 100])
+    prim = [[d, -v] for d, v in ser(5793)]                      # + = superávit
+    dbgg, des, dsr, endv = ser(13762), C.get("desemprego") or [], ser(29034), ser(29037)
+
+    def g(cid, nome, cor, pts, tit, dec=1, suf="%", W=470, H=215, zero=False, extra=None, gap=45):
+        series = [(nome, cor, [[d, round(v, 2)] for d, v in pts])] + (extra or [])
+        return svg_linhas(cid, series, dec, suf=suf, W=W, H=H, refs=[("", 0.0)] if zero else None, titulo=tit, periodos=rec, gap=gap)
+
+    leg = ('<div class="legend"><span><i style="background:var(--mut);opacity:.35"></i>recessões datadas pelo CODACE/FGV '
+           '(do trimestre seguinte ao pico até o vale)</span></div>')
+    g1 = [g("cic-nivel", "PIB dessazonalizado", "var(--ink)", nivel, "PIB em nível (índice de volume dessaz., média 1995 = 100)", suf="", gap=120),
+          g("cic-inv", "FBCF ÷ PIB", S3, inv, "Taxa de investimento: FBCF ÷ PIB, 4 trimestres (%)", gap=120),
+          g("cic-tt", "termos de troca", S1, tt12, "Termos de troca (FUNCEX, média de 12 meses, 2018 = 100)", suf=""),
+          g("cic-ipca", "IPCA 12 meses", S2, ipca12, "IPCA e preços monitorados, 12 meses (%)",
+            extra=[("monitorados 12 meses", S4, [[d, round(v, 2)] for d, v in mon12])])]
+    leg_ipca = (f'<div class="legend" style="margin-top:2px"><span><i style="background:{S2}"></i>IPCA 12 meses</span>'
+                f'<span><i style="background:{S4}"></i>preços monitorados 12 meses (energia, combustíveis, transporte, planos de saúde)</span></div>')
+    out = [slide("Macro", "ciclos-como-foi", "Ciclos do PIB · por que 2014–16 foi tão fundo",
+                 f'{leg}<div class="grid2">{"".join(f"<div>{x}</div>" for x in g1)}</div>{leg_ipca}',
+                 "A recessão de 2014–16 somou choques: o investimento chegou a 21% do PIB e desabou (−31% do pico ao fundo), os termos de troca "
+                 "caíram desde 2011 e os preços monitorados represados em 2012–13 explodiram em 2015, com o IPCA a 10,7% comendo a renda. O PIB caiu 8,1% "
+                 "e só voltou ao nível do 1T14 no 1T22.",
+                 "IBGE, Contas Nacionais Trimestrais (SIDRA 1621 e 1846); FUNCEX via Ipeadata (FUNCEX12_TTR12); BCB SGS 13522 e 4449 "
+                 "(monitorados acumulados em 12 meses). Recessões: Comitê de Datação de Ciclos Econômicos (CODACE/FGV).")]
+    g2 = [g("cic-jr", "juro real 12 meses", S2, jr, "Juro real ex-post: Selic 12 m ÷ IPCA 12 m (%)", W=360, H=200, zero=True),
+          g("cic-prim", "primário 12 meses", S1, prim, "Resultado primário, 12 meses (% PIB, + = superávit)", dec=2, W=360, H=200, zero=True),
+          g("cic-dbgg", "dívida bruta", S1, dbgg, "Dívida bruta do governo geral (% PIB)", W=360, H=200),
+          g("cic-des", "desocupação", S3, des, "Desemprego, PNAD Contínua (trimestre móvel, %)", W=360, H=200),
+          g("cic-dsr", "comprometimento", S4, dsr, "Renda das famílias comprometida com dívida (%)", W=360, H=200),
+          g("cic-endiv", "endividamento", S4, endv, "Dívida das famílias ÷ renda de 12 meses (%)", W=360, H=200)]
+    out.append(slide("Macro", "ciclos-agora", "Ciclos do PIB · o que é diferente agora",
+                     f'{leg}<div class="grid3">{"".join(f"<div>{x}</div>" for x in g2)}</div>',
+                     "Faltam hoje os choques de 2015: inflação de 4,6% (10,7% em 2015), termos de troca estáveis, desemprego perto da mínima da série. O freio é outro: "
+                     "o juro real ex-post perto de 9,5%, o maior desde 2007, com dívida bruta acima de 80% do PIB e famílias no recorde de comprometimento "
+                     "de renda e de endividamento. Em 2015 o juro real foi baixo porque a inflação o corroeu.",
+                     "BCB SGS 4189 (Selic efetiva mensal anualizada, acumulada em 12 meses), 13522, 5793 (sinal invertido), 13762, 29034 (dessazonalizado) "
+                     "e 29037; IBGE, PNAD Contínua (SIDRA 6381). Recessões: CODACE/FGV."))
+    # placar: antes (dez/2013), fundo (dez/2015) e hoje, com a comparação hoje × 2015
+    def em(pts, ym):
+        v = [p[1] for p in pts if p[0][:7] <= ym]
+        return v[-1] if v else None
+    linhas = [("PIB, 4 trimestres (%)", pib4, 1, True), ("Investimento, FBCF ÷ PIB (%)", inv, 1, None),
+              ("Termos de troca, média 12 meses", tt12, 1, True), ("IPCA 12 meses (%)", ipca12, 2, False),
+              ("Monitorados 12 meses (%)", mon12, 1, False), ("Juro real ex-post 12 meses (%)", jr, 1, False),
+              ("Primário 12 meses (% PIB, + = superávit)", prim, 2, True), ("Dívida bruta (% PIB)", dbgg, 1, False),
+              ("Desemprego (%)", des, 1, False), ("Comprometimento de renda (%)", dsr, 1, False), ("Endividamento das famílias (%)", endv, 1, False)]
+    tr = []
+    for nome, pts, dec, alto in linhas:
+        if not pts:
+            continue
+        a, f_, h = em(pts, "2013-12"), em(pts, "2015-12"), pts[-1][1]
+        if alto is None or f_ is None:
+            ver = '<td class="mut">—</td>'
+        else:
+            dif = (h - f_) * (1 if alto else -1)
+            ver = f'<td class="{dlt_cls(dif)}">{"melhor" if dif > 0 else "pior"}</td>'
+        dt = pts[-1][0]
+        quando = ibge.tri(dt) if (pts is pib4 or pts is inv) else f"{dt[5:7]}/{dt[2:4]}"
+        tr.append(f'<tr><td class="tk">{nome}</td><td>{num(a, dec)}</td><td>{num(f_, dec)}</td><td><b>{num(h, dec)}</b> '
+                  f'<span class="mut">{quando}</span></td>{ver}</tr>')
+    tab = (f'<table class="mini"><thead><tr><th></th><th>dez/2013 (antes)</th><th>dez/2015 (fundo)</th><th>hoje</th><th>hoje × 2015</th></tr></thead>'
+           f'<tbody>{"".join(tr)}</tbody></table>')
+    g_pib = g("cic-pib4", "PIB, 4 trimestres", "var(--ink)", pib4, "PIB: crescimento acumulado em 4 trimestres (%)", W=520, H=330, zero=True, gap=120)
+    out.append(slide("Macro", "ciclos-placar", "Ciclos do PIB · 2013, 2015 e hoje",
+                     f'{leg}<div class="grid2" style="grid-template-columns:1.1fr 1fr;align-items:start"><div>{tab}</div><div>{g_pib}</div></div>',
+                     "Os mesmos indicadores antes da recessão, no fundo e hoje. Hoje está melhor que 2015 em quase tudo o que derrubou o PIB naquela época, "
+                     "e pior no juro real, na dívida pública e no balanço das famílias: o risco agora é o fiscal virar choque de juro, câmbio e inflação.",
+                     "Mesmas fontes dos dois slides anteriores. 'Hoje' = último dado de cada série (trimestre ou mês ao lado). "
+                     "Investimento sem juízo de melhor/pior: investir muito não é ruim, mas em 2013 havia mais de onde cair."))
+    return out
+
+
 def slides_focus(M: dict, sgs: dict) -> list[tuple[str, str]]:
     """Slides com o Focus completo: painéis por grupo, dispersão, mensal, trimestral, 12/24m, Top 5."""
     S1, S2, MUT = "var(--s1)", "var(--s2)", "var(--axis)"
@@ -4353,7 +4460,7 @@ table.big td{font-size:17px;padding:14px 10px}table.compact td{font-size:13.5px;
 .legend{display:flex;gap:18px;font-size:12.5px;color:var(--ink2);margin:0 0 10px}.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:6px}
 svg.chart{width:100%;height:auto;display:block;overflow:visible}svg .grid{stroke:var(--grid);stroke-width:1}svg .axis{stroke:var(--axis);stroke-width:1}
 svg .tick{fill:var(--mut);font-size:11px}svg .sub{fill:var(--ink2);font-size:12px;font-weight:600}svg .line{fill:none;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
-svg .dot{stroke:var(--sf);stroke-width:2}svg .cap,svg .endlab{fill:var(--ink2);font-size:11.5px;paint-order:stroke;stroke:var(--sf);stroke-width:3.5px;stroke-linejoin:round}svg .ref{stroke-width:1.5;opacity:.9}svg .reflab{fill:var(--ink2);font-size:11px;paint-order:stroke;stroke:var(--sf);stroke-width:3px}
+svg .dot{stroke:var(--sf);stroke-width:2}svg .cap,svg .endlab{fill:var(--ink2);font-size:11.5px;paint-order:stroke;stroke:var(--sf);stroke-width:3.5px;stroke-linejoin:round}svg .ref{stroke-width:1.5;opacity:.9}svg .rec{fill:var(--mut);opacity:.13}svg .reclab{fill:var(--ink2);font-size:10.5px}svg .reflab{fill:var(--ink2);font-size:11px;paint-order:stroke;stroke:var(--sf);stroke-width:3px}
 svg .xh{stroke:var(--axis);stroke-width:1}svg .hdot{stroke:var(--sf);stroke-width:2}svg .hit{cursor:crosshair}svg .bar{cursor:default}
 .tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--bg);font-size:12px;padding:5px 8px;border-radius:6px;display:none;white-space:nowrap;z-index:9;line-height:1.35}
 .empty{color:var(--mut);padding:24px;text-align:center;border:1px dashed var(--grid);border-radius:8px}.empty.small{padding:12px;font-size:13px}
@@ -4435,6 +4542,9 @@ JS = r"""
       var X=function(o){return ML+(o-d0)/span*(W-ML-MR);},Y=function(v){return MT+(hi-v)/(hi-lo)*(H-MT-MB);};
       var h=[];if(data.titulo)h.push('<text class="sub" x="'+ML+'" y="12">'+esc(data.titulo)+'</text>');
       ticks(lo,hi,4).forEach(function(t){if(t>=lo&&t<=hi)h.push('<line class="grid" x1="'+ML+'" x2="'+(W-MR)+'" y1="'+Y(t).toFixed(1)+'" y2="'+Y(t).toFixed(1)+'"/><text class="tick" x="'+(ML-6)+'" y="'+(Y(t)+4).toFixed(1)+'" text-anchor="end">'+num(Math.abs(t)>1e-9?t:0,Math.abs(t)>=1000?0:data.dec)+'</text>');});
+      (data.periodos||[]).forEach(function(p){var a=Math.max(ord(p[0]),d0),b=Math.min(ord(p[1]),d1);if(b<=a)return;   // faixas de período (recessões)
+        h.push('<rect class="rec" x="'+X(a).toFixed(1)+'" y="'+MT+'" width="'+(X(b)-X(a)).toFixed(1)+'" height="'+(H-MT-MB)+'"/>');
+        if(X(b)-X(a)>=5.6*p[2].length+6)h.push('<text class="reclab" x="'+((X(a)+X(b))/2).toFixed(1)+'" y="'+(MT+11)+'" text-anchor="middle">'+esc(p[2])+'</text>');});
       var D0=new Date((d0-719163)*86400000),D1=new Date((d1-719163)*86400000),a0=D0.getUTCFullYear(),a1=D1.getUTCFullYear();
       if(svg._intraday){var s0i=S[0],dias={};s0i.pts.forEach(function(p,i){var dd=p[0].slice(0,10);if(dias[dd]===undefined)dias[dd]=i;});var nd=Object.keys(dias).length;
         if(nd>1){Object.keys(dias).forEach(function(dd){var i=dias[dd];h.push('<text class="tick" x="'+X(i).toFixed(1)+'" y="'+(H-10)+'" text-anchor="start">'+dd.slice(8)+'/'+dd.slice(5,7)+'</text>');
@@ -5094,13 +5204,14 @@ def secao_macro(mercado_micro: dict) -> list[tuple[str, str]]:
     S = []
     S.append(slide_painel(M, sgs, mercado_micro, le_csv(MINHAS), le_csv(CONS), est))
     # slide Trades retirado em 30/10/2026: posições zeradas (trades.slide_trades segue em trades.py)
-    S += slides_opiniao(M, sgs)
+    op = slides_opiniao(M, sgs)                # Opinião qualificada (cartas e carteiras) vai para a última seção (30/10/2026)
     scb = slide_carteiras_btg()
     if scb:
-        S.append(scb)
+        op.append(scb)
     scbh = slide_carteiras_btg_hist(M)
     if scbh:
-        S.append(scbh)
+        op.append(scbh)
+    globals()['_OPINIAO'] = op
     capa_fontes = slide("Fontes", "capa", "Fontes e atualizações",
                    f'<div class="duo"><div><div class="heroes">{heroes}</div></div>{painel_atual}</div>',
                    f"Macro, setores e empresas cobertas. Preço, minha estimativa e consenso. Atualizado em {M.get('gerado_em', '—')}, cotações às {hora[11:]}.",
@@ -5148,6 +5259,10 @@ def secao_macro(mercado_micro: dict) -> list[tuple[str, str]]:
                    "BCB Olinda, ExpectativasMercadoAnuais, baseCalculo 0."))
     S += slides_focus(M, sgs)
     S += slides_contas_nacionais(M)
+    try:
+        S += slides_ciclos(M, sgs)
+    except Exception as e:
+        print(f"ciclos do PIB: ERRO ({e})")
     S += slides_assertividade()
     S.append(slide("Macro", "selic", "Trajetória esperada da Selic",
                    f'<div class="panel">{g_selic}</div>',
@@ -5308,6 +5423,7 @@ def build() -> None:
             S.append(slide(tk, sid, titulo, corpo, lede, nota))
     if M_capa := globals().get("_M_CAPA"):
         S.append(M_capa)
+    S += globals().get("_OPINIAO") or []
 
     rail, sec_atual = [], None
     for html_s, item in S:

@@ -550,6 +550,13 @@ def diario_smll_comp():
 CRITICAS = {"B3 COTAHIST"}           # sem elas o site publicaria preço velho: aí o job falha de propósito
 
 
+def mensal_ciclos():
+    """Termos de troca (FUNCEX/Ipeadata) e desemprego (PNAD Contínua, SIDRA 6381) para os slides de ciclos do PIB."""
+    from fontes import ciclos
+    D = ciclos.atualiza()
+    return f"termos de troca {len(D.get('termos_troca') or [])}, desemprego {len(D.get('desemprego') or [])}"
+
+
 JANELAS = {
     "intraday": [("cotações universo", intraday_universo), ("cotações mercado", intraday_mercado), ("cotações Ibovespa", intraday_ibov_comp)],
     "diario": [("B3 COTAHIST", diario_cotahist), ("B3 ações", diario_acoes), ("Tesouro NTN-B", diario_tesouro),
@@ -559,7 +566,7 @@ JANELAS = {
                ("minhas estimativas", diario_minhas), ("cotações universo", intraday_universo), ("cotações mercado", intraday_mercado),
                ("cotações Ibovespa", intraday_ibov_comp)],
     "semanal": [("Focus", semanal_focus), ("Focus longo", semanal_focus_longo), ("Ibovespa DY histórico", semanal_ibov_dy_hist), ("PL CVM (P/VP)", semanal_pl_cvm)],
-    "mensal": [("SGS mensais", mensal_sgs), ("realizado anual", mensal_realizado), ("carteiras CVM", mensal_carteiras_cvm), ("IBGE contas nacionais", mensal_contas_nacionais)],
+    "mensal": [("SGS mensais", mensal_sgs), ("realizado anual", mensal_realizado), ("carteiras CVM", mensal_carteiras_cvm), ("IBGE contas nacionais", mensal_contas_nacionais), ("ciclos: termos de troca e desemprego", mensal_ciclos)],
 }
 JANELAS["tudo"] = JANELAS["mensal"] + JANELAS["semanal"] + JANELAS["diario"]
 def mt5_extrato_intraday():
