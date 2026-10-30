@@ -3792,7 +3792,7 @@ def slides_ciclos(M: dict, sgs: dict) -> list[tuple[str, str]]:
 
     def g(cid, nome, cor, pts, tit, dec=1, suf="%", W=470, H=215, zero=False, extra=None, gap=45):
         series = [(nome, cor, [[d, round(v, 2)] for d, v in pts])] + (extra or [])
-        return svg_linhas(cid, series, dec, suf=suf, W=W, H=H, refs=[("", 0.0)] if zero else None, titulo=tit, periodos=rec, gap=gap)
+        return svg_linhas(cid, series, dec, suf=suf, W=W, H=H, refs=[("", 0.0)] if zero else None, titulo=tit, periodos=rec, gap=gap, coluna=True)
 
     leg = ('<div class="legend"><span><i style="background:var(--mut);opacity:.35"></i>recessões datadas pelo CODACE/FGV '
            '(do trimestre seguinte ao pico até o vale)</span></div>')
@@ -3810,12 +3810,12 @@ def slides_ciclos(M: dict, sgs: dict) -> list[tuple[str, str]]:
                  "e só voltou ao nível do 1T14 no 1T22.",
                  "IBGE, Contas Nacionais Trimestrais (SIDRA 1621 e 1846); FUNCEX via Ipeadata (FUNCEX12_TTR12); BCB SGS 13522 e 4449 "
                  "(monitorados acumulados em 12 meses). Recessões: Comitê de Datação de Ciclos Econômicos (CODACE/FGV).")]
-    g2 = [g("cic-jr", "juro real 12 meses", S2, jr, "Juro real ex-post: Selic 12 m ÷ IPCA 12 m (%)", W=360, H=200, zero=True),
-          g("cic-prim", "primário 12 meses", S1, prim, "Resultado primário, 12 meses (% PIB, + = superávit)", dec=2, W=360, H=200, zero=True),
-          g("cic-dbgg", "dívida bruta", S1, dbgg, "Dívida bruta do governo geral (% PIB)", W=360, H=200),
-          g("cic-des", "desocupação", S3, des, "Desemprego, PNAD Contínua (trimestre móvel, %)", W=360, H=200),
-          g("cic-dsr", "comprometimento", S4, dsr, "Renda das famílias comprometida com dívida (%)", W=360, H=200),
-          g("cic-endiv", "endividamento", S4, endv, "Dívida das famílias ÷ renda de 12 meses (%)", W=360, H=200)]
+    g2 = [g("cic-jr", "juro real 12 meses", S2, jr, "Juro real ex-post: Selic 12 m ÷ IPCA 12 m (%)", W=330, H=215, zero=True),
+          g("cic-prim", "primário 12 meses", S1, prim, "Resultado primário, 12 meses (% PIB, + = superávit)", dec=2, W=330, H=215, zero=True),
+          g("cic-dbgg", "dívida bruta", S1, dbgg, "Dívida bruta do governo geral (% PIB)", W=330, H=215),
+          g("cic-des", "desocupação", S3, des, "Desemprego, PNAD Contínua (trimestre móvel, %)", W=330, H=215),
+          g("cic-dsr", "comprometimento", S4, dsr, "Renda das famílias comprometida com dívida (%)", W=330, H=215),
+          g("cic-endiv", "endividamento", S4, endv, "Dívida das famílias ÷ renda de 12 meses (%)", W=330, H=215)]
     out.append(slide("Macro", "ciclos-agora", "Ciclos do PIB · o que é diferente agora",
                      f'{leg}<div class="grid3">{"".join(f"<div>{x}</div>" for x in g2)}</div>',
                      "Faltam hoje os choques de 2015: inflação de 4,6% (10,7% em 2015), termos de troca estáveis, desemprego perto da mínima da série. O freio é outro: "
@@ -3848,9 +3848,9 @@ def slides_ciclos(M: dict, sgs: dict) -> list[tuple[str, str]]:
                   f'<span class="mut">{quando}</span></td>{ver}</tr>')
     tab = (f'<table class="mini"><thead><tr><th></th><th>dez/2013 (antes)</th><th>dez/2015 (fundo)</th><th>hoje</th><th>hoje × 2015</th></tr></thead>'
            f'<tbody>{"".join(tr)}</tbody></table>')
-    g_pib = g("cic-pib4", "PIB, 4 trimestres", "var(--ink)", pib4, "PIB: crescimento acumulado em 4 trimestres (%)", W=520, H=330, zero=True, gap=120)
+    g_pib = g("cic-pib4", "PIB, 4 trimestres", "var(--ink)", pib4, "PIB: crescimento acumulado em 4 trimestres (%)", W=460, H=340, zero=True, gap=120)
     out.append(slide("Macro", "ciclos-placar", "Ciclos do PIB · 2013, 2015 e hoje",
-                     f'{leg}<div class="grid2" style="grid-template-columns:1.1fr 1fr;align-items:start"><div>{tab}</div><div>{g_pib}</div></div>',
+                     f'{leg}<div class="grid2" style="grid-template-columns:1.1fr 1fr;align-items:stretch"><div>{tab}</div><div>{g_pib}</div></div>',
                      "Os mesmos indicadores antes da recessão, no fundo e hoje. Hoje está melhor que 2015 em quase tudo o que derrubou o PIB naquela época, "
                      "e pior no juro real, na dívida pública e no balanço das famílias: o risco agora é o fiscal virar choque de juro, câmbio e inflação.",
                      "Mesmas fontes dos dois slides anteriores. 'Hoje' = último dado de cada série (trimestre ou mês ao lado). "
@@ -4445,6 +4445,7 @@ main{margin-left:232px}
 td.varjan{font-weight:600}th.varjan-h{white-space:nowrap}
 .painel .tabvar table.mini{font-size:11.5px}.painel .tabvar table.mini td,.painel .tabvar table.mini th{padding:2px 5px}.painel .tabvar table.mini th{font-size:9.5px}
 #contas-comp table.mini td,#contas-comp table.mini th{padding:1px 6px;line-height:1.35}#contas-comp .grid2>div{padding:10px 14px 6px}#contas-comp .janela{margin-bottom:3px}
+#ciclos-placar table.mini{font-size:13px}#ciclos-placar table.mini td,#ciclos-placar table.mini th{padding:6px 7px}#ciclos-placar table.mini th{font-size:10.5px}
 #papeis-ibov table.mini{font-size:11.5px}#papeis-ibov table.mini td,#papeis-ibov table.mini th{padding:2px 6px}#papeis-ibov .tk small{font-size:10px}
 #setores-perf tr[data-setor]{cursor:pointer}#setores-perf tr[data-setor]:hover td{background:var(--chip)}#setores-perf .volta{color:var(--acc);text-decoration:none;font-size:11px}
 /* painéis e grids */
