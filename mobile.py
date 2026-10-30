@@ -758,7 +758,7 @@ def build_mobile() -> None:
     DI = _j("di_curva.json", {}) or {}
     DP = _j("dap_curva.json", {}) or {}                        # juro real (DAP = cupom de IPCA), gravado pelo vigia como o DI
     IB = _ibov_hoje(M)
-    corpo = "".join([bloco_hoje(M, IB, DI), bloco_intraday(IB), bloco_alertas(IB), bloco_cobertura(mercado, minhas, cons, IB), bloco_trades(M),
+    corpo = "".join([bloco_hoje(M, IB, DI), bloco_intraday(IB), bloco_alertas(IB), bloco_cobertura(mercado, minhas, cons, IB),
                      bloco_setores(C, IB), bloco_valuation(M), bloco_fluxo(), bloco_liquidez(IB), bloco_di(DI), bloco_dap(DP), bloco_juro_real(M), bloco_ust(), bloco_divida(M), bloco_contas_nacionais(M)])
     page = PAGE.replace("/*CSS*/", CSS).replace("/*VERSAO*/", B.versao()).replace("/*DATA*/", B.carimbo_build()).replace("/*CORPO*/", corpo)
     config.OUTPUT.mkdir(parents=True, exist_ok=True)
