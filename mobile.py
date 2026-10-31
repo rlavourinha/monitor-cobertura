@@ -708,7 +708,7 @@ def bloco_valuation(M: dict) -> str:
     a1 = V["ano0"] + 1
     def emp(tk):
         r = lin[tk]
-        return (f'<tr><td>{tk}</td><td><b>{x1(r["pl12"])}</b></td><td>{x1(r["ev12"])}</td><td>{B.num(r["pvp"], 1, suf="x")}</td>'
+        return (f'<tr><td>{tk}</td><td><b>{x1(r["pl12"])}</b></td><td>{x1(r["ev12"])}</td><td>{B.num(r["pvp"], 2, suf="x")}</td>'
                 f'<td>{B.pct(r["dy12"], 0, sinal=False)}</td><td class="{B.dlt_cls(r["rev"])}">{B.pct(r["rev"], 0)}</td></tr>')
     sets = ""
     for r in V["setores"]:
