@@ -198,7 +198,7 @@
 "BRBI11": {
 "data": "2026-06-30",
 "pl": 809.78,
-"acoes": 200546007.82778862,
+"acoes": 200546004.01606423,
 "doc": "ITR",
 "acoes_fonte": "guia BTG (mcap ÷ preço)",
 "vpa": 4.0379
@@ -619,7 +619,7 @@
 "LAVV3": {
 "data": "2026-06-30",
 "pl": 1450.08,
-"acoes": 195434349.54007885,
+"acoes": 195434352.46995994,
 "doc": "ITR",
 "acoes_fonte": "guia BTG (mcap ÷ preço)",
 "vpa": 7.4198
@@ -774,7 +774,7 @@
 "ORVR3": {
 "data": "2026-06-30",
 "pl": 4851.72,
-"acoes": 549296410.5793451,
+"acoes": 549296403.5087719,
 "doc": "ITR",
 "acoes_fonte": "guia BTG (mcap ÷ preço)",
 "vpa": 8.8326
@@ -901,10 +901,10 @@
 "RAIZ4": {
 "data": "2026-06-30",
 "pl": -11162.28,
-"acoes": 1035250952857.1427,
+"acoes": 10352510000.0,
 "doc": "ITR",
 "acoes_fonte": "guia BTG (mcap ÷ preço)",
-"vpa": -0.0108
+"vpa": -1.0782
 },
 "RANI3": {
 "data": "2026-09-30",
@@ -916,10 +916,10 @@
 "RAPT4": {
 "data": "2026-06-30",
 "pl": 3022.89,
-"acoes": 486617875.3541077,
+"acoes": 505371286.5497076,
 "doc": "ITR",
 "acoes_fonte": "guia BTG (mcap ÷ preço)",
-"vpa": 6.212
+"vpa": 5.9815
 },
 "RDOR3": {
 "data": "2026-06-30",
@@ -1085,7 +1085,7 @@
 "TEND3": {
 "data": "2026-06-30",
 "pl": 1539.02,
-"acoes": 122578151.42576204,
+"acoes": 122578150.92453772,
 "doc": "ITR",
 "acoes_fonte": "guia BTG (mcap ÷ preço)",
 "vpa": 12.5554

@@ -2,7 +2,7 @@
 # Janelas (horários em UTC; Brasília = UTC−3):
 #   intraday  10h, 12h, 14h, 16h, 18h BRT, dias úteis   -> cotações com atraso
 #   diario    19h45 BRT, dias úteis                     -> COTAHIST do dia, Tesouro, SGS, Yahoo, cota do fundo, DY
-#   semanal   segunda 8h45 BRT                          -> Focus completo, histórico do DY
+#   semanal   segunda 8h45 BRT (+ terça, p/ feriado)    -> Focus completo, histórico do DY
 #   mensal    8h BRT, todo dia                          -> SGS mensais, realizado, carteiras CVM
 # Cada janela roda o coletor, regenera output/monitor.html, grava os caches (data/) e o HTML de volta no repositório
 # (o HTML vai só para o GitHub Pages, não para o repositório)
@@ -24,6 +24,7 @@ on:
     - cron: "45 22 * * 1-5"              # diario (19:45 BRT; o COTAHIST_D às vezes ainda não saiu)
     - cron: "30 11 * * 1-5"              # diario de manhã (08:30 BRT): pega o COTAHIST da véspera antes do vigia abrir às 10h
     - cron: "45 11 * * 1"                # semanal
+    - cron: "45 11 * * 2"                # semanal de novo na terça: em semana com feriado na segunda o Focus sai na terça (02/11/2026)
     - cron: "0 11 * * *"                 # mensal
   workflow_dispatch:
     inputs:
@@ -68,6 +69,7 @@ jobs:
             "45 22 * * 1-5") j=diario ;;
             "30 11 * * 1-5") j=diario ;;
             "45 11 * * 1") j=semanal ;;
+            "45 11 * * 2") j=semanal ;;
             "0 11 * * *") j=mensal ;;
             *) j="${{ github.event.inputs.janela || 'diario' }}" ;;
           esac
