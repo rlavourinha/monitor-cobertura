@@ -3322,7 +3322,7 @@ def slide_carteiras_btg() -> tuple[str, str] | None:
              f'<div class="opiniao" style="font-size:12.5px">{teses}</div></div>')
     m = at["mes"]
     return slide("Opinião qualificada", "carteira-btg-10sim", f'{C["casa"]} · {C["produto"]} {m[5:]}/{m[:4]}', corpo,
-                 "A carteira mensal do sell-side como termômetro do consenso comprador: o que entra, o que sai e a tese de cada nome. Em negrito, os papéis da minha cobertura.",
+                 "A carteira mensal do sell-side como termômetro do consenso comprador: o que entra, o que sai e a tese de cada nome.",
                  f'{C["casa"]}, Brazil 10SIM de {at.get("data", m)} (Carlos Sequeira e equipe). Múltiplos e upside são estimativas do próprio BTG. Arquivo manual carteiras/btg_10sim.json.')
 
 
