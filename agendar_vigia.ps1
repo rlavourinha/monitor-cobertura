@@ -1,4 +1,5 @@
-# Agenda o vigia em tempo real: a cada 5 min, dias úteis, 10h00–17h40 (usuário atual, sem admin).
+# Agenda o vigia em tempo real: a cada 5 min, dias úteis, 10h00–18h45 (usuário atual, sem admin). O script sai sozinho 40 min após o fechamento
+#   (17h ou 18h conforme o horário de verão dos EUA: config.fecha_pregao).
 #   powershell -ExecutionPolicy Bypass -File .\agendar_vigia.ps1          # cria/atualiza
 #   powershell -ExecutionPolicy Bypass -File .\agendar_vigia.ps1 -Remover # remove
 param([switch]$Remover)
@@ -8,7 +9,7 @@ if ($Remover) { Unregister-ScheduledTask -TaskName $nome -Confirm:$false -ErrorA
 $py = (& python -c "import sys; print(sys.executable)")   # caminho real (o alias da WindowsApps não serve ao Agendador)
 $acao = New-ScheduledTaskAction -Execute $py -Argument "vigia.py" -WorkingDirectory $raiz
 $gatilho = New-ScheduledTaskTrigger -Daily -At 10:00
-$gatilho.Repetition = (New-ScheduledTaskTrigger -Once -At 10:00 -RepetitionInterval (New-TimeSpan -Minutes 5) -RepetitionDuration (New-TimeSpan -Hours 7 -Minutes 45)).Repetition
+$gatilho.Repetition = (New-ScheduledTaskTrigger -Once -At 10:00 -RepetitionInterval (New-TimeSpan -Minutes 5) -RepetitionDuration (New-TimeSpan -Hours 8 -Minutes 45)).Repetition
 $cfg = New-ScheduledTaskSettingsSet -ExecutionTimeLimit (New-TimeSpan -Minutes 4) -MultipleInstances IgnoreNew -StartWhenAvailable -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries
 Register-ScheduledTask -TaskName $nome -Action $acao -Trigger $gatilho -Settings $cfg -Force | Out-Null
-"tarefa '$nome' registrada: a cada 5 min das 10h às 17h45 (o script sai sozinho em fim de semana e fora do pregão)"
+"tarefa '$nome' registrada: a cada 5 min das 10h às 18h45 (o script sai sozinho em fim de semana e 40 min após o fechamento)"

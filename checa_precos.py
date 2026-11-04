@@ -20,7 +20,7 @@ import json
 import sys
 import urllib.request
 import zipfile
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 
 import config
 from fontes import mt5, telegram, yahoo
@@ -29,7 +29,7 @@ ARQ = config.DATA / "checagem_precos.json"
 TOL = 0.005                    # 0,5% contra o fechamento oficial (B3)
 TOL_YAHOO = 0.015              # 1,5% contra o Yahoo: o regularMarketPrice para ~17:05, antes do leilão de fechamento (BEEF3/CSNA3/ENGI11
                                # diferiam ~1% em 16/10 com o MT5 vivo até 17:18); serve para pegar feed parado e erro grosso
-TICK_MIN = "16:45"             # tick do MT5 anterior a isso num papel líquido = feed parado
+TICK_MIN = (datetime.combine(date.today(), config.fecha_pregao()) - timedelta(minutes=15)).strftime("%H:%M")   # tick do MT5 anterior a isso (15 min antes do fechamento) num papel líquido = feed parado
 
 
 def _cotahist_hoje(hoje: date) -> dict[str, float]:

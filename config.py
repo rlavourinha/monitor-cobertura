@@ -5,6 +5,7 @@ os coletores e o builder só leem.
 """
 from __future__ import annotations
 
+from datetime import date, time, timedelta
 from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parent
@@ -132,6 +133,19 @@ BDRS = ["ROXO34", "MELI34", "STOC34", "AURA33", "INBR32", "JBSS32", "XPBR31",   
 # já entram). Precisam estar em fontes/lucros_casas.MAPA_BTG e ter preço no vigia/COTAHIST.
 VALUATION_EXTRA = ["SAUD3", "ROXO34", "XPBR31", "EZTC3", "PGMN3", "SAPR11", "PAGS34", "PICS"]   # PICS = PicPay na Nasdaq (sem BDR)
 # painel de papéis: limites dos alertas
+ABRE_PREGAO = time(10, 0)
+
+
+def fecha_pregao(d: date | None = None) -> time:
+    """Fechamento do pregão da B3 (horário de Brasília) no dia d. A B3 acompanha Nova York: 17h enquanto os EUA estão
+    no horário de verão (do 2º domingo de março ao 1º domingo de novembro) e 18h no resto do ano. Mudou em 02/11/2026
+    e o vigia continuou desligando às 17h40 por dois pregões; volta a 17h em 08/03/2027."""
+    d = d or date.today()
+    mar = date(d.year, 3, 1); ini = mar + timedelta(days=(6 - mar.weekday()) % 7 + 7)      # 2º domingo de março
+    nov = date(d.year, 11, 1); fim = nov + timedelta(days=(6 - nov.weekday()) % 7)         # 1º domingo de novembro
+    return time(17, 0) if ini <= d < fim else time(18, 0)
+
+
 ALERTA_Z = 2.0            # |retorno do dia| ≥ 2 desvios-padrão dos retornos diários (60 pregões)
 ALERTA_VOL = 2.0          # volume financeiro do dia ≥ 2× a média de 21 pregões
 

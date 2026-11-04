@@ -114,7 +114,8 @@ def checa_tarefas(agora: datetime) -> list[str]:
 
 
 def checa_vigia(agora: datetime) -> list[str]:
-    if agora.weekday() >= 5 or not (time(10, 30) <= agora.time() <= time(17, 30)):
+    fim = (datetime.combine(agora.date(), config.fecha_pregao(agora.date())) + timedelta(minutes=30)).time()
+    if agora.weekday() >= 5 or not (time(10, 30) <= agora.time() <= fim):
         return []
     linhas = (_ler(config.DATA / "vigia.log", "") or "").splitlines()
     if not linhas:

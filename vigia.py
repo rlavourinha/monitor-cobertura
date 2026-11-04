@@ -2,7 +2,7 @@
 volume do dia no MT5 da Genial, calcula oscilação (z) e volume relativo projetado, grava data/alertas_tempo_real.json
 (o painel "Papéis do Ibovespa" usa) e manda alerta por Telegram quando algo sai do padrão.
 
-    python vigia.py            # uma passada (agendar a cada 5 min, dias úteis, 10h–17h30: agendar_vigia.ps1)
+    python vigia.py            # uma passada (agendar a cada 5 min, dias úteis, 10h até 40 min após o fechamento: agendar_vigia.ps1)
     python vigia.py --sem-push # não faz commit/push nem dispara o build do site
 
 Regras (config): |z| ≥ ALERTA_Z (retorno do dia ÷ σ dos retornos diários de 60 pregões) ou volume do dia projetado
@@ -30,7 +30,9 @@ try:                                                      # + papéis dos trades
     TICKERS_INTRADAY += sorted(_trades.tickers() - set(TICKERS_INTRADAY))
 except Exception:
     pass   # futuros B3 com feed na Genial: dólar mini, micro S&P 500, cupom IPCA (juro real 2035/2029)
-ABRE, FECHA = time(10, 0), time(17, 0)
+ABRE, FECHA = config.ABRE_PREGAO, config.fecha_pregao()        # 17h no horário de verão dos EUA, 18h no resto do ano
+ENCERRA = (datetime.combine(date.today(), FECHA) + timedelta(minutes=40)).time()   # última passada: leilão de fechamento já publicado
+MIN_PREGAO = (FECHA.hour - ABRE.hour) * 60
 
 
 def _num(v, d=1, sinal=False):
@@ -185,7 +187,7 @@ def avaliar(snap: dict) -> dict:
             alpha = math.log(1 + r1) - beta * math.log(1 + rm_hoje)
             za = alpha / sig_a
         qmed = sum(qtd[-21:]) / 21 if len(qtd) >= 21 else None
-        vrel = (q["vol_hoje"] / (qmed * frac)) if (qmed and q.get("vol_hoje") and frac >= 30 / 420) else None   # projetado p/ o pregão inteiro
+        vrel = (q["vol_hoje"] / (qmed * frac)) if (qmed and q.get("vol_hoje") and frac >= 30 / MIN_PREGAO) else None   # projetado p/ o pregão inteiro
         flags = []
         if z is not None and abs(z) >= zlim:
             txt = f"oscilação {_num(r1 * 100, 1, True)}% = {_num(abs(z), 1)}σ"
@@ -473,7 +475,7 @@ def publicar(res: dict) -> None:
 
 def main() -> int:
     agora = datetime.now()
-    if "--forcar" not in sys.argv and (agora.weekday() >= 5 or not (ABRE <= agora.time() <= time(17, 40))):
+    if "--forcar" not in sys.argv and (agora.weekday() >= 5 or not (ABRE <= agora.time() <= ENCERRA)):
         print("fora do pregão"); return 0
     if "--forcar" not in sys.argv and not ha_pregao_hoje():
         print("sem pregão hoje (feriado na B3: nenhum papel líquido negociou depois da abertura)"); return 0
