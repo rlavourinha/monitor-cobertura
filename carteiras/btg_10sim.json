@@ -354,11 +354,189 @@
     }
    ],
    "desempenho": {
-    "mes_anterior": null,
+    "mes_anterior": 6.6,
     "ibov_mes_anterior": 5.0,
     "ibov_ytd": 15.6,
-    "_nota": "retorno do 10SIM em setembro não constava nas 9 primeiras páginas extraídas"
+    "_nota": "retorno de setembro (+6,6%) preenchido pela Table 5 do relatório de novembro"
    }
+  },
+  {
+   "mes": "2026-11",
+   "data": "2026-11-03",
+   "titulo": "A massive selloff",
+   "tese": "Ibovespa −10% em reais e −14,3% em dólar em outubro, após a eleição; juro longo nominal 15,3% (+136 bps no mês), real 7,8% (+32 bps). Bolsa a 7,3x P/L 12m à frente (8,8x ex-Petro&Vale), mais de 1 desvio abaixo da média; raras vezes abaixo de 7x. Lucros devem ser revisados para baixo (PIB 2027 0,6%, Selic parada em 13,75% até o fim de 2027, IPCA 2027 5,9%). Prêmio de risco de ações 3,6% (média 3,2%); spread de juro real sobre os EUA 520 bps. Estrangeiro: +R$ 21 bi acumulados até a véspera do 2º turno, −R$ 12,5 bi desde 19/10, +R$ 8,6 bi no mês. Mercado espera a equipe econômica e sinais de contenção de gasto; BTG não espera ajuste estrutural, mas um pacote de desaceleração da despesa poderia levar o juro real de 8% para 6,5–7,0%. Carteira com menos risco: câmbio mantido em 35% (Petrobras, Gerdau, Embraer), mais pagadoras de dividendo consistentes, menos bancos e construtoras; 30% em utilities/concessão (Sabesp TIR real 10,7%, Eneva 12,9%, Motiva 13%) e Rede D'Or a 12x. Desde 1998 o circuit breaker disparou 17 vezes antes de 2026 e em todas o Ibovespa estava ao menos 30% acima um ano depois; desta vez o fiscal é mais grave e Lula não parece reconhecer.",
+   "trocas": [
+    {
+     "entra": "CXSE3",
+     "sai": "ITUB4",
+     "motivo": "Itaú sai por deterioração das condições de crédito; Caixa Seguridade entra com DY de 7% e crescimento de lucro de 8–12%."
+    },
+    {
+     "entra": "UGPA3",
+     "sai": "CURY3",
+     "motivo": "Cury sai por risco de inflação de custos nas margens, apesar de 6x P/L e DY 12%; Ultrapar a 8,8x P/L 2027 com dividendo extraordinário possível que dobraria o yield."
+    },
+    {
+     "entra": "TIMS3",
+     "sai": "AXIA3",
+     "motivo": "TIM deve devolver ~9% do valor de mercado em dividendos até abril/2027; entra com 5% (Axia tinha 10%)."
+    }
+   ],
+   "carteira": [
+    {
+     "ticker": "PETR4",
+     "empresa": "Petrobras",
+     "setor": "Oil & Gas",
+     "peso": 15,
+     "upside": 18,
+     "pl26": 4.2,
+     "pl27": 5.5,
+     "ev26": 2.4,
+     "ev27": 2.5,
+     "mcap": 733693,
+     "adtv": 2760.7,
+     "tese": "Eleição não muda a direção estratégica. Produção ~2,9 MMbpd contra guidance de 2,5 (2026) e 2,6 (2027); margens de refino sustentadas pela subvenção ao diesel. Plano Estratégico de 23/11 deve trazer mais produção e mais caixa/dividendos. Monitora a política de preços de 2026 (fora da banda no ano). FCFE yield 14–17% e DY 10–12% em 2027 com Brent US$ 70–80."
+    },
+    {
+     "ticker": "SBSP3",
+     "empresa": "Sabesp",
+     "setor": "Utilities",
+     "peso": 10,
+     "upside": 42,
+     "pl26": 18.5,
+     "pl27": 13.3,
+     "ev26": 8.7,
+     "ev27": 7.6,
+     "mcap": 87056,
+     "adtv": 838.0,
+     "tese": "Ação ~23% abaixo do nível pré-eleição. História de crescimento de longa duração: EBITDA/lucro contratados, dividendos crescentes, monopólio natural e ganhos de eficiência pós-privatização. Uma das principais escolhas para 6–12 meses, TIR real 10,7%."
+    },
+    {
+     "ticker": "EMBJ3",
+     "empresa": "Embraer",
+     "setor": "Capital Goods",
+     "peso": 10,
+     "upside": 38,
+     "pl26": 23.2,
+     "pl27": 19.3,
+     "ev26": 12.3,
+     "ev27": 11.2,
+     "mcap": 70913,
+     "adtv": 671.7,
+     "tese": "3T forte: produção em alta puxando margens e alavancagem operacional; FCF positivo com entregas e encomendas pós-Farnborough. Momentum de lucro até o fim do ano (sazonalidade). Real mais fraco ajuda a exportadora. 11x EV/EBITDA 2027, justo pelos fundamentos e com revisões para cima."
+    },
+    {
+     "ticker": "RDOR3",
+     "empresa": "Rede D'Or",
+     "setor": "Healthcare",
+     "peso": 10,
+     "upside": 83,
+     "pl26": 13.9,
+     "pl27": 11.6,
+     "ev26": 6.5,
+     "ev27": 5.4,
+     "mcap": 69069,
+     "adtv": 416.9,
+     "tese": "De-rating forte: ~12x P/L 2027, 35% abaixo da média histórica, com momentum de lucro intacto. Consolidação em hospitais, seguros e oncologia; 2T surpreendeu para cima. Sem ruptura de modelo nem ameaça competitiva relevante: ação para todo cenário."
+    },
+    {
+     "ticker": "CXSE3",
+     "empresa": "Caixa Seguridade",
+     "setor": "Financials",
+     "peso": 10,
+     "upside": 17,
+     "pl26": 13.8,
+     "pl27": 12.6,
+     "ev26": null,
+     "ev27": null,
+     "mcap": 64140,
+     "adtv": 197.9,
+     "tese": "Entra no lugar do Itaú para reduzir risco: lucro previsível (+10% em 2027), DY 7% e sensibilidade positiva a juro alto por mais tempo. Carteira de seguros de longa duração limita volatilidade; crescimento via crédito imobiliário e reservas de previdência; receita financeira compensa pressão no prestamista."
+    },
+    {
+     "ticker": "ENEV3",
+     "empresa": "Eneva",
+     "setor": "Utilities",
+     "peso": 10,
+     "upside": 40,
+     "pl26": null,
+     "pl27": null,
+     "ev26": 12.8,
+     "ev27": 11.8,
+     "mcap": 49353,
+     "adtv": 424.6,
+     "tese": "Leilão de capacidade de março superou expectativas (alvo de R$ 20 para R$ 31) e deu visibilidade aos fluxos: de veículo de preço spot para fluxo de caixa estável, com dilema crescimento vs dividendos a partir de 2029. TIR 12,9% com opcionalidades."
+    },
+    {
+     "ticker": "GGBR4",
+     "empresa": "Gerdau",
+     "setor": "Metal & Mining",
+     "peso": 10,
+     "upside": 11,
+     "pl26": 8.8,
+     "pl27": 8.0,
+     "ev26": 4.1,
+     "ev27": 3.8,
+     "mcap": 46682,
+     "adtv": 301.4,
+     "tese": "~75% do EBITDA nos EUA, margens acima de 20% por mais tempo (tarifas, preço do aço, demanda de data centers). No Brasil o pior ficou para trás: margens no piso e antidumping inicial. Proteção em dólar. 3,8x EV/EBITDA 2027 e ~10% de retorno total em 12 meses com dividendos e recompras."
+    },
+    {
+     "ticker": "TIMS3",
+     "empresa": "TIM",
+     "setor": "TMT",
+     "peso": 5,
+     "upside": 15,
+     "pl26": 10.7,
+     "pl27": 9.2,
+     "ev26": 4.3,
+     "ev27": 4.1,
+     "mcap": 45604,
+     "adtv": 194.8,
+     "tese": "Entra no lugar da Axia. Ação ~30% abaixo do pico do ano por competição e desaceleração, já no preço. Distribuições equivalentes a ~9% do valor de mercado até abril/2027 (menos de 6 meses): suporte de valuation e retorno ao acionista, opção defensiva."
+    },
+    {
+     "ticker": "UGPA3",
+     "empresa": "Ultrapar",
+     "setor": "Oil & Gas",
+     "peso": 10,
+     "upside": 23,
+     "pl26": 7.4,
+     "pl27": 8.8,
+     "ev26": 4.0,
+     "ev27": 4.9,
+     "mcap": 34642,
+     "adtv": 449.5,
+     "tese": "Entra no lugar da Cury. 8,8x P/L 2027 (média de 5 anos 11,5x), FCFE yield ~14% e DY ~6,5% já com margem normalizada de R$ 225/m³ na Ipiranga em 2027 (hoje acima de R$ 350/m³, volumes +8–10%). Alavancagem ~1,0x e foco em distribuição; dividendo extraordinário possível (~R$ 2 bi, ~6% do mcap) em dezembro ou no 4T26."
+    },
+    {
+     "ticker": "MOTV3",
+     "empresa": "Motiva",
+     "setor": "Transportation",
+     "peso": 10,
+     "upside": 43,
+     "pl26": 11.3,
+     "pl27": 10.1,
+     "ev26": 6.3,
+     "ev27": 6.0,
+     "mcap": 28139,
+     "adtv": 352.0,
+     "tese": "Defensiva: resultados resilientes (demanda, tarifas indexadas, proteção de tráfego, agenda de eficiência). Fechamento do negócio de aeroportos reforçou o balanço; pipeline brownfield de R$ 20 bi+ (aditivos em rodovias). Saída da Mover do bloco de controle tira overhang de governança. TIR real 13%."
+    }
+   ],
+   "desempenho": {
+    "mes_anterior": -6.5,
+    "ibov_mes_anterior": -9.9,
+    "ibrx50_mes_anterior": -9.3,
+    "ytd": 8.6,
+    "ibov_ytd": 4.2,
+    "ibrx50_ytd": 6.1,
+    "cdi_ytd": 11.7,
+    "desde_out2009": 620.3,
+    "ibov_desde_out2009": 173.0,
+    "ibrx50_desde_out2009": 230.0
+   },
+   "fonte": "data/btg/txt/123863.txt (id 123863, 18 páginas, Tables 1, 3, 4 e 5)"
   }
  ],
  "historico": [
@@ -3444,7 +3622,82 @@
      "upside": 51,
      "pl26": 7.0
     }
-   ]
+   ],
+   "ret_mes_anterior": 6.6,
+   "nota": "retorno do mês anterior pela Table 5 do relatório de novembro"
+  },
+  {
+   "mes": "2026-11",
+   "data": "03 November 2026",
+   "carteira": [
+    {
+     "ticker": "PETR4",
+     "peso": 15,
+     "upside": 18,
+     "pl26": 4.2
+    },
+    {
+     "ticker": "SBSP3",
+     "peso": 10,
+     "upside": 42,
+     "pl26": 18.5
+    },
+    {
+     "ticker": "EMBJ3",
+     "peso": 10,
+     "upside": 38,
+     "pl26": 23.2
+    },
+    {
+     "ticker": "RDOR3",
+     "peso": 10,
+     "upside": 83,
+     "pl26": 13.9
+    },
+    {
+     "ticker": "CXSE3",
+     "peso": 10,
+     "upside": 17,
+     "pl26": 13.8
+    },
+    {
+     "ticker": "ENEV3",
+     "peso": 10,
+     "upside": 40,
+     "pl26": null
+    },
+    {
+     "ticker": "GGBR4",
+     "peso": 10,
+     "upside": 11,
+     "pl26": 8.8
+    },
+    {
+     "ticker": "TIMS3",
+     "peso": 5,
+     "upside": 15,
+     "pl26": 10.7
+    },
+    {
+     "ticker": "UGPA3",
+     "peso": 10,
+     "upside": 23,
+     "pl26": 7.4
+    },
+    {
+     "ticker": "MOTV3",
+     "peso": 10,
+     "upside": 43,
+     "pl26": 11.3
+    }
+   ],
+   "ret_mes_anterior": -6.5,
+   "ytd": 8.6,
+   "ytd_ibov": 4.2,
+   "acum_2009": 620.3,
+   "acum_2009_ibov": 173.0,
+   "acum_2009_ibrx50": 230.0,
+   "nota": "P/L 2026E só na Table 4; Table 1 traz 2027E. CXSE3 e ENEV3 sem P/L em parte dos anos (n.a.)"
   }
  ],
  "_nota_historico": "historico: carteira de cada mês (Table 1 do relatório: peso, upside e P/L do ano corrente estimados pelo BTG) e desempenho citado no relatório (retorno do mês anterior; YTD 10SIM e Ibovespa; acumulado desde out/2009 de 10SIM, Ibovespa e IBrX-50). Extraído do visor do portal (pdf.js, sem download) em 26/09/2026; ago/25 não estava listado; meses com 'nota' têm tabela parcial (9 linhas) ou reconstruída."
