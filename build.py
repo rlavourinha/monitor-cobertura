@@ -640,13 +640,15 @@ def svg_linhas(cid: str, series: list[tuple[str, str, list[list]]], dec=1, pref=
                curtas: bool = False, sombra_desde: str | None = None, gap: int = 45, livre: bool = False, coluna: bool = False,
                nominal: bool = False, resol: dict[str, list[list]] | None = None,
                ativos: list[str] | None = None, alts: dict[str, list[list]] | None = None, titulo_base: str = "",
-               periodos: list[list[str]] | None = None) -> str:
+               periodos: list[list[str]] | None = None, div: dict[str, list[list]] | None = None, medref: bool = False) -> str:
     """Gráfico de linhas genérico (1 a 4 séries), crosshair via JS. series = [(nome, cor_css, [[data, v, ...extras], ...])].
     bandas = {índice da série: [[data, mínimo, máximo], ...]} desenha a faixa sombreada na cor da série (formato mín–máx + média).
     extras = nomes dos campos adicionais de cada ponto (p[2:]), exibidos no tooltip.
     gap = lacuna máxima (dias) entre pontos ligados por linha; séries trimestrais precisam de gap maior (ex.: 120).
     livre = rótulos de fim de linha posicionados um a um (_rotulos_livres) em vez da pilha única à direita: para séries que
     terminam em datas diferentes ou convergem no mesmo valor.
+    div = {ativo: [[data, divisor, data-base?], ...]} em degraus: ao trocar de ativo, o JS divide a série de preço pelo último
+    divisor com data ≤ dia (P/VP = fechamento ÷ VPA do último balanço entregue); degrau com data-base anterior ao 1º preço é ignorado. medref = o JS recalcula a referência "mediana" da 1ª série.
     coluna = margem direita maior e rótulos das séries que terminam na borda em coluna à direita dos pontos (_rotulos_coluna);
     os demais seguem a regra livre. Para muitas séries que terminam juntas (a pilha acima dos pontos desalinha rótulo e série).
     nominal = série acumulada (ex.: fluxo): a janela rebaseia cada série em zero no seu início, então o rótulo de fim e a
@@ -751,7 +753,8 @@ def svg_linhas(cid: str, series: list[tuple[str, str, list[list]]], dec=1, pref=
     data_js = json.dumps({"series": [{"n": n, "cor": c, "pts": [_r(p) for p in pts], "st": st} for (n, c, pts), st in zip(series, estilos)], "bandas": {str(k): [_r(p) for p in v] for k, v in bandas.items()},
                           "refs": [[r[0], r[1], r[2]] for r in refs], "pref": pref, "suf": suf, "dec": dec, "extras": extras or [],
                           "titulo": titulo, "W": W, "H": H, "ML": ML, "MR": MR, "MT": MT, "MB": MB, "gap": gap, "livre": livre, "coluna": coluna,
-                          "nominal": nominal, "resol": resol or {}, "alts": alts or {}, "tituloBase": titulo_base, "periodos": periodos or []})
+                          "nominal": nominal, "resol": resol or {}, "alts": alts or {}, "tituloBase": titulo_base, "periodos": periodos or [],
+                          "div": div or {}, "medref": medref})
     anos_total = (d1 - d0) / 365.25
     ini = ini if (ini and ini < anos_total) else 0        # janela inicial (anos); 0 = máx
     chips = "".join(f'<button data-a="{a}"{" disabled" if a >= anos_total else ""}{" class=on" if a == ini else ""}>{a}a</button>' for a in ((2, 3, 5, 10) if curtas else (1, 2, 3, 5, 10)))
@@ -2104,6 +2107,136 @@ def slide_valuation(M: dict, V: dict | None = None) -> tuple[str, str] | None:
                  f"revisão desconta esse fator (comum a essas empresas no guia); ~ = lucro marcado a mercado a cada guia (PRIO: câmbio e petróleo). Histórico em data/lucros_casas.json e data/pl_cvm.json. Recalculado a cada build "
                  f"(no pregão, a cada push do vigia ~5 min) com o preço do MT5; o ponto de hoje no gráfico usa esse preço.",
                  canto=f'<span class="mut" style="font-size:12px">{hora}</span>')
+
+
+def slide_valuation_empresa(M: dict, V: dict | None = None) -> tuple[str, str] | None:
+    """Valuation · por empresa: seletor de papel; à esquerda o P/L 12 meses à frente diário (lucro do BTG Stock Guide, desde o
+    1º guia guardado, abr/2026) com o Ibovespa como referência; à direita o P/VP diário desde 2020 (fechamento B3 ÷ VPA do
+    último balanço JÁ ENTREGUE à CVM, data de recebimento), cada um com a mediana do período. Os cartões seguem o seletor."""
+    from statistics import median
+    from fontes import b3 as _b3, cvm_pl
+    V = V or valuation_memo(M)
+    if not V or not V["linhas"]:
+        return None
+    H = cvm_pl.carrega_hist()
+    lin = {r["cod"]: r for r in V["linhas"]}
+    S1, S2 = "var(--s1)", "var(--s2)"
+    try:
+        C = json.loads((config.DATA / "ibov_comp.json").read_text(encoding="utf-8"))
+        em_ibov_dados = set(C.get("hist") or {})          # papéis cujo preço já está embutido em #ibov-dados
+    except Exception:
+        em_ibov_dados = set()
+    PR = _b3.series_todas(("fechamento",), desde="2020-01-01")
+
+    def precos(tk):
+        return _serie_com_hoje(tk, [(d, v) for d, v in PR.get(tk, []) if v])
+
+    def degraus(tk):      # [[entrega na CVM, VPA, data-base]] crescente: o P/VP de um dia usa o último balanço já público
+        st = sorted(((p[1] or p[0]), p[2], p[0], p[3]) for p in H.get(tk, []) if p[2] and p[2] > 0 and p[3])
+        out = []
+        pr = precos(tk)
+        for i, (d, v, base, pl) in enumerate(st):
+            out.append([d, v, base])
+            if i + 1 >= len(st):
+                break
+            d2, v2, _, pl2 = st[i + 1]
+            r = (pl2 / v2) / (pl / v)                 # ações implícitas do balanço seguinte ÷ deste (desdobramento/grupamento)
+            if not (r > 1.5 or r < 1 / 1.5):
+                continue
+            # o preço da B3 muda no dia do evento, o balanço com o novo nº de ações só chega meses depois: procura entre as duas
+            # entregas o pregão em que o preço mudou ~1/r e troca o VPA ali (MGLU3 grupou 10:1 em 27/05/24, ITR de 08/08/24)
+            ant = None
+            for dp, vp in pr:
+                if ant and d <= dp < d2 and vp and ant and abs(math.log((vp / ant) * r)) < math.log(1.25):
+                    out.append([dp, v / r, base])
+                    break
+                ant = vp
+        return out
+
+    def pvp_serie(tk):
+        pr = precos(tk)
+        st = [x for x in degraus(tk) if not pr or x[2] >= pr[0][0]]   # balanço de antes da listagem (IPO) não vale para o preço de depois
+        if not st:
+            return []
+        out, j = [], -1
+        for d, v in pr:
+            while j + 1 < len(st) and st[j + 1][0] <= d:
+                j += 1
+            if j >= 0 and v:
+                out.append([d, round(v / st[j][1], 4)])
+        return out
+
+    extra = set(config.UNIVERSO) | set(getattr(config, "VALUATION_EXTRA", []))
+    pl_de = {tk: [[d, round(v, 3)] for d, v in r["serie"]] for tk, r in lin.items() if len(r["serie"]) >= 2}
+    # P/VP: papéis do Ibov (preço já embutido) + cobertura/extras (preço embutido aqui); os demais ficariam pesados demais
+    pvp_de = {tk: pvp_serie(tk) for tk in sorted(set(H) & (em_ibov_dados | extra))}
+    pvp_de = {k: v for k, v in pvp_de.items() if len(v) >= 20}
+    ativos = sorted(set(pl_de) | set(pvp_de))
+    if not ativos:
+        return None
+    tk0 = next((t for t in config.UNIVERSO if t in ativos), ativos[0])
+
+    def med(ser):
+        return median(v for _, v in ser) if ser else None
+    T = {}
+    for tk in ativos:
+        r = lin.get(tk) or {}
+        pl, pv = pl_de.get(tk) or [], pvp_de.get(tk) or []
+        vs = sorted(v for _, v in pv)
+        pv_at = pv[-1][1] if pv else None
+        h = H.get(tk) or []
+        T[tk] = {"pl12": r.get("pl12"), "pl_med": med(pl), "pl_ini": pl[0][0] if pl else None, "pl_n": len(pl),
+                 "pvp": pv_at, "pvp_med": med(pv), "pvp_min": vs[0] if vs else None, "pvp_max": vs[-1] if vs else None,
+                 "pct": (sum(1 for v in vs if v <= pv_at) / len(vs)) if (vs and pv_at) else None, "pvp_ini": pv[0][0] if pv else None,
+                 "vpa": h[-1][2] if h else None, "bal": h[-1][0] if h else None, "receb": h[-1][1] if h else None, "pl_bal": h[-1][3] if h else None,
+                 "setor": r.get("setor") or "", "preco": (pv and (precos(tk) or [[None, None]])[-1][1]) or r.get("preco"),
+                 "ibov": tk in em_ibov_dados}
+    def ref_med(ser, dec):
+        m = med(ser)
+        return [(f"mediana {num(m, dec, suf='x')}", m)] if m else None
+    s_pl, s_pv = pl_de.get(tk0) or [], pvp_de.get(tk0) or []
+    g1 = svg_linhas("vemp-pl", [(tk0, S1, s_pl), ("Ibovespa", S2, [[d, round(v, 3)] for d, v in V["ibov"]])], 1, suf="x", W=560, H=250,
+                    refs=ref_med(s_pl, 1), titulo=f"{tk0} · P/L 12 meses à frente", titulo_base="P/L 12 meses à frente",
+                    ativos=ativos, alts={tk: v for tk, v in pl_de.items() if tk != tk0}, medref=True, livre=True)
+    g2 = svg_linhas("vemp-pvp", [(tk0, S1, s_pv)], 2, suf="x", W=560, H=250, refs=ref_med(s_pv, 2), titulo=f"{tk0} · P/VP",
+                    titulo_base="P/VP", ativos=ativos, alts={tk: precos(tk) for tk in pvp_de if tk not in em_ibov_dados},
+                    div={tk: degraus(tk) for tk in pvp_de}, medref=True)
+    tiles = "".join(f'<div class="tile"><div class="l" id="vemp-l{i}"></div><div class="v" id="vemp-v{i}"></div><div class="d" id="vemp-d{i}"></div></div>' for i in range(6))
+    dados_js = json.dumps(T, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
+    js = r"""<script>(function(){var A=document.getElementById('vemp-pl'),B=document.getElementById('vemp-pvp');if(!A||!B)return;
+var T=JSON.parse(document.getElementById('vemp-dados').textContent),tk0=document.getElementById('vemp-dados').getAttribute('data-tk0');
+var dA=JSON.parse(A.querySelector('script.data').textContent),dB=JSON.parse(B.querySelector('script.data').textContent);
+var sa=A.parentNode.querySelector('select.ativo'),sb=B.parentNode.querySelector('select.ativo');
+function f(v,d,suf){return v==null?'—':v.toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d})+(suf||'');}
+function dt(s){return s?s.slice(8,10)+'/'+s.slice(5,7)+'/'+s.slice(2,4):'—';}
+function T6(i,l,v,d){document.getElementById('vemp-l'+i).textContent=l;document.getElementById('vemp-v'+i).innerHTML=v;document.getElementById('vemp-d'+i).textContent=d;}
+function tiles(k){var t=T[k]||{};
+ T6(0,k+(t.setor?' · '+t.setor:''),f(t.preco,2),'preço de tela');
+ T6(1,'P/L 12m à frente',f(t.pl12,1,'x'),t.pl_med?'mediana '+f(t.pl_med,1,'x')+' desde '+dt(t.pl_ini):'sem lucro no guia do BTG');
+ T6(2,'P/VP',f(t.pvp,2,'x'),t.pvp_med?'mediana '+f(t.pvp_med,2,'x')+' desde '+dt(t.pvp_ini):'sem balanço na CVM');
+ T6(3,'P/VP · onde está na história',t.pct==null?'—':'p'+Math.round(t.pct*100),t.pvp_min?'mín '+f(t.pvp_min,2,'x')+' · máx '+f(t.pvp_max,2,'x'):'');
+ T6(4,'VPA',f(t.vpa,2),t.bal?'balanço de '+dt(t.bal)+' · entregue '+dt(t.receb):'');
+ T6(5,'PL dos controladores',t.pl_bal?'R$ '+f(t.pl_bal/1000,1,' bi'):'—',t.pct==null?'':(t.pvp>t.pvp_med?'acima':'abaixo')+' da mediana histórica');}
+function vazio(svg,on,msg){var p=svg.parentNode,e=p.querySelector('.vemp-vazio');if(!e){e=document.createElement('div');e.className='empty small vemp-vazio';p.appendChild(e);}
+ e.textContent=msg;e.style.display=on?'':'none';svg.style.visibility=on?'hidden':'';}
+function troca(k){if(sb&&sb.value!==k){sb.value=k;sb.dispatchEvent(new Event('change'));}
+ vazio(A,!(k===tk0||dA.alts[k]),k+': sem lucro no guia do BTG');vazio(B,!(dB.div[k]&&dB.div[k].length),k+': sem balanço na CVM');tiles(k);}
+if(sa)sa.addEventListener('change',function(){troca(sa.value);});tiles(tk0);
+})();</script>"""
+    corpo = (f'<div class="tiles strip" style="grid-template-columns:repeat(6,1fr);margin-bottom:10px">{tiles}</div>'
+             f'<div class="grid2 vemp" style="align-items:start"><div style="padding:10px 14px 4px"><div class="legend"><span><i style="background:{S1}"></i>papel escolhido</span>'
+             f'<span><i style="background:{S2}"></i>Ibovespa (agregado)</span><span><i style="background:var(--mut)"></i>mediana do período</span></div>{g1}</div>'
+             f'<div class="semsel" style="padding:10px 14px 4px"><div class="legend"><span><i style="background:{S1}"></i>papel escolhido</span><span><i style="background:var(--mut)"></i>mediana desde 2020</span></div>{g2}</div></div>'
+             f'<script type="application/json" id="vemp-dados" data-tk0="{tk0}">{dados_js}</script>{js}')
+    ini = V["ini"]
+    return slide("Macro", "valuation-empresa", "Valuation · por empresa", corpo,
+                 "Escolha o papel: quanto o mercado paga pelo lucro dos próximos 12 meses e pelo patrimônio, dia a dia, contra a própria história.",
+                 f"P/L 12m à frente = fechamento ÷ lucro por ação dos próximos 12 meses (lucro {V['ano0']} e {V['ano0'] + 1} do BTG Stock Guide interpolados por dias; "
+                 f"série desde o 1º guia guardado, {ini[8:]}/{ini[5:7]}/{ini[:4]}); Ibovespa = agregado da carteira teórica. P/VP = fechamento B3 (sem ajuste) ÷ VPA do último "
+                 f"balanço já entregue à CVM (PL dos controladores ÷ ações em circulação do mesmo trimestre, ITR/DFP; a troca de degrau acontece na data de "
+                 f"recebimento do documento, não na data-base); desde 1T20, 1º trimestre com a composição do capital nos dados abertos. Mediana do período mostrado. "
+                 f"Papéis fora do Ibovespa só os da cobertura e os de config.VALUATION_EXTRA. Histórico em data/pl_cvm_hist.json (mensal) e data/lucros_casas.json.",
+                 cls="vemp")
 
 
 def analise_volume(M: dict) -> dict | None:
@@ -4386,6 +4519,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font:15.5px/1.5 var(--f-corp
 .resol{display:flex;gap:4px;align-items:center;margin:0 0 4px;justify-content:flex-end}.resol span{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--mut);margin-right:2px}
 .resol button{font:inherit;font-size:11px;padding:1px 8px;border-radius:999px;border:1px solid var(--ring);background:var(--sf);color:var(--ink2);cursor:pointer;line-height:1.5}.resol button.on{background:var(--s1);color:#fff;border-color:var(--s1)}
 .lin .resol+.janela{margin-top:-2px}.lin .resol+.resol{margin-top:-2px}
+.semsel .resol{display:none}.vemp-vazio{position:absolute;left:12%;right:12%;top:42%;z-index:2}.vemp .lin{position:relative}
 select.ativo{font:inherit;font-size:11.5px;padding:1px 6px;border-radius:8px;border:1px solid var(--ring);background:var(--sf);color:var(--ink);max-width:150px}
 .dec .janela{gap:3px}.dec .janela button{font-size:10.5px;padding:1px 6px}
 .dec table.mini td,.dec table.mini th{padding:2px 5px;white-space:nowrap}.dec .mut{font-size:10.5px}
@@ -4630,7 +4764,10 @@ JS = r"""
     var selA=svg.parentNode.querySelector('select.ativo');
     if(selA){selA.addEventListener('change',function(){var k=selA.value,pts=(data.alts||{})[k];
       if(!pts){try{var ID=window.__ibovDados||(window.__ibovDados=JSON.parse(document.getElementById('ibov-dados').textContent));pts=(ID.hist||{})[k];}catch(e){}}
-      if(!pts||!pts.length)return;var s0=data.series[0];data.series=[{n:k,cor:s0.cor,pts:pts,o:pts.map(function(p){return ord(p[0]);})}].concat(data.series.slice(1));
+      if(!pts||!pts.length)return;
+      if(data.div&&data.div[k]){var d00=pts[0][0],dv=data.div[k].filter(function(x){return !x[2]||x[2]>=d00;}),out=[];pts.forEach(function(p){var v=null;for(var q=0;q<dv.length;q++){if(dv[q][0]<=p[0])v=dv[q][1];else break;}if(v&&v>0&&p[1]!=null)out.push([p[0],p[1]/v]);});pts=out;if(!pts.length)return;}
+      if(data.medref){var vs=pts.map(function(p){return p[1];}).filter(function(v){return v!=null;}).sort(function(a,b){return a-b;});var md=vs[Math.floor(vs.length/2)];data.refs=[['mediana '+num(md,data.dec)+(data.suf||''),md,'var(--mut)']];}
+      var s0=data.series[0];data.series=[{n:k,cor:s0.cor,pts:pts,o:pts.map(function(p){return ord(p[0]);})}].concat(data.series.slice(1));
       data.titulo=k+(data.tituloBase?' · '+data.tituloBase:'');render(svg._anos||0);});}
     var chips=svg.parentNode.querySelector('.janela');
     if(chips&&!svg.dataset.nosel){var bl=document.createElement('button');bl.className='limpar-sel';bl.type='button';bl.textContent='✕ seleção';bl.title='Limpa o intervalo selecionado por clique (ou tecle Esc, ou dê duplo clique no gráfico)';
@@ -5241,6 +5378,9 @@ def secao_macro(mercado_micro: dict) -> list[tuple[str, str]]:
     svv = slide_valuation(M)
     if svv:
         S.append(svv)
+    sve = slide_valuation_empresa(M)
+    if sve:
+        S.append(sve)
     srh = slide_rpm_historico(M, sgs)
     if srh:
         S.append(srh)

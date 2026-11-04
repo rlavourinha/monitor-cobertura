@@ -537,6 +537,12 @@ def semanal_pl_cvm():
     return cvm_pl.atualiza()
 
 
+def mensal_pl_cvm_hist():
+    """Histórico trimestral do PL e do VPA desde 1T20 (CVM, ITR + DFP) para o P/VP diário do slide Valuation · por empresa."""
+    from fontes import cvm_pl
+    return cvm_pl.historico()
+
+
 def diario_smll_comp():
     """Carteira teórica do SMLL (B3) em data/smll_comp.json: códigos, pesos e quantidades teóricas (valuation das small caps)."""
     from fontes import b3
@@ -566,7 +572,7 @@ JANELAS = {
                ("minhas estimativas", diario_minhas), ("cotações universo", intraday_universo), ("cotações mercado", intraday_mercado),
                ("cotações Ibovespa", intraday_ibov_comp)],
     "semanal": [("Focus", semanal_focus), ("Focus longo", semanal_focus_longo), ("Ibovespa DY histórico", semanal_ibov_dy_hist), ("PL CVM (P/VP)", semanal_pl_cvm)],
-    "mensal": [("SGS mensais", mensal_sgs), ("realizado anual", mensal_realizado), ("carteiras CVM", mensal_carteiras_cvm), ("IBGE contas nacionais", mensal_contas_nacionais), ("ciclos: termos de troca e desemprego", mensal_ciclos)],
+    "mensal": [("SGS mensais", mensal_sgs), ("realizado anual", mensal_realizado), ("carteiras CVM", mensal_carteiras_cvm), ("IBGE contas nacionais", mensal_contas_nacionais), ("ciclos: termos de troca e desemprego", mensal_ciclos), ("PL CVM histórico (P/VP)", mensal_pl_cvm_hist)],
 }
 JANELAS["tudo"] = JANELAS["mensal"] + JANELAS["semanal"] + JANELAS["diario"]
 def mt5_extrato_intraday():
