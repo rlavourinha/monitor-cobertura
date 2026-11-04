@@ -527,7 +527,10 @@ def mt5_diario():
 def mt5_m1():
     if not mt5.disponivel():
         raise RuntimeError("terminal MT5 da Genial fechado ou sem login")
-    return mt5.atualiza_m1(_tickers_mt5(), config.DATA / "mt5", date.today().year)
+    r = mt5.atualiza_m1(_tickers_mt5(), config.DATA / "mt5", date.today().year)
+    from fontes import perfil_volume                      # perfil intradiário de volume (vigia) a partir das barras novas
+    top = [i["cod"] for i in sorted(json.loads((config.DATA / "ibov_comp.json").read_text(encoding="utf-8")).get("itens", []), key=lambda i: -(i.get("peso") or 0))][:30]
+    return r + "; " + perfil_volume.calcula(top or _tickers_mt5()[:30])
 
 
 # ----------------------------------------------------------------------------- janelas

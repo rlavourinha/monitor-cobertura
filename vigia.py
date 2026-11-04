@@ -19,6 +19,7 @@ import sys
 from datetime import date, datetime, time, timedelta
 
 import config
+from fontes import perfil_volume
 from fontes import b3, dap, di, mt5, telegram
 
 ARQ = config.DATA / "alertas_tempo_real.json"
@@ -153,7 +154,9 @@ def avaliar(snap: dict) -> dict:
     """Junta o intraday com o histórico (COTAHIST) e calcula z, retorno e volume relativo projetado."""
     S = b3.series_todas(("fechamento", "quantidade", "volume"), desde="2025-06-01")
     agora = datetime.now()
-    frac = min(1.0, max(0.0, ((agora.hour * 60 + agora.minute) - (ABRE.hour * 60)) / ((FECHA.hour - ABRE.hour) * 60)))
+    # fração ESPERADA do volume do dia já negociada (perfil empírico por regime de 7h/8h, fontes/perfil_volume; a última hora
+    # com o leilão concentra ~28% do dia, a fração linear subestimava a projeção em ~17% à tarde). Sem perfil: linear.
+    frac = perfil_volume.fracao(agora, ABRE, FECHA)
     zlim, vlim = getattr(config, "ALERTA_Z", 2.0), getattr(config, "ALERTA_VOL", 2.0)
     # Ibovespa: fechamentos diários (para o beta de 60 pregões) e retorno de hoje (BOVA11) para o alfa do dia
     ib_hist = _ibov_diario()
@@ -187,7 +190,7 @@ def avaliar(snap: dict) -> dict:
             alpha = math.log(1 + r1) - beta * math.log(1 + rm_hoje)
             za = alpha / sig_a
         qmed = sum(qtd[-21:]) / 21 if len(qtd) >= 21 else None
-        vrel = (q["vol_hoje"] / (qmed * frac)) if (qmed and q.get("vol_hoje") and frac >= 30 / MIN_PREGAO) else None   # projetado p/ o pregão inteiro
+        vrel = (q["vol_hoje"] / (qmed * frac)) if (qmed and q.get("vol_hoje") and frac >= 30 / MIN_PREGAO) else None   # projetado p/ o pregão inteiro (acumulado ÷ fração esperada)
         flags = []
         if z is not None and abs(z) >= zlim:
             txt = f"oscilação {_num(r1 * 100, 1, True)}% = {_num(abs(z), 1)}σ"
