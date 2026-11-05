@@ -24,12 +24,16 @@ def _iso(s: str) -> str:
 
 EXTRAP_MAX = 1.5   # anos: até onde o vértice pode passar do título mais longo (o Tesouro só lança NTN-F nova a cada 2 anos,
                    # então o prefixado de 10 anos fica 9,x anos durante ~11 meses; sem isso a série de 10 anos abria um buraco)
+EXTRAP_MIN = 1.0   # anos: até onde o vértice pode ficar AQUÉM do título mais curto (taxa flat do mais curto). A NTN-B mais
+                   # curta (mai/2029) passou de 2,15 anos em 14/08/2026 e o juro real de 2 anos — e a implícita de 2 anos do
+                   # slide Focus vs implícita — ficou nulo até 30/10 (2,54 anos). Era 0,15.
 
 
 def _interp(pontos: list[tuple[float, float]], alvo: float) -> float | None:
-    """Interpolação linear entre vértices; além do último título, extrapolação linear pelos dois mais longos até EXTRAP_MAX anos."""
+    """Interpolação linear entre vértices; além do último título, extrapolação linear pelos dois mais longos até EXTRAP_MAX anos;
+    aquém do primeiro, taxa flat do mais curto até EXTRAP_MIN anos."""
     pts = sorted(pontos)
-    if not pts or alvo < pts[0][0] - 0.15 or alvo > pts[-1][0] + EXTRAP_MAX:
+    if not pts or alvo < pts[0][0] - EXTRAP_MIN or alvo > pts[-1][0] + EXTRAP_MAX:
         return None
     for (x0, y0), (x1, y1) in zip(pts, pts[1:]):
         if x0 <= alvo <= x1:

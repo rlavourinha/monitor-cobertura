@@ -4140,7 +4140,7 @@ def slides_focus(M: dict, sgs: dict) -> list[tuple[str, str]]:
         out.append(slide("Macro", "focus-vs-implicita", "Focus vs inflação implícita",
                          f'{leg}{g}<div class="grid2" style="align-items:start;margin-top:8px"><div>{g2}</div><div>{tab}</div></div>',
                          "O que o economista responde ao Focus contra o que o mercado paga na curva: a implícita de 2 anos carrega prêmio de risco e sazonalidade, por isso costuma correr acima do Focus 24 meses; o prêmio abrindo ou fechando é o sinal.",
-                         "BCB Focus (12 e 24 meses à frente, suavizado, média dos respondentes). Implícita: Tesouro Direto, vencimento constante de 2 anos, (1 + pré)/(1 + IPCA+) − 1 (fontes/curva.py). Séries desde " + config.FOCUS_DESDE[:4] + "."))
+                         "BCB Focus (12 e 24 meses à frente, suavizado, média dos respondentes). Implícita: Tesouro Direto, vencimento constante de 2 anos, (1 + pré)/(1 + IPCA+) − 1 (fontes/curva.py); quando a NTN-B mais curta passa de 2 anos (desde ago/2026, venc. mai/2029), o juro real de 2 anos usa a taxa dela (flat até 1 ano aquém). Séries desde " + config.FOCUS_DESDE[:4] + "."))
 
     # --- Focus fiscal: dívida bruta e líquida por ano de referência (série completa) contra o realizado (SGS)
     dirp = config.DATA / "focus_longo"
