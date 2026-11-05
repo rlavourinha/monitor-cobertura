@@ -12,3 +12,5 @@ data/btg/
 data/bba/
 data/bradesco/
 data/cartas/
+
+data/tesouro_direto.csv   # cache do Tesouro Transparente (15 MB): commitado por engano em 27/10, o checkout no runner o carimbava como fresco e a curva parou em 26/10
