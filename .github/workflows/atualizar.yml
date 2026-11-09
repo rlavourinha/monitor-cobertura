@@ -90,8 +90,13 @@ jobs:
           dow=$(date +%u); hm=$(date +%H%M); agora=$(date +%s); hoje6=$(date -d "today 06:00" +%s)
           ult_col=$(git log -1 --format=%ct --grep='^atualização \(intraday\|diario\)' origin/${{ github.ref_name }} || echo 0)
           ult_dia=$(git log -1 --format=%ct --grep='^atualização diario' origin/${{ github.ref_name }} || echo 0)
+          # 09/11/2026: o cron das 08:45 (semanal) também caiu e o Focus ficou uma semana atrasado. Segunda ou terça depois
+          # das 09:30 sem coleta semanal desde sábado (a terça cobre feriado na segunda) -> dispara semanal.
+          ult_sem=$(git log -1 --format=%ct --grep='^atualização semanal' origin/${{ github.ref_name }} || echo 0)
+          sab=$(date -d "last saturday 00:00" +%s)
           j=""
           if [ "$dow" -le 5 ] && [ "$hm" -ge 0900 ] && [ "${ult_dia:-0}" -lt "$hoje6" ]; then j=diario
+          elif [ "$dow" -le 2 ] && [ "$hm" -ge 0930 ] && [ "${ult_sem:-0}" -lt "$sab" ]; then j=semanal
           elif [ "$dow" -le 5 ] && [ "$hm" -ge 1015 ] && [ "$hm" -le 1830 ] && [ $(( agora - ${ult_col:-0} )) -gt 7800 ]; then j=intraday; fi
           if [ -z "$j" ]; then echo "coleta em dia"; exit 0; fi
           ativos=$(gh run list --workflow atualizar.yml --limit 20 --json event,status -q '[.[] | select(.event != "push" and (.status == "queued" or .status == "in_progress" or .status == "waiting"))] | length')
