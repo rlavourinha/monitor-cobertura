@@ -10,7 +10,9 @@ Checa (tarefa do Windows "Monitor saude das rotinas", de hora em hora):
 - sessão do portal do Itaú BBA: data/bba/sessao.json (gravado pela visita de manutenção a cada 3-4 h);
 - tarefas do Windows (BTG, checagem de preços, cartas, vigia): última execução e resultado;
 - vigia de preços no pregão: última linha de data/vigia.log;
-- GitHub Actions: última coleta agendada com sucesso.
+- GitHub Actions: última coleta agendada com sucesso;
+- login do Claude Code CLI (12/11/2026: venceu em 05/11 e as leituras ficaram uma semana sem rodar): deslogado ou a
+  CLI_AVISO_DIAS do vencimento.
 Cada problema é avisado uma vez a cada 6 h (data/saude_estado.json). `python saude_rotinas.py --teste` só imprime.
 """
 from __future__ import annotations
@@ -32,6 +34,7 @@ COLETAS = {"bba": ("Itaú BBA", [time(7, 40), time(10, 40), time(13, 40), time(1
 TOLERANCIA = timedelta(minutes=75)
 # tarefas do Windows: nome -> horas máximas desde a última execução em dia útil (None = só olha o resultado)
 TAREFAS = {"Monitor BTG relatorios": 14, "Monitor checagem de precos": 30, "Monitor cartas de gestao": 30}
+CLI_AVISO_DIAS = 3      # avisa quando faltar isso (ou menos) para o login do Claude Code CLI vencer
 
 
 def _ultimo_previsto(agora: datetime, horarios: list[time]) -> datetime | None:
@@ -147,9 +150,36 @@ def checa_github(agora: datetime) -> list[str]:
     return []
 
 
+def checa_cli(agora: datetime) -> list[str]:
+    """Login do Claude Code CLI (leituras headless e resumo das cartas dependem dele; o login vence a cada ~28 dias)."""
+    import shutil
+    from pathlib import Path
+    # o executável nativo vem primeiro: só ele devolve loginExpiresAt
+    cands = [Path.home() / ".local" / "bin" / "claude.exe", shutil.which("claude"), Path.home() / ".local" / "claude-cli" / "claude.cmd"]
+    exe = next((str(c) for c in cands if c and Path(c).exists()), None)
+    if not exe:
+        return ["Claude CLI: executável não encontrado (leituras e resumos das cartas não rodam)."]
+    try:
+        r = subprocess.run([exe, "auth", "status"], capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=90)
+        S = json.loads(r.stdout or "{}")
+    except Exception as e:
+        return [f"Claude CLI: não consegui ler o status do login ({str(e)[:80]})"]
+    if not S.get("loggedIn"):
+        return ["Claude CLI deslogado: leituras e resumos das cartas não rodam. Rode `claude auth login` no terminal."]
+    venc = S.get("loginExpiresAt")
+    if venc:
+        try:
+            v = datetime.fromisoformat(venc.replace("Z", "+00:00")).astimezone().replace(tzinfo=None)
+            if v - agora <= timedelta(days=CLI_AVISO_DIAS):
+                return [f"Claude CLI: o login vence em {v:%d/%m %H:%M}. Rode `claude auth login` antes disso para as leituras não pararem."]
+        except ValueError:
+            pass
+    return []
+
+
 def main() -> int:
     agora = datetime.now()
-    probs = checa_coletas(agora) + checa_tarefas(agora) + checa_vigia(agora) + checa_github(agora)
+    probs = checa_coletas(agora) + checa_tarefas(agora) + checa_vigia(agora) + checa_github(agora) + checa_cli(agora)
     E = json.loads(_ler(ESTADO, "{}") or "{}")
     novos = [p for p in probs if not E.get(p) or datetime.fromisoformat(E[p]) < agora - timedelta(hours=REPETE_H)]
     E = {p: (agora.isoformat(timespec="minutes") if p in novos else E.get(p)) for p in probs}   # problema resolvido sai do estado

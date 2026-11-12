@@ -7,6 +7,14 @@
   "cnpj_fonte": "CVM registro_fundo_classe (LEGACY CAPITAL FIC FIM; a classe B do relatório é 30.329.404/0001-94, mesmo master 29.236.556/0001-63)",
   "fontes": [
     {
+      "nome": "Carta Mensal 2026/10",
+      "url": "https://www.legacycapital.com.br/wp-content/uploads/202610_Carta-Mensal.pdf"
+    },
+    {
+      "nome": "Carta Mensal 2026/09",
+      "url": "https://www.legacycapital.com.br/wp-content/uploads/202609_Carta-Mensal.pdf"
+    },
+    {
       "nome": "Carta Mensal 2026/08",
       "url": "https://www.legacycapital.com.br/wp-content/uploads/202608_Carta-Mensal.pdf"
     },
@@ -71,48 +79,53 @@
       "url": "https://www.legacycapital.com.br/cartas/"
     }
   ],
-  "data": "2026-08-31",
-  "nota_fontes": "Carta Mensal de 8-12 páginas (painel de variação de preços, atribuição, cenário internacional, Brasil, posicionamento, lâmina com tabela de retornos), publicada nos dias 2-5 do mês seguinte em /wp-content/uploads/AAAAMM_Carta-Mensal.pdf. 15 cartas lidas (fev, mar, abr, set e dez/25 não estão no site; meses cobertos pela cota CVM).",
+  "data": "2026-10-31",
+  "nota_fontes": "Carta Mensal de 8-12 páginas (painel de variação de preços, atribuição, cenário internacional, Brasil, posicionamento, lâmina com tabela de retornos), publicada entre os dias 2 e 10 do mês seguinte em /wp-content/uploads/AAAAMM_Carta-Mensal.pdf (set/26 saiu em 07/10 e out/26 em 10/11, esta mais longa, com layout novo e bloco de destaques do mês). 17 cartas lidas, de jan/25 a out/26 (fev, mar, abr, set e dez/25 não estão no site; meses cobertos pela cota CVM).",
   "cenario": {
     "global": [
-      "Agosto/26: juros reais longos altos nos desenvolvidos por dois vetores estruturais, déficits/term premium e competição por capital do capex de IA (a casa ACEITA a tese que a K10 descarta); normalização do BoJ reduz demanda japonesa por Treasuries.",
-      "Warsh em Jackson Hole mais restritivo que a coletiva de julho; a casa espera alta de 25-50 bps no 2º semestre se os dados vierem como o mercado espera. Dados de curto prazo benignos (payroll -23 mil, núcleo perto da meta) mas tendência ainda não comprovada.",
-      "Petróleo bruto estável em US$ 80-90, pressão nos derivados e GNL (diesel, Europa); estoques caindo 5 mi b/d; sem negociação EUA-Irã."
+      "Outubro/26: crescimento global forte (capex de IA + fiscal expansionista) com choque de energia ainda pressionando a inflação; bancos centrais em aperto gradual. Fed (3,75-4,00%), BCE (2,50%) e BoJ subiram em setembro e mantiveram em outubro. Cenário-base: última alta de 25 bps em dezembro (Fed a 4,00-4,25%, BCE a 2,75%), mas a casa diz que a chance de pausa prolongada aumentou muito; em setembro ainda via risco de mais um aperto no 1T27.",
+      "IA virou o tema do mês: dúvida sobre o financiamento do capex (centenas de bilhões de dólares por ano antes da receita), competição de modelos de código aberto e regulação. Nasdaq -6,7%, S&P -0,9%; Treasuries fecharam cerca de 30 bps (2 anos -30, 10 anos -36) depois de os longos passarem de 5,0% em setembro; dólar global estável. A casa lê como problema de financiamento e de divisão do retorno na cadeia, não de demanda, e segue construtiva.",
+      "Eleições de meio de mandato (3/11): democratas levam as duas casas do Congresso. Três efeitos para a casa: concessões fiscais modestas de Trump, mais escrutínio regulatório sobre investimento em IA (custo maior, diversificação geográfica) e incentivo a acordos que baixem a energia. Daí a expectativa de acordo EUA-Irã para reabrir Ormuz e de avanço Rússia-Ucrânia em novembro.",
+      "Energia: WTI +17,8% e Brent +15,7% em outubro (ameaça de Trump de retomar operações contra o Irã), com recuo na reta final pela diplomacia; no ano, Brent +87,5%. Diesel perto das máximas históricas. Efeito sobre núcleos e expectativas longas ainda contido e condições financeiras mais apertadas: combinação que permite aperto gradual."
     ],
     "brasil": [
-      "Agosto: saída de estrangeiro da bolsa, real testa R$ 5,25, curva abre. Ainda assim, 'o acirramento da disputa eleitoral combinado a uma dinâmica técnica mais construtiva tornou mais favorável a relação risco-retorno dos ativos brasileiros'.",
-      "Maio/26: IPCA 2026 revisado a 5,1% e 2027 a 4,8% incorporando El Niño (o mais intenso desde 1850 nas previsões), fim da 6x1 e estímulos eleitorais; mesmo assim o BCB mantém a calibração gradual. Fevereiro/26 a casa esperava corte de 50 bps e 350-400 bps no ano, IPCA 3,5%: a guerra virou tudo.",
-      "Cenário-base de 2025 até agora: vitória da oposição em outubro de 2026 (Tarcísio em ago/25, Flávio Bolsonaro favorito em mar/26)."
+      "Lula reeleito no 2º turno, contra o cenário-base da casa: a carta de setembro (escrita após o 1º turno) dava Flávio Bolsonaro favorito, com vantagem superior a 4 p.p. A de outubro explica o resultado pela menor abstenção desde a redemocratização e por transferência de votos contrária à das pesquisas: Lula teria ficado com 60% dos votos vindos de outros candidatos e 85% dos de brancos e nulos, ganho líquido de 3 mi de votos contra desvantagem de 2,2 mi no 1º turno.",
+      "Preços em outubro: bolsa -9,9%, real -4,8% (câmbio de volta a R$ 5,50), Pré Jan/29 +120 bps e Jan/34 +136 bps, juros acima de 15% em grande parte da curva. Depois da reprecificação, inflação implícita perto de 7% e curva entre 15,5% e 16%.",
+      "Lula 4 começa como em 2022 no ceticismo fiscal, em condições piores: receio de heterodoxia (rever a meta de inflação para abrir espaço a corte de juros), ciclo desfavorável (consumo e investimento desacelerando em 2027) e promessas assistenciais de campanha. Para a casa, o tamanho do ajuste será ditado mais pelo dólar global que pelo investidor local: com câmbio a R$ 5,50 (nível pós-2022) o governo não tem urgência de indicar nomes aceitos pelo mercado nem de se comprometer com ajuste; processo decisório lento, mais ruído.",
+      "Projeções revistas: IPCA 5,3% em 2026 (5,1% em setembro), 5,7% em 2027 (4,7%) e 4,0% em 2028; PIB 1,5% em 2026 (mantido) e 0,0% em 2027 (1,0%). Assimetria para cima na inflação (combustíveis, reforma tributária, fim da 6x1) e para baixo no PIB. O posicionamento fala em estagflação em 2027, com inflação próxima de 6%.",
+      "BCB: a casa considera correta a manutenção em novembro (reduz a percepção de ingerência do governo) e defende Selic parada em 13,75% ao longo de 2027, mesmo com atividade fraca. Em setembro esperava aceleração dos cortes já em dezembro e taxa final perto de 10%, tudo condicionado à vitória da oposição."
     ],
     "tese_longa": [
       "2025 foi o ano do 'dólar fraco + cortes globais': vendido USD contra cesta de carry, aplicado em México/Europa/EUA, long tech; e entrada em Brasil (juros reais + nominais, bolsa) em junho/25 apostando em desaceleração, inflação caindo e governo impopular.",
-      "2026: janeiro e fevereiro ganhando com USD vendido e juros; março (-3,55%) 'mudança completa de cenário', cortou posições; abril a agosto ganhando em bolsa global, moedas e commodities; juros locais foram o detrator (março, junho).",
-      "Diferença de leitura sobre o Fed: em julho/26 viram Warsh 'priorizando discurso duro a ações' como possível erro de política; em agosto, Jackson Hole deslocou o balanço para alta. Convergem com K10 e Zeta no tomado curto EUA."
+      "2026: janeiro e fevereiro ganhando com USD vendido e juros; março (-3,55%) 'mudança completa de cenário', cortou posições; abril a setembro ganhando em bolsa global, moedas e commodities (julho, -1,16%, foi a exceção); juros locais foram o detrator (março, junho). Outubro (-0,20%) inverte o padrão: renda fixa pagou e volatilidade, crédito, ações e moedas tiraram.",
+      "Fed: em julho/26 viram Warsh 'priorizando discurso duro a ações' como possível erro de política; em agosto, Jackson Hole deslocou o balanço para alta, e a alta veio em setembro (25 bps). Revisto em out/26: a casa mantém uma última alta em dezembro como base, mas já trata a pausa prolongada como risco relevante. A convergência com K10 e Zeta no tomado curto EUA, registrada em agosto, deixou de valer para a Legacy: em setembro a casa se declarou perto do neutro em juros externos e começando a aplicar taticamente; outubro não descreve esse livro.",
+      "Revisto em out/26: caiu o cenário-base eleitoral que orientava o livro Brasil desde junho/25 (vitória da oposição). Com Lula reeleito, o que dependia dele foi desfeito: corte acelerado em dezembro e Selic perto de 10% viraram 13,75% parada em 2027; IPCA de 2027 foi de 4,7% para 5,7%; PIB de 2027 de 1,0% para 0,0%; e as principais posições em câmbio, juros e bolsa locais foram encerradas.",
+      "Continua valendo, com ajuste: juros reais longos altos nos desenvolvidos por fiscal e competição por capital da IA (setembro acrescentou o Fed alto por mais tempo). Outubro não abandona a tese, mas o mercado passou a duvidar do financiamento desse capex e os Treasuries cederam 30 bps; a casa segue otimista com IA e comprada em bolsa global. Dólar: de vendido (2025) para neutro esperando nível para recomprar (set/26) e, agora, intenção de explorar dólar mais fraco após as eleições americanas (out/26)."
     ]
   },
   "posicoes": {
-    "resumo_ago26": "Comprado em bolsas globais e em commodities (principais contribuições de agosto); moedas de carry e DM cíclicas contra dólar (reduzido após Warsh); valor relativo; Brasil com risco-retorno mais favorável após a reprecificação de agosto.",
-    "historico": "Jun/25 a fev/26: aplicado em juros reais e nominais BR + bolsa BR; long tech vs índices; vendido USD. Mar/26: redução significativa das posições. Abr-mai/26: bolsa global, moedas, commodities. Jun/26: moedas e valor relativo."
+    "resumo_out26": "Brasil: zerado. Cruzou o 2º turno com cerca de metade da posição de renda fixa e bolsa locais que tinha no 1º turno e, depois do resultado, encerrou as principais posições em câmbio, juros e ações; espera clareza sobre a política econômica para voltar. Bolsa global: comprado, mantido apesar da correção de tecnologia (lê a desalavancagem de hedge funds e sistemáticos como melhora técnica); ações -0,30 p.p. em outubro e -1,55 em 12 meses. Moedas: pretende explorar dólar mais fraco após as eleições de meio de mandato (em setembro estava neutro); -0,29 no mês, +1,36 em 12 m. Renda fixa (a carta não separa local e externa): +1,04 no mês, -1,14 em 12 m; a posição em juros externos não é descrita em outubro (em setembro, perto do neutro e começando a aplicar taticamente). Demais livros no mês: volatilidade -0,89 e crédito -0,38 (os dois maiores detratores), valor relativo +0,09, commodities -0,07. A carta traz atribuição do mês e de 12 meses, não do ano.",
+    "historico": "Jun/25 a fev/26: aplicado em juros reais e nominais BR + bolsa BR; long tech vs índices; vendido USD. Mar/26: redução significativa das posições. Abr-mai/26: bolsa global, moedas, commodities. Jun/26: moedas e valor relativo. Jul-ago/26: bolsas globais e commodities; em agosto, Brasil com risco-retorno mais favorável. Set/26: bolsa global seletiva, juros externos perto do neutro, dólar neutro e 'kit Brasil' equilibrado entre câmbio, juros e bolsa para a eleição. Out/26: metade da posição local no 2º turno, zerada depois."
   },
   "desempenho": {
     "mes": {
-      "fundo": 1.35,
-      "cdi": 1.17,
-      "ref": "2026-09"
+      "fundo": -0.2,
+      "cdi": 1.07,
+      "ref": "2026-10"
     },
     "ano": {
-      "fundo": 5.6,
-      "cdi": 10.5,
-      "pct_cdi": 53.3
+      "fundo": 5.39,
+      "cdi": 11.7,
+      "pct_cdi": 46.1
     },
     "anos": {
       "2025": {
         "fundo": 14.89,
         "cdi": 14.31
       },
-      "2026 (até set)": {
-        "fundo": 5.6,
-        "cdi": 10.5
+      "2026 (até out)": {
+        "fundo": 5.39,
+        "cdi": 11.7
       }
     },
     "mensal_2026": [
@@ -151,6 +164,10 @@
       [
         "09",
         1.35
+      ],
+      [
+        "10",
+        -0.2
       ]
     ],
     "mensal_2025": [
@@ -203,8 +220,8 @@
         1.03
       ]
     ],
-    "pl_mi": 107,
-    "nota": "Retornos mensais e anuais calculados pela cota diária da CVM (inf_diario, último dado 2026-10-01); PL de R$ 107 mi.",
+    "pl_mi": 105,
+    "nota": "Mês, ano e série mensal de 2026: números oficiais da lâmina da Carta Mensal de out/26 (cota de 30/10/2026): out -0,20%, ano +5,39% (46% do CDI na lâmina), 12 meses +7,51% (53% do CDI), desde o início em 29/06/2018 +133,80% (121% do CDI). Setembro (+1,35%), antes calculado pela cota CVM, foi confirmado pela carta de set/26 (ano +5,60%, 12 m +9,33%). CDI do mês (1,07%) é o da tabela de atribuição da carta; CDI do ano (11,7%) é derivado: 10,5% até setembro composto com outubro, coerente com os 46% da lâmina (pct_cdi 46,1 = 5,39 / 11,7). Atribuição de outubro (p.p.): renda fixa +1,04, valor relativo +0,09, commodities -0,07, moedas -0,29, ações -0,30, crédito -0,38, volatilidade -0,89; total -0,80, taxas -0,21, caixa +0,81. Em 12 meses: moedas +1,36, commodities +0,08, valor relativo -0,19, crédito -0,67, volatilidade -0,89, renda fixa -1,14, ações -1,55; total -3,00, taxas -2,02, caixa +12,53 (CDI 14,25%). A carta não traz atribuição do ano. PL da classe R$ 105 mi e do master R$ 2,39 bi em 30/10/2026 (PL médio 12 m R$ 129 mi); volatilidade anualizada 6,27%, Sharpe 0,20. Série mensal de 2025 segue da cota diária da CVM (data anterior; o ano de 2025, 14,89%, confere com a lâmina).",
     "anos_carta": {
       "2018": 5.17,
       "2019": 15.0,
@@ -216,10 +233,11 @@
     }
   },
   "leitura": [
-    "Legacy é a casa mais 'macro de texto' da amostra: cada carta traz projeções próprias (PIB, IPCA, core PCE, petróleo). Em 2026 as projeções de inflação BR foram de 3,5% (fev) para 4,7% (mar-abr) e 5,1% (mai): bom termômetro do choque.",
-    "Divergência com K10 sobre juros longos globais: Legacy atribui a alta a fiscal + competição por capital da IA (estrutural); K10 vê crescimento nominal e produtividade e descarta prêmio de solvência.",
-    "Convergência de agosto/26 com K10 e Genoa: eleição mais acirrada + técnico limpo = aumentar Brasil. Três casas macro apontando o mesmo gatilho no mesmo mês.",
-    "Ano em ~55% do CDI pela cota; 12 meses +9,4%. Perdeu em juros locais em março e junho, ganhou o resto em bolsa global."
+    "A casa apostou na vitória da oposição desde junho/25 e a carta de setembro foi a mais confiante: modelo próprio de pesquisas (gap educacional, transferência de 70/30 a favor da direita entre eleitores de candidatos de direita eliminados), Flávio Bolsonaro mais de 4 p.p. à frente, 'kit Brasil' em câmbio, juros e bolsa, corte acelerado em dezembro e Selic perto de 10%. Lula venceu. A carta de outubro fala em surpresa do mercado e das pesquisas e não menciona o cenário-base próprio; a conta dela mesma dá 60% dos votos transferidos para Lula.",
+    "O erro de cenário custou pouco porque a posição foi cortada antes: a casa diz ter cruzado o 2º turno com cerca de metade da renda fixa e da bolsa locais e fechado o ciclo eleitoral com resultado líquido positivo em Brasil. Outubro em -0,20% com Ibovespa -9,9%, real -4,8% e Pré +120 a +136 bps. Depois zerou câmbio, juros e ações locais: o cenário é de estagflação (IPCA 5,7%, PIB 0,0%, Selic 13,75% em 2027), mas com implícita perto de 7% e curva a 15,5-16% a casa não vê risco-retorno claro em posição direcional, para nenhum dos lados.",
+    "Duas inconsistências a registrar. (1) A carta de setembro, escrita depois do 1º turno, dizia seguir vendo assimetria favorável nos ativos locais; a de outubro diz que, depois do 1º turno, o risco-retorno ficou menos atrativo e a posição foi cortada à metade. (2) O texto atribui a perda de outubro às bolsas globais, mas a tabela mostra ações em -0,30 p.p. contra volatilidade -0,89 e crédito -0,38; renda fixa deu +1,04 num mês de abertura forte da curva local, sem a carta dizer de onde veio (Treasuries -30 bps é hipótese nossa, não confirmada).",
+    "Onde diverge: (a) mantém bolsa global comprada e visão construtiva de IA no mês em que o mercado passou a duvidar do financiamento do capex, lendo a desalavancagem como melhora técnica; (b) passa a mirar dólar mais fraco após a vitória democrata, um mês depois de esperar nível para recomprar dólar; (c) acha que o ajuste fiscal de Lula 4 será ditado pelo câmbio, não pelo mercado local, e que a R$ 5,50 não há urgência; (d) segue atribuindo o juro longo global a fiscal + capital para IA, tese que a K10 descarta.",
+    "Ano em 5,39% (46% do CDI) e 12 meses em 7,51% (53% do CDI). Na atribuição de 12 meses só moedas (+1,36 p.p.) e commodities (+0,08) ficam positivas; ações -1,55, renda fixa -1,14, volatilidade -0,89, crédito -0,67: os livros somam -3,00 p.p. antes de -2,02 de taxas. Segue a casa mais 'macro de texto' da amostra: o IPCA 2026 projetado saiu de 3,5% (fev) para 4,7%, 5,1% e agora 5,3%; o de 2027 foi de 4,7% para 5,7% em um mês."
   ],
   "periodos_cartas": [
     {
@@ -287,20 +305,20 @@
       "fim": "2026-09-30",
       "rotulo": "3T26",
       "cor": "#1baf7a",
-      "carta": "Cartas jul, ago/26 (set/26 sai ~2/10)",
+      "carta": "Cartas jul, ago, set/26",
       "tipo": "primária",
-      "cenario": "Julho: desalavancagem técnica (pods, ETFs alavancados) com fundamentos melhorando; Warsh brando na coletiva lido como possível erro; Brasil: curva abre, real e bolsa sobem com petróleo. Agosto: juros reais longos altos (fiscal + IA), Jackson Hole, Fed +25-50 no 2S; Brasil com risco-retorno mais favorável.",
-      "resultado": "Jul -1,16% (bolsas globais), ago +0,84% (bolsas globais e commodities; 4,2% no ano, 9,4% em 12 m), set +1,35% pela cota CVM."
+      "cenario": "Julho: desalavancagem técnica (pods, ETFs alavancados) com fundamentos melhorando; Warsh brando na coletiva lido como possível erro; Brasil: curva abre, real e bolsa sobem com petróleo. Agosto: juros reais longos altos (fiscal + IA), Jackson Hole, Fed +25-50 no 2S; Brasil com risco-retorno mais favorável. Setembro: Fed (3,75-4,00%), BCE (2,50%) e BoJ sobem, Treasuries longos acima de 5,0%, diesel em novas máximas; Brasil na contramão dos emergentes com as pesquisas e o 1º turno: PIB 1,5%/1,0%, IPCA 5,1%/4,7%, simulações com Flávio Bolsonaro mais de 4 p.p. à frente no 2º turno, corte acelerado em dezembro e Selic perto de 10% se a oposição vencesse.",
+      "resultado": "Jul -1,16% (bolsas globais), ago +0,84% (bolsas globais e commodities; 4,2% no ano, 9,4% em 12 m), set +1,35% (ações +0,77 p.p., moedas +0,24, renda fixa +0,23, volatilidade -0,51; 5,60% no ano, 53% do CDI, 9,33% em 12 m). Em setembro: 'kit Brasil' equilibrado entre câmbio, juros e bolsa, dólar neutro, juros externos perto do neutro."
     },
     {
       "ini": "2026-10-01",
       "fim": "2026-12-31",
       "rotulo": "4T26",
-      "cor": "#8a8d92",
-      "carta": "Set/26 sai ~2/10",
-      "tipo": "lacuna",
-      "cenario": "Eleição, Copom, Fed.",
-      "resultado": "A preencher."
+      "cor": "#e0662b",
+      "carta": "Carta out/26 (nov e dez/26 ainda faltam)",
+      "tipo": "primária",
+      "cenario": "Outubro: Lula reeleito contra o cenário-base da casa (menor abstenção desde a redemocratização, 60% dos votos transferidos); câmbio a R$ 5,50, bolsa -9,9%, juros acima de 15%. IPCA 5,3%/5,7%, PIB 1,5%/0,0%: estagflação em 2027, Selic parada em 13,75%; governo sem urgência fiscal com o câmbio nesse nível. Fora: tecnologia cai com a dúvida sobre o financiamento do capex de IA, Treasuries -30 bps, Fed, BCE e BoJ mantêm; democratas levam o Congresso; acordo EUA-Irã mais provável.",
+      "resultado": "Out -0,20% (volatilidade -0,89 p.p., crédito -0,38, ações -0,30, moedas -0,29; renda fixa +1,04); ano 5,39% (46% do CDI), 12 m 7,51%. Cruzou o 2º turno com metade da posição local e depois zerou câmbio, juros e bolsa Brasil; segue comprado em bolsa global e mira dólar mais fraco. Nov e dez a preencher."
     }
   ]
 }

@@ -8,6 +8,10 @@
   "cnpj_fonte": "CVM, registro_fundo_classe (classe OPPORTUNITY TOTAL FIC DE FUNDOS DE INVESTIMENTO FINANCEIRO MULTIMERCADO, em funcionamento normal)",
   "fontes": [
     {
+      "nome": "Carta de Gestão, outubro/2026 (publicada 04/11/2026)",
+      "url": "https://www.opportunity.com.br/content/pdf/carta_gestor/CartaGestao_202610.pdf"
+    },
+    {
       "nome": "Carta de Gestão, setembro/2026 (publicada 02/10/2026)",
       "url": "https://www.opportunity.com.br/content/pdf/carta_gestor/CartaGestao_202609.pdf"
     },
@@ -96,127 +100,131 @@
       "url": "https://www.opportunity.com.br/Home/Destaques"
     }
   ],
-  "data": "2026-09-30",
-  "nota_fontes": "Carta mensal de 7 páginas (Cenário Macro Atual, Posicionamento, Atribuição de Performance por fundo), publicada no site da gestora nos primeiros dias do mês seguinte (setembro/26 saiu em 02/10/2026); PDFs em /content/pdf/carta_gestor/CartaGestao_AAAAMM.pdf, e CartaGestao_Total.pdf é sempre a mais recente. Jan/25 a set/26 (21 cartas) lidas na íntegra.",
+  "data": "2026-10-31",
+  "nota_fontes": "Carta mensal de 7 páginas (Cenário Macro Atual, Posicionamento, Atribuição de Performance por fundo), publicada no site da gestora nos primeiros dias do mês seguinte (outubro/26 saiu em 04/11/2026); PDFs em /content/pdf/carta_gestor/CartaGestao_AAAAMM.pdf, e CartaGestao_Total.pdf é sempre a mais recente. Jan/25 a out/26 (22 cartas) lidas na íntegra.",
   "cenario": {
     "global": [
-      "Setembro: curva de juros dos EUA deslocada para cima por crescimento global firme e energia cara; juro neutro percebido maior. Movimento em juros reais, inflação implícita parada perto das metas; bolsas aguentaram.",
-      "Fed e ECB subiram juros com tom hawkish e depois sinalizaram altas espaçadas; juros longos em níveis históricos impõem trade-offs à política econômica.",
-      "Dólar mais forte e volatilidade maior em juros e câmbio reduziram a atratividade das moedas emergentes.",
-      "Fio condutor desde março: guerra EUA-Irã e Hormuz (petróleo +60% em março, -20% em junho, estável ~20% acima do pré-conflito desde então) em cima de uma economia global resiliente; inflação 'contratada' levou BoJ, ECB, CNB, SARB e, em setembro, o Fed a subir juros.",
-      "IA: inflação de bens eletrônicos já é realidade, deflação por produtividade ainda é hipótese; ciclo de capex financiado por dívida pressiona juros de equilíbrio para cima (junho)."
+      "Outubro: o juro global alto começa a ter efeito mais amplo. Custo de financiamento crescente e resultados abaixo do esperado em empresas na fronteira da IA levaram à percepção de aperto mais forte das condições financeiras; as bolsas reagiram.",
+      "Curva dos EUA cedeu cerca de 30 bps nos trechos intermediário e longo sem dado fraco: o núcleo de inflação piorou em outubro (depois de uma revisão metodológica benigna) e a prévia do PIB do 3T confirmou demanda interna forte. O gatilho foi a vulnerabilidade do modelo de negócios das grandes de tecnologia: investimento alto com financiamento cada vez mais caro.",
+      "Fed manteve os juros no fim de outubro, depois da alta de setembro, e passou a dar peso implícito aos trade-offs do aperto das condições financeiras. ECB também manteve, reconheceu risco maior de queda do crescimento e indicou altas em reuniões alternadas; na Europa, incerteza fiscal e política soma prêmio de risco, e energia e combustíveis aproximam a inflação do cenário adverso do ECB.",
+      "México: a ata e as falas de diretores do Banxico reabriram espaço para cortes residuais; foco na inflação melhor sem pressão de demanda, menos preocupação com o diferencial de juros contra os EUA e com o câmbio.",
+      "Fio condutor desde março: guerra EUA-Irã e Hormuz (petróleo +60% em março, -20% em junho, ~20% acima do pré-conflito até setembro; a carta de outubro não atualiza o número) em cima de uma economia global resiliente; inflação 'contratada' levou BoJ, ECB, CNB, SARB e Fed a subir juros. Outubro é o primeiro mês em que o custo desse aperto entra na comunicação do Fed e do ECB."
     ],
     "brasil": [
-      "BCB cortou 25 bps em agosto e setembro, dependente de dados; sinais de fraqueza cíclica (crédito desacelerando, inadimplência piorando) e inflação melhor na margem.",
-      "Eleição é o fator central da curva desde dezembro/25: o acirramento da disputa elevou a probabilidade de compromisso fiscal e os juros reais longos recuaram (agosto e setembro), ainda acima da banda do início do ano.",
-      "Junho foi o mês ruim da renda fixa local: percepção de expansão fiscal por fora das regras do orçamento.",
-      "Posição estrutural desde dezembro/25: comprado em NTN-B e em ações domésticas que ganham com fechamento de curva e têm carrego; DI operado taticamente (curto em março-maio, intermediário com viés aplicador desde agosto)."
+      "Lula reeleito para o quarto mandato (2º turno em 25/10), contra as pesquisas e contra o que os ativos precificavam. Parte do mercado ligava a oposição a maior probabilidade de ajuste fiscal; a continuidade trouxe queda dos ativos e alta da curva de juros.",
+      "O que a casa passa a acompanhar: comando da Fazenda, estratégia de política fiscal e arcabouço formal da política monetária no novo mandato.",
+      "A carta de outubro não fala de Copom, atividade nem inflação doméstica; o quadro de setembro (BCB cortando 25 bps em agosto e setembro, crédito desacelerando, inadimplência piorando) não foi atualizado.",
+      "Posição estrutural desmontada em parte: a combinação mantida desde dezembro/25 (NTN-B longa mais ações domésticas de fechamento de curva) dependia do compromisso fiscal pós-eleição. NTN-B reduzida substancialmente, DI intermediário e índice de ações local zerados; ficou a seleção de ações domésticas."
     ],
     "tese_longa": [
-      "Juro real brasileiro longo é a posição-âncora da casa há pelo menos dez meses, independentemente do ruído mensal; a tese é fiscal pós-eleição mais ciclo de cortes.",
-      "No exterior, saiu do 'risk parity' (S&P + juros reais EUA, dez/25 a mai/26) para ações selecionadas de semicondutores, financeiro e mídia (jun/26 em diante) e tomado em juros nos EUA: aceitou que o mundo tem juro neutro maior.",
-      "Emergentes são posição tática, não estrutural: México entrou e saiu várias vezes; Chile, Tcheca, Suécia, Polônia e Reino Unido aparecem como relativos de curta duração."
+      "Revisto em outubro: o juro real brasileiro longo foi a posição-âncora de dez/25 a out/26, na tese de ajuste fiscal pós-eleição mais ciclo de cortes. A reeleição derrubou a premissa fiscal e a casa reduziu substancialmente a NTN-B (não zerou). A carta não apresenta tese nova para o Brasil, só o que vai observar: Fazenda, fiscal e arcabouço da política monetária.",
+      "Continua valendo, com ressalva: no exterior, ações selecionadas de semicondutores, financeiro e mídia (desde jun/26, depois do 'risk parity' de dez/25 a mai/26) e a leitura de juro neutro mais alto. Outubro traz a primeira qualificação: Fed e ECB em pausa por causa das condições financeiras, e a própria carta descreve a fragilidade das empresas de IA com capex alto e financiamento caro. A exposição em ações foi mantida; o Income reduziu levemente o tomado em juros nos EUA.",
+      "Continua valendo: emergentes são posição tática, não estrutural. México voltou em outubro (vendido no peso e aplicado na parte curta, depois da ata dovish do Banxico), um mês depois de o aplicado mexicano ser encerrado com perda; Colômbia intermediário entra no Income. Antes: Chile, Tcheca, Suécia, Polônia e Reino Unido como relativos de curta duração."
     ]
   },
   "posicoes": {
-    "brasil_juros": "Comprado em NTN-B longa (todas as cartas desde dez/25); DI com viés aplicador no trecho intermediário, tamanho sensível ao prêmio (set/26).",
-    "brasil_bolsa": "Exposição seletiva a ações domésticas que combinam potencial de valorização com fechamento de curva e carrego; protegida com venda de índice em fevereiro.",
-    "exterior": "Ações de semicondutores, serviços financeiros e mídia (desde jun/26); antes, risk parity com S&P 500 e juros reais americanos.",
-    "moedas": "Set/26: vendido euro e dólar canadense contra o dólar (ganho, encerrada). Income: comprado USDMXN como hedge e vendido USDBRL via opções.",
-    "emergentes": "Aplicado no juro mexicano (perda em set/26, encerrada); Tcheca intermediário aplicado em julho; Chile tomado em abr-jun.",
-    "income_renda_fixa": "Aplicado em NTN-B longa, nominal intermediário Brasil, México e África do Sul; tomado em juros nos EUA; relativos Reino Unido vs. Zona do Euro e steepening Polônia encerrados em setembro."
+    "brasil_juros": "NTN-B comprada reduzida substancialmente em out/26 (era a posição-âncora desde dez/25); DI intermediário zerado. Juros Brasil custaram 2,53 p.p. em outubro.",
+    "brasil_bolsa": "Exposição seletiva a ações domésticas mantida; posição em índice de ações local zerada (a carta não diz a direção). Bolsa Brasil foi o maior detrator de outubro: -3,28 p.p.",
+    "exterior": "Ações de semicondutores, serviços financeiros e mídia mantidas (desde jun/26); bolsa G10 -0,26 p.p. em outubro. Juros G10 custaram 0,57 p.p. com a curva americana cedendo ~30 bps; a carta não descreve essa posição na família Total.",
+    "moedas": "Out/26: vendido no peso mexicano (câmbio emergentes +0,30 p.p.). Câmbio Brasil -0,39 p.p. e câmbio G10 +0,06 p.p., sem posição descrita. Income: comprado em USDMXN como hedge parcial do aplicado no México; a carta de outubro não cita mais o vendido em USDBRL via opções.",
+    "emergentes": "México de novo: aplicado na parte curta da curva, combinado com o peso vendido, depois da ata dovish do Banxico (juros emergentes +0,05 p.p. em outubro). Em setembro o aplicado mexicano tinha sido encerrado com perda.",
+    "income_renda_fixa": "Reduziu moderadamente o aplicado em juro real longo no Brasil e, com mais força, o nominal intermediário; manteve aplicado no México (hedge parcial comprado em USDMXN) e na África do Sul; abriu pequeno aplicado no intermediário da Colômbia; tomado em juros nos EUA levemente reduzido. Opp Income -1,46% em outubro."
   },
   "desempenho": {
     "ano": {
-      "fundo": 7.59,
-      "pct_cdi": 72.2
+      "fundo": 1.4,
+      "pct_cdi": 11.98
     },
     "12m": {
-      "fundo": 11.71,
-      "pct_cdi": 80.84
+      "fundo": 3.64,
+      "pct_cdi": 25.52
     },
     "mes": {
-      "fundo": 1.24,
-      "cdi": 1.08,
-      "ref": "2026-09"
+      "fundo": -5.75,
+      "cdi": 1.07,
+      "ref": "2026-10"
     },
     "anos": {
       "2025": {
         "fundo": 13.5,
         "cdi": 14.9
       },
-      "2026 (até set)": {
-        "fundo": 7.59,
-        "cdi": 10.51
+      "2026 (até out)": {
+        "fundo": 1.4,
+        "cdi": 11.69
       }
     },
-    "atribuicao_mes_set26": [
+    "atribuicao_mes_out26": [
       [
-        "Juros Brasil",
-        0.61
-      ],
-      [
-        "Câmbio G10",
-        0.4
-      ],
-      [
-        "Bolsa G10",
+        "Câmbio emergentes",
         0.3
       ],
       [
-        "Bolsa Brasil",
-        0.21
-      ],
-      [
-        "Câmbio Brasil",
-        0.01
-      ],
-      [
-        "Câmbio emergentes",
-        -0.12
-      ],
-      [
-        "Custos",
-        -0.19
-      ],
-      [
-        "Juros G10",
-        -0.5
+        "Câmbio G10",
+        0.06
       ],
       [
         "Juros emergentes",
-        -0.56
+        0.05
+      ],
+      [
+        "Commodities",
+        0.01
+      ],
+      [
+        "Custos",
+        -0.21
+      ],
+      [
+        "Bolsa G10",
+        -0.26
+      ],
+      [
+        "Câmbio Brasil",
+        -0.39
+      ],
+      [
+        "Juros G10",
+        -0.57
+      ],
+      [
+        "Juros Brasil",
+        -2.53
+      ],
+      [
+        "Bolsa Brasil",
+        -3.28
       ]
     ],
-    "pl_medio_12m_mi": 171,
-    "outros_fundos_set26": {
+    "pl_medio_12m_mi": 168,
+    "outros_fundos_out26": {
       "Opp Total Evolution": [
-        1.59,
-        6.15,
-        10.98
+        -12.79,
+        -7.44,
+        -5.16
       ],
       "Opp Market": [
-        1.05,
-        8.66,
-        12.42
+        -1.7,
+        6.82,
+        9.07
       ],
       "Opp Income": [
-        1.77,
-        7.51,
-        11.29
+        -1.46,
+        5.94,
+        8.33
       ],
       "Opp Icatu Previdência": [
-        1.36,
-        6.18,
-        10.47
+        -5.89,
+        1.43,
+        3.82
       ],
       "Opp BTG Previdência": [
-        1.12,
-        5.81,
-        9.98
+        -8.82,
+        -3.19,
+        -1.06
       ]
     },
-    "nota": "Retornos como publicados na carta (mês, ano e 12 meses em % e em % do CDI). Série diária e retornos mensais vêm da cota CVM (data/inf_diario). Sem atribuição acumulada no ano publicada; a atribuição mensal de setembro está em atribuicao_mes_set26.",
+    "nota": "Mês, ano e 12 meses em % e em % do CDI como publicados no rodapé da carta de out/26 (cota base 30/10/2026): -5,75% (-536,57% do CDI), 1,40% (11,98%) e 3,64% (25,52%); PL médio de 12 meses (R$ 167,9 mi) da mesma fonte. CDI do mês (1,07%) e atribuição de outubro (atribuicao_mes_out26, em p.p.) pelo gráfico de atribuição do Opp Total, que fecha em -5,75% somando o CDI; no texto extraído do PDF os valores saem fora de ordem, e a alocação de 0,05 a juros emergentes e 0,06 a câmbio G10 foi feita por analogia com a tabela do Icatu Previdência (0,04 e 0,07). CDI de 2026 até outubro (11,69%) é derivado: retorno do fundo dividido pelo % do CDI, igual a 10,51% até setembro composto com 1,07%. Outubro em mensal_2026 estava em -0,07% pela cota CVM parcial e passou ao número oficial da carta (-5,75%); janeiro a setembro seguem da cota CVM (data/inf_diario). anos_cota_cvm não foi atualizado: o 7,51% de 2026 ali é de data anterior, do início de outubro. Sem atribuição acumulada no ano publicada. outros_fundos_out26 traz mês, ano e 12 meses dos demais fundos, do mesmo rodapé.",
     "mensal_2026": [
       [
         "01",
@@ -256,7 +264,7 @@
       ],
       [
         "10",
-        -0.07
+        -5.75
       ]
     ],
     "anos_cota_cvm": {
@@ -315,10 +323,11 @@
     ]
   },
   "leitura": [
-    "A casa está dentro do consenso de véspera de eleição (NTN-B comprada na tese de ajuste fiscal), não contra ele; a carta de setembro não discute o cenário em que o governo abre vantagem.",
-    "A perda de 2026 veio de fora: tomado/aplicado errado em G10 e emergentes num ano em que o juro neutro subiu; o 'tomado em EUA' mantido é o hedge coerente da posição Brasil.",
-    "Guardar a frase de setembro: juros longos em níveis históricos impõem trade-offs ao Fed e ao ECB. Se virar cautela, ajuda a NTN-B; se não virar, emergentes seguem o elo fraco, como em setembro.",
-    "Ano a 72% do CDI com uma posição-âncora correta no Brasil: o problema foi o livro internacional, não a tese doméstica."
+    "A casa estava dentro do consenso de véspera (NTN-B longa e ações de fechamento de curva na tese de ajuste fiscal) e pagou por isso: -5,75% em outubro, com bolsa Brasil (-3,28 p.p.) e juros Brasil (-2,53 p.p.) somando 5,81 p.p. de perda. O ano foi de 7,59% (72% do CDI) para 1,40% (12% do CDI); 12 meses em 3,64%. No veículo mais alavancado, Total Evolution, -12,79% no mês e -7,44% no ano.",
+    "A carta não chama de erro: diz que o resultado divergiu das pesquisas e do que os ativos precificavam. A leitura de setembro já registrava que a casa não discutia o cenário de vitória do governo. A carta não diz se o corte de risco veio antes ou depois da urna, mas a atribuição mostra que a posição estava montada.",
+    "Reação: cortou risco em vez de dobrar. NTN-B reduzida substancialmente, DI intermediário e índice local zerados; sobrou a seleção de ações domésticas. Não há tese nova para o Brasil, só a lista do que observar (Fazenda, estratégia fiscal, arcabouço formal da política monetária).",
+    "Correção da leitura anterior: 'o problema foi o livro internacional, não a tese doméstica' deixou de valer. A posição-âncora doméstica devolveu em um mês seis pontos do ano. O internacional também não ajudou: juros G10 -0,57 p.p. num mês em que a curva americana cedeu ~30 bps e Fed e ECB pararam, exatamente o trade-off que a carta de setembro apontava.",
+    "Onde diverge: segue em ações de semicondutores, financeiro e mídia mesmo descrevendo a fragilidade do capex de IA financiado caro (bolsa G10 -0,26 p.p.), e volta ao México (vendido no peso, aplicado curto) apostando em cortes residuais do Banxico, um mês depois de perder no aplicado mexicano. Foi o único ganho relevante de outubro: câmbio emergentes +0,30 p.p."
   ],
   "periodos_cartas": [
     {
@@ -395,11 +404,11 @@
       "ini": "2026-10-01",
       "fim": "2026-12-31",
       "rotulo": "4T26",
-      "cor": "#8a8d92",
-      "carta": "Carta de out/26 sai no início de novembro",
-      "tipo": "lacuna",
-      "cenario": "Eleição (4 e 25/10), Copom 4/11 e 9/12, Fed com viés de alta.",
-      "resultado": "A preencher com as cartas de outubro a dezembro."
+      "cor": "#e0662b",
+      "carta": "Carta mensal out/26; nov e dez/26 ainda faltam",
+      "tipo": "primária",
+      "cenario": "Outubro: Lula reeleito contra as pesquisas e os preços; ativos brasileiros caem e a curva de juros sobe. Fora, o juro alto começa a pesar: resultados fracos na fronteira da IA, curva americana -30 bps, Fed e ECB mantêm e passam a pesar as condições financeiras (ECB em altas alternadas); Banxico reabre espaço para cortes residuais.",
+      "resultado": "Outubro -5,75% contra CDI de 1,07%: bolsa Brasil -3,28 p.p., juros Brasil -2,53, juros G10 -0,57, câmbio Brasil -0,39; câmbio emergentes +0,30. Ano cai de 7,59% para 1,40% (12% do CDI). NTN-B reduzida substancialmente, DI intermediário e índice local zerados; ações domésticas seletivas e ações globais mantidas; México vendido no peso e aplicado curto. Nov e dez a preencher."
     }
   ]
 }

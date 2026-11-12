@@ -1,7 +1,7 @@
 {
-  "_nota": "Quadro de consenso e discordância entre as casas, montado a partir das últimas cartas lidas (cartas/*.json). Sinal: + comprado/aplicado, - vendido/tomado, 0 zerado/neutro, ~ tático ou reduzindo, vazio = a carta não trata. Atualizar quando as cartas de setembro saírem (6 a 11/10).",
-  "data": "2026-10-04",
-  "ref": "Cartas de agosto/26 (Genoa, Verde, K10, Zeta, Legacy, Squadra 1S26, SPX via informe BB + Substack) e setembro/26 (Opportunity)",
+  "_nota": "Quadro de consenso e discordância entre as casas, montado a partir das últimas cartas lidas (cartas/*.json). Sinal: + comprado/aplicado, - vendido/tomado, 0 zerado/neutro, ~ tático ou reduzindo, vazio = a carta não trata. Refeito em 12/11/2026 com as cartas de outubro (pós-eleição). Atualizar quando as cartas de novembro saírem (4 a 11/12).",
+  "data": "2026-11-12",
+  "ref": "Cartas de outubro/26 (Opportunity, Genoa, Verde, K10, Zeta, Legacy) e SPX pelos informes BB de out/26, todas escritas depois do 2º turno de 25/10",
   "casas": [
     "Opportunity",
     "Genoa",
@@ -13,187 +13,222 @@
   ],
   "temas": [
     {
-      "tema": "Bolsa Brasil",
+      "tema": "Brasil pós-eleição",
       "veredito": "consenso",
       "pos": {
         "Opportunity": [
-          "+",
-          "seletiva, hedge em índice"
+          "~",
+          "desmontou NTN-B, DI e índice"
         ],
         "Genoa": [
-          "+",
-          "Arpa 95% líquido"
+          "~",
+          "errou o cenário-base e admite"
         ],
         "Verde": [
-          "+",
-          "opções, aumentou ago"
+          "~",
+          "perdeu o prêmio das opções; cortou"
         ],
         "K10": [
+          "-",
+          "inverteu: vendido em real, CDS"
+        ],
+        "Zeta": [
           "+",
-          "adicionou em ago"
+          "manteve bolsa e juro real"
+        ],
+        "Legacy": [
+          "0",
+          "metade no 2º turno, zerou depois"
+        ],
+        "SPX": [
+          "",
+          "cenário revisto “em parte”"
+        ]
+      },
+      "nota": "Em agosto e setembro todas tinham a alternância como cenário-base ou como assimetria comprada. Depois de 25/10, seis de sete cortaram, zeraram ou inverteram; a Zeta é a única que atravessou e ficou. Custo de outubro: Zeta -9,10%, Opportunity -5,75%, K10 -5,36%, Verde -1,96%, Legacy -0,20%, Genoa Radar -0,03%, SPX (espelho BB) +0,63%."
+    },
+    {
+      "tema": "Bolsa Brasil",
+      "veredito": "maioria",
+      "pos": {
+        "Opportunity": [
+          "~",
+          "seletiva mantida; índice zerado"
+        ],
+        "Genoa": [
+          "~",
+          "Arpa: líquido de 90% para 25%"
+        ],
+        "Verde": [
+          "~",
+          "reduziu substancialmente"
+        ],
+        "K10": [
+          "0",
+          "saiu da carta (reduzida em set)"
         ],
         "Zeta": [
           "+",
           "comprado + valor relativo"
         ],
         "Legacy": [
-          "+",
-          "risco-retorno melhor (ago)"
+          "0",
+          "zerou depois do 2º turno"
         ],
         "SPX": [
-          "~",
-          "relativos; dez/24 'já precifica'"
+          "",
+          "Ibovespa -13,9% em 26/10"
         ]
       },
-      "nota": "Seis de seis compradas, Squadra e Dynamo por mandato. Verde e Opportunity via opções ou com hedge: posição lotada, mas com seguro."
+      "nota": "De seis compradas em agosto para uma. A Verde saiu em parte por mecânica (as opções perderam o prêmio) e em parte para cortar risco cíclico; a Legacy espera clareza de política econômica para voltar."
     },
     {
       "tema": "Juros Brasil (DI)",
       "veredito": "maioria",
       "pos": {
         "Opportunity": [
-          "+",
-          "viés aplicador, intermediário"
+          "0",
+          "DI intermediário zerado"
         ],
         "Genoa": [
-          "+",
-          "BC corta mais que o mercado"
+          "",
+          "tese de aplicado sem base; não informa"
         ],
         "Verde": [
           "0",
           "sem direcional"
         ],
         "K10": [
-          "+",
-          "aumentou curto em jul/ago"
+          "~",
+          "aplicado reduzido de novo"
         ],
         "Zeta": [
           "~",
-          "reduziu em mai e ago"
+          "espera pausa nos cortes"
         ],
         "Legacy": [
-          "+",
-          "aplicado desde jun/25"
+          "0",
+          "zerou; curva a 15,5-16%"
         ],
         "SPX": [
           "",
-          "sem direcional (abr/25); Selic 13,50 fim/26"
+          "sem direcional (abr/25)"
         ]
       },
-      "nota": "Quatro aplicadas. Genoa aplica porque lê o BC como leniente, não por convicção na inflação; Zeta reduz porque os núcleos são incompatíveis com a meta."
+      "nota": "Ninguém declara aplicado com tamanho. Em agosto eram quatro aplicadas, a Genoa a mais convicta (BC cortaria além do mercado); essa tese caiu com o Copom parado em 13,75%."
     },
     {
       "tema": "Juro real (NTN-B)",
       "veredito": "dividido",
       "pos": {
         "Opportunity": [
-          "+",
-          "estrutural desde dez/25"
+          "~",
+          "âncora reduzida substancialmente"
         ],
         "Genoa": [
           "",
           ""
         ],
         "Verde": [
-          "0",
-          "zerou nos leilões (mar)"
+          "+",
+          "comprou inflação curta"
         ],
         "K10": [
           "+",
-          "aposta eleitoral"
+          "NTN-B curta (proteção)"
         ],
         "Zeta": [
-          "~",
-          "mantém, reduziu em ago"
+          "+",
+          "manteve juro real BR"
         ],
         "Legacy": [
-          "+",
-          "aplicado real + nominal"
+          "0",
+          "zerou"
         ],
         "SPX": [
           "",
           ""
         ]
       },
-      "nota": "Opportunity, K10 e Legacy carregam NTN-B como a tese da alternância; a Verde saiu em março e prefere opções de bolsa para a mesma assimetria."
+      "nota": "A tese mudou de natureza: a NTN-B longa era a aposta na alternância (Opportunity, K10, Legacy) e foi cortada; o que se compra agora é inflação curta como proteção contra IPCA de 2027 mais alto (Verde, K10)."
     },
     {
       "tema": "Real (BRL)",
       "veredito": "maioria",
       "pos": {
         "Opportunity": [
-          "+",
-          "vendido USDBRL via opções"
+          "",
+          "-0,39 p.p.; posição não descrita"
         ],
         "Genoa": [
-          "+",
-          "detratora em ago"
+          "",
+          "maior detrator de out; não informa"
         ],
         "Verde": [
-          "0",
-          "zerou em maio"
+          "-",
+          "pequeno comprado em dólar"
         ],
         "K10": [
-          "+",
-          "comprado (tático)"
+          "-",
+          "vendido em real contra dólar"
         ],
         "Zeta": [
-          "+",
-          "aumentou em ago"
+          "0",
+          "zerou o comprado"
         ],
         "Legacy": [
-          "~",
-          "cesta de carry"
+          "0",
+          "zerou; câmbio dita o ajuste"
         ],
         "SPX": [
           "",
-          "moedas relativas EM x DM"
+          "real -8,7% em 26/10"
         ]
       },
-      "nota": "Comprado na maioria, mas a tese diverge: K10 espera câmbio MAIS depreciado no ajuste fiscal (juro baixo + fiscal restritivo); Genoa espera apreciação com a oposição eleita."
+      "nota": "Nenhuma casa segue comprada em real; em agosto eram quatro. Para a Legacy o câmbio a R$ 5,50 não obriga o governo a ajustar: o tamanho do ajuste será ditado pelo dólar global."
     },
     {
       "tema": "Juros EUA (curto)",
-      "veredito": "consenso",
+      "veredito": "dividido",
       "pos": {
         "Opportunity": [
           "-",
-          "tomado"
+          "Income: tomado, levemente reduzido"
         ],
         "Genoa": [
           "-",
-          "tomado, Fed sobe"
+          "Fed sobe em dez e mais em 2027"
         ],
         "Verde": [
           "+",
-          "aplicado em juro REAL"
+          "aplicado em juro REAL (ganhou)"
         ],
         "K10": [
-          "-",
-          "tomado curto (ago)"
+          "0",
+          "zerou o tomado curto"
         ],
         "Zeta": [
-          "0",
-          "zerou tomados em jun"
+          "-",
+          "tomado, aumentou; +2 altas"
         ],
         "Legacy": [
-          "-",
-          "Fed +25-50 no 2S"
+          "~",
+          "pausa prolongada ficou provável"
         ],
         "SPX": [
-          "-",
-          "Fed +25 set e +25 (cenário)"
+          "",
+          "out não trata de Fed"
         ]
       },
-      "nota": "Quatro casas esperam o Fed subindo com Warsh. A Verde está na contramão: comprada em TIPS (juro real), apostando que a inflação persiste mais que o juro."
+      "nota": "Era consenso tomado em agosto; rachou. Genoa e Zeta ainda veem altas em dezembro e em 2027; K10 zerou e a Legacy passou a ver pausa prolongada depois da correção de IA e do aperto das condições financeiras."
     },
     {
       "tema": "Juros longos globais",
       "veredito": "discordância",
       "pos": {
         "Opportunity": [
-          "-",
-          "capex de IA via dívida pressiona"
+          "",
+          "curva EUA cedeu ~30 bps; perdeu 0,57 p.p."
         ],
         "Genoa": [
           "",
@@ -201,64 +236,99 @@
         ],
         "Verde": [
           "-",
-          "fiscal + IA; repressão financeira"
+          "quatro causas de alta (visão de set)"
         ],
         "K10": [
-          "0",
-          "sem prêmio de solvência; sem posição"
+          "+",
+          "aplicado Reino Unido e Europa"
         ],
         "Zeta": [
-          "",
-          ""
+          "+",
+          "aplicado Reino Unido e Canadá"
         ],
         "Legacy": [
-          "-",
-          "fiscal + competição por capital"
+          "~",
+          "perto do neutro; Treasuries -30 bps"
         ],
         "SPX": [
           "-",
           "competição por capital (Substack)"
         ]
       },
-      "nota": "Diagnóstico oposto: Verde, Legacy, Opportunity e SPX (Substack: 'competição pelo próximo dólar de capital') veem term premium estrutural (déficits e capex de IA); K10 testou as hipóteses e ficou com crescimento nominal e produtividade, por isso prefere bolsa a tomar a ponta longa."
+      "nota": "Verde e SPX mantêm o diagnóstico de prêmio estrutural (fiscal, capex de IA); a Kapitalo está aplicada fora dos EUA nos dois fundos. Outubro foi o primeiro mês em que os longos cederam sem dado fraco."
     },
     {
       "tema": "Bolsa global / tech",
-      "veredito": "consenso",
+      "veredito": "maioria",
       "pos": {
         "Opportunity": [
           "+",
-          "semis, financeiros, mídia"
+          "semis, financeiros, mídia mantidos"
         ],
         "Genoa": [
           "~",
-          "perdeu em semis EUA"
+          "Arpa migra para empresas dos EUA"
         ],
         "Verde": [
-          "+",
-          "alocação global"
+          "",
+          "out não comenta (mantida em set)"
         ],
         "K10": [
           "+",
-          "comprou a queda de jul"
+          "aumentou líquido na queda de IA"
         ],
         "Zeta": [
           "~",
-          "reduziu globais em ago"
+          "reduziu ações globais"
         ],
         "Legacy": [
           "+",
-          "principal ganho do ano"
+          "mantido; correção é técnica"
         ],
         "SPX": [
-          "+",
-          "tech EUA e China (imprensa ago/25)"
+          "",
+          "correção de IA é o tema do mês"
         ]
       },
-      "nota": "Comprado quase geral; K10 e Legacy leram a queda de julho como desalavancagem técnica e compraram."
+      "nota": "A liquidação de IA de outubro foi lida como problema de financiamento e de posição técnica, não de demanda: K10 reduziu hedges e aumentou exposição, Legacy e Opportunity mantiveram. Só a Zeta reduziu."
     },
     {
       "tema": "Ouro e prata",
+      "veredito": "dividido",
+      "pos": {
+        "Opportunity": [
+          "",
+          ""
+        ],
+        "Genoa": [
+          "",
+          ""
+        ],
+        "Verde": [
+          "+",
+          "mantidos em set; detraíram em out"
+        ],
+        "K10": [
+          "",
+          ""
+        ],
+        "Zeta": [
+          "0",
+          "zerou prata; ouro não citado"
+        ],
+        "Legacy": [
+          "",
+          ""
+        ],
+        "SPX": [
+          "",
+          ""
+        ]
+      },
+      "nota": "Só a Verde declara posição (hedge contra repressão financeira), e ela perdeu em outubro. A Zeta, vendida em ouro desde junho, não cita mais o metal."
+    },
+    {
+      "tema": "Petróleo",
       "veredito": "discordância",
       "pos": {
         "Opportunity": [
@@ -267,116 +337,46 @@
         ],
         "Genoa": [
           "",
-          ""
+          "acima de US$ 100; risco simétrico"
         ],
         "Verde": [
-          "+",
-          "ouro e prata (debasement)"
+          "",
+          "diesel defasado em mais de 80%"
         ],
         "K10": [
-          "0",
-          "short prata encerrado"
+          "+",
+          "comprado (spreads do WTI zerados)"
         ],
         "Zeta": [
           "-",
-          "vendido ouro desde jun"
+          "abriu vendido (comprado em set)"
         ],
         "Legacy": [
-          "+",
-          "commodities (genérico)"
+          "~",
+          "espera acordo EUA-Irã em nov"
         ],
         "SPX": [
           "",
-          ""
+          "Brent médio US$ 105 (projetava 90)"
         ]
       },
-      "nota": "Verde compra metais como seguro contra repressão financeira; a Kapitalo (Zeta) está vendida em ouro desde junho e short paládio."
+      "nota": "K10 e Zeta, da mesma casa, terminaram outubro em lados opostos. A Legacy aposta em acordo EUA-Irã depois das eleições de meio de mandato; para a Verde o petróleo entra pelo diesel represado no IPCA de 2027."
     },
     {
-      "tema": "Petróleo",
-      "veredito": "maioria",
+      "tema": "IPCA 2027 (projeção)",
+      "veredito": "dividido",
       "pos": {
         "Opportunity": [
           "",
-          ""
+          "carta não trata"
         ],
         "Genoa": [
           "",
-          "risco altista p/ IPCA"
+          "~6% (era 4,0-4,5% em set)"
         ],
         "Verde": [
           "",
-          ""
-        ],
-        "K10": [
-          "~",
-          "curto +, longo - (2027)"
-        ],
-        "Zeta": [
-          "-",
-          "vendido, reduzido em ago"
-        ],
-        "Legacy": [
-          "-",
-          "viés de baixa 2027 (US$ 70)"
-        ],
-        "SPX": [
-          "",
-          "Brent 90 fim/26 'em linha'"
-        ]
-      },
-      "nota": "Quem opera concorda que a curva longa cai (excesso de oferta em 2027, Golfo produzindo no máximo); o curto depende de Ormuz."
-    },
-    {
-      "tema": "Eleição (cenário-base)",
-      "veredito": "consenso",
-      "pos": {
-        "Opportunity": [
-          "+",
-          "alternância = compromisso fiscal"
-        ],
-        "Genoa": [
-          "+",
-          "derrota de Lula no 2º turno"
-        ],
-        "Verde": [
-          "~",
-          "disputa mais competitiva; assimetria"
-        ],
-        "K10": [
-          "~",
-          "empate técnico, dicotômico"
-        ],
-        "Zeta": [
-          "~",
-          "6x1 antes do 2º turno = risco"
-        ],
-        "Legacy": [
-          "+",
-          "Flávio favorito"
-        ],
-        "SPX": [
-          "~",
-          "reflexividade; armadilha fiscal"
-        ]
-      },
-      "nota": "Alternância como cenário-base e o acirramento de agosto como gatilho de compra: K10, Legacy, Verde e Opportunity aumentaram Brasil no mesmo mês. Squadra: 'menos pior não é tese'."
-    },
-    {
-      "tema": "IPCA 2026 (projeção)",
-      "veredito": "consenso",
-      "pos": {
-        "Opportunity": [
-          "",
-          ""
-        ],
-        "Genoa": [
-          "",
-          "~5,0% / 4,5% em 2027"
-        ],
-        "Verde": [
-          "",
-          ""
+          "“inspira cuidados”; estagflação"
         ],
         "K10": [
           "",
@@ -384,69 +384,69 @@
         ],
         "Zeta": [
           "",
-          "4,8% (jul)"
+          "mais difícil: 6x1, CBS, nova POF"
         ],
         "Legacy": [
           "",
-          "5,1% / 4,8% em 2027"
+          "5,7% (era 4,7%); 2026 em 5,3%"
         ],
         "SPX": [
           "",
-          "5,0% / 4,4% em 2027"
+          "4,6% (era 4,4%); 2026 em 5,1%"
         ]
       },
-      "nota": "Entre 4,8% e 5,1%, todas acima do Focus de julho; riscos citados por mais de uma casa: El Niño, fim da 6x1, estímulos eleitorais, petróleo."
+      "nota": "Todas revisaram para cima, mas a distância é grande: Genoa perto de 6% e Legacy 5,7% contra SPX 4,6%. Vetores citados por mais de uma casa: fim da escala 6x1, impostos em serviços, câmbio, diesel e El Niño."
     },
     {
       "tema": "BCB (próximos passos)",
       "veredito": "maioria",
       "pos": {
         "Opportunity": [
-          "+",
-          "corta, dependente de dados"
+          "",
+          "carta não trata"
         ],
         "Genoa": [
-          "+",
-          "vai além do que o mercado supõe"
+          "0",
+          "13,75% por período prolongado"
         ],
         "Verde": [
           "",
-          ""
+          "desafio estagflacionário"
         ],
         "K10": [
-          "+",
-          "espaço para seguir cortando"
+          "",
+          "não atualiza (via espaço em set)"
         ],
         "Zeta": [
-          "~",
-          "núcleos incompatíveis; cautela"
+          "0",
+          "pausa “em breve”"
         ],
         "Legacy": [
-          "+",
-          "calibração de 25 bps"
+          "0",
+          "13,75% ao longo de 2027"
         ],
         "SPX": [
           "~",
-          "25 em set e nov; 13,50%"
+          "pausa; cortes no 2T27 até ~12%"
         ]
       },
-      "nota": "Ciclo de 25 bps continua é o consenso; Genoa é a mais dovish (BC leniente), Zeta a mais hawkish (serviços, 6x1, El Niño); SPX projeta só mais dois cortes e Selic 13,50% no fim de 2026."
+      "nota": "O ciclo de 25 bps acabou em 13,75%. Genoa, Legacy e Zeta trabalham com Selic parada; a SPX é a única com data para a volta dos cortes (2T27, cerca de 12% no fim de 2027)."
     }
   ],
   "consensos": [
-    "Bolsa Brasil comprada por todas as macro e pelas duas de ações; a assimetria eleitoral é a razão comum. Quando todo mundo está do mesmo lado, o seguro importa: Verde e Opportunity carregam via opções ou com hedge de índice.",
-    "Fed sobe com Warsh (Opportunity, Genoa, K10, Legacy tomados na parte curta); Zeta zerou em junho e a Verde faz o oposto em juro real.",
-    "Ciclo do BCB continua em passos de 25 bps e o IPCA de 2026 fica perto de 5%: ninguém projeta abaixo de 4,8%.",
-    "Tech/bolsa global comprada; a queda de julho foi lida como técnica (desalavancagem de pods e ETFs alavancados) por K10 e Legacy.",
-    "Curva longa do petróleo cai em 2027 (K10, Legacy, Zeta): excesso de oferta quando o Golfo voltar a produzir."
+    "Todas as macro tinham a alternância como cenário-base ou assimetria comprada e todas foram contrariadas. A reação foi cortar Brasil: Legacy zerou, Opportunity desmontou a NTN-B âncora, a Verde ficou sem o prêmio das opções, a Genoa levou o Arpa de 90% para 25% líquido e a K10 inverteu para vendido em real e comprado em CDS.",
+    "Copom parado em 13,75%: Genoa e Legacy falam em período prolongado ou 2027 inteiro, a Zeta em pausa. A tese de corte acelerado com Selic perto de 10-11% dependia da troca de governo e saiu de todas as cartas.",
+    "2027 com atividade fraca e inflação alta: PIB de -0,2% (Genoa), 0,0% (Legacy) e 0,9% (SPX); Genoa, Legacy e Verde usam a palavra estagflação.",
+    "O risco que mais pesa deixou de ser o fiscal e passou a ser a resposta heterodoxa: indicações políticas à diretoria do BC e revisão da meta de inflação (Genoa, Legacy); corte de juros forçado, desindexação da dívida e venda de reservas como cauda crescente (Verde).",
+    "A correção das ações de IA em outubro foi tratada como financiamento e técnica: K10 aumentou a exposição líquida, Legacy e Opportunity mantiveram as posições em bolsa global."
   ],
   "discordancias": [
-    "Câmbio depois do ajuste fiscal: K10 espera real MAIS depreciado (juro baixo + fiscal restritivo); Genoa espera apreciação com a oposição eleita. Mesma eleição, sinal oposto no câmbio de 2027.",
-    "Juros longos globais: Verde, Legacy, Opportunity e SPX veem prêmio estrutural (déficits, capex de IA financiado por dívida, repressão financeira, 'investidor marginal'); K10 descarta prêmio de solvência e não toma a ponta longa.",
-    "NTN-B: Opportunity, K10 e Legacy compradas; Verde zerou em março nos leilões do Tesouro e prefere opções de bolsa para a mesma tese.",
-    "Ouro e prata: Verde comprada (seguro contra repressão financeira); Zeta vendida em ouro desde junho.",
-    "Juros Brasil: Genoa aplicada porque o BC é leniente (não por convicção na inflação); Zeta reduziu duas vezes em 2026 porque os núcleos são incompatíveis com a meta.",
-    "Brasil pela eleição: as macro compram a alternância; a Squadra diz que 'menos pior que o vizinho' não é tese, que o macro segue difícil e compra empresas apesar dele."
+    "Ficar ou sair do Brasil depois da queda: a Zeta manteve bolsa e juro real e perdeu 9,10% no mês; a Legacy zerou e espera; a K10 passou para o outro lado (vendido em real, CDS, NTN-B curta).",
+    "Fed: Genoa e Zeta ainda projetam altas em dezembro e em 2027 (Zeta aumentou o tomado); K10 zerou o tomado curto e a Legacy vê pausa prolongada. A Verde segue na contramão, aplicada em juro real americano, e ganhou em outubro.",
+    "IPCA de 2027: perto de 6% para a Genoa e 5,7% para a Legacy, contra 4,6% da SPX. A diferença decide se a Selic fica parada o ano todo ou volta a cair no 2T27, como a SPX projeta.",
+    "Petróleo: K10 comprada e Zeta vendida no mesmo mês, dentro da mesma gestora; a Legacy conta com acordo EUA-Irã em novembro.",
+    "Como se proteger: K10 por real, CDS e NTN-B curta; Verde por inflação curta, cupom cambial, CDS pequeno e dólar; Legacy fora do país; Opportunity só com seleção de ações.",
+    "Quanto cada uma admite: a Genoa diz que errou o cenário-base; a Verde admite lições de processo, mas sustenta que estava adequadamente posicionada; a K10 atribui a pesquisas e modelos; a Legacy fala em surpresa do mercado; a carta da Zeta não comenta a eleição."
   ],
-  "equities": "Squadra e Dynamo (ações) não entram na matriz: compradas por mandato. Squadra: Equatorial, Energisa, Mercado Livre, Nubank entre as quatro maiores; book short importante; Hapvida reduzida. Dynamo: Rede D'Or entre as maiores posições. SPX: posições não divulgadas em 2026, entra pelo cenário dos espelhos e pelo Substack. Ibiuna e Absolute: sem carta pública, só cota CVM."
+  "equities": "Fora da matriz. Dynamo (ações): as cartas 129 a 131 (out e nov/26) são ensaios sobre processo e o caso Technos, sem eleição nem posição atual; Cougar -9,0% em outubro (Ibovespa -9,9%) e +1,2% em 2026 (Ibovespa +4,2%); Rede D'Or citada em mai/25 e não reconfirmada. Squadra (ações): sem carta desde a do 1S26 (23/08). Itaú Janeiro: -0,10% em outubro, com perda em juros Brasil (-0,81 p.p.) compensada por juros desenvolvidos; manteve tomado no DI curto. SPX: posições não divulgadas em 2026, entra pelo cenário dos espelhos e pelo Substack. Ibiuna e Absolute: sem carta pública, só cota CVM."
 }

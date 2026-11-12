@@ -7,6 +7,14 @@
   "cnpj_fonte": "CVM registro_fundo_classe (KAPITALO ZETA FIC FIM)",
   "fontes": [
     {
+      "nome": "Carta do Gestor Kappa/Zeta Outubro/2026",
+      "url": "https://www.kapitalo.com.br/wp-content/uploads/2020/02/Carta-Mensal_Kappa-e-Zeta_Outubro-2026_upload.pdf"
+    },
+    {
+      "nome": "Carta do Gestor Kappa/Zeta Setembro/2026",
+      "url": "https://www.kapitalo.com.br/wp-content/uploads/2020/02/Carta-Mensal_Kappa_Setembro-2026-1.pdf"
+    },
+    {
       "nome": "Carta do Gestor Kappa/Zeta Agosto/2026",
       "url": "https://www.kapitalo.com.br/wp-content/uploads/2020/02/Carta-do-Gestor_Agosto-2026.pdf"
     },
@@ -91,51 +99,53 @@
       "url": "https://www.kapitalo.com.br/carta-do-gestor/kapa-e-zeta"
     }
   ],
-  "data": "2026-08-31",
-  "nota_fontes": "Carta do Gestor mensal de 5-6 páginas (Cenário EUA/Europa/China/Brasil, Posições por livro, Atribuição com tabela Kappa e Zeta), publicada entre os dias 3 e 9 do mês seguinte. Jan/25 a ago/26 (20 cartas) lidas; o extrator cortou o fim de algumas (posições de jan-mar/25 e jul/26 incompletas).",
+  "data": "2026-10-31",
+  "nota_fontes": "Carta do Gestor mensal de 5-6 páginas (Cenário EUA/Europa/China/Brasil, Posições por livro, Atribuição com tabela Kappa e Zeta), publicada entre os dias 3 e 11 do mês seguinte. Jan/25 a out/26 (22 cartas) lidas; o extrator cortou o fim de algumas (posições de jan-mar/25 e jul/26 incompletas). Set e out/26 lidas na íntegra, com o material informativo anexo (tabela mensal oficial do Zeta, PL e volatilidade); desde set/26 o PDF mudou de nome no site (Carta-Mensal_Kappa...).",
   "cenario": {
     "global": [
-      "Agosto/26: Warsh em Jackson Hole mais duro do que na coletiva de julho: se o núcleo não convergir, o Fed sobe. Decisão de setembro apertada, depende do CPI de agosto; a casa projeta número baixo e manutenção.",
-      "Zona do Euro: inflação 3,3% puxada por energia, núcleo 2,4% benigno; alta de 25 bps em setembro é o cenário-base e o BCE deixa a porta aberta.",
-      "EUA-Irã sem avanço, bloqueio de Ormuz continua; EUA preferem pressão econômica a conflito maior. China sem novidade."
+      "Outubro/26: Fed manteve os juros, depois de subir 25 bps em setembro (unânime), para observar mais dados. Os dados do mês foram hawkish: inflação de setembro bem acima do esperado (núcleo de bens e de serviços acelerando), PIB do 3T a 3,4% anualizado, emprego estável. A casa segue projetando duas altas adicionais, em dezembro e março.",
+      "Eleições de meio de mandato no início de novembro: pesquisas apontam House democrata e Senado apertado. Governo dividido reduz a chance de pacote fiscal grande, mas a pressão continua na direção de déficit maior (gasto militar de um lado, saúde e discricionário do outro); o impulso fiscal de 2027 pode passar de levemente negativo a levemente positivo.",
+      "Zona do Euro: BCE manteve em outubro, com tom mais dovish que em setembro (quando subiu 25 bps); alta de 25 em dezembro segue provável, com possível pausa depois. Inflação perto de 4,0% a/a puxada por energia, núcleo perto de 2,5%, sem efeito de segunda ordem relevante; PIB +0,4% t/t (0,2% sem Irlanda). Taxas longas abrindo e estresse soberano na França (spread OAT-Bund) apertam as condições financeiras e reduzem a necessidade de novas altas.",
+      "Energia: o cenário piorou de novo em outubro (a carta não detalha); em setembro houve troca de fogo EUA-Irã em Ormuz e ataques dos Houthis à infraestrutura saudita. China: sem menção em outubro; em setembro, novos estímulos a investimento e ao mercado imobiliário."
     ],
     "brasil": [
-      "Virada do semestre mais fraca que o esperado: PIB do 2T com desaceleração relevante do consumo, julho fraco, Caged abaixo do neutro, confiança FGV caindo. PLOA dentro do esperado, arrecadação forte.",
-      "Inflação corrente melhora (bens industriais), mas dois riscos de médio prazo entraram no balanço: fim da escala 6x1 (efeito líquido inflacionário em serviços) e El Niño forte (alimentos in natura já no 4T26; grãos e carnes a partir do 2S27).",
-      "Em agosto REDUZIRAM aplicados em juros reais e nominais no Brasil (depois de reduzir em maio); mantêm bolsa Brasil comprada com valor relativo e aumentaram comprado em real."
+      "Desaceleração se acentuou: os primeiros indicadores de outubro reforçam contração do PIB no 3T26 e a casa revisou para baixo o crescimento de 2027. Mercado de trabalho sem mudança relevante; inadimplência e comprometimento de renda das famílias são risco baixista relevante, de magnitude ainda difícil de medir.",
+      "Inflação de 2027 ficou mais difícil: os analistas incorporaram a PEC do fim da escala 6x1 (aprovada), a alíquota da CBS acima do esperado e a nova POF (IBGE detalha em novembro; pode mudar os pesos do IPCA). Pressão concentrada em serviços, somada aos riscos tradicionais de câmbio e petróleo: choques simultâneos, mais inércia e risco de contaminar expectativas. O repasse depende do hiato: atividade fraca joga parte do custo nas margens.",
+      "Juros: menos espaço para cortes adicionais; a casa espera uma pausa 'em breve' (o Copom cortou 25 bps em setembro sem sinalizar a reunião pós-eleição). Fiscal: a 'continuidade da atual política econômica' mantém a dívida em trajetória preocupante e o governo terá de fazer ajustes adicionais ao incorporar no orçamento as medidas anunciadas depois do PLOA 2027.",
+      "Eleição: a carta de setembro via o candidato da oposição com leve favoritismo; a de outubro não comenta o resultado nem a reação do mercado. Em setembro AUMENTARAM o comprado em real, o aplicado em juro real e a bolsa Brasil; em outubro ZERARAM o comprado em real e MANTIVERAM o juro real e a bolsa Brasil comprada com valor relativo."
     ],
     "tese_longa": [
-      "Casa de muitas mesas, sem tese única: aplicado em juros desenvolvidos no ciclo (Euro, Suécia, Canadá, UK), carteira long/valor relativo em ações brasileiras permanente, moedas de carry contra dólar/euro/franco, commodities tático (vendido petróleo quase todo 2025, comprado ouro de ago/25 a mai/26, short prata em jan/26).",
-      "No Brasil 2025: aplicado em juro real desde abril e nominal desde agosto, 'nos aproxima do início de um ciclo de corte' (nov/25), IPCA 2026 projetado em 4,0% (dez/25) e abaixo de 4% (jan/26). 2026 virou: IPCA 5,1% (abr), núcleos incompatíveis com a meta, redução de aplicados em maio e agosto.",
-      "Zeta amplifica tudo: 2025 +20,6% com dezembro +6,5% (bolsa); março/26 -11,9% (guerra: juros e commodities) e agosto/26 +5,8% (bolsa). Fundo para ler direção, não para comparar com CDI mês a mês."
+      "Casa de muitas mesas, sem tese única: carteira long/valor relativo em ações brasileiras permanente, moedas de carry contra dólar/euro/franco, commodities tático (vendido petróleo quase todo 2025, comprado ouro de ago/25 a mai/26, short prata em jan/26; petróleo comprado em set/26 e vendido de novo em out/26). Revisto em set-out/26: o aplicado em juros desenvolvidos deixou de ser geral (Euro, Suécia, Canadá, UK); com Fed e BCE subindo, a casa ficou tomada nos EUA e, em setembro, na Zona do Euro (zerada em outubro), e aplicada só em Reino Unido, Canadá e Suécia.",
+      "No Brasil 2025: aplicado em juro real desde abril e nominal desde agosto, 'nos aproxima do início de um ciclo de corte' (nov/25), IPCA 2026 projetado em 4,0% (dez/25) e abaixo de 4% (jan/26). 2026 virou: IPCA 5,1% (abr), núcleos incompatíveis com a meta, redução de aplicados em maio e agosto. Revisto em set/26: voltou a aumentar o juro real, o real e a bolsa na reta final da eleição, lendo o RPM como dovish. Revisto em out/26: passou a esperar pausa nos cortes da Selic (6x1, CBS e POF em serviços), cortou o crescimento de 2027 e zerou o real; o aplicado em juro real e a bolsa ficaram.",
+      "Zeta amplifica tudo: 2025 +20,6% com dezembro +6,5% (bolsa); março/26 -11,9% (guerra: juros e commodities), agosto/26 +5,8% (bolsa) e outubro/26 -9,1% (bolsa -5,71 p.p., juros -3,06 p.p.), que levou o ano de +5,6% para -4,0%. Fundo para ler direção, não para comparar com CDI mês a mês."
     ]
   },
   "posicoes": {
-    "juros": "Reduziu aplicados no Reino Unido, Zona do Euro e em juros reais e nominais no Brasil (ago/26).",
-    "moedas": "Comprado em real e dólar canadense; táticas em peso mexicano e chileno; comprado rúpia indiana e won; vendido euro e renminbi; reduziu vendido em dólar australiano e libra.",
-    "commodities": "Comprado cobre; vendido açúcar, café e paládio; reduziu vendido em petróleo e ouro; zerou comprado em milho.",
-    "bolsa": "Comprado e valor relativo em ações brasileiras (+: Mineração & Siderurgia, Transporte & Logística, Saúde, Papel & Celulose; -: Bancos, Utilidade Pública, Consumo); reduziu ações globais.",
-    "atribuicao_ago26": "Kappa: bolsa +2,62 p.p., commodities +0,46, moedas +0,06, juros -0,37; Kappa +3,80% (348% do CDI), 2026 +6,36% (68% do CDI). Zeta +5,82% pela cota CVM."
+    "juros": "Aplicado em juros nominais no Reino Unido e no Canadá (aumentou), em juro real no Brasil e na Suécia (manteve); tomado nos EUA (aumentou); tático no México (aumentou); zerou o tomado na Zona do Euro (out/26).",
+    "moedas": "Zerou o comprado em real; reduziu táticas em peso mexicano e chileno; comprado rúpia indiana, won, dólar canadense e lira turca; vendido euro, dólar de Hong Kong, dólar australiano e rand; aumentou vendido em peso colombiano.",
+    "commodities": "Abriu vendido em petróleo (em setembro tinha aberto comprado); vendido café e açúcar; comprado trigo e cobre; zerou a posição em prata (a carta de out fala em zerar 'vendida'; a de set dizia 'comprada').",
+    "bolsa": "Manteve comprado e valor relativo em ações brasileiras (contribuição em out/26, +: Construção, Papel & Celulose, Educação, Bens de Capital; -: Mineração & Siderurgia, Bancos, Consumo, Transporte & Logística); reduziu ações globais.",
+    "atribuicao_out26": "Zeta: bolsa -5,71 p.p., juros -3,06, caixa e custos -0,70, moedas -0,38, commodities -0,32; Zeta -9,10% (CDI 1,07%). No ano: juros -8,55, bolsa -3,45, caixa e custos -2,23, commodities -1,84, moedas +0,34; Zeta -4,02% (CDI 11,70%). Kappa -4,94% no mês e +2,50% no ano (21% do CDI)."
   },
   "desempenho": {
     "mes": {
-      "fundo": 1.69,
-      "cdi": 1.17,
-      "ref": "2026-09"
+      "fundo": -9.1,
+      "cdi": 1.07,
+      "ref": "2026-10"
     },
     "ano": {
-      "fundo": 5.58,
-      "cdi": 10.5,
-      "pct_cdi": 53.1
+      "fundo": -4.02,
+      "cdi": 11.7,
+      "pct_cdi": null
     },
     "anos": {
       "2025": {
         "fundo": 20.56,
         "cdi": 14.31
       },
-      "2026 (até set)": {
-        "fundo": 5.58,
-        "cdi": 10.5
+      "2026 (até out)": {
+        "fundo": -4.02,
+        "cdi": 11.7
       }
     },
     "mensal_2026": [
@@ -174,6 +184,10 @@
       [
         "09",
         1.69
+      ],
+      [
+        "10",
+        -9.1
       ]
     ],
     "mensal_2025": [
@@ -226,14 +240,15 @@
         6.54
       ]
     ],
-    "pl_mi": 567,
-    "nota": "Retornos mensais e anuais calculados pela cota diária da CVM (inf_diario, último dado 2026-10-01); PL de R$ 567 mi."
+    "pl_mi": 501,
+    "nota": "Mês (out/26 -9,10%), ano (-4,02%), CDI (1,07% e 11,70%) e série mensal de 2026 pela tabela oficial do Zeta no material informativo anexo à carta de outubro; jan a set, antes calculados pela cota diária da CVM, batem com a tabela da carta e ficaram iguais. % do CDI do ano fica vazio porque o retorno é negativo (a carta mostra '-'). PL de R$ 501 mi = patrimônio líquido atual na carta de outubro (R$ 501.035.844,62; R$ 569,9 mi em setembro). Da mesma carta, sem chave própria nesta ficha: desde o início (01/09/2010) +680,76% vs CDI 362,48% (188% do CDI); 12 meses +2,12% (15% do CDI); volatilidade anualizada 15,47% em 12 meses (13,76% em setembro) e 9,61% desde o início; PL médio de 12 meses R$ 672,8 mi. 2025 (+20,56% vs CDI 14,31%) e a série mensal de 2025 conferem com a tabela da carta, sem alteração."
   },
   "leitura": [
-    "A casa saiu de 'ciclo de cortes vem aí' (nov/25-jan/26, IPCA < 4%) para 'núcleos incompatíveis com a meta' e cortou os aplicados no Brasil duas vezes em 2026 (maio e agosto). Está menos construtiva com juros BR do que Genoa e K10.",
-    "Na bolsa brasileira nunca saiu: carteira comprada com valor relativo setorial em todos os 20 meses; é o fundo macro que mais parece um long/short de ações.",
-    "Dois riscos que só a Kapitalo põe no radar com esse peso: 6x1 (inflação de serviços) e El Niño (alimentos no 4T26). Vale cruzar com a Fita de inflação.",
-    "Zeta -11,9% em março/26 é o pior mês da amostra de casas; mostra o custo da alavancagem num choque de oferta (juros tomados nos EUA zerados só em junho)."
+    "Setembro foi a aposta: com a oposição assumindo leve favoritismo nas pesquisas, a casa aumentou o comprado em real, o aplicado em juro real e a bolsa Brasil. Outubro cobrou: Zeta -9,10%, com bolsa -5,71 p.p. e juros -3,06 p.p.; o ano foi de +5,58% para -4,02% (CDI 11,70%) e o Kappa de +7,82% para +2,50%.",
+    "A carta de outubro não faz mea-culpa: não cita o resultado da eleição (reeleição de Lula em 25/10) nem a queda do mercado, só a 'continuidade da atual política econômica' e a dívida em trajetória preocupante. O que mudou está nas posições: zerou o real, manteve o juro real e a bolsa brasileira, reduziu ações globais. Saiu do câmbio e ficou com os dois livros que mais custaram no mês (a carta não separa juros Brasil de exterior).",
+    "Juros BR: em setembro lia o RPM como dovish e o BC disposto a seguir cortando; em outubro passou a esperar pausa 'em breve'. O risco que ela levantava quase sozinha em agosto (6x1) virou cenário dos analistas, junto com CBS acima do esperado e nova POF. Mesmo assim segue aplicada em juro real: a aposta agora é atividade (contração do PIB no 3T26, 2027 revisado para baixo), não inflação benigna.",
+    "Lá fora a posição é de divergência: tomada nos EUA (mais duas altas do Fed, dezembro e março, e impulso fiscal virando positivo com governo dividido) e aplicada em Reino Unido, Canadá e Suécia; zerou o tomado na Zona do Euro quando o BCE suavizou o tom. Juros são o pior livro do ano no Zeta: -8,55 p.p.",
+    "Alavancagem: outubro é o segundo pior mês desde jan/25, atrás de março/26 (-11,93%); a vol de 12 meses subiu de 13,76% para 15,47%, o PL caiu de R$ 570 mi para R$ 501 mi em um mês e o retorno de 12 meses ficou em 2,12% (15% do CDI). Na bolsa, Construção aparece como destaque positivo num mês de queda forte: sugere posição vendida no setor dentro do valor relativo (inferência; a carta não abre o sinal)."
   ],
   "periodos_cartas": [
     {
@@ -301,20 +316,20 @@
       "fim": "2026-09-30",
       "rotulo": "3T26",
       "cor": "#1baf7a",
-      "carta": "Cartas jul, ago/26 (set/26 sai ~6/10)",
+      "carta": "Cartas jul, ago, set/26",
       "tipo": "primária",
-      "cenario": "Tensões voltam em Ormuz; Warsh dovish em julho e duro em Jackson Hole; Brasil: surpresas baixistas de inflação raras (16% do tempo desde 2002), Focus 5,3 → 5,0, casa 4,8%; agosto: PIB 2T fraco, Caged abaixo do neutro; riscos 6x1 e El Niño.",
-      "resultado": "Jul -1,55%, ago +5,82% (Kappa +3,80%, 348% do CDI, bolsa +2,62 p.p.), set +1,69% pela cota CVM. Reduziu aplicados UK/Euro/BR; comprado real e CAD; comprado cobre, vendido açúcar/café."
+      "cenario": "Tensões voltam em Ormuz; Warsh dovish em julho e duro em Jackson Hole; Brasil: surpresas baixistas de inflação raras (16% do tempo desde 2002), Focus 5,3 → 5,0, casa 4,8%; agosto: PIB 2T fraco, Caged abaixo do neutro; riscos 6x1 e El Niño. Setembro: Fed e BCE sobem 25 bps, taxas longas abrem, Copom corta 25 sem sinalizar a reunião pós-eleição; oposição assume leve favoritismo nas pesquisas; riscos de inflação para 2027 (diesel, alimentos, reforma tributária, 6x1).",
+      "resultado": "Jul -1,55%, ago +5,82% (Kappa +3,80%, 348% do CDI, bolsa +2,62 p.p.), set +1,69% (157% do CDI; juros +0,72 p.p., bolsa +0,11, moedas -0,20, commodities -0,09). Agosto: reduziu aplicados UK/Euro/BR; comprado real e CAD; comprado cobre, vendido açúcar/café. Setembro: aumentou juro real BR, comprado em real e bolsa BR e global; tomado EUA e Zona do Euro; abriu comprado em petróleo e vendido em milho."
     },
     {
       "ini": "2026-10-01",
       "fim": "2026-12-31",
       "rotulo": "4T26",
-      "cor": "#8a8d92",
-      "carta": "Set/26 sai ~6/10",
-      "tipo": "lacuna",
-      "cenario": "Eleição, Copom 4/11, Fed com viés de alta.",
-      "resultado": "A preencher."
+      "cor": "#2457c5",
+      "carta": "Carta out/26 (nov e dez/26 ainda faltam)",
+      "tipo": "primária",
+      "cenario": "Fed e BCE mantêm em outubro (casa projeta mais duas altas do Fed, dez e mar; BCE +25 em dez e possível pausa); midterms nos EUA com governo dividido; Brasil: contração do PIB no 3T26, 2027 revisado para baixo; PEC do 6x1 aprovada, CBS acima do esperado e nova POF pressionam serviços em 2027; casa espera pausa nos cortes da Selic. A carta não comenta o resultado da eleição de 25/10 nem a queda do mercado, só a 'continuidade da atual política econômica'.",
+      "resultado": "OUT -9,10% (CDI 1,07%): bolsa -5,71 p.p., juros -3,06, caixa e custos -0,70, moedas -0,38, commodities -0,32; Kappa -4,94%. 2026 passa a -4,02% (Kappa +2,50%, 21% do CDI). Zerou o comprado em real e o tomado na Zona do Euro; manteve juro real BR e bolsa BR comprada; aumentou aplicados UK/Canadá e tomado EUA; abriu vendido em petróleo; reduziu ações globais."
     }
   ]
 }

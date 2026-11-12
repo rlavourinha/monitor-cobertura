@@ -6,7 +6,7 @@
   "cnpj": "52.116.227/0001-09",
   "fontes": [
     {
-      "nome": "Carta do Gestor 3T26 + relatório mensal, 30/09/2026 (16 p.; o mesmo endereço sobrescreve o mês anterior; texto em cartas/fontes/janeiro_carta_3T26.txt)",
+      "nome": "Relatório mensal de 30/10/2026 (mesmo endereço, sobrescrito todo mês; a versão anterior trazia a Carta do Gestor 3T26 + relatório de 30/09/2026, 16 p., texto em cartas/fontes/janeiro_carta_3T26.txt)",
       "url": "https://assetfront.arquivosparceiros.cloud.itau.com.br/FND/FICFI56757_Itau_Janeiro_MM_FICFI.pdf"
     },
     {
@@ -38,8 +38,8 @@
       "url": "https://www.seudinheiro.com/2025/economia/bruno-serra-da-itau-asset-diz-que-selic-cai-em-janeiro-e-conta-o-que-precisa-acontecer-para-os-juros-chegarem-a-um-digito-lvgb/"
     }
   ],
-  "data": "2026-09-30",
-  "nota_fontes": "A carta do 3T26 (30/09/2026, publicada após o 1º turno) veio junto com o relatório mensal de setembro no PDF do fundo; as trimestrais anteriores (mar/26, dez/25, set/25, jun/25) foram publicadas no LinkedIn do gestor e lidas na íntegra. Relatórios mensais são sobrescritos no site da Itaú Asset. Entrevistas à imprensa preenchem os meses sem carta e estão marcadas como tal.",
+  "data": "2026-10-30",
+  "nota_fontes": "A carta do 3T26 (30/09/2026, publicada após o 1º turno) veio junto com o relatório mensal de setembro no PDF do fundo; as trimestrais anteriores (mar/26, dez/25, set/25, jun/25) foram publicadas no LinkedIn do gestor e lidas na íntegra. Relatórios mensais são sobrescritos no site da Itaú Asset. Entrevistas à imprensa preenchem os meses sem carta e estão marcadas como tal. O relatório mensal de outubro (30/10/2026, publicado em novembro, com comentário da gestão escrito depois do 2º turno e do Copom do início de novembro) foi lido na íntegra e substituiu o de setembro no mesmo endereço; a carta trimestral do 4T26 ainda não saiu.",
   "periodos_cartas": [
     {
       "ini": "2023-09-29",
@@ -146,10 +146,10 @@
       "fim": "2026-12-31",
       "rotulo": "4T26",
       "cor": "#2457c5",
-      "carta": "Em curso (carta 3T26 como guia)",
-      "tipo": "lacuna",
-      "cenario": "Copom segue com cortes de 25 p.b. no 4T26 (El Niño nos alimentos e combustíveis seguram); com novo regime fiscal, Selic abaixo de 10%.",
-      "resultado": "Em curso."
+      "carta": "Relatório mensal de out/26 (carta 4T26 ainda não saiu)",
+      "tipo": "primária",
+      "cenario": "2º turno com 'resultado eleitoral inesperado': no pregão seguinte Ibovespa −13,88% (circuit breaker) e dólar +8,76%; no mês, DIs de jan/28 em diante +88 a 125 p.b. e real −4,84%. Copom para os cortes em 13,75% no início de novembro. Fora: payroll fraco fecha a curva americana, Brent acima de US$ 115, Nasdaq −5,30%.",
+      "resultado": "Outubro −0,10% vs CDI +1,07%: juros Brasil −0,81 p.p., bolsa internacional −0,38, moedas −0,26, bolsa local −0,24; juros desenvolvidos +0,47. Virou comprado em dólar (menor), zerou Ibovespa, ficou tomado nos DIs curtos e aplicado nos intermediários e longos. Ano +6,38% (55% do CDI). Carta do 4T26 ainda não saiu."
     }
   ],
   "cartas_trimestrais": [
@@ -213,27 +213,28 @@
   ],
   "desempenho": {
     "mes": {
-      "fundo": 0.98,
-      "cdi": 1.08,
-      "pct_cdi": 90.9
+      "fundo": -0.1,
+      "cdi": 1.07,
+      "pct_cdi": -9.4,
+      "ref": "2026-10"
     },
     "ano": {
-      "fundo": 6.49,
-      "cdi": 10.51,
-      "pct_cdi": 61.8
+      "fundo": 6.38,
+      "cdi": 11.7,
+      "pct_cdi": 54.6
     },
     "12m": {
-      "fundo": 9.5,
-      "pct_cdi": 65.6
+      "fundo": 7.77,
+      "pct_cdi": 54.5
     },
     "inicio": {
-      "fundo": 50.45,
-      "pct_cdi": 114.6,
-      "excesso_aa": 1.66
+      "fundo": 50.3,
+      "pct_cdi": 110.3,
+      "excesso_aa": 1.18
     },
-    "sharpe": 0.41,
-    "vol": 4.02,
-    "pl_medio_12m_mi": 1205,
+    "sharpe": 0.27,
+    "vol": 4.37,
+    "pl_medio_12m_mi": 1199,
     "familia_bi": 25,
     "anos": {
       "2024": {
@@ -244,9 +245,9 @@
         "fundo": 20.78,
         "cdi": 14.31
       },
-      "2026 (jan-set)": {
-        "fundo": 6.49,
-        "cdi": 10.51
+      "2026 (jan-out)": {
+        "fundo": 6.38,
+        "cdi": 11.7
       }
     },
     "mensal_2026": [
@@ -285,92 +286,97 @@
       [
         "set",
         0.98
+      ],
+      [
+        "out",
+        -0.1
       ]
     ],
     "atribuicao_ano": [
       [
         "CDI",
-        10.51
-      ],
-      [
-        "Bolsa internacional",
-        0.99
+        11.7
       ],
       [
         "Moedas",
-        0.97
+        0.69
       ],
       [
-        "Bolsa local",
-        0.11
-      ],
-      [
-        "Juros emergentes",
-        0.05
+        "Bolsa internacional",
+        0.58
       ],
       [
         "Valor relativo",
-        -0.23
+        -0.03
       ],
       [
         "Commodities + CDS",
-        -0.29
+        -0.05
       ],
       [
-        "Juros Brasil",
-        -1.35
+        "Juros emergentes",
+        -0.11
+      ],
+      [
+        "Bolsa local",
+        -0.15
       ],
       [
         "Juros desenvolvidos",
-        -1.89
+        -1.39
+      ],
+      [
+        "Juros Brasil",
+        -2.21
       ],
       [
         "Caixa e custos",
-        -2.36
+        -2.64
       ]
     ],
     "atribuicao_mes": [
       [
         "CDI",
-        1.08
-      ],
-      [
-        "Juros Brasil",
-        0.55
-      ],
-      [
-        "Moedas",
-        0.3
-      ],
-      [
-        "Bolsa internacional",
-        0.28
-      ],
-      [
-        "Bolsa local",
-        0.12
-      ],
-      [
-        "Valor relativo",
-        -0.01
-      ],
-      [
-        "Commodities + CDS",
-        -0.13
-      ],
-      [
-        "Caixa e custos",
-        -0.21
-      ],
-      [
-        "Juros emergentes",
-        -0.39
+        1.07
       ],
       [
         "Juros desenvolvidos",
-        -0.61
+        0.47
+      ],
+      [
+        "Commodities + CDS",
+        0.23
+      ],
+      [
+        "Valor relativo",
+        0.19
+      ],
+      [
+        "Juros emergentes",
+        -0.14
+      ],
+      [
+        "Caixa e custos",
+        -0.22
+      ],
+      [
+        "Bolsa local",
+        -0.24
+      ],
+      [
+        "Moedas",
+        -0.26
+      ],
+      [
+        "Bolsa internacional",
+        -0.38
+      ],
+      [
+        "Juros Brasil",
+        -0.81
       ]
-    ]
+    ],
+    "nota": "Relatório mensal de 30/10/2026, como publicado: mês, ano, 12 meses e desde o início (com % do CDI e CDI + a.a.), Sharpe, volatilidade desde o início, PL médio de 12 meses e as atribuições mensal e anual por estratégia. CDI do mês (1,07%) e do ano (11,70%) vêm da tabela de retornos mensais; 2024 e 2025 são os anos fechados da mesma tabela. Na atribuição, valores casados com os rótulos pela ordem do gráfico; a soma fecha com o total (−0,10% no mês, 6,38% no ano) a menos de 0,01 p.p. de arredondamento e cada linha do ano confere com setembro + outubro. familia_bi (R$ 25 bi) é da entrevista à Bloomberg Línea de 08/05/2026, não atualizado."
   },
   "linha_do_tempo": [
     {
@@ -482,41 +488,56 @@
       "inflacao": "Curto prazo pressionado (El Niño, combustíveis); núcleos globais em 2,0-2,5%; efeito do petróleo acaba em março de 2027.",
       "cambio": "Comprado em real contra dólar e euro (substituiu parte dos nominais); moedas asiáticas contra desenvolvidas de juro baixo.",
       "posicoes": "Aplicado EUA, Colômbia, Hungria, Chile, África do Sul; Brasil nominais menores; bolsa EUA/Ásia (IA) e Ibov via opções."
+    },
+    {
+      "data": "2026-10-30",
+      "fonte": "Relatório mensal",
+      "tipo": "primária",
+      "selic_fim_2026": 13.75,
+      "ipca_2026": null,
+      "juros": "Copom parou em 13,75% no início de novembro, depois de cinco cortes desde março; cenário-base é Selic parada em nível alto por mais tempo, com balanço de riscos para alta no início de 2027. DIs de jan/28 em diante +88 a 125 p.b. no mês. EUA: payroll de 29 mil, Fed parado em 3,75-4,00% (10 a 2), 5 anos −38 p.b.",
+      "inflacao": "IPCA de setembro 0,82% (4,58% em 12 meses); expectativas devem subir de forma relevante: fim da escala 6x1 e reforma tributária encarecem serviços. Brent acima de US$ 115.",
+      "cambio": "Real −4,84% no mês (dólar +8,76% no pregão seguinte ao 2º turno). Reverteu a posição vendida em dólar contra o real para comprada, em tamanho menor; pequenas compras de iene e euro contra o dólar.",
+      "posicoes": "Outubro −0,10% (juros Brasil −0,81 p.p.). Tomado nos DIs curtos, aplicado nos intermediários e longos; Ibovespa zerado; aplicado EUA, UK, CO, ZA, CL; aumentou bolsa internacional na correção de tecnologia."
     }
   ],
   "cenario": {
     "global": [
-      "Treasury de 10 anos a 5,25%: a alta desde 2022 (355 p.b.) veio nas janelas de dados de atividade (285 p.b.), do petróleo e da virada do Fed; a dívida pública não entra na conta. Juros 75 p.b. acima do que os dados justificam; cenário de 4,50%.",
-      "Inflação: núcleos de 2,0-2,5% nos desenvolvidos e no CPI; PCE de 3,0% é temporário; salários abaixo da inflação; o efeito direto do petróleo (Brent estável perto de US$ 100, fluxo de Ormuz a 90% do pré-guerra) termina em março de 2027.",
-      "IA sustenta a atividade, mas é o único motor: capex de 3,6% do PIB até 2032 com investimento total abaixo de 5% ao ano; custo por token caindo e chips estabilizando apontam ciclo menos inflacionário; produtividade em 2% ainda não acelera o PIB.",
-      "Fed: pausa em outubro, mais uma alta em dezembro e parado em 2027; BCE 2,75%, BoE 4,25%, Canadá 2,75%."
+      "Outubro (relatório mensal): bancos centrais desenvolvidos parados depois das altas de setembro. Payroll de setembro com 29 mil vagas (esperado 90 mil) e salários fracos derrubou a curva americana (5 anos −38 p.b.); Fed manteve 3,75-4,00% por 10 a 2, com dois votos por alta. CPI de setembro um pouco acima e petróleo alto deixam nova alta em aberto.",
+      "Petróleo voltou a subir com Oriente Médio e Leste Europeu: Brent acima de US$ 115 no fim de outubro, contra o equilíbrio perto de US$ 100 com viés de queda da carta do 3T26.",
+      "IA: os resultados do 3T das grandes de tecnologia abriram a cobrança por retorno do capex; rotação para energia e defensivos, Nasdaq −5,30% e Dow +1,70%. O gestor trata a correção como majoritariamente técnica.",
+      "BCE manteve 2,50% (Lagarde sai em fevereiro de 2027); título francês de 10 anos a 5% com a discussão do orçamento; BoJ em 1,25%; pontas longas dos desenvolvidos sensíveis ao fiscal. México teve a maior queda de juros entre os emergentes.",
+      "Da carta do 3T26, não revisto no relatório de outubro: Treasury de 10 anos de 5,25% para 4,50%; núcleos de 2,0-2,5% e efeito direto do petróleo encerrando em março de 2027; Fed com mais uma alta em dezembro e parado em 2027; BCE 2,75%, BoE 4,25%, Canadá 2,75%."
     ],
     "brasil": [
-      "O 1º turno tornou a mudança de política econômica o cenário-base: ajuste fiscal e reformas devem tirar pressão da demanda e prêmio de risco, abrindo um ciclo de crescimento liderado pelo setor privado.",
-      "O juro real alto não é culpa da meta de 3%, é do impulso fiscal: com gasto contido (2017-22) a Selic ficou abaixo da de México, Colômbia e África do Sul. Com novo regime fiscal, Selic abaixo de 10%.",
-      "Curto prazo: BCB conservador, com El Niño nos alimentos e ajuste de combustíveis e subsídios; Copom segue em 25 p.b. no 4T26 e talvez no início do 1T27; depois, cortes mais rápidos."
+      "A eleição derrubou o cenário-base da carta do 3T26. Depois do 1º turno o Ibovespa subiu 7,70% num pregão, o real apreciou e a curva fechou; o 2º turno (25/10) trouxe um 'resultado eleitoral inesperado' e, no pregão seguinte, Ibovespa −13,88% (circuit breaker), dólar +8,76% e forte abertura dos juros intermediários e longos. No mês: Ibovespa −9,88%, real −4,84%, DIs de jan/28 em diante +88 a 125 p.b.",
+      "Nova leitura do gestor: as expectativas de inflação devem subir de forma relevante (fim da escala 6x1 e reforma tributária elevam o custo de serviços mais do que o previsto), e o que estava no preço (prêmio de risco menor, real apreciado, ajuste fiscal) sai das expectativas. IPCA de setembro: 0,82%, 4,58% em 12 meses.",
+      "Copom manteve a Selic em 13,75% no início de novembro e interrompeu o ciclo de cinco cortes iniciado em março. Cenário-base: Selic parada em nível alto por mais tempo, sem disposição do BCB nem para subir nem para cortar; o balanço de riscos, pelas projeções do modelo do BCB, aponta para alta nos primeiros meses de 2027.",
+      "Se o câmbio ficar onde está, a piora da atividade tende a aliviar os DIs intermediários e longos. No radar: equipe econômica e diretrizes fiscais do novo mandato; uma proposta de busca do centro da meta fiscal aliviou a parte curta nos dias seguintes ao 2º turno.",
+      "Da carta do 3T26, agora sem o gatilho: Selic abaixo de 10% dependia da mudança de política econômica e de um novo regime fiscal; o relatório de outubro não repete esse número."
     ],
     "tese_longa": [
       "Inflação brasileira converge para o padrão internacional; juros nominais podem ir abaixo de 10% com menor crescimento de gastos (carta de set/2025).",
       "Eleição de 2026: assimetria aponta para mudança positiva na direção da política econômica; com fiscal, Selic terminal de 8% a 9%.",
       "Dólar estruturalmente fraco (incertezas institucionais nos EUA); BRL sustentado pelo diferencial de juros.",
       "Choque do petróleo (carta de mar/2026): adia a terminal de 11% em um ou dois trimestres, mas não a muda; como exportador líquido, o Brasil ganha termos de troca e o real resiste.",
-      "Carta de set/2026: o ajuste fiscal pós-eleição é o que mostra 'o benefício completo' da meta de 3%; a comparação internacional diz que o espaço de queda da Selic é para abaixo de 10%."
+      "Carta de set/2026: o ajuste fiscal pós-eleição é o que mostra 'o benefício completo' da meta de 3%; a comparação internacional diz que o espaço de queda da Selic é para abaixo de 10%.",
+      "Relatório de out/2026: o gatilho político não veio. O cenário passou a ser Selic parada em 13,75%, expectativas de inflação em alta e risco de aperto no início de 2027; a Selic abaixo de 10% fica sem data até a carta do 4T26."
     ]
   },
   "posicoes": {
-    "juros_brasil": "Aplicado em nominais, mas em tamanho menor do que nos meses anteriores por causa da eleição; parte da posição foi trocada por compra de real (instrumentos de perda limitada). Setembro +0,55 p.p.; ano −1,35 p.p.",
-    "juros_global": "Aplicado nos EUA (preferência: o mercado precifica 100-125 p.b. de alta do Fed), Colômbia (ajuste de 2% do PIB em 2027), Hungria (meta de 2,5% e caminho do euro), Chile (barriga da curva, atividade fraca) e África do Sul; México sem espaço para cortes. Setembro: desenvolvidos −0,61, emergentes −0,39.",
-    "moedas": "Comprado em real contra dólar e euro; flexível em torno do dólar; moedas asiáticas contra desenvolvidas de juro baixo. Setembro +0,30 p.p.",
-    "bolsa": "Construtivo em EUA e Ásia (TSMC, Amazon, Meta, cadeia de semicondutores), posições reforçadas na correção de julho; Brasil ampliado gradualmente via opções pela assimetria eleitoral.",
-    "commodities": "Petróleo: estabilidade com viés de queda; ouro e CDS Brasil seguem como hedge (−0,13 p.p. em setembro).",
-    "risco": "VaR total perto de 0,45% ao dia; risco em juros Brasil cortado antes do 1º turno, o que limitou a captura do rali de 05/10."
+    "juros_brasil": "Tomado nos vértices curtos (proteção contra volatilidade cambial; vê risco de alta da Selic no início de 2027) e aplicado nos intermediários e longos (atividade mais fraca alivia o DI se o câmbio não piorar); posicionamento de antes do 2º turno preservado em linhas gerais. Outubro −0,81 p.p., maior detrator (prefixados aplicados na abertura da curva); ano −2,21 p.p.",
+    "juros_global": "Exposição líquida aplicada em desenvolvidos e emergentes, com destaque para EUA, Reino Unido, Colômbia, África do Sul e Chile. Outubro: desenvolvidos +0,47 p.p. (EUA, Canadá e Reino Unido); emergentes −0,14 (perdas em México e Polônia, ganho na Colômbia). Hungria, destaque da carta do 3T26, não aparece no relatório de outubro.",
+    "moedas": "Reverteu a posição vendida em dólar contra o real: agora comprado em dólar, em tamanho menor. Pequenas compras de iene e euro contra o dólar. Outubro −0,26 p.p. (compra de real); ano +0,69 p.p.",
+    "bolsa": "Brasil: posições direcionais em Ibovespa zeradas; não vai antecipar a definição da equipe econômica, onde vê vantagem analítica limitada (outubro −0,24 p.p.; ano −0,15). Internacional: aumentou as compras na correção de tecnologia de outubro e início de novembro, que considera técnica (outubro −0,38 p.p., em semicondutores e infraestrutura de IA, EUA e Ásia; ano +0,58). Os nomes (TSMC, Amazon, Meta) são da carta do 3T26.",
+    "commodities": "Commodities + CDS deram +0,23 p.p. em outubro (ano −0,05) e valor relativo +0,19, sem detalhe de posição no relatório. Ouro e CDS Brasil como hedge vêm de leituras anteriores (jul e ago/26) e não foram confirmados em outubro.",
+    "risco": "VaR total médio de 0,63% ao dia em outubro (mínimo 0,42%, máximo 1,12%), contra 0,48% em setembro (0,44% a 0,55%). Em juros Brasil a média foi de 0,14% para 0,42%, com pico de 0,75%; o relatório não separa aumento de posição depois do 1º turno de salto de volatilidade depois do 2º. Volatilidade desde o início de 4,02% para 4,37%."
   },
   "leitura": [
-    "A carta foi escrita depois do 1º turno e transforma a eleição no cenário-base: a mesma tese de 2025 (inflação convergida, juro alto por culpa do fiscal, Selic abaixo de 10%) agora tem um gatilho político em vez de um macroeconômico. O número final não mudou em dois anos; mudou o motivo.",
-    "O timing foi ruim no que mais importava: reduziu a posição aplicada em Brasil e trocou por compra de real com opções antes do pregão em que a curva longa fechou 100 p.b. e o real subiu 4%. Perda limitada protege contra o cenário Lula, mas a assimetria que ele mesmo descreve foi capturada pequena. O trimestre deu 1,67% contra 3,4% do CDI.",
-    "A tese americana é a mesma que custou março: núcleos comportados, PCE converge, juros caem. Em março o petróleo deslocou todas as curvas juntas; a carta responde que o efeito direto acaba em março de 2027 e que a dívida 'não aparece' na conta. É uma aposta contra o que o mercado mais teme (fiscal americano) com o argumento de que os dados de atividade explicam tudo.",
-    "Onde ele diverge do consenso hoje: Selic abaixo de 10% com regime fiscal, contra Focus em 12% no fim de 2027 e curva sem cortes relevantes. Se o ajuste de 1,5% do PIB vier, a posição aplicada paga; o que ele admite é que o BCB vai esperar a confirmação, por isso o curto prazo é de 25 p.b. por reunião.",
-    "Desempenho: 114,6% do CDI desde o início, mas 62% do CDI em 2026 e 66% em 12 meses; a perda do ano continua em juros (Brasil −1,35, desenvolvidos −1,89 p.p.). O PL médio de 12 meses passou de R$ 411 mi para R$ 1,2 bi: o dinheiro entrou depois do 2025 de 145% do CDI e está pegando o pior ano."
+    "A carta do 3T26 fez da vitória da oposição o cenário-base e pendurou nela a Selic abaixo de 10%. O 2º turno derrubou a premissa: o relatório de outubro chama o resultado de inesperado, não repete o número e troca o cenário por Selic parada em 13,75%, expectativas de inflação subindo e risco de alta no início de 2027. Em dois anos a tese só tinha mudado de motivo; agora ficou sem gatilho.",
+    "Reduzir Brasil antes da eleição custou dos dois lados, mas limitou o estrago: capturou pouco do rali do 1º turno e, num mês de Ibovespa −9,88%, real −4,84% e DIs longos +88 a 125 p.b., o fundo deu −0,10%. Juros Brasil −0,81 p.p., moedas −0,26 e bolsa local −0,24, compensados em parte por juros desenvolvidos (+0,47), commodities + CDS (+0,23) e valor relativo (+0,19).",
+    "Lá fora outubro deu razão à carta: payroll de 29 mil vagas, curva americana fechando e juros desenvolvidos como maior ganho do mês. Dois pontos pioraram: o Brent, que ela via estável perto de US$ 100 com viés de queda, fechou acima de US$ 115; e o fiscal, que 'não aparece' na explicação dos juros longos, é o que o relatório cita para as pontas longas (França a 5%). No ano o livro ainda perde 1,39 p.p.",
+    "O que ele fez depois do 2º turno: virou o câmbio (de vendido para comprado em dólar, menor), zerou Ibovespa e admite pouca vantagem analítica para antecipar a equipe econômica. Em juros ficou tomado nos curtos, pelo risco de alta da Selic, e aplicado nos intermediários e longos, contando com atividade mais fraca e câmbio parado. A carta do 3T26 falava só em aplicado em nominais; o tomado no curto aparece agora como posição que já existia.",
+    "Desempenho: 110,3% do CDI desde o início (114,6% em setembro), 54,6% em 2026 e 54,5% em 12 meses; Sharpe de 0,41 para 0,27. A perda do ano segue em juros (Brasil −2,21, desenvolvidos −1,39 p.p.) e a bolsa local virou negativa (−0,15). Aumentou a aposta em IA na correção (bolsa internacional −0,38 p.p. no mês, +0,58 no ano), quando o mercado cobra retorno do capex. PL médio de 12 meses estável em R$ 1,2 bi: quem entrou depois do 2025 de 145% do CDI segue pegando o pior ano."
   ]
 }

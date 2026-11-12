@@ -8,6 +8,14 @@
   "cnpj_fonte": "Carta mensal (Informações gerais do Radar FIC FIM)",
   "fontes": [
     {
+      "nome": "Carta mensal Out/2026",
+      "url": "https://www.genoacapital.com.br/docs/CartaMensalGenoaCapital_Out26.pdf"
+    },
+    {
+      "nome": "Carta mensal Set/2026",
+      "url": "https://www.genoacapital.com.br/docs/CartaMensalGenoaCapital_Set26.pdf"
+    },
+    {
       "nome": "Carta mensal Ago/2026",
       "url": "https://www.genoacapital.com.br/docs/CartaMensalGenoaCapital_Ago26.pdf"
     },
@@ -92,46 +100,50 @@
       "url": "https://www.genoacapital.com.br/relatorios.html"
     }
   ],
-  "data": "2026-08-31",
-  "nota_fontes": "Carta mensal de 8-9 páginas (Cenário, atribuição por estratégia do Radar, posicionamento do Arpa, Sagres, tabelas), publicada por volta do dia 9 do mês seguinte em /docs/CartaMensalGenoaCapital_<Mes><AA>.pdf. Jan/25 a ago/26 (20 cartas) lidas na íntegra.",
+  "data": "2026-10-31",
+  "nota_fontes": "Carta mensal de 8-9 páginas (Cenário, atribuição por estratégia do Radar, posicionamento do Arpa, Sagres, tabelas), publicada por volta do dia 9 do mês seguinte em /docs/CartaMensalGenoaCapital_<Mes><AA>.pdf. Jan/25 a out/26 (22 cartas) lidas na íntegra.",
   "cenario": {
     "global": [
-      "EUA sólidos: consumo surpreende, desemprego cai por demografia e imigração (menos vagas necessárias para estabilizar), núcleos acima da meta; Fed mais preocupado com inflação e menos com emprego: risco de alta de juros ainda em 2026.",
-      "Riscos altistas de inflação no Brasil importados: petróleo de volta a US$ 100 com o agravamento no Oriente Médio."
+      "EUA resilientes: PIB do 3T confirma expansão robusta (demanda doméstica e investimento em IA), emprego estável, inflação acima da meta sem sinal de convergência. Fed subiu 25 bps em setembro e manteve em outubro, com dois votos por alta imediata; a casa espera nova alta em dezembro e mais uma ou duas em 2027.",
+      "Eleições de meio de mandato com vitória ampla dos democratas: agenda doméstica limitada, Casa Branca concentrada em tarifas e política externa. Petróleo recuou das máximas mas segue acima de US$ 100, com risco simétrico entre acordo diplomático e nova escalada no Oriente Médio."
     ],
     "brasil": [
-      "Desaceleração em curso; crédito chama atenção: inadimplência e atrasos pioram na margem apesar do Desenrola, efeito cumulativo da Selic restritiva desde fim de 2024. Impulso fiscal próximo de neutro nos próximos 12 meses, abrindo hiato modesto.",
-      "IPCA perto de 5% em 2026 e 4,5% em 2027; riscos: El Niño, PEC 6x1, reforma tributária, petróleo.",
-      "Cenário-base: derrota de Lula no 2º turno (pesquisas apertadas, STF derrubou aprovação); política mais fiscalista em 2027 apreciaria o real e facilitaria a desinflação, principal risco baixista para as projeções.",
-      "BCB segue cortando ao menos 25 bps por reunião e estuda macroprudencial para crédito caro; barra alta para parar; aceleração depende de hiato, câmbio e fiscal, mas o ciclo deve ir além do que o mercado supõe."
+      "Lula reeleito com 52% dos votos válidos, contra as pesquisas e contra o cenário-base da casa (em setembro a vitória da oposição era 'amplamente majoritária'). Real chegou a perder 12% no dia seguinte e devolveu parte; juros longos de volta para perto de 15%.",
+      "IPCA de 2027 revisado para cerca de 6% (em setembro: 4,0% a 4,5%, contando com real apreciado; 2026 em 5,2%, número de setembro). Focus de 2027 visto como defasado, com correção relevante à frente.",
+      "Copom interrompeu os cortes e manteve 13,75%. As duas condições que a casa punha para acelerar (troca de governo e transição menos abrupta da escala 6x1) não vieram; espera juros nesse patamar por período prolongado.",
+      "Fiscal sem ruptura e sem ajuste suficiente: despesa real crescendo perto de 2,0% ao ano no melhor caso, o grosso do ajuste via carga tributária, dívida bruta subindo cerca de 4 p.p. ao ano e perto de 100% do PIB no fim da década.",
+      "Recessão no início de 2027: PIB do 3T26 estimado em -0,5% e 2027 em -0,2%, ambos piores que o mercado; com inflação perto de 6%, estagflação. Quadro ruim, não de crise, desde que não haja estímulo parafiscal nem pressão sobre o BC.",
+      "Risco mais grave para a casa é o monetário, não o fiscal: nomes de perfil político na diretoria do BC (indicações nas próximas semanas) e a volta do debate sobre revisão das metas de inflação podem custar a âncora nominal; o fiscal é corrigível com mais imposto."
     ],
     "tese_longa": [
-      "Alpha do Radar vem do internacional (32,4 p.p. desde o início contra 8,2 de juros Brasil e 3,0 de câmbio Brasil): a casa é macro global com sotaque brasileiro, não um fundo de DI.",
-      "Ações macro e micro nunca pagaram no Radar (-0,05 e -0,90 p.p. desde 2020); o risco de bolsa vive no Arpa (long bias, 95% líquido, 120% bruto).",
-      "Divergência estrutural com o BCB em 2026: a casa não vê hiato aberto, projeta IPCA 5% e 4,5% e achava em maio que o BC deveria parar; ainda assim espera que o ciclo vá além do que o mercado supõe porque a função de reação do BC é leniente. Aposta: aplicado por leitura do BC, não por convicção na inflação."
+      "Alpha do Radar vem do internacional (35,2 p.p. desde o início contra 8,7 de juros Brasil e 2,1 de câmbio Brasil): a casa é macro global com sotaque brasileiro, não um fundo de DI. Continua valendo: em 2026 o internacional soma 3,23 p.p. de um alpha total de 3,19.",
+      "Ações pagaram pouco no Radar (macro +0,56 e micro -0,95 p.p. desde 2020; em ago/26 eram -0,05 e -0,90); o risco de bolsa vive no Arpa, que saiu de ~90% líquido e 160% bruto em setembro para ~25% líquido e 60% bruto em outubro, agora privilegiando empresas americanas.",
+      "Revisto em out/26: caiu a aposta de que o BCB cortaria além do que o mercado supunha. Em setembro a casa via a aceleração dos cortes em discussão a partir de dezembro e Selic perto de 11% ao fim de 2027, tudo condicionado à troca de governo; com Lula reeleito, o Copom parou em 13,75% e a casa espera juros parados por período prolongado.",
+      "Revisto em out/26: o cenário-base eleitoral (derrota de Lula, real apreciando, desinflação) não se confirmou; a carta reconhece que o 2º turno contrariou as pesquisas e o cenário da casa. IPCA de 2027 foi de 4,0-4,5% para cerca de 6%.",
+      "O que sobrevive: a casa segue mais pessimista que o consenso em inflação e agora também em atividade (PIB de 2027 em -0,2%). A divergência com o BCB muda de objeto: antes a função de reação leniente, agora a credibilidade da instituição, com a composição da diretoria e o debate das metas no centro."
     ]
   },
   "posicoes": {
-    "juros_brasil": "Aplicado: BCB corta mais do que o mercado supõe (ago/26: +0,08 p.p. no mês, +0,14 no ano).",
-    "cambio_brasil": "Posição em real detratora em agosto (-0,34 p.p.); tese de apreciação só com oposição eleita.",
-    "internacional": "Juros e moedas globais são o motor (+0,85 p.p. em agosto, +1,58 no ano, +32,4 desde o início); tomado nos EUA com Fed voltando a subir.",
-    "acoes": "Radar: macro e micro pequenas e negativas no ano. Arpa: 95% líquido, comprado em industriais, utilities e energia no Brasil; perdeu em semicondutores e industriais nos EUA e consumo doméstico."
+    "juros_brasil": "Sem impacto relevante em outubro (-0,02 p.p. no mês, +0,43 no ano, +8,69 desde o início); setembro tinha rendido +0,31. A tese de aplicado perdeu a base: Copom parou em 13,75% e a casa espera juros parados por período prolongado. A carta não descreve a posição atual.",
+    "cambio_brasil": "Maior detrator de outubro (-0,79 p.p.) na volatilidade do período eleitoral; apagou o ganho do ano (-0,04 no ano, +2,13 desde o início). Em setembro o livro rendeu 0,00. A apreciação do real dependia da vitória da oposição, que não veio; a carta não informa a posição atual.",
+    "internacional": "Juros e moedas globais detratores em outubro (-0,43 p.p.) depois de +2,14 em setembro; seguem o motor do ano (+3,23) e do histórico (+35,20). Cenário: Fed parado em outubro, com alta em dezembro e mais uma ou duas em 2027.",
+    "acoes": "Radar: posições direcionais em bolsa ajudaram em outubro (macro +0,29 p.p., +0,30 no ano); micro -0,13 no mês e -0,56 no ano. Arpa: -15,64% em outubro e -13,19% no ano (Ibovespa -9,88% e +4,22%); cortou o líquido de ~90% para ~25% e o bruto de ~160% para ~60%, agora privilegiando empresas americanas; perdeu em financeiro, imobiliário, industrial e utilities no Brasil e em semicondutores e comunicação nos EUA."
   },
   "desempenho": {
     "mes": {
-      "fundo": 1.37,
-      "cdi": 1.09,
-      "ref": "2026-08"
+      "fundo": -0.03,
+      "cdi": 1.07,
+      "ref": "2026-10"
     },
     "ano": {
-      "fundo": 9.26,
-      "cdi": 9.33,
-      "pct_cdi": 99.2
+      "fundo": 12.88,
+      "cdi": 11.7,
+      "pct_cdi": 110.1
     },
     "inicio": {
-      "fundo": 113.44,
-      "cdi": 85.58,
-      "pct_cdi": 132.6
+      "fundo": 120.5,
+      "cdi": 89.6,
+      "pct_cdi": 134.5
     },
     "anos": {
       "2020 (jul-dez)": {
@@ -158,9 +170,9 @@
         "fundo": 12.99,
         "cdi": 14.31
       },
-      "2026 (até set)": {
-        "fundo": 12.91,
-        "cdi": 10.5
+      "2026 (até out)": {
+        "fundo": 12.88,
+        "cdi": 11.7
       }
     },
     "mensal_2026": [
@@ -199,43 +211,47 @@
       [
         "09",
         3.34
+      ],
+      [
+        "10",
+        -0.03
       ]
     ],
     "atribuicao_ano": [
       [
         "Internacional",
-        1.58
-      ],
-      [
-        "Câmbio Brasil",
-        0.73
+        3.23
       ],
       [
         "Juros Brasil",
-        0.14
+        0.43
       ],
       [
         "Ações macro",
-        -0.23
+        0.3
+      ],
+      [
+        "Câmbio Brasil",
+        -0.04
       ],
       [
         "Caixa",
-        -0.32
+        -0.17
       ],
       [
         "Ações micro",
-        -0.48
+        -0.56
       ],
       [
         "Custos",
-        -1.49
+        -2.0
       ]
     ],
-    "sharpe": 0.69,
-    "vol": 3.69,
-    "pl_medio_12m_mi": 448,
-    "pl_master_mi": 4476,
-    "nota": "Anos pela tabela da carta de ago/26 (linhas em ordem decrescente), 2025 conferido pela cota CVM (12,99%). Setembro/26 (+3,34%) e o acumulado 2026 vêm da cota CVM (carta de setembro ainda não publicada); CDI 2026 até set estimado. Atribuição no ano (p.p., ex-CDI) como publicada em ago/26.",
+    "sharpe": 0.72,
+    "vol": 3.73,
+    "pl_medio_12m_mi": 458,
+    "pl_master_mi": 4648,
+    "nota": "Mês, ano, desde o início, linha de 2026 em anos, mensal de 2026, CDI, Sharpe, volatilidade e PL vêm da carta de out/26 (tabela de rentabilidades e Indicadores da lâmina do Radar, p. 7); atribuição no ano (p.p., ex-CDI) pela tabela de estratégias da mesma carta (p. 4). Setembro/26 (+3,34%), antes tirado da cota CVM, foi confirmado pela carta de set/26, que traz 12,92% no ano até setembro (a cota CVM dava 12,91%). O CDI de 2026 deixou de ser estimado: 11,70% até outubro, da carta. % do CDI calculado (fundo/CDI). Demais anos pela mesma tabela, 2025 conferido pela cota CVM (12,99%). anos_cota_cvm não foi atualizado: o 2026 ali é de data anterior.",
     "anos_cota_cvm": {
       "2025": 12.99,
       "2026": 13.03
@@ -292,10 +308,11 @@
     ]
   },
   "leitura": [
-    "É a casa mais explícita sobre a eleição: cenário-base de derrota do governo, com o próprio risco baixista das projeções (real mais forte, desinflação) dependendo disso.",
-    "Até agosto o Radar empatava com o CDI (99%); setembro rendeu +3,34% pela cota CVM, o melhor mês do ano, e levou o acumulado a ~13%: a aposta eleitoral e de juros começou a pagar antes da urna.",
-    "A leitura de crédito (inadimplência piorando na margem apesar do Desenrola) é a mesma dos bancos médios na conferência do BTG e a mesma da nota do BCB: convergência de três fontes primárias.",
-    "Arpa negativo no ano (-1,4%) com 95% líquido em Brasil: quem comprou a tese eleitoral via bolsa ainda não foi pago; o rali de agosto veio em utilities e industriais."
+    "A casa mais explícita sobre a eleição errou a eleição. Cenário-base de derrota de Lula desde agosto, promovido a 'amplamente majoritário' depois do 1º turno (Flávio à frente, pesquisas com 4 a 5 pontos de vantagem); a carta de outubro admite que o 2º turno contrariou as pesquisas e o cenário da casa. Tudo o que dependia disso foi revertido: IPCA de 2027 de 4,0-4,5% para cerca de 6%, Selic de ~11% no fim de 2027 para 13,75% parada.",
+    "O erro custou pouco no Radar e muito no Arpa. Radar: -0,03% em outubro (alpha -1,14 p.p.: real -0,79, internacional -0,43), ano em 12,88% contra CDI de 11,70% (110% do CDI). Arpa: entrou em outubro com ~90% líquido e 160% bruto, concentrado em Brasil, caiu 15,64% (Ibovespa -9,88%) e virou o ano de +2,91% para -13,19%.",
+    "Correção da leitura anterior: setembro (+3,34%) não foi a aposta eleitoral pagando antes da urna. A carta de setembro mostra internacional com +2,14 p.p. dos 2,81 de alpha; juros Brasil deram +0,31 e câmbio Brasil 0,00. O ganho do ano segue sendo global.",
+    "Mudança de posição declarada só no Arpa: líquido cortado para ~25% e bruto para ~60% depois da queda, com preferência por empresas americanas. No Radar a carta dá a atribuição e não as posições novas; chama atenção a bolsa direcional positiva (+0,29 p.p.) num mês de Ibovespa -9,88%, sem a carta dizer mercado nem direção.",
+    "Onde diverge do consenso: IPCA de 2027 perto de 6% com Focus 'defasado'; PIB do 3T em -0,5% e de 2027 em -0,2%, estagflação; Fed voltando a subir em dezembro. E pesa mais o risco monetário que o fiscal: diretoria política no BC e reabertura da meta de inflação como caminho para perder a âncora nominal."
   ],
   "periodos_cartas": [
     {
@@ -363,20 +380,20 @@
       "fim": "2026-09-30",
       "rotulo": "3T26",
       "cor": "#1baf7a",
-      "carta": "Carta mensal, ago/26",
+      "carta": "Cartas jul, ago, set/26",
       "tipo": "primária",
-      "cenario": "Julho: desaceleração mais visível, PIB perto de zero no 2S, dívida +4 p.p./ano com parafiscais e arrecadação cíclica; Copom a 14%, barra alta para parar antes da eleição. Agosto: Fed com viés de alta; crédito piorando; cenário-base de derrota de Lula.",
-      "resultado": "Jul +0,99% (global e juros locais; real e bolsa detratores; Arpa -4,47%), ago +1,37% (126% do CDI). Setembro +3,34% pela cota CVM."
+      "cenario": "Julho: desaceleração mais visível, PIB perto de zero no 2S, dívida +4 p.p./ano com parafiscais e arrecadação cíclica; Copom a 14%, barra alta para parar antes da eleição. Agosto: Fed com viés de alta; crédito piorando; cenário-base de derrota de Lula. Setembro: Fed sobe 25 bps; 1º turno com Flávio Bolsonaro à frente de Lula e direita maior no Senado, vitória da oposição vira cenário 'amplamente majoritário'; PIB do 3T estimado em -0,4%, hiato enfim abrindo; Copom corta 25 bps para 13,75%; IPCA 5,2% em 2026 e 4,0-4,5% em 2027, Selic perto de 11% ao fim de 2027.",
+      "resultado": "Jul +0,99% (global e juros locais; real e bolsa detratores; Arpa -4,47%), ago +1,37% (126% do CDI). Set +3,34% (internacional +2,14 p.p., juros Brasil +0,31, ações macro +0,25, câmbio Brasil 0,00; Arpa +4,33% com ~90% líquido e 160% bruto)."
     },
     {
       "ini": "2026-10-01",
       "fim": "2026-12-31",
       "rotulo": "4T26",
-      "cor": "#a9acb2",
-      "carta": "Set/26 sai ~9/10; out/26 ~9/11",
-      "tipo": "lacuna",
-      "cenario": "Eleição, Copom 4/11 e 9/12.",
-      "resultado": "A preencher."
+      "cor": "#e0662b",
+      "carta": "Carta mensal out/26; nov e dez/26 ainda faltam",
+      "tipo": "primária",
+      "cenario": "Outubro: Lula reeleito com 52% contra o cenário-base da casa; real chega a cair 12% no dia seguinte, juros longos perto de 15%; Copom para em 13,75% e a casa espera pausa prolongada; IPCA de 2027 revisado para ~6%, PIB de 2027 em -0,2%: estagflação. Ajuste fiscal via impostos, dívida +4 p.p. ao ano; risco maior é o monetário (diretoria do BC e debate das metas). Fed mantém com dois votos por alta; democratas vencem as eleições de meio de mandato; petróleo acima de US$ 100.",
+      "resultado": "Out -0,03% (câmbio Brasil -0,79 p.p., internacional -0,43, ações macro +0,29, juros locais -0,02). Ano em 12,88% contra CDI de 11,70%. Arpa -15,64% no mês e líquido cortado de ~90% para ~25%. Nov e dez a preencher."
     }
   ]
 }

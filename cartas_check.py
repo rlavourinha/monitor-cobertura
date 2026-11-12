@@ -10,6 +10,8 @@ Como decide que é carta nova:
   · URL .pdf (ou que devolve application/pdf, caso dos informes do BB): HEAD com tamanho/ETag/Last-Modified só dispara o
     download; o que vale é o md5 do conteúdo (data/cartas_estado.json → "_hashes"). Cabeçalho que oscila não reenvia nada.
   · Página de lista: links novos para .pdf ou para posts do Substack (/p/). Link que já foi visto não volta.
+  · Endereço previsto: PDF com ano e mês no nome (Verde-REL-2026_08, 202608_Carta-Mensal, CartaGestao_202609) tem os
+    meses seguintes consultados direto (_proximas_datadas), porque o índice dessas casas não lista os PDFs.
   · Recência: o documento precisa trazer uma data (dd/mm/aaaa, "23 de agosto de 2026", "set/26", "1S26", "3T26")
     de até RECENTE_DIAS atrás; carta velha que só mudou de endereço é registrada e não é enviada.
 Resumo: `claude -p --model claude-sonnet-5` (precisa de login feito uma vez: `claude` + /login). Sem CLI ou sem login, a
@@ -274,6 +276,51 @@ def _datado(url: str) -> bool:
     return nome.lower().endswith(".pdf") and bool(_DATADO.search(nome))
 
 
+_AAAAMM = re.compile(r"(?<!\d)(20\d{2})([_-]?)(0[1-9]|1[0-2])(?!\d)")
+
+
+def _proximas_datadas(urls: list[str], hoje: date | None = None, teto: int = 4) -> list[str]:
+    """Endereços previstos das próximas cartas quando o nome do PDF traz ano e mês em número (Verde-REL-2026_08,
+    202608_Carta-Mensal, CartaGestao_202609). Motivo (12/11/2026): as páginas-índice da Verde e da Opportunity são
+    montadas por JavaScript e a da Legacy não lista as cartas, então set/26 e out/26 dessas três casas saíram e o vigia
+    não viu. Para cada molde de nome, devolve os meses seguintes ao último conhecido, até o mês corrente (no máximo `teto`)."""
+    hoje = hoje or date.today()
+    ultimo: dict[tuple[str, str, str, str], tuple[int, int]] = {}
+    for u in urls:
+        if not u.lower().endswith(".pdf"):
+            continue
+        base, _, nome = u.rpartition("/")
+        m = _AAAAMM.search(unquote(nome))
+        if not m or nome != unquote(nome):
+            continue
+        molde = (base, nome[:m.start()], m.group(2), nome[m.end():])
+        ym = (int(m.group(1)), int(m.group(3)))
+        if ym > ultimo.get(molde, (0, 0)):
+            ultimo[molde] = ym
+    out = []
+    for (base, pre, sep, pos), (y, mes) in ultimo.items():
+        for _ in range(teto):
+            y, mes = (y + 1, 1) if mes == 12 else (y, mes + 1)
+            if (y, mes) > (hoje.year, hoje.month):
+                break
+            out.append(f"{base}/{pre}{y}{sep}{mes:02d}{pos}")
+    return out
+
+
+def _existe_pdf(url: str) -> str | None:
+    """Assinatura do PDF se o endereço existe e devolve PDF (HEAD; GET leve se o HEAD for recusado); None se não."""
+    try:
+        r = requests.head(url, headers=UA, timeout=30, allow_redirects=True)
+        if r.status_code in (403, 405):
+            r = requests.get(url, headers=UA, timeout=60, stream=True)
+        h = r.headers
+        if r.status_code == 200 and "pdf" in (h.get("Content-Type") or "").lower():
+            return f"200|{h.get('Content-Length', '')}|{h.get('ETag', '')}|{h.get('Last-Modified', '')}"
+    except Exception:
+        pass
+    return None
+
+
 # ----------------------------------------------------------------------------- principal
 def main() -> int:
     silencio = "--silencio" in sys.argv
@@ -320,6 +367,17 @@ def main() -> int:
             elif antes is None and conteudo is not None:
                 enviar_carta(est, nome, s.get("nome", ""), u, f.stem, True, conteudo)   # 1ª vez: só registra o md5
             est[k] = {"assinatura": a, "visto": datetime.now().strftime("%Y-%m-%d %H:%M"), **({"links": links} if links else {})}
+        # carta nova pelo endereço previsto (casas cujo índice não lista os PDFs): só consulta o que ainda não foi registrado
+        for u in _proximas_datadas([s.get("url") or "" for s in C.get("fontes", [])]):
+            k = f"{f.stem}|{u}"
+            if est.get(k):
+                continue
+            a = _existe_pdf(u)
+            if not a:
+                continue
+            mudaram.append((nome, u))
+            enviados += enviar_carta(est, nome, "carta nova (endereço previsto pelo padrão das anteriores)", u, f.stem, silencio)
+            est[k] = {"assinatura": a, "visto": datetime.now().strftime("%Y-%m-%d %H:%M")}
     ESTADO.parent.mkdir(parents=True, exist_ok=True)
     ESTADO.write_text(json.dumps(est, ensure_ascii=False, indent=1), encoding="utf-8")
     n_fontes = sum(1 for k in est if not k.startswith("_"))

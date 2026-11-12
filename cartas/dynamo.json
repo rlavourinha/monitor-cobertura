@@ -7,6 +7,18 @@
   "cnpj_fonte": "CVM registro_fundo_classe (DYNAMO COUGAR FIA)",
   "fontes": [
     {
+      "nome": "Carta Dynamo 131 (3T26, nov/26): A Techné do Tempo",
+      "url": "https://www.dynamo.com.br/wp-content/uploads/2026/11/Carta-Dynamo-131.pdf"
+    },
+    {
+      "nome": "Carta Dynamo 130 (2T26, out/26): O Tácito do Tempo",
+      "url": "https://www.dynamo.com.br/wp-content/uploads/2026/10/Carta-Dynamo-130.pdf"
+    },
+    {
+      "nome": "Carta Dynamo 129 (1T26, out/26): O Tao do Sistema 3 (URL inferida pelo padrão)",
+      "url": "https://www.dynamo.com.br/wp-content/uploads/2026/10/Carta-Dynamo-129.pdf"
+    },
+    {
       "nome": "Carta Dynamo 128 (4T25, abr/26): Os Serendipitistas",
       "url": "https://www.dynamo.com.br/pt/cartas"
     },
@@ -31,36 +43,41 @@
       "url": "https://www.dynamo.com.br/pt/cartas"
     }
   ],
-  "data": "2026-04-06",
-  "nota_fontes": "Carta Dynamo trimestral (8-11 páginas, ensaio), publicada com 1-4 meses de atraso em dynamo.com.br/pt/cartas (PDFs em wp-content/uploads). Cartas 123 a 128 lidas; a 129 (1T26) deve sair até julho/26 e ainda não estava no site em 3/10. Sem tabela de carteira ou atribuição nas cartas: números só pela cota CVM.",
+  "data": "2026-10-31",
+  "nota_fontes": "Carta Dynamo trimestral (8-11 páginas, ensaio), publicada em dynamo.com.br/pt/cartas (PDFs em wp-content/uploads), com 1-4 meses de atraso até a 128. Cartas 123 a 131 lidas. A cadência quebrou em 2026: depois da 128 (abr/26) não saiu carta por seis meses, e a trilogia 129-130-131 (numeradas '2026 1/4', '2/4' e '3/4') saiu em quatro semanas, assinada em 16/10, 30/10 e 11/11/2026 (vistas no site em 17/10, 31/10 e 12/11). A URL da 129 não ficou registrada e foi inferida pelo padrão das demais. Campo 'data' = 31/10/2026, fim do último mês da tabela de rentabilidade da Carta 131 ('até Outubro de 2026'); a carta em si é de 11/11. Sem tabela de carteira ou atribuição nas cartas: só a tabela de rentabilidade do rodapé (Cougar x Ibovespa, janelas de 1 a 120 meses em R$ e ano a ano em US$) e o PL médio de 12 meses; o resto dos números vem da cota CVM.",
   "cenario": {
     "global": [
       "Cartas 123-124 (fev/25): o ecossistema de mercado está sendo tomado por HFTs (70% das negociações nos EUA, 50% do volume da B3 via co-location), fatores e passivos (US$ 13,3 tri, já maiores que os ativos). Passivos são inelásticos a preço: inflam valuations, aumentam correlação e concentração (Mag 7 = 35% do S&P), e fire sales de quants derrubam preços 5x mais.",
       "Carta 126 (jul/25): proxy advisors (ISS, Glass Lewis, 90% do mercado) votam sem diálogo; caso Eletrobras x ISS como exemplo de 'ligeireza'; sugestões de governança.",
-      "Cartas 127-128: consequências não intencionais e serendipity nas companhias; seis exemplos brasileiros anonimizados de M&A/estratégia que viraram 'tiro pela culatra'."
+      "Cartas 127-128: consequências não intencionais e serendipity nas companhias; seis exemplos brasileiros anonimizados de M&A/estratégia que viraram 'tiro pela culatra'.",
+      "Carta 129 (out/26): autocrítica como método. Em carteira concentrada, com poucos investimentos por ano, um erro pesa mais e informa mais do que em carteira pulverizada (o contraexemplo é o venture capital, onde errar em 190 de 200 é desenho); erro de comissão é pior que o de omissão porque atinge o capital. O 'Sistema 3' é a reunião coletiva, sem hierarquia, que critica a tese levada pela dupla de analistas. Sobre IA, só que deve assumir o trabalho braçal do analista nos números.",
+      "Carta 130 (out/26): negócios relacionais (rede fragmentada, confiança, conhecimento tácito, solução conjunta de problemas) parecem atrasados e atraem a 'modernização' de investidores financeiros, que troca relação por KPI, contrato e corte e corrói o que sustentava o negócio; a saída é o 'back to basics'. Exemplos: Toyota x GM com fornecedores e a confecção de Nova York; a ressalva (laço demais cega para choque externo) é ilustrada na 131 pela relojoaria suíça diante do quartzo. Nota de passagem: investidores fogem de tudo o que a IA pode alcançar."
     ],
     "brasil": [
       "Carta 125 (mai/25): Rede D'Or é 'uma das maiores posições do portfólio'. Tese: hospital como núcleo de uma plataforma (dominância local + escala nacional), cultura coesa (qualidade técnica, qualidade percebida, retorno), família com 47,5% após pouca diluição, triunvirato Jorge Moll/Heráclito/Paulo Moll na alocação de capital; investimento desde o IPO (2020), planilhas desde 2007.",
-      "Leitura implícita sobre o mercado local: a casa vê a chegada dos padrões quant/passivos à B3 como fonte de distorções que o investidor de longo prazo deve explorar; não discute Selic, eleição ou fluxo."
+      "Carta 131 (nov/26): Technos, investimento encerrado 'há alguns anos', contado como erro. Gestão de 7% via fundo de participações em 1998, fechamento de capital em 2003, compra de 90% em mai/2008 com DLJ/Lanx e Renato Goettems, reabertura de capital em jul/2011 (R$ 172 mi primários), Dumont em 2013 (18 marcas), recessão de 2015-16 e corte de quase 50% da força de vendas. Diagnóstico: trataram a rede de mais de 7 mil joalherias e relojoarias (quase 70% das vendas) como prateleira a otimizar, quando era um sistema de relações; a Dynamo acabou como único acionista de referência.",
+      "Ainda na 131: com Joaquim Ribeiro de volta ao comando e o 'back to basics', a Technos soma 25 trimestres seguidos de alta de EBITDA (até o 3T26), reajuste médio de preço de 7,5% a.a. em 2019-2025, menos alavancagem e recompras com cancelamento; mesmo assim o resultado de 2025 está no nível nominal de 2014. Joaquim virou o principal acionista. A carta cita Alpargatas, Natura, Grupo SBF, Lojas Renner, Dasa e Motiva como casos do mesmo discurso de simplificação, sem dizer se há posição em alguma.",
+      "Leitura implícita sobre o mercado local: a casa vê a chegada dos padrões quant/passivos à B3 como fonte de distorções que o investidor de longo prazo deve explorar; não discute Selic, eleição ou fluxo. As cartas 129-131, assinadas entre 16/10 e 11/11/2026, não falam de eleição, de juros correntes nem da queda de outubro (Cougar -9,0%, Ibovespa -9,9% na tabela da 131); o macro que aparece é retrospectivo (recessão de 2015-16, câmbio -48% em 2015, Selic a 14,25%) e uma frase sobre consumo discricionário apertado por juros altos e famílias alavancadas."
     ],
     "tese_longa": [
       "Value investing clássico com engajamento: preços expressam intenções (recompra, controlador, insider), não partículas; crises são a hora de entrar. A carta serve mais para entender como a casa pensa companhias do que para ler macro.",
-      "Relevante para a cobertura: a tese Dynamo de Rede D'Or (RDOR3) é a mais detalhada publicada por um gestor e dialoga com o dossiê CVM da RDOR e com o Monitor de Cobertura."
+      "Relevante para a cobertura: a tese Dynamo de Rede D'Or (RDOR3) é a mais detalhada publicada por um gestor e dialoga com o dossiê CVM da RDOR e com o Monitor de Cobertura.",
+      "Cartas 129-131: risco é perda permanente de capital, não volatilidade da cota nem tracking error; carteira montada ativo por ativo, e cada erro evitável é tratado como falha de processo e dissecado em grupo. Investimento privado é exceção e pede três condições: negócio saudável, sócio que escolhe a Dynamo sem processo competitivo e gestão já instalada (a Technos relaxou a terceira). Visão crítica de acionista que acumula conselho e diretoria em companhia listada."
     ]
   },
   "posicoes": {
-    "conhecidas": "Rede D'Or (uma das maiores posições, carta 125). As cartas não listam a carteira; a composição pode ser obtida na CDA mensal da CVM (defasagem de 3 meses)."
+    "conhecidas": "Rede D'Or (uma das maiores posições, carta 125, mai/25); não reconfirmada desde então. As cartas 129-131 (out-nov/26) não citam nenhuma posição atual: a Technos, tema da 131, saiu da carteira 'há alguns anos'. As cartas não listam a carteira; o Cougar aplica no mínimo 95% no Dynamo Cougar Master FIA e está fechado para captação, e a composição pode ser obtida na CDA mensal da CVM (defasagem de 3 meses)."
   },
   "desempenho": {
     "mes": {
-      "fundo": 4.52,
-      "cdi": 1.17,
-      "ref": "2026-09"
+      "fundo": -9.0,
+      "cdi": null,
+      "ref": "2026-10"
     },
     "ano": {
-      "fundo": 11.19,
-      "cdi": 10.5,
-      "pct_cdi": 106.6
+      "fundo": 1.2,
+      "cdi": null,
+      "pct_cdi": null
     },
     "anos": {
       "2025": {
@@ -108,6 +125,10 @@
       [
         "09",
         4.52
+      ],
+      [
+        "10",
+        -9.0
       ]
     ],
     "mensal_2025": [
@@ -161,16 +182,24 @@
       ]
     ],
     "pl_mi": 5832,
-    "nota": "Retornos mensais e anuais calculados pela cota diária da CVM (inf_diario, último dado 2026-10-01); PL de R$ 5,832 mi.",
+    "nota": "Retornos mensais de jan a set/26, os de 2025 e o CDI calculados pela cota diária da CVM (inf_diario, último dado 2026-10-01); PL de R$ 5.832 mi nessa data. Outubro (-9,0%) e o acumulado de 2026 (+1,2%) vêm da tabela 'Dynamo Cougar x Ibovespa, rentabilidade em R$ até Outubro de 2026' da Carta 131, com uma casa decimal; a carta não traz CDI, por isso 'cdi' e 'pct_cdi' do mês e do ano ficam nulos e a linha '2026 (até set)' segue pela cota CVM. Na mesma tabela, Cougar contra Ibovespa: 12 meses +8,2% e +12,9%; 24 meses +20,3% e +28,5%; 36 meses +47,1% e +49,2%; 60 meses +28,6% e +62,2%; 120 meses +180,0% e +161,1%. Em US$, 2026 até outubro: +2,7% e +5,8%. PL médio de 12 meses: R$ 5.935,4 mi (Carta 131; R$ 5.876,9 mi nas cartas 129 e 130). Até setembro, as cartas 129 e 130 davam +11,2% no ano contra Ibovespa +15,6%, o que confere com a cota CVM (+11,19%).",
     "benchmark": {
       "Ibovespa 2025": 34.0,
-      "Ibovespa 1S26": 6.8
-    }
+      "Ibovespa 1S26": 6.8,
+      "Ibovespa set/26": 5.0,
+      "Ibovespa 2026 (até set)": 15.6,
+      "Ibovespa out/26": -9.9,
+      "Ibovespa 2026 (até out)": 4.2,
+      "Ibovespa 12m (até out)": 12.9
+    },
+    "pl_medio_12m_mi": 5935.4
   },
   "leitura": [
-    "Cougar +38,7% em 2025 (Ibovespa +34,0%) e +11,8% em 2026 até setembro pela cota, com maio -5,9% e setembro +4,5%. Dentro da amostra é o fundo de ações com melhor 2025 e o mais consistente em 2026.",
-    "Não há como extrair 'consenso macro' da Dynamo: a casa escreve sobre microestrutura, governança e processo de decisão. Para o quadro de consenso entra só como 'ações Brasil, comprado, concentrado'.",
-    "O ensaio sobre passivos (carta 124) é a melhor explicação disponível em português para o 'fluxo gringo via ETF' que Verde e Legacy descrevem em jan-fev/26: inelástico na entrada e na saída."
+    "Cougar +38,7% em 2025 (Ibovespa +34,0%). Em 2026, +11,2% até setembro e +1,2% até outubro, depois de -9,0% em outubro (tabela da carta 131); o Ibovespa fez +15,6%, +4,2% e -9,9%. Caiu menos que o índice em outubro, mas está atrás dele no ano e nas janelas de 12, 24, 36 e 60 meses; só ganha em 120 meses (+180,0% contra +161,1%). Dentro da amostra era o fundo de ações com melhor 2025; a comparação de 2026 com os outros fundos não foi refeita com outubro.",
+    "Não há como extrair 'consenso macro' da Dynamo: a casa escreve sobre microestrutura, governança e processo de decisão. As três cartas de out-nov/26 não dizem nada sobre eleição, juros ou a queda de outubro. Para o quadro de consenso entra só como 'ações Brasil, comprado, concentrado'.",
+    "O ensaio sobre passivos (carta 124) é a melhor explicação disponível em português para o 'fluxo gringo via ETF' que Verde e Legacy descrevem em jan-fev/26: inelástico na entrada e na saída.",
+    "Cartas 129-131: o assunto de 2026 é um erro antigo (Technos), não a carteira. A casa admite ter agido como o investidor financeiro que critica: plano de 'modernização', aquisição, executivos de fora e corte da força de vendas sobre um canal que funcionava por relação. Serve de filtro para teses de consolidação e 'choque de gestão' em negócios de rede pulverizada: KPI de curto prazo e contrato rígido podem destruir o ativo que se queria explorar.",
+    "Continua sem resposta por falta de números: carteira atual e peso de Rede D'Or (última menção em mai/25), por que o fundo ficou atrás do Ibovespa em 2026, o que a casa fez em outubro e como lê eleição e juros. A parte de carteira só sai da CDA da CVM, com 3 meses de defasagem."
   ],
   "periodos_cartas": [
     {
@@ -228,30 +257,30 @@
       "fim": "2026-06-30",
       "rotulo": "2T26",
       "cor": "#1a8fa8",
-      "carta": "Carta 129 (1T26) ainda não publicada",
-      "tipo": "lacuna",
-      "cenario": "Esperada até jul/26; não estava no site em 3/10.",
-      "resultado": "2T26: -4,7% (abr +0,7%, mai -5,9%, jun +0,5%)."
+      "carta": "Carta 129 (out/26): O Tao do Sistema 3",
+      "tipo": "primária",
+      "cenario": "Autocrítica como método: em carteira concentrada cada erro evitável é falha de processo e pede autópsia individual, pelas quatro trilhas de análise (números, companhia, administração, negócio) e pelos vieses; 'Sistema 3' é a reunião coletiva que critica a tese da dupla de analistas. Abre a trilogia sobre a Technos. Assinada só em 16/10/26; não comenta o trimestre.",
+      "resultado": "2T26: -4,7% (abr +0,7%, mai -5,9%, jun +0,5%). Sem explicação na carta."
     },
     {
       "ini": "2026-07-01",
       "fim": "2026-09-30",
       "rotulo": "3T26",
       "cor": "#1baf7a",
-      "carta": "Carta 130 (2T26) esperada ~out/26",
-      "tipo": "lacuna",
-      "cenario": "",
-      "resultado": "3T26: +6,1% (jul +0,8%, ago +0,8%, set +4,5%)."
+      "carta": "Carta 130 (out/26): O Tácito do Tempo",
+      "tipo": "primária",
+      "cenario": "Negócios relacionais (confiança, informação tácita, solução conjunta de problemas) parecem atrasados e atraem a 'modernização' de investidores financeiros, que troca relação por KPI e contrato e corrói o canal; remédio é o 'back to basics'. Ressalva: laço demais também cega para choque externo. Prepara o caso Technos.",
+      "resultado": "3T26: +6,1% (jul +0,8%, ago +0,8%, set +4,5%). Tabela das cartas 129 e 130: até setembro, +11,2% no ano contra Ibovespa +15,6%; 12 meses +21,7% contra +27,4%."
     },
     {
       "ini": "2026-10-01",
       "fim": "2026-12-31",
       "rotulo": "4T26",
-      "cor": "#8a8d92",
-      "carta": "",
-      "tipo": "lacuna",
-      "cenario": "",
-      "resultado": "A preencher."
+      "cor": "#e0662b",
+      "carta": "Carta 131 (nov/26): A Techné do Tempo",
+      "tipo": "primária",
+      "cenario": "Technos como autópsia de erro: mais de duas décadas de envolvimento (acionista em 1998-2003 e de novo a partir de 2008), plano de expansão (reabertura de capital em 2011, Dumont em 2013), saneamento com corte de quase 50% da força de vendas e volta ao básico com Joaquim Ribeiro; 25 trimestres seguidos de alta de EBITDA até o 3T26, mas 2025 no nível nominal de 2014. Nada sobre eleição, juros ou a carteira atual.",
+      "resultado": "Out -9,0% contra Ibovespa -9,9% (tabela da carta 131); no ano até outubro +1,2% contra +4,2%, 12 meses +8,2% contra +12,9%. A carta não comenta a queda. Nov e dez a preencher."
     }
   ]
 }

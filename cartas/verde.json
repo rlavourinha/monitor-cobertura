@@ -8,6 +8,14 @@
   "cnpj_fonte": "Relatório de gestão (Resumo Gerencial) e registro_fundo_classe da CVM",
   "fontes": [
     {
+      "nome": "Relatório de Gestão 2026/10",
+      "url": "https://www.verdeasset.com.br/public/files/rel_gestao/158094/Verde-REL-2026_10.pdf"
+    },
+    {
+      "nome": "Relatório de Gestão 2026/09",
+      "url": "https://www.verdeasset.com.br/public/files/rel_gestao/158094/Verde-REL-2026_09.pdf"
+    },
+    {
       "nome": "Relatório de Gestão 2026/08",
       "url": "https://www.verdeasset.com.br/public/files/rel_gestao/158094/Verde-REL-2026_08.pdf"
     },
@@ -92,54 +100,56 @@
       "url": "https://www.verdeasset.com.br/#/performance"
     }
   ],
-  "data": "2026-08-31",
-  "nota_fontes": "Relatório de Gestão mensal (4-6 páginas, texto denso), publicado por volta do dia 10 em verdeasset.com.br/public/files/rel_gestao/158094/Verde-REL-AAAA_MM.pdf (curl recusado; baixar via navegador). Jan/25 a ago/26 (20 relatórios) lidos na íntegra.",
+  "data": "2026-10-31",
+  "nota_fontes": "Relatório de Gestão mensal (4-6 páginas, texto denso), publicado por volta do dia 10 em verdeasset.com.br/public/files/rel_gestao/158094/Verde-REL-AAAA_MM.pdf (curl recusado; baixar via navegador). Jan/25 a out/26 (22 relatórios) lidos na íntegra.",
   "cenario": {
     "global": [
-      "Quatro forças: conflito EUA-Irã e petróleo; Warsh no Fed (tom duro em Jackson Hole); pressão fiscal e de demanda por capital nos juros longos desenvolvidos; ciclo de capex em IA e derivadas.",
-      "Bessent anunciou intervenção para segurar a ponta longa americana; a Verde acha que não funciona (déficit, financiamento, emissões privadas para capex de IA). O mercado reagiu com dólar fraco e ouro e prata em alta.",
-      "Trajetória fiscal dos desenvolvidos leva a inflação ou repressão financeira; a intervenção de Bessent seria o primeiro sinal da segunda. Ouro e prata são ativos de portfólio para esse mundo."
+      "O relatório de outubro não traz cenário global (é todo sobre o Brasil pós-eleição); a visão vigente é a de setembro: quadro externo mais hostil, com juros longos em alta em todos os desenvolvidos. Treasury de dez anos +130 bps desde março, 54 bps só em setembro.",
+      "Quatro causas na mesma direção: petróleo e derivados (EUA-Irã e Ucrânia-Rússia); populismo fiscal generalizado nos desenvolvidos; Fed mais apertado (subiu 25 bps em setembro e falou duro sobre o ciclo); demanda de capital sem precedentes para o capex de IA.",
+      "Bolsas ainda sustentadas por lucros robustos, mas com as primeiras rachaduras no complexo de risco global; a dúvida central é qual nível de juro dispara aversão a risco. Em outubro o aplicado em juro real americano ganhou (Global rates +0,32 p.p.) e ouro e prata perderam."
     ],
     "brasil": [
-      "Ciclo eleitoral na fase mais aguda e caótica; pesquisas mais competitivas do que o consenso de um mês antes; bolsa começou a reprecificar a partir de meados de agosto.",
-      "Prêmio de risco ainda interessante em vários setores; posições compradas em opções para capturar a assimetria eleitoral.",
-      "Renda fixa local sem posição direcional; crédito local mantido (detrator no ano: -1,12 p.p.)."
+      "Lula reeleito para o quarto mandato, em virada que a casa tratava como de baixa probabilidade (em setembro, com Flávio Bolsonaro ~2 p.p. à frente no 1º turno e o Congresso indo à direita). Correção de preços substancial, agravada pela alta entre os dois turnos. A casa admite lições de processo, mas sustenta que o portfólio estava adequadamente posicionado para o evento.",
+      "Macro sem boas notícias: economia desacelerando há meses sob juro nominal e real alto; promessas de campanha deixam herança complexa; alavancagem de empresas e pessoas físicas em recorde, com recessão, ainda que leve, piorando a dinâmica; reforma tributária sobe alíquotas e traz o split payment, risco para o fluxo de caixa de vários setores.",
+      "Inflação de 2027 inspira cuidados: El Niño forte, diesel com defasagem acima de 80% ante a paridade de importação, fim da jornada 6x1, choque de impostos em serviços, real mais fraco e expectativas ainda por subir. Banco Central diante de um desafio estagflacionário.",
+      "Risco de cauda, mas crescente: governo impopular, em recessão e sem espaço monetário escolher respostas fáceis (redução dos juros, desindexação da dívida, venda de reservas, meta de inflação). Nenhum sinal de ajuste pela despesa; a busca segue sendo por receita."
     ],
     "tese_longa": [
-      "Verde evita duration no DI em ano eleitoral e expressa a tese Brasil via bolsa com opções (assimetria, não direção), ao contrário de Opportunity e Genoa, que estão em NTN-B e DI.",
-      "Ouro e prata como hedge estrutural contra repressão financeira: é a casa que mais fala de fiscal global como risco de regime, não de ciclo.",
-      "Ano em 111% do CDI com o livro de ações (+1,79 p.p.) e moedas (+0,87) pagando e crédito tirando (-1,12).",
-      "Ao longo de 2025-26 a casa oscilou em bolsa Brasil (vendida jan/25, zerada, comprada via opções desde jul/25) e manteve o fio: diversificação do dólar (ouro, cesta de moedas, cripto até dez/25), inflação e juro real americanos, crédito HY."
+      "Verde evitou duration no DI no ano eleitoral e expressou a tese Brasil via bolsa com opções (assimetria, não direção), enquanto Opportunity e Genoa estavam em NTN-B e DI. Revisto em outubro: o livro de opções perdeu o prêmio com a reeleição e a exposição em ações locais foi cortada substancialmente; a única compra em renda fixa local foi inflação curta, não duration.",
+      "Revisto em outubro: a leitura de setembro (virada improvável; troca do acelerador fiscal com freio monetário por fiscal contido e juro em queda; alocação baixíssima de locais e estrangeiros em risco) caiu com o resultado. A tese Brasil vira defensiva: estagflação em 2027 e cauda crescente de política econômica heterodoxa.",
+      "Ouro e prata como hedge estrutural contra repressão financeira: é a casa que mais fala de fiscal global como risco de regime, não de ciclo. Segue valendo (alocação mantida em setembro), mas commodities detraíram em setembro e ouro e prata em outubro; o relatório de outubro não revisita a tese.",
+      "Ano em 72% do CDI (8,45% contra 11,70%), ante 111% em agosto: o livro de ações devolveu tudo (de +2,03 p.p. em setembro para -0,14), crédito tira 1,37, Outros tira 1,55 e só moedas paga (+0,88).",
+      "Ao longo de 2025-26 a casa oscilou em bolsa Brasil (vendida jan/25, zerada, comprada via opções desde jul/25, aumentada em ago-set/26, cortada após o 2º turno) e manteve o fio fora do Brasil: diversificação do dólar (ouro, cesta de moedas, cripto até dez/25), inflação e juro real americanos, crédito HY. Novidade de outubro: comprado em dólar contra real, posição pequena e tática (sazonalidade de fim de ano)."
     ]
   },
   "posicoes": {
-    "acoes_brasil": "Aumentou a exposição em meados de agosto; compra de opções para capturar a assimetria eleitoral; prêmio setorial ainda interessante.",
-    "acoes_global": "Alocação global mantida (ganhos em agosto).",
-    "renda_fixa": "Sem direcional no DI; aplicado em juro real americano (perda marginal em agosto); crédito local mantido.",
-    "moedas_commodities": "Ouro e prata (ganhos em agosto); dólar rendeu 0,93 p.p. no ano; hedges estruturais mantidos."
+    "acoes_brasil": "Reduziu substancialmente após o 2º turno: parte mecânica (perda de prêmio do extenso portfólio de opções montado para o pleito), parte deliberada para cortar risco cíclico. Vinha de aumento em agosto e aumento marginal em setembro. Livro de ações: -2,12 p.p. em outubro, -0,14 no ano.",
+    "acoes_global": "Relatório de outubro não comenta. Última menção (setembro): alocação global mantida, com perda no mês.",
+    "renda_fixa": "Comprou títulos indexados à inflação na parte curta da curva; incrementou hedges na curva de cupom cambial; abriu pequena posição comprada em CDS. DI: sem direcional em setembro, outubro não menciona (DI pré 0,00 no mês). Aplicado em juro real americano ganhou em outubro (Global rates +0,32 p.p.). Crédito local: -0,17 p.p. no mês, -1,37 no ano; mantido em setembro, outubro não diz se mudou.",
+    "moedas_commodities": "Abriu pequena posição comprada em dólar contra real (sazonalidade pior do real no fim do ano). Ouro e prata detratores em outubro (alocação mantida em setembro; outubro não diz se mudou). Resultado de moedas: -0,09 p.p. no mês, +0,88 no ano (dólar +0,94)."
   },
   "desempenho": {
     "mes": {
-      "fundo": 1.98,
-      "cdi": 1.09,
-      "ref": "2026-08"
+      "fundo": -1.96,
+      "cdi": 1.07,
+      "ref": "2026-10"
     },
     "ano": {
-      "fundo": 10.33,
-      "cdi": 9.33,
-      "pct_cdi": 110.7
+      "fundo": 8.45,
+      "cdi": 11.7,
+      "pct_cdi": 72.2
     },
     "12m": {
-      "fundo": 16.49
+      "fundo": 10.71
     },
     "anos": {
       "2025": {
         "fundo": 15.94,
         "cdi": 14.31
       },
-      "2026 (até set)": {
-        "fundo": 10.62,
-        "cdi": 10.5
+      "2026 (até out)": {
+        "fundo": 8.45,
+        "cdi": 11.7
       }
     },
     "mensal_2026": [
@@ -181,21 +191,17 @@
       ],
       [
         "10",
-        0.4
+        -1.96
       ]
     ],
     "atribuicao_ano": [
       [
-        "Ações",
-        1.79
-      ],
-      [
         "Moedas",
-        0.87
+        0.88
       ],
       [
         "RF inflação",
-        0.08
+        0.11
       ],
       [
         "DI pré",
@@ -206,22 +212,30 @@
         -0.06
       ],
       [
+        "Ações",
+        -0.14
+      ],
+      [
         "Custos",
-        -1.02
+        -1.19
       ],
       [
         "Crédito",
-        -1.12
+        -1.37
+      ],
+      [
+        "Outros",
+        -1.55
       ]
     ],
     "sharpe": 0.36,
-    "vol": 8.47,
-    "retorno_anualizado_desde_inicio": 21.95,
-    "pl_medio_12m_mi": 899,
-    "nota": "Breakdown por book ex-CDI como a Verde publica. Mensal 2026 e anos pela cota CVM (jan-ago batem com a tabela do relatório); setembro/26 (0.26%) vem só da cota, relatório ainda não publicado. Sharpe e vol anualizada desde a constituição (1997).",
+    "vol": 8.5,
+    "retorno_anualizado_desde_inicio": 21.74,
+    "pl_medio_12m_mi": 880,
+    "nota": "Breakdown por book ex-CDI como a Verde publica (tabela do Relatório de Gestão de out/26); Outros (-1,55 p.p.) não está na tabela, vem do gráfico de barras do mesmo relatório e fecha a conta com o CDI (11,70%). Mês, ano, 12 meses (CDI 14,25%), retorno anualizado (CDI 13,55%), Sharpe e vol saem do Resumo Gerencial de out/26, calculado até 30/out/2026 (Sharpe e vol anualizada desde a constituição, 1997). Mensal 2026 pela linha de 2026 do relatório: setembro (0,26%) confirmou a cota CVM e outubro (-1,96%) substitui o 0,40% parcial da cota que estava lançado. A linha de 2026 em anos e em anos_cota_cvm passa a ser o acumulado oficial até outubro (8,45%; antes 11,06% pela cota parcial). PL médio de 12 meses R$ 879,5 mi e PL R$ 877,6 mi em 30/out; o 899 lançado em agosto era o PL do fim do mês, não a média (o relatório de setembro traz PL de R$ 899,6 mi e média de R$ 874,0 mi). Séries de 2025 inalteradas.",
     "anos_cota_cvm": {
       "2025": 15.94,
-      "2026": 11.06
+      "2026": 8.45
     },
     "mensal_2025": [
       [
@@ -293,9 +307,11 @@
     ]
   },
   "leitura": [
-    "A Verde é o contraponto útil às outras cartas: não compra NTN-B nem DI para a eleição, compra opções de bolsa. Se Lula abrir vantagem, perde o prêmio da opção, não a duration.",
-    "A tese de repressão financeira (Bessent segurando a ponta longa) é a leitura mais estrutural que circulou em agosto; se estiver certa, juro real americano aplicado é a posição errada, e eles mesmos estão nela.",
-    "Crédito local tirou 1,1 p.p. no ano: mesma piora de inadimplência que Genoa, BTG (bancos médios) e BCB descrevem; o Verde sente no book."
+    "A ficha dizia que, com Lula na frente, a Verde perderia o prêmio da opção, não a duration. Foi o que aconteceu: o livro de ações saiu de +2,03 p.p. no ano em setembro para -0,14 em outubro (-2,12 no mês); o fundo fez -1,96%, pior mês desde abr/24 (-3,83%), e o ano caiu de 101% para 72% do CDI.",
+    "O erro foi de probabilidade e a casa o admite pela metade: em setembro, já com o 1º turno apurado, tratava a virada como bastante improvável; em outubro fala em lições de processo sem dizer quais e sustenta que o portfólio estava adequado ao risco do evento. O livro de ações fechou outubro negativo mesmo com o rali pós-1º turno (Ibovespa +7,7% no dia): a casa leu aquele movimento como queda de risco, não como hora de realizar.",
+    "Mudança de postura, de compradora de assimetria para compradora de proteção: cortou ações locais (parte pelo prêmio perdido, parte para reduzir risco cíclico), abriu comprado em dólar contra real e em CDS (ambos pequenos), reforçou hedge no cupom cambial e comprou inflação curta. Tudo coerente com estagflação em 2027; nada no livro aposta em queda de juros.",
+    "A leitura da casa não é de continuidade simples. O risco que destaca é de regime: redução de juros, desindexação da dívida, venda de reservas, mudança da meta. Chama de cauda, mas crescente, e não vê ajuste pela despesa. Ao mesmo tempo deixa a porta aberta para comprar exageros de preço.",
+    "Dois detratores sem explicação no texto: crédito local (-1,37 p.p. no ano, -0,17 em outubro), justamente quando a casa descreve alavancagem recorde e recessão, e Outros (-1,55 p.p. no ano, ante -0,36 em setembro), provavelmente onde entram ouro e prata, mas o relatório não abre. Fora do Brasil, o aplicado em juro real americano perdeu 0,31 p.p. em setembro (Treasury de dez anos +54 bps) e devolveu 0,32 em outubro; segue contra a tese de pressão fiscal na ponta longa que a própria casa defende."
   ],
   "periodos_cartas": [
     {
@@ -363,20 +379,20 @@
       "fim": "2026-09-30",
       "rotulo": "3T26",
       "cor": "#1baf7a",
-      "carta": "Relatórios jul, ago/26 (set/26 sai ~10/10)",
+      "carta": "Relatórios jul, ago, set/26",
       "tipo": "primária",
-      "cenario": "Correção de IA (Kospi -22%, SOX -21%) com técnico limpo; Warsh não sobe apesar de três dissensos; Bessent intervém na ponta longa (repressão financeira?); eleição mais competitiva reprecifica a bolsa.",
-      "resultado": "Jul +1,09%, ago +1,98%; set +0,26% pela cota CVM. Comprado bolsa BR via opções, bolsa global, juro real EUA, ouro e prata; sem DI; crédito local pesando no ano (-1,1 p.p.)."
+      "cenario": "Correção de IA (Kospi -22%, SOX -21%) com técnico limpo; Warsh não sobe em julho apesar de três dissensos; Bessent intervém na ponta longa (repressão financeira?); eleição mais competitiva reprecifica a bolsa; em setembro o Fed sobe 25 bps com tom duro e o Treasury de dez anos abre 54 bps (130 desde março).",
+      "resultado": "Jul +1,09%, ago +1,98%, set +0,26% (livro de ações +0,24 p.p. e valor relativo em juro real; perdas em commodities, juro real EUA e bolsa global, Global rates -0,31). Bolsa BR via opções aumentada em agosto e, marginalmente, em setembro; bolsa global, juro real EUA, ouro e prata mantidos; sem DI; crédito local -1,16 p.p. no ano. Trimestre fecha com o ano em 10,62% (101% do CDI)."
     },
     {
       "ini": "2026-10-01",
       "fim": "2026-12-31",
       "rotulo": "4T26",
-      "cor": "#8a8d92",
-      "carta": "Set/26 sai ~10/10",
-      "tipo": "lacuna",
-      "cenario": "Eleição, Copom.",
-      "resultado": "A preencher."
+      "cor": "#e0662b",
+      "carta": "Relatório out/26 (nov e dez/26 ainda faltam; nov/26 sai ~10/12)",
+      "tipo": "primária",
+      "cenario": "1º turno (narrado no relatório de setembro): Flávio Bolsonaro ~2 p.p. à frente de Lula e Congresso à direita; no dia seguinte Ibovespa +7,7%, juro de dez anos -135 bps, real +4,2%; a casa vê virada como improvável. 2º turno: Lula reeleito para o quarto mandato e correção substancial dos ativos. A casa passa a ver estagflação em 2027 (El Niño, diesel defasado em mais de 80%, fim da 6x1, reforma tributária e split payment, real fraco), alavancagem recorde, recessão leve e cauda crescente de política heterodoxa (juros, desindexação da dívida, reservas, meta).",
+      "resultado": "Out -1,96% contra CDI de 1,07% (ações -2,12 p.p., crédito -0,17, moedas -0,09, Global rates +0,32); ano cai de 10,62% para 8,45% (72% do CDI). Ganhos em juro real americano e hedges de cupom cambial; perdas em bolsa local, ouro e prata. Após o 2º turno: cortou substancialmente ações locais (prêmio de opções perdido e redução de risco cíclico), abriu comprado em dólar contra real e em CDS (pequenos), reforçou hedges no cupom cambial e comprou inflação curta. Nov e dez a preencher."
     }
   ]
 }
