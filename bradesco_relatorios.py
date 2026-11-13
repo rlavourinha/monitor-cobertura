@@ -27,7 +27,7 @@ from datetime import date, datetime, timedelta
 from pathlib import Path
 
 import config
-from fontes import bradesco, telegram
+from fontes import bradesco, pdf_baixados, telegram
 
 DIR = config.DATA / "bradesco"
 TXT = DIR / "txt"
@@ -111,11 +111,35 @@ def modo_clip(arquivo: str | None = None) -> int:
         id_, txt = partes[i], partes[i + 1].strip()
         if txt:
             TXT.mkdir(parents=True, exist_ok=True)
+            if pdf_baixados.e_completo(TXT / f"{id_}.txt"):   # já tem o PDF inteiro: não troca pelo texto do portal
+                continue
             (TXT / f"{id_}.txt").write_text(txt, encoding="utf-8")
             n += 1
             print(f"  {id_[:8]}: {len(txt)} chars")
     print(f"{n} textos gravados")
     return 0 if n else 1
+
+
+def modo_pdfs(arq: str, minutos: int, dias: int, sem_espelho: bool) -> int:
+    """PDFs baixados pelo Chrome (pasta Downloads) -> txt/<id>.txt com o relatório inteiro (regra: nunca só o resumo)."""
+    indice = _carrega(INDICE, {})
+    if arq:
+        metas = json.loads(open(arq, encoding="utf-8").read())
+    else:
+        limite = (date.today() - timedelta(days=dias)).isoformat()
+        metas = [m for m in indice.values() if m.get("data", "") >= limite]
+    metas = [m for m in metas if not pdf_baixados.e_completo(TXT / f"{m['id']}.txt")]
+    r = pdf_baixados.casar(metas, TXT, DIR / "pdf", minutos)
+    ja = [indice[i] for i in r["casados"] if i in indice]
+    for m in ja:                                  # relatório já registrado: atualiza o índice e o espelho
+        m["chars"], m["completo"] = r["casados"][m["id"]], True
+    if ja:
+        _grava(INDICE, indice)
+        if not sem_espelho:
+            espelhar(ja)
+    print(f"{len(r['casados'])} relatórios com PDF completo; {len(r['sem_pdf'])} sem PDF (ficam com o texto do portal)"
+          + (f"; PDFs recentes sem dono: {r['pdfs_sem_dono']}" if r["pdfs_sem_dono"] else ""))
+    return 0
 
 
 def avisar(novos: list[dict]) -> None:
@@ -162,6 +186,7 @@ def _registrar(itens: list[dict], sem_telegram: bool, sem_espelho: bool) -> list
         t = TXT / f"{m['id']}.txt"
         if t.exists():
             m["chars"] = len(t.read_text(encoding="utf-8"))
+            m["completo"] = pdf_baixados.e_completo(t)
         indice[m["id"]] = m
         novos.append(m)
     _grava(INDICE, indice)
@@ -225,6 +250,9 @@ def main() -> int:
     ap.add_argument("--clip", action="store_true")
     ap.add_argument("--arquivo", metavar="BLOCOS.txt", help="com --clip: lê os blocos deste arquivo em vez da área de transferência")
     ap.add_argument("--registrar", metavar="METAS.json")
+    ap.add_argument("--pdfs", nargs="?", const="", metavar="METAS.json",
+                    help="casa os PDFs recém-baixados (Downloads) com os relatórios e grava o texto completo")
+    ap.add_argument("--minutos", type=int, default=60, help="com --pdfs: idade máxima dos PDFs em Downloads")
     ap.add_argument("--dias", type=int, default=3)
     ap.add_argument("--max", type=int, default=40, help="máximo de textos lidos por passada (rotina)")
     ap.add_argument("--paginas", type=int, default=2, help="páginas de 15 cards na Busca Avançada (rotina)")
@@ -240,6 +268,8 @@ def main() -> int:
         except Exception:
             pass
         return modo_conhecidos(a.dias)
+    if a.pdfs is not None:
+        return modo_pdfs(a.pdfs, a.minutos, a.dias, a.sem_espelho)
     if a.clip:
         return modo_clip(a.arquivo)
     if a.novos:

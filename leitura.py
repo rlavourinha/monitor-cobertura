@@ -136,7 +136,13 @@ def montar(desde: str | None = None, ate: str | None = None) -> dict:
             extra = " · ".join(x for x in [it.get("analista") or "", it.get("rating") or "", ", ".join(it.get("cobertura", [])), ", ".join(it.get("setores", []))] if x)
             md.append(f"- [{it['fonte']}] **{it.get('empresa', '')}** — {it.get('titulo', '')}{tag}  ({extra})  id={it.get('id')}")
             if it["texto"]:
-                lim = 4500 if it.get("destaque") else 1500
+                # regra de 13/11/2026: o digest sai do relatório inteiro; o material diz de onde veio cada texto
+                lim = 12000 if it.get("destaque") else 3000
+                completo = it["fonte"] == "BTG" or it["texto"].startswith("FONTE: PDF completo")
+                origem = ("PDF completo" if completo else
+                          "SÓ RESUMO DO PORTAL" if it["fonte"] == "Itaú BBA" else "SÓ TEXTO DA PÁGINA (sem as tabelas do PDF)")
+                corte = f"; cortado em {lim} de {len(it['texto'])} caracteres" if len(it["texto"]) > lim else ""
+                md.append(f"  [texto: {origem}{corte}]")
                 md.append(""); md.append("  " + it["texto"][:lim].replace("\n", "\n  ")); md.append("")
         md.append("")
     fora = [it for it in itens if it["fora"]]

@@ -90,6 +90,9 @@ Regras:
   dado não sustenta a casa; o que muda para as teses da cobertura).
 - {GRAFICO}
 - LatAm ex-Brasil, diários e renda fixa ficam fora.
+- DOCUMENTO COMPLETO: cada relatório do material traz uma linha "[texto: ...]". Só conclua a partir de "PDF completo". Se a linha
+  disser "SÓ RESUMO DO PORTAL", "SÓ TEXTO DA PÁGINA" ou "cortado", escreva isso junto do nome da casa no bloco (ex.: "Itaú BBA
+  (só resumo)"), use o item apenas para o que ele afirma e não diga o que a casa deixou de escrever nem apoie a "Nossa leitura" nele.
 Ao terminar de gravar o arquivo, responda apenas "ok"."""
 
 
