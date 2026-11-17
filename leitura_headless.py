@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""Leituras automáticas via Claude Code CLI headless (modelo Sonnet 5), para rodar como
+"""Leituras automáticas via Claude Code CLI headless (modelo Opus 5.5 desde 17/11/2026), para rodar como
 Tarefa Agendada do Windows (ver agendar_leituras.ps1) no lugar dos crons de sessão.
 
 Modos (um por rotina):
@@ -36,7 +36,8 @@ import config  # noqa: E402
 import leitura  # noqa: E402
 from fontes import telegram  # noqa: E402
 
-MODELO = "claude-sonnet-5"
+# regra do Rafael (17/11/2026): relatório se analisa com o Opus, a partir do PDF baixado (era claude-sonnet-5)
+MODELO = "claude-opus-5-5"
 LOG = config.DATA / "leitura_headless.log"
 JORNAIS_DIR = RAIZ.parent / "jornais-resumo-diario"
 
@@ -90,8 +91,10 @@ Regras:
   dado não sustenta a casa; o que muda para as teses da cobertura).
 - {GRAFICO}
 - LatAm ex-Brasil, diários e renda fixa ficam fora.
-- DOCUMENTO COMPLETO: cada relatório do material traz uma linha "[texto: ...]". Só conclua a partir de "PDF completo". Se a linha
-  disser "SÓ RESUMO DO PORTAL", "SÓ TEXTO DA PÁGINA" ou "cortado", escreva isso junto do nome da casa no bloco (ex.: "Itaú BBA
+- DOCUMENTO COMPLETO: cada relatório do material traz uma linha "[texto: ...]". Só conclua a partir de "PDF completo". Quando a linha
+  disser "cortado", o material traz logo abaixo "[íntegra: <arquivo>]": leia esse arquivo INTEIRO com Read (em partes com offset/limit
+  se for grande) antes de escrever sobre o relatório; todo relatório dentro do escopo é lido por inteiro, não só o trecho do material.
+  Se a linha disser "SÓ RESUMO DO PORTAL" ou "SÓ TEXTO DA PÁGINA", escreva isso junto do nome da casa no bloco (ex.: "Itaú BBA
   (só resumo)"), use o item apenas para o que ele afirma e não diga o que a casa deixou de escrever nem apoie a "Nossa leitura" nele.
 Ao terminar de gravar o arquivo, responda apenas "ok"."""
 
@@ -162,12 +165,13 @@ def _chama_claude(prompt: str, rotulo: str, sem_claude: bool = False) -> Path | 
     cmd = [exe, "-p", "--model", MODELO, "--output-format", "text",
            "--permission-mode", "acceptEdits",
            "--allowedTools", "Read", "Write", "Glob", "Grep",
-           "--max-turns", "40"]
+           "--add-dir", str(RAIZ.parent / "btg-research"),  # íntegras do BTG ficam fora do monitor-investimentos
+           "--max-turns", "150"]  # 17/11/2026: lê a íntegra de cada relatório cortado no material (um Read por arquivo)
     try:
         r = subprocess.run(cmd, input=prompt, cwd=str(RAIZ), capture_output=True,
-                           text=True, encoding="utf-8", timeout=2700)
+                           text=True, encoding="utf-8", timeout=3600)  # Opus + íntegras: mais folga (era 2700)
     except subprocess.TimeoutExpired:
-        _log(f"[{rotulo}] claude TIMEOUT (2700s)")
+        _log(f"[{rotulo}] claude TIMEOUT (3600s)")
         return None
     dt = time.time() - t0
     saida = (r.stdout or "").strip()
