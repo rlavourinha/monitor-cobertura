@@ -34,6 +34,10 @@ def _chaves(titulo: str) -> list[str]:
     cand = [t]
     if ": " in t:
         cand.append(t.split(": ", 1)[1])
+    # macro do Itaú BBA: "URUGUAY – BCU maintains ..." (a 1ª página traz "MACRO URUGUAY <data>" e depois o título sem o país)
+    for sep in (" – ", " — ", " - "):
+        if sep in t:
+            cand.append(t.split(sep, 1)[1])
     return [k[:70] for k in (_norm(c) for c in cand) if len(k) >= 12]
 
 
@@ -63,7 +67,19 @@ def casar(metas: list[dict], dir_txt: Path, dir_pdf: Path, minutos: int = 60, do
     """metas = [{'id', 'titulo'}]. Devolve {'casados': {id: chars}, 'sem_pdf': [ids], 'pdfs_sem_dono': [nomes]}."""
     downloads = downloads or DOWNLOADS
     agora = time.time()
-    pdfs = sorted((p for p in downloads.glob("*.pdf") if agora - p.stat().st_mtime <= minutos * 60),
+    # o Chrome grava sem ".pdf" quando o nome já tem ponto (ex.: "261116_CMPC_Divestment_3.0_FINAL"): aceita pelo cabeçalho %PDF
+    def _eh_pdf(p: Path) -> bool:
+        if p.suffix.lower() == ".pdf":
+            return True
+        if p.suffix.lower() in (".crdownload", ".tmp", ".xlsx", ".xls", ".csv", ".zip", ".docx", ".pptx", ".json", ".txt"):
+            return False
+        try:
+            with p.open("rb") as fh:
+                return fh.read(5) == b"%PDF-"
+        except OSError:
+            return False
+    pdfs = sorted((p for p in downloads.iterdir()
+                   if p.is_file() and agora - p.stat().st_mtime <= minutos * 60 and _eh_pdf(p)),
                   key=lambda p: p.stat().st_mtime)
     lidos = []
     for p in pdfs:
