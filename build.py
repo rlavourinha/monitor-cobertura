@@ -1512,10 +1512,19 @@ def linha_ibov_painel(D: dict, M: dict) -> str:
     g_vol = ""
     if Mk:
         rot = f"{Mk['data'][8:]}/{Mk['data'][5:7]}"
+        proj = ""                                          # estimativa do dia pelo vigia (MT5): R$ projetado para o pregão inteiro
+        try:
+            TR = json.loads((config.DATA / "alertas_tempo_real.json").read_text(encoding="utf-8"))
+            ibv = TR.get("ibov") or {}
+            if TR.get("hora", "")[:10] == date.today().isoformat() and TR["hora"][:10] > Mk["data"] and ibv.get("b3_proj") and ibv.get("fin_med"):
+                proj = (f" · hoje ({TR['hora'][11:]}): projeção R$ {num(ibv['b3_proj'] / 1e9, 1)} bi, {num(ibv['fin_proj'] / ibv['fin_med'], 2, suf='x')} a média"
+                        f" (até agora R$ {num(ibv['fin_acum'] / ibv['fin_proj'] * ibv['b3_proj'] / 1e9, 1)} bi)")
+        except Exception:
+            pass
         g_vol = svg_linhas("painel-volume", [("B3 à vista", "var(--axis)", [[d, v] for d, v in Mk["serie"]]), ("Média 21 pregões", "var(--s2)", [[d, v] for d, v in Mk["mm21"]])],
                            1, pref="R$ ", suf=" bi", W=760, H=120, ini=2, curtas=True,
                            titulo=f"Volume financeiro diário · toda a B3 à vista, sem o exercício de opções de índice (R$ bi) e média de 21 pregões · {rot}: R$ {num(Mk['hoje'], 1)} bi, {num(Mk['razao'], 2, suf='x')} a média"
-                                 + (f" (+ R$ {num(Mk['indice'], 1)} bi de exercício de opções de Ibovespa)" if Mk.get("indice", 0) > 1 else ""))
+                                 + (f" (+ R$ {num(Mk['indice'], 1)} bi de exercício de opções de Ibovespa)" if Mk.get("indice", 0) > 1 else "") + proj)
     return (f'<div class="pgrid dec pg2" style="grid-template-columns:2fr 1fr 1fr">'
             f'<div class="pbox pib">{g}{g_vol}</div>'
             f'<div class="pbox" data-slot="setores"><h2 style="margin:0 0 4px">Decomposição por setor</h2><div class="empty small">calculando…</div></div>'
@@ -1617,6 +1626,8 @@ def analise_papeis(M: dict) -> dict | None:
                     l.update({"preco": q["preco"], "data": q["hora"][:10], "r1": q["r1"], "z": q["z"], "sig": q.get("sig") or l["sig"], "flags": q["flags"], "tempo_real": q["hora"][11:]})
                     if q.get("vrel") is not None:
                         l["vrel"] = q["vrel"]; l["vol_proj"] = True
+                    if q.get("fin_proj"):
+                        l["vol"] = q["fin_proj"]             # coluna R$ mi passa a ser a estimativa do dia (≈)
                 alertas = [{"cod": a["cod"], "txt": a["txt"], "score": a["score"]} for a in TR.get("alertas", [])]
         except Exception as e:
             print(f"  alertas em tempo real: {e}", file=sys.stderr)
@@ -1638,7 +1649,7 @@ def slide_papeis_ibov(M: dict) -> tuple[str, str] | None:
     tr = "".join(f'<tr{cls_z(l)}><td class="tk">{l["cod"]}<small>{l["setor"]}</small></td><td>{num(l["peso"], 1, suf="%") if l["peso"] else "—"}</td><td>{num(l["preco"], 2)}</td>'
                  f'<td class="{dlt_cls(l["r1"])}">{pct(l["r1"])}</td><td class="{dlt_cls(l["r5"])}">{pct(l["r5"])}</td><td class="{dlt_cls(l["r21"])}">{pct(l["r21"])}</td>'
                  f'<td class="{dlt_cls(l["z"])}">{num(l["z"], 1) if l["z"] is not None else "—"}</td><td>{num(l["sig"] * 100, 1, suf="%") if l["sig"] else "—"}</td>'
-                 f'<td{" class=up" if l["vrel"] and l["vrel"] >= vlim else ""}>{num(l["vrel"], 1, suf="×") if l["vrel"] else "—"}</td><td>{num(l["vol"] / 1e6, 0)}</td><td>{num((_pl.get(l["cod"]) or {}).get("pl12"), 1, suf="x")}</td><td class="mut" style="text-align:left">{"; ".join(l["flags"])}</td></tr>'
+                 f'<td{" class=up" if l["vrel"] and l["vrel"] >= vlim else ""}>{num(l["vrel"], 1, suf="×") if l["vrel"] else "—"}</td><td>{"≈ " if l.get("vol_proj") else ""}{num(l["vol"] / 1e6, 0)}</td><td>{num((_pl.get(l["cod"]) or {}).get("pl12"), 1, suf="x")}</td><td class="mut" style="text-align:left">{"; ".join(l["flags"])}</td></tr>'
                  for l in L)
     tab = (f'<table class="mini"><thead><tr><th>Papel</th><th>Peso</th><th>Preço</th><th>Dia</th><th>5 d</th><th>21 d</th><th>z do dia</th><th>σ diário</th><th>Vol. × méd. 21 d</th><th>Vol. R$ mi</th><th><a href="#valuation">P/L 12m</a></th><th style="text-align:left">Alerta</th></tr></thead><tbody>{tr}</tbody></table>')
     al = "".join(f'<li><b>{a["cod"]}</b> · {a["txt"]}</li>' for a in P["alertas"]) or "<li>Nenhum papel fora do padrão hoje.</li>"

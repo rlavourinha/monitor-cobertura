@@ -216,7 +216,7 @@ def bloco_hoje(M: dict, IB: dict, DI: dict) -> str:
     ib = IB.get("ibov") or {}
     if IB.get("hoje") and ib.get("r1") is not None:
         v = IB.get("ultimo"); r1 = IB.get("r1_pontos", ib["r1"])
-        t_ib = _tile("Ibovespa", B.num(v, 0) if v else B.pct(r1), f'{B.pct(r1)} · vol {B.num(ib.get("vrel"), 2, suf="x")} da média · {IB["hora"][11:]}', B.dlt_cls(r1))
+        t_ib = _tile("Ibovespa", B.num(v, 0) if v else B.pct(r1), f'{B.pct(r1)} · vol {("≈ R$ " + B.num(ib["b3_proj"] / 1e9, 1) + " bi (" + B.num(ib["fin_proj"] / ib["fin_med"], 2, suf="x") + ")") if (ib.get("b3_proj") and ib.get("fin_med")) else (B.num(ib.get("vrel"), 2, suf="x") + " da média")} · {IB["hora"][11:]}', B.dlt_cls(r1))
     else:
         t_ib = mkt("Ibovespa", 0)
     vert = DI.get("vertices") or {}
@@ -248,7 +248,9 @@ def bloco_alertas(IB: dict) -> str:
         return _card("Fora do padrão", '<p class="empty">Sem passada do vigia hoje.</p>')
     al = IB.get("alertas") or []
     ib = IB.get("ibov") or {}
-    lin = f'Ibov {B.pct(ib.get("r1"))} · vol {B.num(ib.get("vrel"), 2, suf="x")} · {B.num((IB.get("frac") or 0) * 100, 0)}% do pregão'
+    vol = (f'vol. projetado R$ {B.num(ib["fin_proj"] / 1e9, 1)} bi ({B.num(ib["fin_proj"] / ib["fin_med"], 2, suf="x")})' if (ib.get("fin_proj") and ib.get("fin_med"))
+           else f'vol {B.num(ib.get("vrel"), 2, suf="x")}')
+    lin = f'Ibov {B.pct(ib.get("r1"))} · {vol} · {B.num((IB.get("frac") or 0) * 100, 0)}% do pregão'
     if not al:
         return _card("Fora do padrão", f'<p class="empty">Nenhum papel fora do padrão às {IB["hora"][11:]}.</p><p class="nota">{lin}</p>', IB["rotulo"])
     rows = "".join(f'<li><b>{a["cod"]}</b><span class="{B.dlt_cls(a.get("r1"))}">{B.pct(a.get("r1"))}</span><small>{html.escape(a.get("txt", ""))}</small></li>' for a in al[:14])
@@ -394,7 +396,10 @@ def bloco_liquidez(IB: dict) -> str:
     ex = f' · fora R$ {B.num(r["indice"] / 1e9, 1)} bi de exercício de opções de Ibovespa' if r.get("indice", 0) > 1e9 else ""
     tiles = (_tile(f"B3 à vista {d[8:10]}/{d[5:7]}", B.num(serie[-1][1], 1, "R$ ", " bi"), f'{B.num(serie[-1][1] / m21, 2, suf="x")} da média de 21 pregões{ex}')
              + _tile(f"Média {d[:4]}", B.num(sum(ano) / len(ano), 1, "R$ ", " bi"), f'{len(ano)} pregões' + (f' · {int(d[:4]) - 1}: R$ {B.num(sum(ant) / len(ant), 1)} bi' if ant else ""))
-             + _tile("Ibov hoje (projetado)", B.num(ib.get("vrel"), 2, suf="x") if IB.get("hoje") else "—", "volume dos papéis do índice vs média de 21, projetado para o pregão")
+             + (_tile("B3 hoje (projetado)", B.num(ib["b3_proj"] / 1e9, 1, "R$ ", " bi"),
+                      f'papéis do Ibov R$ {B.num(ib["fin_proj"] / 1e9, 1)} bi ({B.num(ib["fin_proj"] / ib["fin_med"], 2, suf="x")} a média de 21) · até agora R$ {B.num(ib["fin_acum"] / 1e9, 1)} bi')
+                if (IB.get("hoje") and ib.get("b3_proj") and ib.get("fin_med") and ib.get("fin_acum"))
+                else _tile("Ibov hoje (projetado)", B.num(ib.get("vrel"), 2, suf="x") if IB.get("hoje") else "—", "volume dos papéis do índice vs média de 21, projetado para o pregão"))
              + _tile("Negócios", B.num(r["negocios"] / 1e6, 2, suf=" mi"), f'{int(r["papeis"])} códigos negociados'))
     mm21 = [[serie[i][0], sum(v for _, v in serie[max(0, i - 20):i + 1]) / len(serie[max(0, i - 20):i + 1])] for i in range(len(serie))]
     g = svg_volume(serie[-252:], mm21[-252:])                  # últimos 12 meses (pedido 14/10: a série desde 2019 ficava longa demais no celular)

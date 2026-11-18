@@ -41,6 +41,13 @@ def _num(v, d=1, sinal=False):
     return ("+" + s) if (sinal and v > 0) else s
 
 
+def _rs(v) -> str:
+    """R$ em mi/bi com vírgula decimal: 'R$ 450 mi', 'R$ 21,4 bi'."""
+    if v is None:
+        return "—"
+    return f"R$ {_num(v / 1e9, 1)} bi" if abs(v) >= 1e9 else f"R$ {_num(v / 1e6, 0)} mi"
+
+
 def ha_pregao_hoje() -> bool:
     """Há sessão na B3 hoje? O sinal é o próprio índice: em feriado o servidor do MT5 cria barras "de hoje" às 06:00 com o
     preço/volume da sessão anterior (alerta falso em todos os papéis), mas o IBOV não imprime. Antes de 10:15 dá o
@@ -191,6 +198,12 @@ def avaliar(snap: dict) -> dict:
             za = alpha / sig_a
         qmed = sum(qtd[-21:]) / 21 if len(qtd) >= 21 else None
         vrel = (q["vol_hoje"] / (qmed * frac)) if (qmed and q.get("vol_hoje") and frac >= 30 / MIN_PREGAO) else None   # projetado p/ o pregão inteiro (acumulado ÷ fração esperada)
+        # volume financeiro em R$: acumulado ≈ quantidade × último preço (o MT5 não dá o financeiro da sessão); projeção do
+        # dia = acumulado ÷ fração esperada do pregão; média = financeiro oficial (COTAHIST) dos 21 pregões anteriores
+        fins = [r[3] for r in s if len(r) > 3 and r[3]][-21:]
+        fin_med = sum(fins) / 21 if len(fins) >= 21 else None
+        fin_acum = q["vol_hoje"] * q["preco"] if q.get("vol_hoje") else None
+        fin_proj = (fin_acum / frac) if (fin_acum and frac >= 30 / MIN_PREGAO) else None
         flags = []
         if z is not None and abs(z) >= zlim:
             txt = f"oscilação {_num(r1 * 100, 1, True)}% = {_num(abs(z), 1)}σ"
@@ -198,8 +211,9 @@ def avaliar(snap: dict) -> dict:
                 txt += f" (α {_num(alpha * 100, 1, True)}% = {_num(abs(za), 1)}σ, β {_num(beta, 1)})"
             flags.append(txt)
         if vrel is not None and vrel >= vlim:
-            flags.append(f"volume {_num(vrel, 1)}× a média (projetado)")
+            flags.append(f"volume {_num(vrel, 1)}× a média" + (f" (projetado {_rs(fin_proj)} vs média {_rs(fin_med)})" if fin_proj and fin_med else " (projetado)"))
         papeis[cod] = {"preco": q["preco"], "hora": q["hora"], "r1": r1, "z": z, "sig": sig, "vol_hoje": q.get("vol_hoje"), "vrel": vrel, "flags": flags,
+                       "fin_acum": fin_acum, "fin_proj": fin_proj, "fin_med": fin_med,
                        "beta": beta, "alpha": alpha, "z_alpha": za}
         if flags:
             alertas.append({"cod": cod, "txt": " e ".join(flags), "score": (abs(z) if z else 0) + (vrel or 0), "z": z, "vrel": vrel, "r1": r1,
@@ -273,6 +287,7 @@ def _ibov_proxy(papeis: dict, S: dict, frac: float) -> dict:
         peso = {}
     sw = sr = 0.0
     vh = vm = 0.0
+    fa = fp = fm = 0.0                                   # financeiro: acumulado, projetado e média de 21 (mesmos papéis)
     n = 0
     for cod, p in papeis.items():
         w = peso.get(cod, 0)
@@ -283,7 +298,20 @@ def _ibov_proxy(papeis: dict, S: dict, frac: float) -> dict:
         qtd = [r[2] for r in s][-21:]
         if p.get("vol_hoje") and len(qtd) >= 21 and frac >= 30 / 420:
             vh += p["vol_hoje"]; vm += (sum(qtd) / 21) * frac
-    out = {"r1": (sr / sw) if sw else None, "vrel": (vh / vm) if vm else None, "n": n, "cobertura": round(sw, 1), "fonte_r1": "carteira"}
+        if p.get("fin_proj") and p.get("fin_med"):
+            fa += p["fin_acum"]; fp += p["fin_proj"]; fm += p["fin_med"]
+    out = {"r1": (sr / sw) if sw else None, "vrel": (vh / vm) if vm else None, "n": n, "cobertura": round(sw, 1), "fonte_r1": "carteira",
+           "fin_acum": fa or None, "fin_proj": fp or None, "fin_med": fm or None}
+    # toda a B3 à vista (sem IBOV11): média de 21 pregões do COTAHIST × razão projetada dos papéis do índice (~75% do total)
+    try:
+        from fontes import b3_volume
+        hoje = date.today().isoformat()
+        liq = [x["total"] - x.get("indice", 0) for d, x in b3_volume.serie() if d < hoje][-21:]
+        if len(liq) == 21 and fp and fm:
+            out["b3_med"] = sum(liq) / 21
+            out["b3_proj"] = out["b3_med"] * fp / fm
+    except Exception:
+        pass
     # variação do dia preferencialmente pelo BOVA11 (ETF negociado na mesma sessão): um preço de mercado, sem o atraso das
     # últimas negociações de papéis ilíquidos; a carteira ponderada fica como reserva e para o volume
     try:
@@ -303,7 +331,11 @@ def _linha_ibov(res: dict) -> str:
     partes = []
     if ib.get("r1") is not None:
         partes.append(f"Ibov {_num(ib['r1'] * 100, 1, True)}%")
-    if ib.get("vrel") is not None:
+    if ib.get("fin_proj") and ib.get("fin_med"):
+        partes.append(f"volume projetado {_rs(ib['fin_proj'])} ({_num(ib['fin_proj'] / ib['fin_med'], 1)}× a média de {_rs(ib['fin_med'])})")
+        if ib.get("b3_proj"):
+            partes.append(f"B3 ≈ {_rs(ib['b3_proj'])}")
+    elif ib.get("vrel") is not None:
         partes.append(f"volume {_num(ib['vrel'], 1)}× a média")
     return " · ".join(partes)
 
@@ -402,9 +434,12 @@ def registrar_diario(res: dict) -> None:
     tot = sum((p.get("vol_hoje") or 0) for p in res["papeis"].values())
     linha = [res["hora"][:10], res["hora"][11:], f"{res['fracao_pregao']:.2f}", f"{ib['r1'] * 100:.2f}" if ib.get("r1") is not None else "",
              f"{ib['vrel']:.2f}" if ib.get("vrel") is not None else "", str(int(tot)), str(len(res["papeis"])), str(len(res["alertas"])),
-             ";".join(a["cod"] for a in res["alertas"])]
-    cab = "data,hora,fracao_pregao,ibov_var_pct,ibov_vol_rel,qtd_negociada_indice,papeis,alertas,codigos\n"
+             ";".join(a["cod"] for a in res["alertas"]),
+             # estimativa do volume do dia (R$): fica registrada para conferir contra o COTAHIST de fechamento
+             *(f"{ib[k]:.0f}" if ib.get(k) else "" for k in ("fin_acum", "fin_proj", "fin_med", "b3_proj", "b3_med"))]
+    cab = "data,hora,fracao_pregao,ibov_var_pct,ibov_vol_rel,qtd_negociada_indice,papeis,alertas,codigos,ibov_fin_acum,ibov_fin_proj,ibov_fin_med21,b3_fin_proj,b3_fin_med21\n"
     antigas = DIARIO.read_text(encoding="utf-8").splitlines()[1:] if DIARIO.exists() else []
+    antigas = [l + "," * (len(linha) - 1 - l.count(",")) if l.count(",") < len(linha) - 1 else l for l in antigas]   # linhas antigas sem as colunas novas
     antigas = [l for l in antigas if not l.startswith(linha[0] + ",")]
     DIARIO.write_text(cab + "\n".join(antigas + [",".join(linha)]) + "\n", encoding="utf-8")
 
