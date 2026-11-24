@@ -198,7 +198,7 @@
 "BRBI11": {
 "data": "2026-09-30",
 "pl": 831.34,
-"acoes": 104995705.76540756,
+"acoes": 104995707.01932858,
 "doc": "ITR",
 "acoes_fonte": "guia BTG (mcap ÷ preço)",
 "vpa": 7.9178
@@ -913,10 +913,10 @@
 "RAPT4": {
 "data": "2026-09-30",
 "pl": 3036.62,
-"acoes": 465605514.51187336,
+"acoes": 470451084.0108401,
 "doc": "ITR",
 "acoes_fonte": "guia BTG (mcap ÷ preço)",
-"vpa": 6.5219
+"vpa": 6.4547
 },
 "RDOR3": {
 "data": "2026-09-30",
@@ -1089,7 +1089,7 @@
 "TFCO4": {
 "data": "2026-09-30",
 "pl": 634.99,
-"acoes": 153218006.36267233,
+"acoes": 153218000.0,
 "doc": "ITR",
 "acoes_fonte": "guia BTG (mcap ÷ preço)",
 "vpa": 4.1444
