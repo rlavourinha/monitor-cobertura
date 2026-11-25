@@ -68,7 +68,7 @@ _COB_RX = {
     "RDOR3": r"Rede D[’']?Or|RDOR3", "MATD3": r"Mater ?Dei|MATD3",
     "SAUD3": r"Bradsa[úu]de|Bradesco Sa[úu]de|Odontoprev|SAUD3", "RENT3": r"Localiza|RENT3",
     "SMFT3": r"Smart ?Fit|SMFT3", "TIMS3": r"\bTIM\b|TIMS3", "VIVT3": r"\bVivo\b|Telef[ôo]nica Brasil|VIVT3",
-    "BBAS3": r"Banco do Brasil|BBAS3", "ITUB4": r"Ita[úu] Unibanco|ITUB[34]",
+    "BBAS3": r"Banco do Brasil|BBAS3", "ITUB4": r"ITUB[34]|Ita[úu] Unibanco(?!\s+(?:Group|Holding|S\.?A|Corretora))",
     "BBDC4": r"Banco Bradesco|BBDC[34]|Bradesco(?! BBI| Corretora| Sa[úu]de)",
     "SANB11": r"Santander Brasil|SANB11", "BPAC11": r"\bBPAC(?:11|3)?\b",
     "CEF": r"Caixa Econ[ôo]mica Federal|\bCEF\b", "PSSA3": r"Porto Seguro|PSSA3",
