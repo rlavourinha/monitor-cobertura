@@ -61,8 +61,40 @@ SETORES = [
     ("Telecom", r"telecom|\bVivo\b|Telef[ôo]nica|\bTIM\b|Brisanet|Desktop|Unifique"),
     ("Tecnologia", r"\btech|software|Totvs|Locaweb|Positivo|Intelbras|Bemobi|\bAI\b"),
 ]
-COBERTURA = {"RDOR3": r"Rede D[’']?Or|RDOR3", "SAUD3": r"Bradsa[úu]de|SAUD3|Bradesco Sa[úu]de|Odontoprev", "RENT3": r"Localiza|RENT3",
-             "CYRE3": r"Cyrela|CYRE3", "CURY3": r"\bCury\b|CURY3"}
+# Regex por ticker para achar a empresa coberta no texto do relatório. O CONJUNTO vem de cobertura.json (fonte única,
+# na raiz do repo); aqui ficam só os padrões de match. Vários nomes ("BTG Pactual", "Bradesco", "Telefônica") também
+# são CASAS de research ou outro emissor — por isso alguns exigem o ticker ou excluem o contexto da casa.
+_COB_RX = {
+    "RDOR3": r"Rede D[’']?Or|RDOR3", "MATD3": r"Mater ?Dei|MATD3",
+    "SAUD3": r"Bradsa[úu]de|Bradesco Sa[úu]de|Odontoprev|SAUD3", "RENT3": r"Localiza|RENT3",
+    "SMFT3": r"Smart ?Fit|SMFT3", "TIMS3": r"\bTIM\b|TIMS3", "VIVT3": r"\bVivo\b|Telef[ôo]nica Brasil|VIVT3",
+    "BBAS3": r"Banco do Brasil|BBAS3", "ITUB4": r"Ita[úu] Unibanco|ITUB[34]",
+    "BBDC4": r"Banco Bradesco|BBDC[34]|Bradesco(?! BBI| Corretora| Sa[úu]de)",
+    "SANB11": r"Santander Brasil|SANB11", "BPAC11": r"\bBPAC(?:11|3)?\b",
+    "CEF": r"Caixa Econ[ôo]mica Federal|\bCEF\b", "PSSA3": r"Porto Seguro|PSSA3",
+    "BBSE3": r"BB Seguridade|BBSE3", "CXSE3": r"Caixa Seguridade|CXSE3", "IRBR3": r"\bIRB\b|IRBR3",
+    "NU": r"Nubank|Nu Holdings|ROXO34", "XP": r"XP Inc|XPBR31|\bXP\b",
+    "INTR": r"Inter ?& ?Co|Banco Inter|INBR32|\bINTR\b", "V": r"\bVisa\b",
+    "MA": r"Mastercard|Master ?Card", "VZ": r"Verizon|\bVZ\b",
+    "TEF": r"Telef[óo]nica S\.?A|Telef[óo]nica Espanha|\bTEF\b", "TIT": r"Telecom Italia|\bTIT\b",
+}
+
+
+def _carrega_cobertura() -> dict:
+    """COBERTURA = {ticker: regex} só dos tickers presentes em cobertura.json (fonte única). Padrão curado em
+    _COB_RX; ticker sem padrão curado usa ticker + 1ª palavra do nome. Sem o arquivo, cai no conjunto antigo."""
+    try:
+        emp = json.loads((Path(__file__).resolve().parent / "cobertura.json").read_text(encoding="utf-8"))["empresas"]
+    except Exception:
+        return {"RDOR3": r"Rede D[’']?Or|RDOR3", "SAUD3": r"Bradsa[úu]de|SAUD3|Bradesco Sa[úu]de|Odontoprev",
+                "RENT3": r"Localiza|RENT3", "CYRE3": r"Cyrela|CYRE3", "CURY3": r"\bCury\b|CURY3"}
+    out = {}
+    for tk, v in emp.items():
+        out[tk] = _COB_RX.get(tk) or rf"{re.escape(tk)}|{re.escape((v.get('nome') or tk).split()[0])}"
+    return out
+
+
+COBERTURA = _carrega_cobertura()
 EXCLUI = r"LatAm ex-Brasil|Latam Talking Points|\bChile\b|Argentin|Colombia|\bPeru\b|\bMexico\b|M[ée]xico|Paraguay|Uruguay|Global Earlybird|Daily Roadmap|Daily Fuel|Daily Briefing|Week Ahead|Market Data Monitor|BanRep|IMACEC|Falabella|Alpek|Mallplaza|CABA\b|Buenos Aires"
 GRAFICO_POR_TEMA = {"fiscal": "fiscal", "inflacao": "inflacao", "juros": "juros", "atividade": "atividade", "emprego": "emprego",
                     "cambio": "cambio", "fluxo": "fluxo", "credito": "credito", "commodities": "commodities"}
