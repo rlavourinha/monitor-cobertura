@@ -1,0 +1,31 @@
+{
+  "_doc": "Fonte única da cobertura de trabalho do Rafael. Toda rotina de report (sell-side, documentos CVM/SEC) lê deste arquivo. ambiente: CVM (fato relevante/IPE/ITR-DFP), SEC (EDGAR 8-K/6-K/10-Q/10-K/20-F), EU (CONSOB/IR). cod_cvm e cik são resolvidos e cacheados pelo coletor (sidecar cobertura_ids.json); nulos aqui ficam a cargo do resolver. tambem_b3 = BDR/ação listada no Brasil do mesmo emissor. provisorio=true: entrou por inferência, confirmar/remover.",
+  "atualizado": "2026-11-25",
+  "empresas": {
+    "RDOR3": {"nome": "Rede D'Or São Luiz", "setor": "Saúde", "ambiente": ["CVM"], "cod_cvm": "24821", "cnpj": "06.047.087/0001-39"},
+    "MATD3": {"nome": "Mater Dei", "setor": "Saúde", "ambiente": ["CVM"], "cod_cvm": null, "cnpj": null},
+    "SAUD3": {"nome": "Bradsaúde (Bradesco Saúde + Odontoprev)", "setor": "Saúde", "ambiente": ["CVM"], "cod_cvm": "20125", "cnpj": null},
+    "RENT3": {"nome": "Localiza Rent a Car", "setor": "Locação/Mobilidade", "ambiente": ["CVM"], "cod_cvm": null, "cnpj": "16.670.085/0001-55"},
+    "SMFT3": {"nome": "Smartfit", "setor": "Consumo/Serviços", "ambiente": ["CVM"], "cod_cvm": null, "cnpj": null},
+    "TIMS3": {"nome": "TIM Brasil", "setor": "Telecom", "ambiente": ["CVM"], "cod_cvm": null, "cnpj": null},
+    "VIVT3": {"nome": "Telefônica Brasil (Vivo)", "setor": "Telecom", "ambiente": ["CVM"], "cod_cvm": null, "cnpj": null},
+    "BBAS3": {"nome": "Banco do Brasil", "setor": "Bancos", "ambiente": ["CVM"], "cod_cvm": null, "cnpj": null},
+    "ITUB4": {"nome": "Itaú Unibanco", "setor": "Bancos", "ambiente": ["CVM"], "cod_cvm": null, "cnpj": null},
+    "BBDC4": {"nome": "Bradesco", "setor": "Bancos", "ambiente": ["CVM"], "cod_cvm": null, "cnpj": null},
+    "SANB11": {"nome": "Santander Brasil", "setor": "Bancos", "ambiente": ["CVM"], "cod_cvm": null, "cnpj": null},
+    "BPAC11": {"nome": "BTG Pactual", "setor": "Bancos", "ambiente": ["CVM"], "cod_cvm": null, "cnpj": "30.306.294/0001-45"},
+    "CEF": {"nome": "Caixa Econômica Federal", "setor": "Bancos", "ambiente": ["CVM"], "cod_cvm": null, "cnpj": "00.360.305/0001-04", "sem_acao": true, "nota": "sem ação listada; só documentos/filings (debêntures, FIDC, relatórios)"},
+    "PSSA3": {"nome": "Porto Seguro", "setor": "Seguros", "ambiente": ["CVM"], "cod_cvm": null, "cnpj": null},
+    "BBSE3": {"nome": "BB Seguridade", "setor": "Seguros", "ambiente": ["CVM"], "cod_cvm": null, "cnpj": null},
+    "CXSE3": {"nome": "Caixa Seguridade", "setor": "Seguros", "ambiente": ["CVM"], "cod_cvm": null, "cnpj": null},
+    "IRBR3": {"nome": "IRB (Re)", "setor": "Seguros", "ambiente": ["CVM"], "cod_cvm": null, "cnpj": null, "provisorio": true},
+    "NU": {"nome": "Nubank (Nu Holdings)", "setor": "Bancos", "ambiente": ["SEC", "CVM"], "cik": null, "tambem_b3": "ROXO34"},
+    "XP": {"nome": "XP Inc.", "setor": "Bancos", "ambiente": ["SEC", "CVM"], "cik": null, "tambem_b3": "XPBR31"},
+    "INTR": {"nome": "Inter & Co", "setor": "Bancos", "ambiente": ["SEC", "CVM"], "cik": null, "tambem_b3": "INBR32"},
+    "V": {"nome": "Visa", "setor": "Pagamentos", "ambiente": ["SEC"], "cik": null},
+    "MA": {"nome": "Mastercard", "setor": "Pagamentos", "ambiente": ["SEC"], "cik": null},
+    "VZ": {"nome": "Verizon", "setor": "Telecom", "ambiente": ["SEC"], "cik": null},
+    "TEF": {"nome": "Telefónica S.A.", "setor": "Telecom", "ambiente": ["SEC"], "cik": null, "nota": "20-F/6-K na SEC; CNMV é o regulador primário"},
+    "TIT": {"nome": "Telecom Italia", "setor": "Telecom", "ambiente": ["EU"], "fonte": "CONSOB/IR", "provisorio": true, "nota": "não arquiva na SEC; coletor CONSOB é add futuro, por ora acompanhar IR"}
+  }
+}
