@@ -38,6 +38,16 @@ BASE = "https://dados.cvm.gov.br/dados/CIA_ABERTA/DOC"
 # ações por unit (B3): 1 ON + n PN
 UNIT_ACOES = {"KLBN11": 5, "SANB11": 2, "TAEE11": 3, "ENGI11": 5, "IGTI11": 3, "BPAC11": 3, "ALUP11": 3, "SAPR11": 5}
 
+# Companhias que os dados abertos da CVM não resolvem sozinhas (o BTG não aparece no valor_mobiliario do FCA, então o
+# pipeline não acha o CNPJ de BPAC11 e o P/VP fica "—"). PL dos controladores, ações ex-tesouraria e VP por unit entram
+# como override, direto do REPORTADO pela própria companhia (séries históricas do RI). Atualizar a cada balanço novo.
+MANUAL: dict[str, dict] = {
+    # BTG Pactual 3T26 (btg-pactual/fontes/3T26/BTG_3T26_series_historicas.xlsx, aba InputSite_Highlights: Patrimônio
+    # Líquido R$ 81.659,339 mn; 3.862,5516 MM units ex-tesouraria → 11.587.654.800 ações; VP por unit R$ 21,1413).
+    # Entregue em 10/11/2026. vpa aqui já é POR UNIT (não multiplicar por UNIT_ACOES).
+    "BPAC11": {"data": "2026-09-30", "pl": 81659.339, "acoes": 11587654800.0, "doc": "RI", "vpa": 21.1413},
+}
+
 
 def _zip(doc: str, ano: int) -> zipfile.ZipFile | None:
     r = requests.get(f"{BASE}/{doc}/DADOS/{doc.lower()}_cia_aberta_{ano}.zip", timeout=180)
@@ -193,6 +203,9 @@ def atualiza(tickers: set[str] | None = None) -> str:
         acoes, r = _escala_acoes(tk, r["acoes"], r, LB)
         vpa = r["pl"] * 1e6 / acoes * UNIT_ACOES.get(tk, 1)
         out[tk] = {**r, "acoes": acoes, "vpa": round(vpa, 4)}
+    for tk, r in MANUAL.items():                 # override do que a CVM não resolve (BTG): vpa já vem por unit
+        if tickers is None or tk in tickers:
+            out[tk] = dict(r)
     ARQ.write_text(json.dumps(out, ensure_ascii=False, indent=0), encoding="utf-8")
     return f"{len(out)} papéis, PL até {max((r['data'] for r in out.values()), default='—')}"
 
