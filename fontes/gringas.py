@@ -56,7 +56,9 @@ class Portal:
 
     def __exit__(self, *a):
         try:
-            self.ctx.close()
+            self.ctx.close()                   # se você já fechou a janela, o contexto pode estar fechado
+        except Exception:
+            pass
         finally:
             self._pw.stop()
 
@@ -73,5 +75,13 @@ class Portal:
             tem_senha = self.page.locator("input[type=password]").count() > 0
         except Exception:
             tem_senha = False
-        ok = not (na_tela_login or tem_senha)
+        # Página pública de apresentação (ex.: markets.jpmorgan.com/home deslogado) não tem campo de senha, só um botão
+        # "Login": conta como deslogado se oferece entrar e não oferece sair.
+        try:
+            txt = self.page.inner_text("body")[:6000]
+        except Exception:
+            txt = ""
+        oferece_entrar = bool(re.search(r"\b(log ?in|sign ?in|log ?on)\b", txt, re.I))
+        oferece_sair = bool(re.search(r"\b(log ?out|sign ?out|log ?off)\b", txt, re.I))
+        ok = not (na_tela_login or tem_senha or (oferece_entrar and not oferece_sair))
         return ok, url
