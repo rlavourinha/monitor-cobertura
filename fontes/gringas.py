@@ -77,7 +77,15 @@ class Portal:
         self.page = self.ctx.pages[0] if self.ctx.pages else self.ctx.new_page()
         return self
 
-    def __exit__(self, *a):
+    def __exit__(self, exc_type, *a):
+        # Execução sem erro: grava os cookies RENOVADOS (os portais trocam as sessões a cada uso). Sem isso, cada coleta
+        # reinjetava os cookies da hora do login e a sessão "deslizante" do UBS caía em ~1h30. Com erro (ex.: sessão
+        # vencida) não sobrescreve, para não perder o que ainda valha.
+        if exc_type is None and estado_sessao(self.casa).exists():
+            try:
+                self.ctx.storage_state(path=str(estado_sessao(self.casa)))
+            except Exception:
+                pass
         try:
             self.ctx.close()                   # se você já fechou a janela, o contexto pode estar fechado
         except Exception:

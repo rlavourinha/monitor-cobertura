@@ -91,6 +91,17 @@ def coletar(dias: int, modelos_base: bool = False) -> tuple[list[dict], list[str
         p.page.goto(AQUECE, timeout=90000, wait_until="domcontentloaded")
         p.page.wait_for_timeout(4000)
         if "login" in p.page.url or "idp" in p.page.url:
+            # a sessão do Neo expira rápido, mas o login de fundo (servidor de identidade) costuma seguir válido:
+            # o "Continue" da tela renova sem senha
+            try:
+                p.page.get_by_text("Continue", exact=True).first.click(timeout=10000)
+                p.page.wait_for_timeout(12000)
+                if "login" in p.page.url or "idp" in p.page.url:
+                    p.page.goto(AQUECE, timeout=90000, wait_until="domcontentloaded")
+                    p.page.wait_for_timeout(6000)
+            except Exception:
+                pass
+        if "login" in p.page.url or "idp" in p.page.url:
             raise SessaoVencida("UBS Neo redirecionou para o login")
         docs, quem = {}, {}
         for tk, ric in ids.items():
