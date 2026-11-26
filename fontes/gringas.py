@@ -22,6 +22,7 @@ PORTAIS: dict[str, tuple[str, str, str]] = {
     "jpm":     ("JPMorgan",       "https://markets.jpmorgan.com",  r"logon|login|sso|auth|idp"),
     "ms":      ("Morgan Stanley", "https://matrix.ms.com",         r"login|logon|sso|auth|pingfederate"),
     "goldman": ("Goldman Sachs",  "https://research.gs.com",       r"login|signin|sso|auth|okta"),
+    "ubs":     ("UBS",            "https://neo.ubs.com",           r"login|logon|sso|auth|sign-?in"),   # UBS Neo (inclui UBS BB)
     "bofa":    ("BofA",           "https://markets.ml.com/v2/login_page", r"login|logon|sso|auth|sign-?in"),   # Mercury (rsch.baml.com redireciona p/ cá)
 }
 
