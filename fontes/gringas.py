@@ -23,6 +23,7 @@ PORTAIS: dict[str, tuple[str, str, str]] = {
     "ms":      ("Morgan Stanley", "https://matrix.ms.com",         r"login|logon|sso|auth|pingfederate"),
     "goldman": ("Goldman Sachs",  "https://research.gs.com",       r"login|signin|sso|auth|okta"),
     "ubs":     ("UBS",            "https://neo.ubs.com",           r"login|logon|sso|auth|sign-?in"),   # UBS Neo (inclui UBS BB)
+    "santander": ("Santander",    "https://santandercibinsights.com", r"login|logon|sso|auth|sign-?in"),   # Santander Insights (BlueMatrix); barra headless -> Portal(headless="fora")
     "bofa":    ("BofA",           "https://markets.ml.com/v2/login_page", r"login|logon|sso|auth|sign-?in"),   # Mercury (rsch.baml.com redireciona p/ cá)
 }
 
