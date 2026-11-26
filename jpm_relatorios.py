@@ -10,6 +10,13 @@ COMPLETO e grava o texto onde a leitura.py já lê as globais:
     python jpm_relatorios.py               # relatórios dos últimos 3 dias das empresas cobertas
     python jpm_relatorios.py --dias 10     # janela maior (1ª carga)
     python jpm_relatorios.py --resolver    # (re)descobre o código JPM de cada ticker (cache em globais/jpm_ids.json)
+    python jpm_relatorios.py --estimativas # força a foto de valuation agora (normalmente sai 1x por semana sozinha)
+
+Foto semanal de valuation (pedido de 26/11/2026, para ter histórico): na 1ª execução de cada semana ISO grava a tabela
+de estimativas do JPM de cada empresa (receita, EBIT, margens, EPS, dividend yield, P/E, P/BV de FY-2 a FY+2) com
+rating, preço-alvo e preço implícito, em btg-research/globais/jpm_estimativas/AAAA-MM-DD.json e, em formato longo para
+o Excel (ponto decimal, valor como veio), em jpm_estimativas.csv. Fica no repositório PRIVADO: é research do JPM.
+ATENÇÃO: o "Dividend yield" do JPM é só provento; recompra não aparece na tabela.
 
 Sessão vencida (o portal devolve login em vez de JSON): avisa no Telegram uma vez por dia e sai com código 3.
 Para renovar: `python probe_gringas.py --login jpm` (abre a janela; entre e feche).
@@ -40,6 +47,8 @@ MAX_PAGINAS = 1000   # sem corte por página: a leitura corta nos avisos legais 
 RATING = re.compile(r"\b(Overweight|Underweight|Neutral|Not Rated|Restricted)\b")
 MESES = {m: i for i, m in enumerate(["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], 1)}
 FIXOS = {"TEF": ["TEF.MC"], "TIT": ["TLIT.MI", "TIT.MI"], "CEF": []}     # sem listagem / listagem fora dos EUA
+QUERY_EMPRESA = json.loads((Path(__file__).resolve().parent / "fontes" / "jpm_query_empresa.json").read_text(encoding="utf-8"))
+ESTIM_DIR, ESTIM_CSV = ESPELHO / "jpm_estimativas", ESPELHO / "jpm_estimativas.csv"
 
 
 class SessaoVencida(RuntimeError):
@@ -183,6 +192,96 @@ def coletar(dias: int, forcar_ids: bool = False) -> list[dict]:
     return novos
 
 
+def _numero(txt: str | None) -> float | None:
+    """'55,845' -> 55845.0; '16.4%' -> 16.4; '1.80' -> 1.8; '(3.2)' -> -3.2; '-', 'NA', 'NM' -> None."""
+    if txt is None:
+        return None
+    s = str(txt).strip().replace(",", "").replace("%", "").replace("x", "")
+    neg = s.startswith("(") and s.endswith(")")
+    s = s.strip("()")
+    try:
+        v = float(s)
+    except ValueError:
+        return None
+    return -v if neg else v
+
+
+def foto_estimativas(p: gringas.Portal, ids: dict) -> dict:
+    """{ticker: {...}} com a tabela de estimativas + rating/alvo do JPM de cada empresa da cobertura."""
+    out = {}
+    for tk, cid in ids.items():
+        if not cid:
+            continue
+        reg = {"jpm_id": cid}
+        r = p.ctx.request.get(f"{BASE}/research/company/{cid}/equity-estimates", timeout=60000)
+        try:
+            e = r.json()["data"]
+        except Exception:
+            if r.status in (401, 403):
+                raise SessaoVencida(f"estimativas {cid}: {r.status}")
+            e = {}
+        reg["nome"] = e.get("name")
+        reg["linhas"] = {row["displayName"].strip(): {k: v.get("displayValue") for k, v in (row.get("dataItems") or {}).items()}
+                         for row in (e.get("equityEstimates") or [])}
+        b = dict(QUERY_EMPRESA)
+        b["variables"] = dict(QUERY_EMPRESA["variables"], ticker=cid)
+        try:
+            co = p.ctx.request.post(GQL, data=json.dumps(b), headers={"content-type": "application/json"}, timeout=90000).json()
+            co = (co["data"]["companyService"]["companies"]["results"] or [{}])[0]
+        except Exception:
+            co = {}
+        alvo = co.get("targetPrice") or {}
+        cov = ((co.get("coverage") or {}).get("results") or [{}])[0]
+        up = cov.get("priceTargetUpside") if alvo.get("value") else None    # sem alvo (ex.: NOT_RATED) o JPM manda −100%
+        reg.update({"rating": co.get("equityRating"), "preco_alvo": alvo.get("value"), "preco_alvo_texto": alvo.get("formattedValue"),
+                    "preco_alvo_data": (alvo.get("formattedDate") or "")[:10], "preco_alvo_prazo": (cov.get("priceTargetEndDate") or "")[:10],
+                    "upside": up, "preco_implicito": (alvo["value"] / (1 + up)) if alvo.get("value") and up not in (None, -1) else None,
+                    "analistas": [a.get("displayName") for a in (co.get("coveringAnalysts") or [])]})
+        out[tk] = reg
+        print(f"  {tk:7s} {reg['rating'] or '-':11s} alvo {reg['preco_alvo_texto'] or '-':>10s}  {len(reg['linhas'])} linhas", flush=True)
+    return out
+
+
+def grava_estimativas(foto: dict) -> Path:
+    import csv
+    hoje = date.today().isoformat()
+    ESTIM_DIR.mkdir(parents=True, exist_ok=True)
+    arq = ESTIM_DIR / f"{hoje}.json"
+    _grava(arq, {"data": hoje, "fonte": "J.P. Morgan Markets (equity-estimates + fullCompanyDetailsQuery)", "empresas": foto})
+    novo = not ESTIM_CSV.exists()
+    with ESTIM_CSV.open("a", newline="", encoding="utf-8") as f:
+        w = csv.writer(f)
+        if novo:
+            w.writerow(["data_coleta", "ticker", "jpm_id", "linha", "ano_fiscal", "valor", "texto"])
+        for tk, reg in foto.items():
+            for campo in ("rating", "preco_alvo", "upside", "preco_implicito", "preco_alvo_prazo"):
+                v = reg.get(campo)
+                w.writerow([hoje, tk, reg["jpm_id"], campo, "", v if isinstance(v, (int, float)) else "", "" if isinstance(v, (int, float)) else (v or "")])
+            for linha, anos in reg["linhas"].items():
+                for ano, txt in anos.items():
+                    v = _numero(txt)
+                    w.writerow([hoje, tk, reg["jpm_id"], linha, ano, "" if v is None else repr(v), txt or ""])
+    return arq
+
+
+def precisa_foto() -> bool:
+    """Sem foto na semana ISO corrente?"""
+    if not ESTIM_DIR.exists():
+        return True
+    semana = date.today().isocalendar()[:2]
+    return not any(date.fromisoformat(a.stem).isocalendar()[:2] == semana for a in ESTIM_DIR.glob("*.json"))
+
+
+def estimativas(forcar: bool = False) -> Path | None:
+    if not (forcar or precisa_foto()):
+        return None
+    with gringas.Portal("jpm", headless=True) as p:
+        p.page.goto(AQUECE, timeout=60000, wait_until="domcontentloaded")
+        p.page.wait_for_timeout(3000)
+        foto = foto_estimativas(p, resolver(p))
+    return grava_estimativas(foto)
+
+
 def inscrever() -> dict:
     """Inscreve o usuário (alerta de research do JPM) em cada empresa da cobertura: abre a página da empresa e aciona o
     1º botão SUBSCRIBE (o da empresa). Já inscrita: não mexe. Pedido dele em 26/11/2026. O coletor não depende disso."""
@@ -226,6 +325,7 @@ def main() -> int:
     ap.add_argument("--dias", type=int, default=3, help="janela de publicação (padrão 3 dias)")
     ap.add_argument("--resolver", action="store_true", help="refaz o mapa ticker -> código JPM")
     ap.add_argument("--inscrever", action="store_true", help="inscreve nos alertas do JPM todas as empresas da cobertura")
+    ap.add_argument("--estimativas", action="store_true", help="grava a foto de valuation agora (sem coletar relatórios)")
     a = ap.parse_args()
     if a.inscrever:
         r = inscrever()
@@ -233,11 +333,15 @@ def main() -> int:
               f"{sum(v == 'já inscrito' for v in r.values())} já estavam, {len(r)} na cobertura")
         return 0
     try:
-        novos = coletar(a.dias, a.resolver)
+        if not a.estimativas:
+            novos = coletar(a.dias, a.resolver)
+            print(f"JPMorgan: {len(novos)} relatório(s) novo(s) em {a.dias} dia(s)")
+        arq = estimativas(forcar=a.estimativas)
+        if arq:
+            print(f"JPMorgan: foto de valuation gravada em {arq}")
     except SessaoVencida as e:
         aviso_sessao(str(e))
         return 3
-    print(f"JPMorgan: {len(novos)} relatório(s) novo(s) em {a.dias} dia(s)")
     return 0
 
 
