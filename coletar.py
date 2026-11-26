@@ -182,6 +182,14 @@ def diario_ust():
     return f"{len(D['serie'])} dias, último {ult}: 2a {D['serie'][ult][4]}% · 10a {D['serie'][ult][8]}%"
 
 
+def semanal_sp500():
+    """Fundamentos do S&P 500 (fontes/sp500.py): Shiller, Damodaran mensal/anual, S&P DJI (recompras) e DY realizado do
+    Yahoo, em data/sp500_fund.json. Cada fonte é independente; a que falhar mantém o dado anterior."""
+    from fontes import sp500
+    D = sp500.atualiza()
+    return " · ".join(f"{k} {v}" for k, v in D["status"].items())
+
+
 def _sgs_segura(sgs: dict, cod: int, desde: str) -> list[list]:
     """Série SGS nova, mas sem regredir: se o BCB vier fora do ar/parcial (menos pontos que a série já guardada), mantém a
     anterior. Em 03/10/2026 12:12 a atualização mensal no runner zerou as 10 séries do macro.json (gráficos de juros/dívida sumiram)."""
@@ -574,7 +582,7 @@ JANELAS = {
                ("consenso Yahoo", diario_consenso_yahoo), ("cotas de fundos CVM", diario_cotas_fundos), ("Ibovespa DY", diario_ibov_dy), ("fluxo por investidor", diario_fluxo_investidores), ("curva do Brent", diario_brent_curva),
                ("minhas estimativas", diario_minhas), ("cotações universo", intraday_universo), ("cotações mercado", intraday_mercado),
                ("cotações Ibovespa", intraday_ibov_comp)],
-    "semanal": [("Focus", semanal_focus), ("Focus longo", semanal_focus_longo), ("Ibovespa DY histórico", semanal_ibov_dy_hist), ("PL CVM (P/VP)", semanal_pl_cvm)],
+    "semanal": [("Focus", semanal_focus), ("Focus longo", semanal_focus_longo), ("Ibovespa DY histórico", semanal_ibov_dy_hist), ("PL CVM (P/VP)", semanal_pl_cvm), ("S&P 500 fundamentos", semanal_sp500)],
     "mensal": [("SGS mensais", mensal_sgs), ("realizado anual", mensal_realizado), ("carteiras CVM", mensal_carteiras_cvm), ("IBGE contas nacionais", mensal_contas_nacionais), ("ciclos: termos de troca e desemprego", mensal_ciclos), ("PL CVM histórico (P/VP)", mensal_pl_cvm_hist)],
 }
 JANELAS["tudo"] = JANELAS["mensal"] + JANELAS["semanal"] + JANELAS["diario"]
