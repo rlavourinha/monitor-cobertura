@@ -35,7 +35,7 @@ DESTAQUE = re.compile(r"10SIM|Rede D[’']?Or|RDOR|Hapvida|SAUD3|Localiza|RENT3|
                       r"Bovespa|Health ?care|Real Estate|Homebuilder|Macroeconomic Research\s*-\s*Brazil|Brazil Macro|"
                       r"Equity Strategy|Petrobras|Vale\b|Itaú|Itau", re.I)
 EXCLUI = re.compile(r"FIBRA|Mexico|Mexican|Chile|Argentin|Colombia|Peru", re.I)     # relatórios de outros países nunca são destaque
-MAX_PAGINAS = 80
+MAX_PAGINAS = 1000   # sem corte por página: a leitura corta nos avisos legais (fontes/recorte.py)
 
 
 def _limpa(s: str | None) -> str:

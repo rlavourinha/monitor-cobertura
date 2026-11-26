@@ -36,7 +36,7 @@ GQL = BASE + "/research/controller/graphql/query-v2"
 PDF_URL = BASE + "/contentviewer/api/articles/{id}/pdf"
 AQUECE = BASE + "/jpmm/research.browse.company?companyId=MA.N"
 QUERY = json.loads((Path(__file__).resolve().parent / "fontes" / "jpm_query_artigos.json").read_text(encoding="utf-8"))
-MAX_PAGINAS = 80
+MAX_PAGINAS = 1000   # sem corte por página: a leitura corta nos avisos legais (fontes/recorte.py)
 RATING = re.compile(r"\b(Overweight|Underweight|Neutral|Not Rated|Restricted)\b")
 MESES = {m: i for i, m in enumerate(["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], 1)}
 FIXOS = {"TEF": ["TEF.MC"], "TIT": ["TLIT.MI", "TIT.MI"], "CEF": []}     # sem listagem / listagem fora dos EUA

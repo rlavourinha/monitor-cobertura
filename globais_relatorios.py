@@ -40,7 +40,7 @@ ESPELHO = config.RAIZ.parent / "btg-research" / "globais"
 TXT, PDF = ESPELHO / "txt", ESPELHO / "pdf"
 INDICE, PROCESSADOS = ESPELHO / "indice.json", ESPELHO / "processados.json"
 DOWNLOADS = Path.home() / "Downloads"
-MAX_PAGINAS = 80
+MAX_PAGINAS = 1000   # sem corte por página: a leitura corta nos avisos legais (fontes/recorte.py)
 
 # Casa detectada pelo CONTEÚDO (timbre/disclaimer da 1ª página). Padrões específicos para não colidir
 # ("J.P. Morgan" x "Morgan Stanley" não se confundem). Ordem = prioridade. Extensível.

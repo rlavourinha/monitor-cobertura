@@ -27,7 +27,7 @@ from datetime import date, datetime, timedelta
 from pathlib import Path
 
 import config
-from fontes import telegram
+from fontes import telegram, recorte
 
 RES = config.RAIZ.parent / "btg-research"
 LEIT = RES / "leituras"
@@ -95,6 +95,13 @@ def _carrega_cobertura() -> dict:
 
 
 COBERTURA = _carrega_cobertura()
+# Para achar a página de uma empresa coberta dentro de relatório genérico (fontes/recorte.py): os padrões da cobertura
+# mais apelidos que aparecem em research estrangeiro e que os padrões acima evitam de propósito.
+RELEVANCIA = dict(COBERTURA)
+for _tk, _rx in {"TEF": r"Telef[oó]nica(?! Brasil)", "TIT": r"Telecom Italia|\bTIM\b"}.items():
+    if _tk in RELEVANCIA:
+        RELEVANCIA[_tk] += "|" + _rx
+RECORTES = config.RAIZ.parent / "research-pdfs" / "_leitura"     # textos recortados que o modelo lê (fora do git)
 EXCLUI = r"LatAm ex-Brasil|Latam Talking Points|\bChile\b|Argentin|Colombia|\bPeru\b|\bMexico\b|M[ée]xico|Paraguay|Uruguay|Global Earlybird|Daily Roadmap|Daily Fuel|Daily Briefing|Week Ahead|Market Data Monitor|BanRep|IMACEC|Falabella|Alpek|Mallplaza|CABA\b|Buenos Aires"
 GRAFICO_POR_TEMA = {"fiscal": "fiscal", "inflacao": "inflacao", "juros": "juros", "atividade": "atividade", "emprego": "emprego",
                     "cambio": "cambio", "fluxo": "fluxo", "credito": "credito", "commodities": "commodities"}
@@ -147,8 +154,17 @@ def montar(desde: str | None = None, ate: str | None = None) -> dict:
             continue
         texto = it["_txt"].read_text(encoding="utf-8", errors="replace") if it["_txt"].exists() else ""
         texto = re.sub(r"\n{3,}", "\n\n", texto).strip()
-        it.update(_classifica(it, texto)); it["texto"] = texto
+        it.update(_classifica(it, texto))
         it["arquivo"] = str(it.pop("_txt"))  # íntegra no disco: o modelo lê com Read quando o trecho do material vier cortado
+        # autorização de 26/11/2026: aviso legal não se lê (corta onde começa); relatório genérico longo fica com o
+        # começo + as páginas da cobertura. O modelo lê a cópia recortada, não o original.
+        texto, notas = recorte.recorta(texto, RELEVANCIA)
+        it["texto"], it["recorte"] = texto, notas
+        if notas:
+            RECORTES.mkdir(parents=True, exist_ok=True)
+            arq = RECORTES / (re.sub(r"[^A-Za-z0-9_-]+", "_", f"{it['fonte']}_{it.get('id', '')}") + ".txt")
+            arq.write_text(texto, encoding="utf-8")
+            it["arquivo"] = str(arq)
         itens.append(it)
     itens.sort(key=lambda i: (i.get("fora", False), not i.get("destaque"), i.get("fonte"), i.get("titulo", "")))
     # material em Markdown
@@ -184,7 +200,8 @@ def montar(desde: str | None = None, ate: str | None = None) -> dict:
                 origem = ("PDF completo" if completo else
                           "SÓ RESUMO DO PORTAL" if it["fonte"] == "Itaú BBA" else "SÓ TEXTO DA PÁGINA (sem as tabelas do PDF)")
                 corte = f"; cortado em {lim} de {len(it['texto'])} caracteres" if len(it["texto"]) > lim else ""
-                md.append(f"  [texto: {origem}{corte}]")
+                rec = ("; " + "; ".join(it["recorte"])) if it.get("recorte") else ""
+                md.append(f"  [texto: {origem}{corte}{rec}]")
                 if corte:  # regra de 17/11/2026: todo relatório é lido inteiro; o material só traz o começo
                     md.append(f"  [íntegra: {it['arquivo']}]")
                 md.append(""); md.append("  " + it["texto"][:lim].replace("\n", "\n  ")); md.append("")
