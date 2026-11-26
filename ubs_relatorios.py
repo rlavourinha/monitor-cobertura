@@ -123,7 +123,9 @@ def coletar(dias: int, modelos_base: bool = False) -> tuple[list[dict], list[str
             (TXT / f"{wid}.txt").write_text("FONTE: PDF completo\n\n" + texto, encoding="utf-8")
             titulo = d.get("distributionTitle") or d.get("title") or ""
             mr = RATING.search(titulo) or RATING.search(texto[:2500])
-            reg = {"id": wid, "casa": "UBS", "titulo": titulo[:200], "empresa": d.get("ric") or "",
+            ric = d.get("ric")
+            ric = ", ".join(ric) if isinstance(ric, list) else (ric or "")          # o UBS às vezes manda lista
+            reg = {"id": wid, "casa": "UBS", "titulo": titulo[:200], "empresa": ric[:80],
                    "analista": d.get("primaryAnalystName") or d.get("author") or "", "rating": mr.group(1) if mr else "",
                    "data": (d.get("pubDate") or "")[:10], "paginas": npag, "chars": len(texto),
                    "coletado": datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "arquivo": f"{wid}.pdf",

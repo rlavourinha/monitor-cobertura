@@ -118,6 +118,9 @@ def _indices() -> list[dict]:
         I = json.loads(arq.read_text(encoding="utf-8"))
         for k, it in (I.items() if isinstance(I, dict) else ((x["id"], x) for x in I)):
             it = dict(it); it["_txt"] = txt / f"{it.get('id', k)}.txt"
+            for _c in ("empresa", "titulo", "tipo", "analista", "rating"):   # um coletor que grave lista não derruba a leitura
+                if isinstance(it.get(_c), list):
+                    it[_c] = ", ".join(map(str, it[_c]))
             # Globais: a "fonte" exibida é a casa real (JPMorgan, Goldman...), não o rótulo do diretório.
             it["fonte"] = it.get("casa", fonte) if fonte == "Globais" else fonte
             out.append(it)
