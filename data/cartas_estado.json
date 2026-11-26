@@ -1,11 +1,11 @@
 {
  "absolute|https://www.absoluteinvestimentos.com.br": {
   "assinatura": "200|d41d8cd98f00b204e9800998ecf8427e",
-  "visto": "2026-11-12 07:50"
+  "visto": "2026-11-25 07:50"
  },
  "dynamo|https://www.dynamo.com.br/pt/cartas": {
   "assinatura": "200|56f157421de6e8cf35eb83460f307675",
-  "visto": "2026-11-12 07:50",
+  "visto": "2026-11-25 07:50",
   "links": [
    "https://www.dynamo.com.br/wp-content/uploads/2021/08/f0361e3c58b619cac746804a2e7e19c6376391d9.pdf",
    "https://www.dynamo.com.br/wp-content/uploads/2025/04/Carta123.pdf",
@@ -101,7 +101,7 @@
  },
  "genoa|https://www.genoacapital.com.br/relatorios.html": {
   "assinatura": "200|82ed5a3f6dd762381030929cfd352b38",
-  "visto": "2026-11-12 07:50",
+  "visto": "2026-11-25 07:50",
   "links": [
    "https://www.genoacapital.com.br/docs/BP_Servicos_Digitais_Jan2025.pdf",
    "https://www.genoacapital.com.br/docs/CartaMensalGenoaCapital_Abr21.pdf",
@@ -187,7 +187,7 @@
  },
  "ibiuna|https://www.ibiunainvest.com.br": {
   "assinatura": "200|84a3e29e704cac1b547bc0c6a2702d64",
-  "visto": "2026-11-12 07:50",
+  "visto": "2026-11-25 07:50",
   "links": [
    "https://moodyslocal.com.br/wp-content/uploads/2026/08/ML-BR-PR-Ibiuna-Macro-Gestao-de-Recursos-Ltda.pdf",
    "https://www.ibiunainvest.com.br/wp-content/themes/ibiuna/docs/politica_privacidade.pdf"
@@ -195,35 +195,35 @@
  },
  "janeiro|https://assetfront.arquivosparceiros.cloud.itau.com.br/FND/FICFI56757_Itau_Janeiro_MM_FICFI.pdf": {
   "assinatura": "200|1202621|\"75ac0450d7dfffe59b855453340f6e12\"|Mon, 09 Nov 2026 15:07:13 GMT",
-  "visto": "2026-11-12 07:50"
+  "visto": "2026-11-25 07:50"
  },
  "janeiro|https://assetfront.arquivosparceiros.cloud.itau.com.br/FND/carta-do-gestor-itau-janeiro.pdf": {
   "assinatura": "200|978597|\"12e1c7b8c32d1e8e90ff2aa760189c6d\"|Fri, 03 Oct 2025 20:14:31 GMT",
-  "visto": "2026-11-12 07:50"
+  "visto": "2026-11-25 07:50"
  },
  "janeiro|https://www.infomoney.com.br/onde-investir/ex-diretor-do-bc-vai-contra-o-consenso-e-aposta-em-continuidade-dos-cortes-da-selic/": {
   "assinatura": "200|d41d8cd98f00b204e9800998ecf8427e",
-  "visto": "2026-11-12 07:50"
+  "visto": "2026-11-25 07:50"
  },
  "janeiro|https://www.moneytimes.com.br/selic-divide-gigantes-do-mercado-bruno-serra-ve-cortes-mansueto-aposta-em-juros-travados/": {
   "assinatura": "200|d41d8cd98f00b204e9800998ecf8427e",
-  "visto": "2026-11-12 07:50"
+  "visto": "2026-11-25 07:50"
  },
  "janeiro|https://www.bloomberglinea.com.br/mercados/ex-diretor-do-bc-ve-maior-parte-dos-cortes-da-selic-pos-eleicao-e-taxa-a-11-em-2027/": {
   "assinatura": "200|d41d8cd98f00b204e9800998ecf8427e",
-  "visto": "2026-11-12 07:50"
+  "visto": "2026-11-25 07:50"
  },
  "janeiro|https://blog.itau.com.br/itauasset/perspectivas-2026-o-impacto-do-cenario-local-e-global-nos-fundos-multimercado": {
   "assinatura": "403|d41d8cd98f00b204e9800998ecf8427e",
-  "visto": "2026-11-12 07:50"
+  "visto": "2026-11-25 07:50"
  },
  "janeiro|https://www.seudinheiro.com/2025/economia/bruno-serra-da-itau-asset-diz-que-selic-cai-em-janeiro-e-conta-o-que-precisa-acontecer-para-os-juros-chegarem-a-um-digito-lvgb/": {
   "assinatura": "200|d41d8cd98f00b204e9800998ecf8427e",
-  "visto": "2026-11-12 07:50"
+  "visto": "2026-11-25 07:50"
  },
  "k10|https://www.kapitalo.com.br/wp-content/uploads/2022/09/kapitalo_cartamensal_K10_agosto_V9.pdf": {
   "assinatura": "200||\"91a0a-65b3cf73856e0-gzip\"|Fri, 11 Sep 2026 22:54:24 GMT",
-  "visto": "2026-11-12 07:50"
+  "visto": "2026-11-25 07:50"
  },
  "k10|https://www.kapitalo.com.br/wp-content/uploads/2022/09/Carta-do-Gestor_K10-Julho2026.pdf": {
   "assinatura": "200||\"27628-658664d95b736-gzip\"|Thu, 06 Aug 2026 19:57:51 GMT",
@@ -262,8 +262,8 @@
   "visto": "2026-10-09 07:50"
  },
  "k10|https://www.kapitalo.com.br/carta-do-gestor/k10": {
-  "assinatura": "200|bf899e8d63dc97d877ddb90c898a3185",
-  "visto": "2026-11-12 07:50",
+  "assinatura": "200|b6ea0dcaaa0f8583997bf5374c084ba4",
+  "visto": "2026-11-25 07:50",
   "links": [
    "https://www.kapitalo.com.br/wp-content/uploads/2020/02/Carta-K10-Abril-2023.pdf",
    "https://www.kapitalo.com.br/wp-content/uploads/2020/02/Carta-K10-Agosto-2021.pdf",
@@ -346,7 +346,7 @@
    "https://www.kapitalo.com.br/wp-content/uploads/2022/09/Carta-do-Gestor_K10-Outubro-2025.pdf",
    "https://www.kapitalo.com.br/wp-content/uploads/2022/09/Carta-do-Gestor_K10-Setembro-2025.pdf",
    "https://www.kapitalo.com.br/wp-content/uploads/2022/09/Carta-do-Gestor_K10_Março-2025.pdf",
-   "https://www.kapitalo.com.br/wp-content/uploads/2022/09/Carta_Mensal_K10_Outubro_2026_upload.pdf",
+   "https://www.kapitalo.com.br/wp-content/uploads/2022/09/Carta_Mensal_K10_Outubro_2026-1.pdf",
    "https://www.kapitalo.com.br/wp-content/uploads/2022/09/kapitalo_cartamensal_K10_AGOSTO.pdf",
    "https://www.kapitalo.com.br/wp-content/uploads/2022/09/kapitalo_cartamensal_K10_JULHO.pdf",
    "https://www.kapitalo.com.br/wp-content/uploads/2022/09/kapitalo_cartamensal_K10_OUTUBRO.pdf",
@@ -417,7 +417,7 @@
  },
  "legacy|https://www.legacycapital.com.br/cartas/": {
   "assinatura": "200|84f4fdb4c90e1c572694f025f1fd0f9f",
-  "visto": "2026-11-12 07:50",
+  "visto": "2026-11-25 07:50",
   "links": [
    "https://www.legacycapital.com.br/wp-content/uploads/LGPD_Legacy-Capital-Termo-de-Consentimento_Padrao_2026.pdf",
    "https://www.legacycapital.com.br/wp-content/uploads/TermoDeUsoPoliticaPrivacidade.pdf"
@@ -509,11 +509,11 @@
  },
  "opportunity|https://www.opportunity.com.br/Home/Destaques": {
   "assinatura": "200|d41d8cd98f00b204e9800998ecf8427e",
-  "visto": "2026-11-12 07:50"
+  "visto": "2026-11-25 07:50"
  },
  "spx|https://rogerioxavierspx.substack.com/p/brasil-o-problema-nao-e-saber-se": {
   "assinatura": "200|1f5e7eb8c1c47c28799efbccf18caa4c",
-  "visto": "2026-11-12 07:50",
+  "visto": "2026-11-25 07:50",
   "links": [
    "https://rogerioxavierspx.substack.com/p/brasil-o-problema-nao-e-saber-se",
    "https://rogerioxavierspx.substack.com/p/brasil-o-problema-nao-e-saber-se/comments"
@@ -521,47 +521,47 @@
  },
  "spx|https://rogerioxavierspx.substack.com/p/the-global-competition-for-the-next": {
   "assinatura": "200|39ef30598ef08ed10a237cfc3c8f7092",
-  "visto": "2026-11-12 07:50",
+  "visto": "2026-11-25 07:50",
   "links": [
    "https://rogerioxavierspx.substack.com/p/the-global-competition-for-the-next",
    "https://rogerioxavierspx.substack.com/p/the-global-competition-for-the-next/comments"
   ]
  },
  "spx|https://www.bb.com.br/uci/informe-mensal/1367": {
-  "assinatura": "200|pdf|15e9b1e600ab0cfb128396eee2171062",
-  "visto": "2026-11-12 07:51"
+  "assinatura": "200|pdf|b75bd357f711a40d393b0ea5e6c14fbd",
+  "visto": "2026-11-25 07:50"
  },
  "spx|https://bb.com.br/uci/informe-mensal/1369": {
-  "assinatura": "200|pdf|1c0fae41eac2b85c3451ee2ac0caa9e4",
-  "visto": "2026-11-12 07:51"
+  "assinatura": "200|pdf|c1ad026fed6717374abc65ecf8979adc",
+  "visto": "2026-11-25 07:50"
  },
  "spx|https://www.caixa.gov.br/Downloads/aplicacao-financeira-carta-mensal/CM_6475.pdf": {
   "assinatura": "200|554127|\"{57E05AFD-53B5-4AB6-8A95-71639F448CBD},52pub\"|Tue, 20 May 2025 18:16:45 GMT",
-  "visto": "2026-11-12 07:51"
+  "visto": "2026-11-25 07:50"
  },
  "spx|https://wspf.bradesco.com.br/wsFundosInvestimentos/File/JCOT_014590_RELATORIO_MENSAL.pdf": {
-  "assinatura": "200|710866|\"94d4a44306fdd1:0\"|Sun, 08 Nov 2026 03:21:38 GMT",
-  "visto": "2026-11-12 07:51"
+  "assinatura": "200|710866|\"e6a8997a7e79dd1:0\"|Sat, 21 Nov 2026 06:06:42 GMT",
+  "visto": "2026-11-25 07:50"
  },
  "spx|https://www.infomoney.com.br/onde-investir/somos-traders-nao-freiras-rogerio-xavier-da-spx-explica-mudancas-e-planeja-reviravolta/": {
   "assinatura": "200|d41d8cd98f00b204e9800998ecf8427e",
-  "visto": "2026-11-12 07:51"
+  "visto": "2026-11-25 07:50"
  },
  "spx|https://braziljournal.com/as-mudancas-na-spx/": {
   "assinatura": "200|d41d8cd98f00b204e9800998ecf8427e",
-  "visto": "2026-11-12 07:51"
+  "visto": "2026-11-25 07:50"
  },
  "spx|https://neofeed.com.br/economia/rogerio-xavier-da-spx-o-dilema-da-soberania-nacional-e-o-pessimismo-com-a-economia-dos-eua/": {
   "assinatura": "200|d41d8cd98f00b204e9800998ecf8427e",
-  "visto": "2026-11-12 07:51"
+  "visto": "2026-11-25 07:50"
  },
  "spx|https://www.seudinheiro.com/2025/bolsa-dolar/bc-tera-de-elevar-selic-a-niveis-extremamente-elevados-ou-admitir-dominancia-fiscal-diz-spx-vinp/": {
   "assinatura": "200|d41d8cd98f00b204e9800998ecf8427e",
-  "visto": "2026-11-12 07:51"
+  "visto": "2026-11-25 07:50"
  },
  "spx|https://spxcapital.com.br/fundo/nimitz-spx/": {
   "assinatura": "200|5fa7428feb2a5ed7e3d04275e39982f0",
-  "visto": "2026-11-12 07:51",
+  "visto": "2026-11-25 07:50",
   "links": [
    "https://spxcapital.com.br/wp-content/uploads/2023/06/SPX-NIMITZ-FEEDER-RL-FIF-CIC-MULTIMERCADO-3.pdf",
    "https://spxcapital.com.br/wp-content/uploads/2023/06/nimitzspx.pdf"
@@ -577,7 +577,7 @@
  },
  "squadra|https://www.squadrainvest.com.br/cartas/": {
   "assinatura": "200|39582338fecc905241ad55c47289fde4",
-  "visto": "2026-11-12 07:51",
+  "visto": "2026-11-25 07:50",
   "links": [
    "https://www.squadrainvest.com.br/wp-content/uploads/2022/09/carta-2011.pdf",
    "https://www.squadrainvest.com.br/wp-content/uploads/2022/09/carta-2011semestre1.pdf",
@@ -684,7 +684,7 @@
  },
  "verde|https://www.verdeasset.com.br/#/performance": {
   "assinatura": "200|d41d8cd98f00b204e9800998ecf8427e",
-  "visto": "2026-11-12 07:51"
+  "visto": "2026-11-25 07:51"
  },
  "zeta|https://www.kapitalo.com.br/wp-content/uploads/2020/02/Carta-do-Gestor_Agosto-2026.pdf": {
   "assinatura": "404|4245||",
@@ -768,7 +768,7 @@
  },
  "zeta|https://www.kapitalo.com.br/carta-do-gestor/kapa-e-zeta": {
   "assinatura": "200|a6eaa3d77dd317afb4588a589d213278",
-  "visto": "2026-11-12 07:51",
+  "visto": "2026-11-25 07:51",
   "links": [
    "https://www.kapitalo.com.br/wp-content/uploads/2020/02/CARTAGESTOR_FEV_2019-1.pdf",
    "https://www.kapitalo.com.br/wp-content/uploads/2020/02/CARTAGESTOR_JAN_2019-1.pdf",
@@ -1378,11 +1378,41 @@
    "url": "https://www.opportunity.com.br/content/pdf/carta_gestor/CartaGestao_202610.pdf",
    "data_doc": "2026-10-01",
    "visto": "2026-11-12"
+  },
+  "747c270048c04b051c52763c70b3f5ea": {
+   "fundo": "k10",
+   "url": "https://www.kapitalo.com.br/wp-content/uploads/2022/09/Carta_Mensal_K10_Outubro_2026-1.pdf",
+   "data_doc": "2026-10-01",
+   "visto": "2026-11-24"
+  },
+  "8fdee3eaf93d7438f10c169bbb710d97": {
+   "fundo": "spx",
+   "url": "https://www.bb.com.br/uci/informe-mensal/1367",
+   "data_doc": "2026-10-01",
+   "visto": "2026-11-24"
+  },
+  "eeab3023abb79921d06755886b742725": {
+   "fundo": "spx",
+   "url": "https://bb.com.br/uci/informe-mensal/1369",
+   "data_doc": "2026-10-01",
+   "visto": "2026-11-24"
+  },
+  "b75bd357f711a40d393b0ea5e6c14fbd": {
+   "fundo": "spx",
+   "url": "https://www.bb.com.br/uci/informe-mensal/1367",
+   "data_doc": "2026-10-01",
+   "visto": "2026-11-25"
+  },
+  "c1ad026fed6717374abc65ecf8979adc": {
+   "fundo": "spx",
+   "url": "https://bb.com.br/uci/informe-mensal/1369",
+   "data_doc": "2026-10-01",
+   "visto": "2026-11-25"
   }
  },
  "spx|https://rogerioxavierspx.substack.com/p/brasil-a-eleicao-ja-mudou-os-graus": {
   "assinatura": "200|27fb5dd282d7b48494c4ab554229ecbf",
-  "visto": "2026-11-12 07:50",
+  "visto": "2026-11-25 07:50",
   "links": [
    "https://rogerioxavierspx.substack.com/p/brasil-a-eleicao-ja-mudou-os-graus",
    "https://rogerioxavierspx.substack.com/p/brasil-a-eleicao-ja-mudou-os-graus/comments"
@@ -1406,7 +1436,8 @@
   "https://www.verdeasset.com.br/public/files/rel_gestao/158094/Verde-REL-2026_10.pdf": "2026-10-01",
   "https://www.legacycapital.com.br/wp-content/uploads/202609_Carta-Mensal.pdf": "2026-09-01",
   "https://www.legacycapital.com.br/wp-content/uploads/202610_Carta-Mensal.pdf": "2026-10-30",
-  "https://www.opportunity.com.br/content/pdf/carta_gestor/CartaGestao_202610.pdf": "2026-10-01"
+  "https://www.opportunity.com.br/content/pdf/carta_gestor/CartaGestao_202610.pdf": "2026-10-01",
+  "https://www.kapitalo.com.br/wp-content/uploads/2022/09/Carta_Mensal_K10_Outubro_2026-1.pdf": "2026-10-01"
  },
  "verde|https://www.verdeasset.com.br/public/files/rel_gestao/158094/Verde-REL-2026_09.pdf": {
   "assinatura": "200||W/\"0x8DF26090C7B3C78\"|Fri, 09 Oct 2026 13:27:21 GMT",
@@ -1427,5 +1458,41 @@
  "opportunity|https://www.opportunity.com.br/content/pdf/carta_gestor/CartaGestao_202610.pdf": {
   "assinatura": "200|305223|\"fa67a755ab6cdd1:0\"|Wed, 04 Nov 2026 22:25:02 GMT",
   "visto": "2026-11-12 11:04"
+ },
+ "dynamo|https://www.dynamo.com.br/wp-content/uploads/2026/11/Carta-Dynamo-131.pdf": {
+  "assinatura": "200|416263|\"65a07-660044633ba69\"|Wed, 11 Nov 2026 18:22:14 GMT",
+  "visto": "2026-11-25 07:50"
+ },
+ "dynamo|https://www.dynamo.com.br/wp-content/uploads/2026/10/Carta-Dynamo-130.pdf": {
+  "assinatura": "200|193499|\"2f3db-65f0f2db30fd2\"|Fri, 30 Oct 2026 13:57:36 GMT",
+  "visto": "2026-11-25 07:50"
+ },
+ "dynamo|https://www.dynamo.com.br/wp-content/uploads/2026/10/Carta-Dynamo-129.pdf": {
+  "assinatura": "200|189924|\"2e5e4-65df70558097f\"|Fri, 16 Oct 2026 15:43:08 GMT",
+  "visto": "2026-11-25 07:50"
+ },
+ "genoa|https://www.genoacapital.com.br/docs/CartaMensalGenoaCapital_Out26.pdf": {
+  "assinatura": "200||W/\"5c24ce8d3ac302186503ae2133b34d66\"|Fri, 06 Nov 2026 14:44:37 GMT",
+  "visto": "2026-11-24 07:50"
+ },
+ "genoa|https://www.genoacapital.com.br/docs/CartaMensalGenoaCapital_Set26.pdf": {
+  "assinatura": "200|487241|\"43c0f36379458f551431bfbdac3d052e\"|Tue, 17 Nov 2026 16:51:32 GMT",
+  "visto": "2026-11-24 07:50"
+ },
+ "k10|https://www.kapitalo.com.br/wp-content/uploads/2022/09/Carta_Mensal_K10_Outubro_2026_upload.pdf": {
+  "assinatura": "200||\"6f30d-65fa13ce7a9eb-gzip\"|Fri, 06 Nov 2026 20:12:56 GMT",
+  "visto": "2026-11-24 07:50"
+ },
+ "k10|https://www.kapitalo.com.br/wp-content/uploads/2022/09/Carta-Mensal_K10_Setembro-2026_Upload.pdf": {
+  "assinatura": "200||\"6f4b7-65d67a9192beb-gzip\"|Fri, 09 Oct 2026 12:41:00 GMT",
+  "visto": "2026-11-24 07:50"
+ },
+ "zeta|https://www.kapitalo.com.br/wp-content/uploads/2020/02/Carta-Mensal_Kappa-e-Zeta_Outubro-2026_upload.pdf": {
+  "assinatura": "200||\"9ea22-65ff1d081230c-gzip\"|Tue, 10 Nov 2026 20:20:50 GMT",
+  "visto": "2026-11-24 07:51"
+ },
+ "zeta|https://www.kapitalo.com.br/wp-content/uploads/2020/02/Carta-Mensal_Kappa_Setembro-2026-1.pdf": {
+  "assinatura": "200||\"7c7e4-65d5bcf742f44-gzip\"|Thu, 08 Oct 2026 22:32:44 GMT",
+  "visto": "2026-11-24 07:51"
  }
 }

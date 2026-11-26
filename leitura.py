@@ -104,12 +104,15 @@ GRAFICO_POR_TEMA = {"fiscal": "fiscal", "inflacao": "inflacao", "juros": "juros"
 def _indices() -> list[dict]:
     out = []
     for fonte, arq, txt in (("BTG", RES / "indice.json", RES / "txt"), ("Itaú BBA", RES / "bba" / "indice.json", RES / "bba" / "txt"),
-                            ("Bradesco BBI", RES / "bradesco" / "indice.json", RES / "bradesco" / "txt")):
+                            ("Bradesco BBI", RES / "bradesco" / "indice.json", RES / "bradesco" / "txt"),
+                            ("Globais", RES / "globais" / "indice.json", RES / "globais" / "txt")):
         if not arq.exists():
             continue
         I = json.loads(arq.read_text(encoding="utf-8"))
         for k, it in (I.items() if isinstance(I, dict) else ((x["id"], x) for x in I)):
-            it = dict(it); it["fonte"] = fonte; it["_txt"] = txt / f"{it.get('id', k)}.txt"
+            it = dict(it); it["_txt"] = txt / f"{it.get('id', k)}.txt"
+            # Globais: a "fonte" exibida é a casa real (JPMorgan, Goldman...), não o rótulo do diretório.
+            it["fonte"] = it.get("casa", fonte) if fonte == "Globais" else fonte
             out.append(it)
     return out
 
@@ -156,9 +159,15 @@ def montar(desde: str | None = None, ate: str | None = None) -> dict:
             continue
         por_tema.setdefault(it["temas"][0], []).append(it)
     n_btg = sum(1 for i in itens if i["fonte"] == "BTG"); n_bba = sum(1 for i in itens if i["fonte"] == "Itaú BBA")
-    n_bdx = len(itens) - n_btg - n_bba
+    n_bdx = sum(1 for i in itens if i["fonte"] == "Bradesco BBI")
+    n_glob = len(itens) - n_btg - n_bba - n_bdx          # o resto = casas globais (JPMorgan, Goldman, BofA, Morgan Stanley)
+    casas_glob = {}
+    for i in itens:
+        if i["fonte"] not in ("BTG", "Itaú BBA", "Bradesco BBI"):
+            casas_glob[i["fonte"]] = casas_glob.get(i["fonte"], 0) + 1
+    glob_txt = (" + Globais " + ", ".join(f"{k} {v}" for k, v in casas_glob.items())) if casas_glob else ""
     md = [f"# Leitura do dia — material coletado entre {desde} e {ate}", "",
-          f"{len(itens)} relatórios novos (BTG {n_btg}, Itaú BBA {n_bba}, Bradesco BBI {n_bdx}); {sum(1 for i in itens if i['fora'])} fora do escopo (LatAm ex-Brasil, diários).", ""]
+          f"{len(itens)} relatórios novos (BTG {n_btg}, Itaú BBA {n_bba}, Bradesco BBI {n_bdx}{glob_txt}); {sum(1 for i in itens if i['fora'])} fora do escopo (LatAm ex-Brasil, diários).", ""]
     for tema in ordem:
         lst = por_tema.get(tema)
         if not lst:
@@ -188,7 +197,7 @@ def montar(desde: str | None = None, ate: str | None = None) -> dict:
     MATERIAL_MD.write_text("\n".join(md), encoding="utf-8")
     MATERIAL_JSON.write_text(json.dumps({"desde": desde, "ate": ate, "itens": [{k: v for k, v in i.items() if k != "texto"} for i in itens]},
                                         ensure_ascii=False, indent=1), encoding="utf-8")
-    return {"desde": desde, "ate": ate, "n": len(itens), "btg": n_btg, "bba": n_bba, "bradesco": n_bdx, "fora": len(fora), "temas": {t: len(v) for t, v in por_tema.items()}}
+    return {"desde": desde, "ate": ate, "n": len(itens), "btg": n_btg, "bba": n_bba, "bradesco": n_bdx, "globais": n_glob, "fora": len(fora), "temas": {t: len(v) for t, v in por_tema.items()}}
 
 
 # ----------------------------------------------------------------------------------------------------- gráficos
