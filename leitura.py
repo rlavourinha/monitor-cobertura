@@ -133,6 +133,9 @@ def _classifica(it: dict, texto: str) -> dict:
     if not temas and macro:
         temas = [t for t, rx in TEMAS if re.search(rx, amostra, re.I)][:2]
     cob = [tk for tk, rx in COBERTURA.items() if re.search(rx, amostra, re.I)]
+    # o Morgan Stanley marca as empresas do relatório (busca company==RIC): vale mesmo quando o texto escapa dos padrões
+    # (ex.: "Itau Unibanco Holding", que o padrão do ITUB4 evita por causa da casa Itaú BBA; notas que só dizem "V/MA")
+    cob += [tk for tk in it.get("cobertura_ms") or [] if tk in COBERTURA and tk not in cob]
     fora = bool(re.search(EXCLUI, base, re.I))
     if cob:
         temas = ["cobertura"] + temas
