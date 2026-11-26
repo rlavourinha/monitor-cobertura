@@ -22,7 +22,7 @@ PORTAIS: dict[str, tuple[str, str, str]] = {
     "jpm":     ("JPMorgan",       "https://markets.jpmorgan.com",  r"logon|login|sso|auth|idp"),
     "ms":      ("Morgan Stanley", "https://matrix.ms.com",         r"login|logon|sso|auth|pingfederate"),
     "goldman": ("Goldman Sachs",  "https://research.gs.com",       r"login|signin|sso|auth|okta"),
-    "bofa":    ("BofA",           "https://rsch.baml.com",         r"login|logon|sso|auth|sign-?in"),
+    "bofa":    ("BofA",           "https://markets.ml.com/v2/login_page", r"login|logon|sso|auth|sign-?in"),   # Mercury (rsch.baml.com redireciona p/ cá)
 }
 
 
@@ -50,8 +50,12 @@ class Portal:
         self._pw = sync_playwright().start()
         p = perfil(self.casa)
         p.mkdir(parents=True, exist_ok=True)
-        opts = dict(headless=self.headless, viewport={"width": 1360, "height": 920}, locale="en-US",
-                    args=["--disable-blink-features=AutomationControlled"])
+        # headless="fora": Chrome com janela, mas fora da tela (portais que derrubam o headless, ex.: Goldman/Marquee
+        # responde ERR_HTTP2_PROTOCOL_ERROR). Roda sem aparecer para o usuário.
+        fora = self.headless == "fora"
+        args = ["--disable-blink-features=AutomationControlled"] + (["--window-position=-32000,-32000"] if fora else [])
+        opts = dict(headless=False if fora else bool(self.headless), viewport={"width": 1360, "height": 920}, locale="en-US",
+                    args=args)
         try:                                   # Chrome do sistema (impressão digital mais natural); senão o Chromium do Playwright
             self.ctx = self._pw.chromium.launch_persistent_context(str(p), channel="chrome", **opts)
         except Exception:

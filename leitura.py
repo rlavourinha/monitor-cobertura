@@ -135,7 +135,9 @@ def _classifica(it: dict, texto: str) -> dict:
     cob = [tk for tk, rx in COBERTURA.items() if re.search(rx, amostra, re.I)]
     # o Morgan Stanley marca as empresas do relatório (busca company==RIC): vale mesmo quando o texto escapa dos padrões
     # (ex.: "Itau Unibanco Holding", que o padrão do ITUB4 evita por causa da casa Itaú BBA; notas que só dizem "V/MA")
-    cob += [tk for tk in it.get("cobertura_ms") or [] if tk in COBERTURA and tk not in cob]
+    for tk in (it.get("cobertura_ms") or []) + (it.get("cobertura_gs") or []):     # idem Goldman (empresa primária)
+        if tk in COBERTURA and tk not in cob:
+            cob.append(tk)
     fora = bool(re.search(EXCLUI, base, re.I))
     if cob:
         temas = ["cobertura"] + temas
