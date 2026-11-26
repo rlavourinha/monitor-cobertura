@@ -1,7 +1,7 @@
 """Mantém viva a sessão dos portais de research com sessão "deslizante" (expira sem uso), hoje só o UBS Neo
 (~1h30 parado e cai). Abre o portal sem janela, renova pelo "Continue" se preciso e grava os cookies renovados
-(gringas.Portal grava ao sair). Agendado a cada 45 min por agendar_sessoes.ps1. Registro em data/sessoes_estado.json
-(em .playwright/, fora do git).
+(gringas.Portal grava ao sair). Agendado a cada 45 min por agendar_sessoes.ps1. Registro em .playwright/sessoes_estado.json
+(fora do git).
 
     python manter_sessoes.py
 """
