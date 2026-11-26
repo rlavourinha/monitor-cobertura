@@ -183,12 +183,55 @@ def coletar(dias: int, forcar_ids: bool = False) -> list[dict]:
     return novos
 
 
+def inscrever() -> dict:
+    """Inscreve o usuário (alerta de research do JPM) em cada empresa da cobertura: abre a página da empresa e aciona o
+    1º botão SUBSCRIBE (o da empresa). Já inscrita: não mexe. Pedido dele em 26/11/2026. O coletor não depende disso."""
+    out = {}
+    JS = r"els=>els.filter(e=>/subscri/i.test(e.innerText)).map(e=>e.innerText.trim().replace(/\s+/g,' '))"
+    with gringas.Portal("jpm", headless=True) as p:
+        p.page.goto(AQUECE, timeout=60000, wait_until="domcontentloaded")
+        p.page.wait_for_timeout(3000)
+        ids = resolver(p)
+        for tk, cid in ids.items():
+            if not cid:
+                out[tk] = "sem código no JPM"
+                continue
+            try:
+                p.page.goto(f"{BASE}/jpmm/research.browse.company?companyId={cid}", timeout=60000, wait_until="domcontentloaded")
+                fr = None
+                for _ in range(20):
+                    p.page.wait_for_timeout(1000)
+                    fr = next((f for f in p.page.frames if "company-page.html" in f.url), None)
+                    if fr and fr.eval_on_selector_all("button", JS):
+                        break
+                bts = fr.eval_on_selector_all("button", JS) if fr else []
+                if not bts:
+                    out[tk] = "página sem botão de inscrição"
+                elif "SUBSCRIBED" in bts[0].upper():
+                    out[tk] = "já inscrito"
+                else:
+                    fr.locator("button:has-text('SUBSCRIBE')").first.dispatch_event("click")
+                    p.page.wait_for_timeout(4000)
+                    depois = fr.eval_on_selector_all("button", JS)
+                    out[tk] = "inscrito" if depois and "SUBSCRIBED" in depois[0].upper() else f"não confirmou ({depois[:1]})"
+            except Exception as e:
+                out[tk] = f"erro: {str(e)[:80]}"
+            print(f"  {tk:7s} {cid or '':10s} {out[tk]}", flush=True)
+    return out
+
+
 def main() -> int:
     sys.stdout.reconfigure(encoding="utf-8")
     ap = argparse.ArgumentParser(description="Coletor de research do J.P. Morgan Markets (headless).")
     ap.add_argument("--dias", type=int, default=3, help="janela de publicação (padrão 3 dias)")
     ap.add_argument("--resolver", action="store_true", help="refaz o mapa ticker -> código JPM")
+    ap.add_argument("--inscrever", action="store_true", help="inscreve nos alertas do JPM todas as empresas da cobertura")
     a = ap.parse_args()
+    if a.inscrever:
+        r = inscrever()
+        print(f"JPMorgan: {sum(v == 'inscrito' for v in r.values())} inscritas agora, "
+              f"{sum(v == 'já inscrito' for v in r.values())} já estavam, {len(r)} na cobertura")
+        return 0
     try:
         novos = coletar(a.dias, a.resolver)
     except SessaoVencida as e:
