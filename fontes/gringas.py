@@ -30,6 +30,11 @@ def perfil(casa: str) -> Path:
     return config.RAIZ / ".playwright" / f"gringas-{casa}"
 
 
+def estado_sessao(casa: str) -> Path:
+    """Cookies (inclusive os de sessão) gravados durante o login: reinjetados ao abrir o Portal. Fora do git (.playwright/)."""
+    return config.RAIZ / ".playwright" / f"gringas-{casa}-sessao.json"
+
+
 class Portal:
     """Contexto Playwright persistente apontado para o portal de uma casa. `with Portal('jpm') as p:`."""
 
@@ -51,6 +56,18 @@ class Portal:
             self.ctx = self._pw.chromium.launch_persistent_context(str(p), channel="chrome", **opts)
         except Exception:
             self.ctx = self._pw.chromium.launch_persistent_context(str(p), **opts)
+        # cookies de sessão que o Chrome descartou ao fechar (ex.: Morgan Stanley): reinjeta os gravados no login
+        est = estado_sessao(self.casa)
+        if est.exists():
+            import json
+            try:
+                vivos = {(c["name"], c["domain"], c["path"]) for c in self.ctx.cookies()}
+                faltam = [c for c in json.loads(est.read_text(encoding="utf-8")).get("cookies", [])
+                          if (c["name"], c["domain"], c["path"]) not in vivos]
+                if faltam:
+                    self.ctx.add_cookies(faltam)
+            except Exception:
+                pass
         self.page = self.ctx.pages[0] if self.ctx.pages else self.ctx.new_page()
         return self
 

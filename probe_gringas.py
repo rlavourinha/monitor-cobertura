@@ -43,6 +43,9 @@ def login(casa: str, max_min: int = 20) -> int:
             try:
                 pg.wait_for_timeout(3000)
                 ultimo = (pg.url, pg.title(), pg.inner_text("body")[:4000])
+                # guarda TODOS os cookies, inclusive os de sessão (que o Chrome descarta ao fechar: caso do Morgan
+                # Stanley); o Portal reinjeta na próxima abertura
+                p.ctx.storage_state(path=str(gringas.estado_sessao(casa)))
             except Exception:
                 pass
         if ultimo:
