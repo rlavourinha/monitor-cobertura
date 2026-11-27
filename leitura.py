@@ -27,7 +27,7 @@ from datetime import date, datetime, timedelta
 from pathlib import Path
 
 import config
-from fontes import telegram, recorte
+from fontes import telegram, recorte, escopo
 
 RES = config.RAIZ.parent / "btg-research"
 LEIT = RES / "leituras"
@@ -61,40 +61,8 @@ SETORES = [
     ("Telecom", r"telecom|\bVivo\b|Telef[ôo]nica|\bTIM\b|Brisanet|Desktop|Unifique"),
     ("Tecnologia", r"\btech|software|Totvs|Locaweb|Positivo|Intelbras|Bemobi|\bAI\b"),
 ]
-# Regex por ticker para achar a empresa coberta no texto do relatório. O CONJUNTO vem de cobertura.json (fonte única,
-# na raiz do repo); aqui ficam só os padrões de match. Vários nomes ("BTG Pactual", "Bradesco", "Telefônica") também
-# são CASAS de research ou outro emissor — por isso alguns exigem o ticker ou excluem o contexto da casa.
-_COB_RX = {
-    "RDOR3": r"Rede D[’']?Or|RDOR3", "MATD3": r"Mater ?Dei|MATD3",
-    "SAUD3": r"Bradsa[úu]de|Bradesco Sa[úu]de|Odontoprev|SAUD3", "RENT3": r"Localiza|RENT3",
-    "SMFT3": r"Smart ?Fit|SMFT3", "TIMS3": r"\bTIM\b|TIMS3", "VIVT3": r"\bVivo\b|Telef[ôo]nica Brasil|VIVT3",
-    "BBAS3": r"Banco do Brasil|BBAS3", "ITUB4": r"ITUB[34]|Ita[úu] Unibanco(?!\s+(?:Group|Holding|S\.?A|Corretora))",
-    "BBDC4": r"Banco Bradesco|BBDC[34]|Bradesco(?! BBI| Corretora| Sa[úu]de)",
-    "SANB11": r"Santander Brasil|SANB11", "BPAC11": r"\bBPAC(?:11|3)?\b",
-    "CEF": r"Caixa Econ[ôo]mica Federal|\bCEF\b", "PSSA3": r"Porto Seguro|PSSA3",
-    "BBSE3": r"BB Seguridade|BBSE3", "CXSE3": r"Caixa Seguridade|CXSE3", "IRBR3": r"\bIRB\b|IRBR3",
-    "NU": r"Nubank|Nu Holdings|ROXO34", "XP": r"XP Inc|XPBR31|\bXP\b",
-    "INTR": r"Inter ?& ?Co|Banco Inter|INBR32|\bINTR\b", "V": r"\bVisa\b",
-    "MA": r"Mastercard|Master ?Card", "VZ": r"Verizon|\bVZ\b",
-    "TEF": r"Telef[óo]nica S\.?A|Telef[óo]nica Espanha|\bTEF\b", "TIT": r"Telecom Italia|\bTIT\b",
-}
-
-
-def _carrega_cobertura() -> dict:
-    """COBERTURA = {ticker: regex} só dos tickers presentes em cobertura.json (fonte única). Padrão curado em
-    _COB_RX; ticker sem padrão curado usa ticker + 1ª palavra do nome. Sem o arquivo, cai no conjunto antigo."""
-    try:
-        emp = json.loads((Path(__file__).resolve().parent / "cobertura.json").read_text(encoding="utf-8"))["empresas"]
-    except Exception:
-        return {"RDOR3": r"Rede D[’']?Or|RDOR3", "SAUD3": r"Bradsa[úu]de|SAUD3|Bradesco Sa[úu]de|Odontoprev",
-                "RENT3": r"Localiza|RENT3", "CYRE3": r"Cyrela|CYRE3", "CURY3": r"\bCury\b|CURY3"}
-    out = {}
-    for tk, v in emp.items():
-        out[tk] = _COB_RX.get(tk) or rf"{re.escape(tk)}|{re.escape((v.get('nome') or tk).split()[0])}"
-    return out
-
-
-COBERTURA = _carrega_cobertura()
+# Cobertura e escopo: fontes/escopo.py (fonte única = cobertura.json; pedido de 27/11/2026 de reduzir as rotinas à cobertura).
+COBERTURA = escopo.cobertura()
 # Para achar a página de uma empresa coberta dentro de relatório genérico (fontes/recorte.py): os padrões da cobertura
 # mais apelidos que aparecem em research estrangeiro e que os padrões acima evitam de propósito.
 RELEVANCIA = dict(COBERTURA)
@@ -128,6 +96,10 @@ def _indices() -> list[dict]:
 
 
 def _classifica(it: dict, texto: str) -> dict:
+    if not it.get("empresa"):   # o índice do BTG às vezes vem sem empresa; o texto começa com "Empresa — título (analista, data)"
+        m = re.match(r"\s*([^\n—]{2,60}?) — ", texto[:200])
+        if m:
+            it["empresa"] = m.group(1).strip()
     base = f"{it.get('titulo', '')} {it.get('empresa', '')} {it.get('tipo', '')}"
     amostra = base + " " + texto[:1500]
     setores = [s for s, rx in SETORES if re.search(rx, base, re.I)]
@@ -136,12 +108,19 @@ def _classifica(it: dict, texto: str) -> dict:
     if not temas and macro:
         temas = [t for t, rx in TEMAS if re.search(rx, amostra, re.I)][:2]
     cob = [tk for tk, rx in COBERTURA.items() if re.search(rx, amostra, re.I)]
-    # o Morgan Stanley marca as empresas do relatório (busca company==RIC): vale mesmo quando o texto escapa dos padrões
-    # (ex.: "Itau Unibanco Holding", que o padrão do ITUB4 evita por causa da casa Itaú BBA; notas que só dizem "V/MA")
-    for tk in [t for k in ("cobertura_ms", "cobertura_gs", "cobertura_ubs", "cobertura_santander") for t in (it.get(k) or [])]:  # emissor marcado pela casa
+    # a casa cita o próprio grupo no cabeçalho/rodapé (Itaú BBA -> Itaú Unibanco, BBI -> Bradesco, BTG -> BTG Pactual):
+    # aí o emissor só conta se estiver no título/empresa
+    propria = {"Itaú BBA": "ITUB4", "Bradesco BBI": "BBDC4", "BTG": "BPAC11"}.get(it.get("fonte", ""))
+    if propria in cob and not re.search(COBERTURA[propria], base, re.I):
+        cob.remove(propria)
+    # as casas globais marcam as empresas do relatório (busca por RIC/ticker): vale mesmo quando o texto escapa dos
+    # padrões (ex.: "Itau Unibanco Holding", que o padrão do ITUB4 evita por causa da casa Itaú BBA; notas que só dizem "V/MA")
+    for tk in [t for k, v in it.items() if k.startswith("cobertura_") and isinstance(v, list) for t in v]:
         if tk in COBERTURA and tk not in cob:
             cob.append(tk)
-    fora = bool(re.search(EXCLUI, base, re.I))
+    # escopo (27/11/2026): só cobertura, setores da cobertura e macro/estratégia Brasil; o resto vira "só títulos"
+    esc = escopo.classifica(base, amostra)
+    fora = bool(re.search(EXCLUI, base, re.I)) or not (cob or esc["setores_cob"] or esc["macro"])
     if cob:
         temas = ["cobertura"] + temas
     elif setores and not temas:
@@ -191,7 +170,7 @@ def montar(desde: str | None = None, ate: str | None = None) -> dict:
             casas_glob[i["fonte"]] = casas_glob.get(i["fonte"], 0) + 1
     glob_txt = (" + Globais " + ", ".join(f"{k} {v}" for k, v in casas_glob.items())) if casas_glob else ""
     md = [f"# Leitura do dia — material coletado entre {desde} e {ate}", "",
-          f"{len(itens)} relatórios novos (BTG {n_btg}, Itaú BBA {n_bba}, Bradesco BBI {n_bdx}{glob_txt}); {sum(1 for i in itens if i['fora'])} fora do escopo (LatAm ex-Brasil, diários).", ""]
+          f"{len(itens)} relatórios novos (BTG {n_btg}, Itaú BBA {n_bba}, Bradesco BBI {n_bdx}{glob_txt}); {sum(1 for i in itens if i['fora'])} fora do escopo (fora da cobertura e dos setores dela, LatAm ex-Brasil, diários).", ""]
     for tema in ordem:
         lst = por_tema.get(tema)
         if not lst:
@@ -216,7 +195,7 @@ def montar(desde: str | None = None, ate: str | None = None) -> dict:
         md.append("")
     fora = [it for it in itens if it["fora"]]
     if fora:
-        md.append("## fora do escopo (só títulos)"); md.append("")
+        md.append("## fora do escopo (só títulos; não viram bloco)"); md.append("")
         md += [f"- [{it['fonte']}] {it.get('empresa', '')} — {it.get('titulo', '')}" for it in fora]
     config.OUTPUT.mkdir(parents=True, exist_ok=True)
     MATERIAL_MD.write_text("\n".join(md), encoding="utf-8")

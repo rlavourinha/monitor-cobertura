@@ -34,7 +34,7 @@ sys.path.insert(0, str(RAIZ))
 
 import config  # noqa: E402
 import leitura  # noqa: E402
-from fontes import telegram  # noqa: E402
+from fontes import telegram, escopo  # noqa: E402
 
 # regra do Rafael (17/11/2026): relatório se analisa com o Opus, a partir do PDF baixado (era claude-sonnet-5)
 MODELO = "claude-opus-5-5"
@@ -61,8 +61,10 @@ NÃO rode comandos de shell, NÃO baixe nada, NÃO commite: só use Read para le
 
 Regras:
 - SEM teto de itens (dias com mais ou menos conteúdo faz parte). Blocos por assunto com substância
-  (eleição/política, fiscal e juros, atividade, câmbio/fluxo, petróleo/commodities, empresas e setores do Ibov,
-  cobertura RDOR3/SAUD3/RENT3/CYRE3/CURY3, internacional, tecnologia). Fontes primárias (Tesouro, Anbima, B3) entram pelo dado, com o número.
+  (eleição/política, fiscal e juros, atividade, câmbio/fluxo, petróleo/commodities, internacional, tecnologia, e EMPRESAS SÓ DA
+  COBERTURA e dos setores dela). Cobertura: {COBERTURA}. Setores dela: saúde, bancos/financeiro, seguros, telecom, meios de
+  pagamento, aluguel de carros, academias. Notícia de outra empresa ou setor só entra se mexer com o mercado inteiro; o resto vai em
+  "fora". Fontes primárias (Tesouro, Anbima, B3) entram pelo dado, com o número.
 - Mesma notícia em vários jornais = um só bloco citando todos os ids (dedupe). Matérias em inglês, traduzidas.
 - Cada texto em HTML simples do Telegram (<b>, <i>; nada de & < > soltos), com <b>O que dizem.</b> (fatos, números, datas,
   divergências entre jornais), <b>Dado primário.</b> quando houver gráfico e <b>Nossa leitura.</b> (o que muda para o book
@@ -83,10 +85,13 @@ NÃO rode comandos de shell, NÃO baixe nada, NÃO commite: só use Read para le
    com este JSON exato: {{"data": "AAAA-MM-DD", "edicao": "{EDICAO}", "cabecalho": "<um parágrafo>", "blocos": [{{"titulo", "texto", "grafico", "ids"}}]}}
 
 Regras:
-- {NBLOCOS} blocos pelos temas com substância (fiscal, juros, inflação, atividade/emprego, crédito, câmbio/fluxo, commodities,
-  estratégia/carteiras como 10SIM e baskets, setores do Ibov, cobertura RDOR3/SAUD3/RENT3/CYRE3/CURY3).
+- {NBLOCOS} blocos, NESTA ORDEM: (1) empresas da cobertura, um bloco por empresa com notícia; (2) setores da cobertura
+  (saúde, bancos/financeiro, seguros, telecom, meios de pagamento, aluguel de carros, academias); (3) macro e estratégia do Brasil
+  (fiscal, juros, inflação, atividade/emprego, crédito, câmbio/fluxo). Cobertura: {COBERTURA}.
+- ESCOPO (pedido de 27/11/2026): relatório de outra empresa ou setor (construção, utilities, petróleo, mineração, varejo, agro...)
+  NÃO vira bloco, mesmo que esteja no material; a seção "fora do escopo" é só para conferência.
 - "ids" = ids dos relatórios usados no bloco, exatamente como aparecem no material (id=...); todo relatório com substância deve aparecer em algum bloco.
-- Cada texto em HTML simples do Telegram (<b>, <i>), até ~900 caracteres, com três partes: <i>O que dizem.</i> (BTG e Itaú, números e
+- Cada texto em HTML simples do Telegram (<b>, <i>), até ~900 caracteres, com três partes: <i>O que dizem.</i> (as casas, números e
   divergências entre eles), <i>Dado primário.</i> (o número da nossa série) e <i>Nossa leitura.</i> (conclusão própria, contrarian quando o
   dado não sustenta a casa; o que muda para as teses da cobertura).
 - {GRAFICO}
@@ -103,12 +108,12 @@ def _prompt_jornais(digest: Path, edicao: str, extra: str = "") -> str:
     cab = ("2-4 linhas: o evento e o que mudou desde a manhã" if edicao == "evento"
            else "4-6 linhas: o dia em um parágrafo")
     return PROMPT_JORNAIS.format(MATERIAL=leitura.JORNAIS_MD, DIGEST=digest, EDICAO=edicao,
-                                 CAB=cab, GRAFICO=_REGRAS_GRAFICO, EXTRA=extra)
+                                 CAB=cab, GRAFICO=_REGRAS_GRAFICO, EXTRA=extra, COBERTURA=escopo.lista_texto())
 
 
 def _prompt_sellside(digest: Path, edicao: str, nblocos: str) -> str:
     return PROMPT_SELLSIDE.format(MATERIAL=leitura.MATERIAL_MD, DIGEST=digest, EDICAO=edicao,
-                                  NBLOCOS=nblocos, GRAFICO=_REGRAS_GRAFICO)
+                                  NBLOCOS=nblocos, GRAFICO=_REGRAS_GRAFICO, COBERTURA=escopo.lista_texto())
 
 
 # ---------------------------------------------------------------------------- infra

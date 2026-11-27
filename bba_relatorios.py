@@ -24,7 +24,7 @@ import sys
 from datetime import date, datetime, timedelta
 
 import config
-from fontes import bba, pdf_baixados, telegram
+from fontes import bba, pdf_baixados, telegram, escopo
 
 DIR = config.DATA / "bba"
 TXT = DIR / "txt"
@@ -32,9 +32,7 @@ INDICE, NOVOS = DIR / "indice.json", DIR / "novos.json"
 ESPELHO = config.RAIZ.parent / "btg-research"
 SUB = "bba"
 
-DESTAQUE = re.compile(r"Rede D[’']?Or|RDOR|Hapvida|SAUD3|Localiza|RENT3|Cyrela|CYRE3|Cury|Equity Strategy|Ibovespa|Bovespa|"
-                      r"Health ?care|Real Estate|Homebuilder|Construction|Brasil|Brazil|Copom|IPCA|Selic|fiscal|Petrobras|"
-                      r"Vale\b|B3\b|Scenario Review", re.I)
+DESTAQUE = escopo.destaque_rx()   # escopo = cobertura.json + setores dela + macro Brasil (fontes/escopo.py, 27/11/2026)
 # fora: outros países, dailies, e as versões em português dos relatórios macro (o mesmo conteúdo sai em inglês)
 EXCLUI = re.compile(r"LatAm ex-Brasil|Latam Talking Points|Chile|Argentin|Colombia|Peru|Mexico|México|Paraguay|Uruguay|"
                     r"Market Data Monitor|Week Ahead|\bBRASIL –|Revisão de Cenário", re.I)
@@ -120,7 +118,8 @@ def modo_pdfs(arq: str, minutos: int, dias: int, sem_espelho: bool) -> int:
     else:
         limite = (date.today() - timedelta(days=dias)).isoformat()
         metas = [m for m in indice.values() if m.get("data", "") >= limite]
-    metas = [m for m in metas if not pdf_baixados.e_completo(TXT / f"{m['id']}.txt")]
+    # só os do escopo (destaque) têm PDF desde 27/11/2026; os demais ficam só no índice
+    metas = [m for m in metas if m.get("destaque", True) and not pdf_baixados.e_completo(TXT / f"{m['id']}.txt")]
     r = pdf_baixados.casar(metas, TXT, DIR / "pdf", minutos)
     ja = [indice[i] for i in r["casados"] if i in indice]
     for m in ja:                                  # relatório já registrado: atualiza o índice e o espelho

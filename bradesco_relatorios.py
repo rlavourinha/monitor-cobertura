@@ -27,7 +27,7 @@ from datetime import date, datetime, timedelta
 from pathlib import Path
 
 import config
-from fontes import bradesco, pdf_baixados, telegram
+from fontes import bradesco, escopo, pdf_baixados, telegram
 
 DIR = config.DATA / "bradesco"
 TXT = DIR / "txt"
@@ -35,10 +35,14 @@ INDICE, NOVOS = DIR / "indice.json", DIR / "novos.json"
 ESPELHO = config.RAIZ.parent / "btg-research"
 SUB = "bradesco"
 
-# destaque = tudo que não é diário/coluna/outro país: notas de empresa, setor, macro e estratégia do Brasil
+# destaque = dentro do escopo (cobertura.json + setores dela + macro Brasil, fontes/escopo.py, 27/11/2026) e não é
+# diário/coluna/outro país. Só o destaque tem PDF baixado e entra na leitura.
 EXCLUI = re.compile(r"Mexico|M[ée]xico|La Mañanera|Argentin|Chile|Colombia|Peru|Paraguay|Uruguay|Andean|LatAm ex-Brazil|"
                     r"Morning (Checkup|Assembly|Bytes|Call|Note)|Fast Lane|Oil Column|Daily Crusher|Don'?t Miz|Stock Guide|"
                     r"Week Ahead|Weekly Market|Daily|Destaques Semanais|Semanal|Monitor de Deb", re.I)
+
+
+_ESCOPO = escopo.destaque_rx()
 
 
 def _limpa(s) -> str:
@@ -62,7 +66,7 @@ def _meta(d: dict) -> dict:
          "analista": _limpa(d.get("an") or d.get("analista")), "sinopse": _limpa(d.get("sin") or d.get("sinopse")),
          "chars": 0, "coletado": datetime.now().strftime("%Y-%m-%d %H:%M")}
     chave = " ".join((m["empresa"], m["titulo"], m["sinopse"][:120]))
-    m["destaque"] = not EXCLUI.search(chave)
+    m["destaque"] = not EXCLUI.search(chave) and bool(_ESCOPO.search(" ".join((m["empresa"], m["titulo"]))))
     return m
 
 
@@ -128,7 +132,8 @@ def modo_pdfs(arq: str, minutos: int, dias: int, sem_espelho: bool) -> int:
     else:
         limite = (date.today() - timedelta(days=dias)).isoformat()
         metas = [m for m in indice.values() if m.get("data", "") >= limite]
-    metas = [m for m in metas if not pdf_baixados.e_completo(TXT / f"{m['id']}.txt")]
+    # só os do escopo (destaque) têm PDF desde 27/11/2026; os demais ficam só no índice
+    metas = [m for m in metas if m.get("destaque", True) and not pdf_baixados.e_completo(TXT / f"{m['id']}.txt")]
     r = pdf_baixados.casar(metas, TXT, DIR / "pdf", minutos)
     ja = [indice[i] for i in r["casados"] if i in indice]
     for m in ja:                                  # relatório já registrado: atualiza o índice e o espelho
