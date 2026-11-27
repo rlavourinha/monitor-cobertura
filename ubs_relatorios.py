@@ -20,6 +20,7 @@ import json
 import re
 import sys
 import zipfile
+from contextlib import contextmanager
 from datetime import date, datetime, timedelta
 
 import config
@@ -79,6 +80,52 @@ def _modelo(p, ric: str, d: dict, vistos: set) -> str | None:
     return arq.name
 
 
+def _no_login(p) -> bool:
+    return "login" in p.page.url or "idp" in p.page.url
+
+
+def entra_neo(p) -> bool:
+    """Abre o Neo; se cair no login, tenta renovar sem senha. A sessão da página expira (~12 h), mas o login de fundo
+    (servidor de identidade) segue válido: numa janela de verdade o login redireciona sozinho; sem janela às vezes
+    para na tela e precisa do "Continue". Espera até 40 s o redirecionamento automático."""
+    p.page.goto(AQUECE, timeout=90000, wait_until="domcontentloaded")
+    p.page.wait_for_timeout(4000)
+    if not _no_login(p):
+        return True
+    try:
+        p.page.get_by_text("Continue", exact=True).first.click(timeout=8000)
+    except Exception:
+        pass
+    for _ in range(20):
+        p.page.wait_for_timeout(2000)
+        if not _no_login(p):
+            break
+    if _no_login(p):
+        return False
+    p.page.goto(AQUECE, timeout=90000, wait_until="domcontentloaded")
+    p.page.wait_for_timeout(4000)
+    return not _no_login(p)
+
+
+@contextmanager
+def abre_portal():
+    """Portal do UBS já dentro do Neo: primeiro sem janela; se não renovar, janela fora da tela (redireciona como
+    um navegador normal). Levanta SessaoVencida se nenhum dos dois entrar."""
+    for modo in (True, "fora"):
+        p = gringas.Portal("ubs", headless=modo).__enter__()
+        if not entra_neo(p):
+            p.__exit__(RuntimeError, None, None)                 # não grava cookies de uma tentativa que falhou
+            continue
+        try:
+            yield p
+        except BaseException as e:
+            p.__exit__(type(e), e, None)
+            raise
+        p.__exit__(None, None, None)                             # sucesso: grava os cookies renovados
+        return
+    raise SessaoVencida("UBS Neo redirecionou para o login")
+
+
 def coletar(dias: int, modelos_base: bool = False) -> tuple[list[dict], list[str]]:
     for d in (TXT, PDFS, MODELOS):
         d.mkdir(parents=True, exist_ok=True)
@@ -87,22 +134,7 @@ def coletar(dias: int, modelos_base: bool = False) -> tuple[list[dict], list[str
     ids = _carrega(IDS, {})
     corte = (date.today() - timedelta(days=dias)).isoformat()
     novos, mods = [], []
-    with gringas.Portal("ubs", headless=True) as p:
-        p.page.goto(AQUECE, timeout=90000, wait_until="domcontentloaded")
-        p.page.wait_for_timeout(4000)
-        if "login" in p.page.url or "idp" in p.page.url:
-            # a sessão do Neo expira rápido, mas o login de fundo (servidor de identidade) costuma seguir válido:
-            # o "Continue" da tela renova sem senha
-            try:
-                p.page.get_by_text("Continue", exact=True).first.click(timeout=10000)
-                p.page.wait_for_timeout(12000)
-                if "login" in p.page.url or "idp" in p.page.url:
-                    p.page.goto(AQUECE, timeout=90000, wait_until="domcontentloaded")
-                    p.page.wait_for_timeout(6000)
-            except Exception:
-                pass
-        if "login" in p.page.url or "idp" in p.page.url:
-            raise SessaoVencida("UBS Neo redirecionou para o login")
+    with abre_portal() as p:
         docs, quem = {}, {}
         for tk, ric in ids.items():
             if not ric:

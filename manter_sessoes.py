@@ -1,7 +1,7 @@
-"""Mantém viva a sessão dos portais de research com sessão "deslizante" (expira sem uso), hoje só o UBS Neo
-(~1h30 parado e cai). Abre o portal sem janela, renova pelo "Continue" se preciso e grava os cookies renovados
-(gringas.Portal grava ao sair). Agendado a cada 45 min por agendar_sessoes.ps1. Registro em .playwright/sessoes_estado.json
-(fora do git).
+"""Mantém viva a sessão dos portais de research com sessão "deslizante", hoje só o UBS Neo: a página expira (~12 h),
+mas o login de fundo segue válido e renova sem senha. Abre o portal sem janela (e, se não renovar, numa janela fora
+da tela, que redireciona como um navegador normal) e grava os cookies renovados (gringas.Portal grava ao sair).
+Agendado a cada 45 min por agendar_sessoes.ps1. Registro em .playwright/sessoes_estado.json (fora do git).
 
     python manter_sessoes.py
 """
@@ -14,35 +14,29 @@ from datetime import datetime
 import config
 from fontes import gringas
 
-PORTAIS = {"ubs": "https://neo.ubs.com/feed/stream/company/VZ.N/latest/company-research"}
 LOG = config.RAIZ / ".playwright" / "sessoes_estado.json"
 
 
-def manter(casa: str, url: str) -> str:
+def manter_ubs() -> str:
+    import ubs_relatorios
     try:
-        with gringas.Portal(casa, headless=True) as p:
-            p.page.goto(url, timeout=90000, wait_until="domcontentloaded")
-            p.page.wait_for_timeout(5000)
-            if "login" in p.page.url or "idp" in p.page.url:
-                try:
-                    p.page.get_by_text("Continue", exact=True).first.click(timeout=10000)
-                    p.page.wait_for_timeout(12000)
-                except Exception:
-                    pass
-            if "login" in p.page.url or "idp" in p.page.url:
-                raise RuntimeError("caiu no login")
+        with ubs_relatorios.abre_portal() as p:
+            pass
         return "ok"
     except Exception as e:
         return f"falhou: {str(e)[:80]}"
 
 
+PORTAIS = {"ubs": manter_ubs}
+
+
 def main() -> int:
     sys.stdout.reconfigure(encoding="utf-8")
     est = json.loads(LOG.read_text(encoding="utf-8")) if LOG.exists() else {}
-    for casa, url in PORTAIS.items():
+    for casa, fn in PORTAIS.items():
         if not gringas.estado_sessao(casa).exists():
             continue
-        r = manter(casa, url)
+        r = fn()
         reg = est.setdefault(casa, {})
         reg["ultima"] = datetime.now().strftime("%Y-%m-%d %H:%M")
         reg["resultado"] = r
