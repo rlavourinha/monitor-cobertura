@@ -56,17 +56,32 @@ _JS_LISTA = r"""async ([paginas]) => {
     if (document.querySelector('input[type=email],input[type=text]') && /verif|código|code|e-?mail|access code|enter the/i.test(b)) return {status: 'login', todos: []};
     return {status: 'login', todos: []};
   }
+  // mesma leitura de data de bradesco_chrome_lista.js (formato antigo e o novo "N minutes ago" / "Thu 26 Nov 2026")
   const MES = {Jan:'01',Feb:'02',Mar:'03',Apr:'04',May:'05',Jun:'06',Jul:'07',Aug:'08',Sep:'09',Oct:'10',Nov:'11',Dec:'12'};
+  const pad = n => String(n).padStart(2, '0');
+  const fmt = t => `${t.getFullYear()}-${pad(t.getMonth() + 1)}-${pad(t.getDate())} ${pad(t.getHours())}:${pad(t.getMinutes())}`;
+  const h12 = (h, ap) => (+h % 12) + (/PM/i.test(ap || '') ? 12 : 0);
+  const lerData = s => {
+    let m = s.match(/^([A-Z][a-z]{2}) (\d{1,2}), (\d{4}), (\d{1,2}):(\d{2}) (AM|PM)/);
+    if (m && MES[m[1]]) return `${m[3]}-${MES[m[1]]}-${pad(m[2])} ${pad(h12(m[4], m[6]))}:${m[5]}`;
+    if (/^(just now|now|a few seconds ago)$/i.test(s)) return fmt(new Date());
+    m = s.match(/^(an?|one|\d+) (second|minute|hour|day)s? ago$/i);
+    if (m) { const n = /^\d+$/.test(m[1]) ? +m[1] : 1; const u = {second: 1e3, minute: 6e4, hour: 36e5, day: 864e5}[m[2].toLowerCase()];
+             return fmt(new Date(Date.now() - n * u)); }
+    m = s.match(/^(today|yesterday)$/i);
+    if (m) { const t = new Date(); if (/yesterday/i.test(m[1])) t.setDate(t.getDate() - 1); t.setHours(0, 0, 0, 0); return fmt(t); }
+    m = s.match(/^(?:[A-Z][a-z]{2},? )?(\d{1,2}) ([A-Z][a-z]{2}),? (\d{4})(?:,? (\d{1,2}):(\d{2})\s*(AM|PM)?)?$/);
+    if (m && MES[m[2]]) return `${m[3]}-${MES[m[2]]}-${pad(m[1])} ${m[4] ? pad(h12(m[4], m[6])) + ':' + m[5] : '00:00'}`;
+    return null;
+  };
   const seen = new Set(), todos = [];
   for (const a of document.querySelectorAll('a[href*="/report/"]')) {
     const id = (a.getAttribute('href').match(/report\/([0-9a-f-]{36})/) || [])[1];
     if (!id || seen.has(id)) continue;
     seen.add(id);
     const L = a.innerText.split('\n').map(s => s.trim()).filter(Boolean);
-    const iD = L.findIndex(s => /^[A-Z][a-z]{2} \d{1,2}, \d{4}/.test(s));
-    const m = iD >= 0 ? L[iD].match(/^([A-Z][a-z]{2}) (\d{1,2}), (\d{4}), (\d{1,2}):(\d{2}) (AM|PM)/) : null;
-    const hh = m ? (+m[4] % 12) + (m[6] === 'PM' ? 12 : 0) : 0;
-    const d = m ? `${m[3]}-${MES[m[1]]}-${m[2].padStart(2, '0')} ${String(hh).padStart(2, '0')}:${m[5]}` : null;
+    const iD = L.findIndex(s => lerData(s));
+    const d = iD >= 0 ? lerData(L[iD]) : null;
     todos.push({id, d, an: iD > 0 ? L[0] : '', co: (L[iD + 1] || '').slice(0, 80), t: (L[iD + 2] || '').slice(0, 220),
                 sin: (L.slice(iD + 3).join(' ') || '').replace(/^No Synopsis Available$/, '').slice(0, 300), url: '/report/' + id});
   }

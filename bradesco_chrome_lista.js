@@ -10,7 +10,8 @@ const DIAS = 3;
 const PAGINAS = 2;
 const esperar = ms => new Promise(r => setTimeout(r, ms));
 // acesso caído: o portal manda para sso.bluematrix.com ("BlueMatrix - Verification", re-verificação por e-mail).
-// Sai com erro explícito, para a rotina avisar em vez de responder "nada novo" (aconteceu de 25 a 27/11/2026).
+// Sai com erro explícito, para a rotina avisar em vez de responder "nada novo". De 25 a 27/11/2026 a rotina respondeu
+// "nada novo" porque o portal mudou o formato da data e nenhum card era reconhecido (daí DATA_ILEGIVEL abaixo).
 const caiu = () => /sso\.bluematrix/.test(location.host) || /Verification/i.test(document.title) ||
   /re-verify your email/i.test(document.body.innerText);
 if (caiu()) throw new Error('ACESSO_EXPIRADO: portal pede verificação por e-mail');
@@ -18,18 +19,35 @@ const botao = t => [...document.querySelectorAll('button')].find(b => b.innerTex
 if (!/Showing \d+ to/.test(document.body.innerText)) { const s = botao('SEARCH'); if (s) { s.click(); await esperar(6000); } }
 if (!document.querySelector('a[href*="/report/"]')) { const l = botao('LIST'); if (l) { l.click(); await esperar(5000); } }
 for (let i = 1; i < PAGINAS; i++) { const m = botao('LOAD MORE'); if (!m) break; m.click(); await esperar(5000); }
+// Data do card. Formatos vistos: "Nov 26, 2026, 3:12 PM" (até ~24/11/2026) e, depois da mudança do portal,
+// "24 minutes ago" / "3 hours ago" (hoje) e "Thu 26 Nov 2026" (dias anteriores, sem hora -> 00:00). Hora local.
 const MES = {Jan: '01', Feb: '02', Mar: '03', Apr: '04', May: '05', Jun: '06', Jul: '07', Aug: '08', Sep: '09', Oct: '10', Nov: '11', Dec: '12'};
-const lim = new Date(Date.now() - DIAS * 864e5).toISOString().slice(0, 10);
+const pad = n => String(n).padStart(2, '0');
+const fmt = t => `${t.getFullYear()}-${pad(t.getMonth() + 1)}-${pad(t.getDate())} ${pad(t.getHours())}:${pad(t.getMinutes())}`;
+const h12 = (h, ap) => (+h % 12) + (/PM/i.test(ap || '') ? 12 : 0);
+const lerData = s => {
+  let m = s.match(/^([A-Z][a-z]{2}) (\d{1,2}), (\d{4}), (\d{1,2}):(\d{2}) (AM|PM)/);
+  if (m && MES[m[1]]) return `${m[3]}-${MES[m[1]]}-${pad(m[2])} ${pad(h12(m[4], m[6]))}:${m[5]}`;
+  if (/^(just now|now|a few seconds ago)$/i.test(s)) return fmt(new Date());
+  m = s.match(/^(an?|one|\d+) (second|minute|hour|day)s? ago$/i);
+  if (m) { const n = /^\d+$/.test(m[1]) ? +m[1] : 1; const u = {second: 1e3, minute: 6e4, hour: 36e5, day: 864e5}[m[2].toLowerCase()];
+           return fmt(new Date(Date.now() - n * u)); }
+  m = s.match(/^(today|yesterday)$/i);
+  if (m) { const t = new Date(); if (/yesterday/i.test(m[1])) t.setDate(t.getDate() - 1); t.setHours(0, 0, 0, 0); return fmt(t); }
+  m = s.match(/^(?:[A-Z][a-z]{2},? )?(\d{1,2}) ([A-Z][a-z]{2}),? (\d{4})(?:,? (\d{1,2}):(\d{2})\s*(AM|PM)?)?$/);
+  if (m && MES[m[2]]) return `${m[3]}-${MES[m[2]]}-${pad(m[1])} ${m[4] ? pad(h12(m[4], m[6])) + ':' + m[5] : '00:00'}`;
+  return null;
+};
+const _l = new Date(Date.now() - DIAS * 864e5);
+const lim = `${_l.getFullYear()}-${pad(_l.getMonth() + 1)}-${pad(_l.getDate())}`;
 const seen = new Set(), todos = [];
 for (const a of document.querySelectorAll('a[href*="/report/"]')) {
   const id = (a.getAttribute('href').match(/report\/([0-9a-f-]{36})/) || [])[1];
   if (!id || seen.has(id)) continue;
   seen.add(id);
   const L = a.innerText.split('\n').map(s => s.trim()).filter(Boolean);
-  const iD = L.findIndex(s => /^[A-Z][a-z]{2} \d{1,2}, \d{4}/.test(s));
-  const m = iD >= 0 ? L[iD].match(/^([A-Z][a-z]{2}) (\d{1,2}), (\d{4}), (\d{1,2}):(\d{2}) (AM|PM)/) : null;
-  const hh = m ? (+m[4] % 12) + (m[6] === 'PM' ? 12 : 0) : 0;
-  const d = m ? `${m[3]}-${MES[m[1]]}-${m[2].padStart(2, '0')} ${String(hh).padStart(2, '0')}:${m[5]}` : null;
+  const iD = L.findIndex(s => lerData(s));
+  const d = iD >= 0 ? lerData(L[iD]) : null;
   todos.push({id, d, an: iD > 0 ? L[0] : '', co: (L[iD + 1] || '').slice(0, 80), t: (L[iD + 2] || '').slice(0, 220),
               sin: (L.slice(iD + 3).join(' ') || '').replace(/^No Synopsis Available$/, '').slice(0, 300), url: '/report/' + id});
 }
