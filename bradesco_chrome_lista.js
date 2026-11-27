@@ -51,6 +51,11 @@ for (const a of document.querySelectorAll('a[href*="/report/"]')) {
   todos.push({id, d, an: iD > 0 ? L[0] : '', co: (L[iD + 1] || '').slice(0, 80), t: (L[iD + 2] || '').slice(0, 220),
               sin: (L.slice(iD + 3).join(' ') || '').replace(/^No Synopsis Available$/, '').slice(0, 300), url: '/report/' + id});
 }
+// A Busca Avançada só dá a hora dos relatórios de hoje; dias anteriores vêm sem hora (00:00). bradesco_chrome_horas.js,
+// rodado antes na Home, guarda a hora completa em localStorage['bdx_horas']: completa aqui.
+let _horas = {};
+try { _horas = JSON.parse(localStorage.getItem('bdx_horas') || '{}'); } catch (e) { _horas = {}; }
+for (const o of todos) if (o.d && o.d.endsWith(' 00:00') && _horas[o.id]) o.d = _horas[o.id];
 if (caiu()) throw new Error('ACESSO_EXPIRADO: portal pede verificação por e-mail');
 if (!todos.length) throw new Error('LISTA_VAZIA: a Busca Avançada não devolveu nenhum card');
 const semData = todos.filter(o => !o.d).length;
@@ -58,4 +63,4 @@ if (semData > todos.length / 2) throw new Error(`DATA_ILEGIVEL: ${semData} de ${
 sessionStorage.setItem('bdx_lista', JSON.stringify(todos));
 const novos = todos.filter(o => o.d && o.d.slice(0, 10) >= lim && !CONHECIDOS.has(o.id));
 sessionStorage.setItem('bdx_novos', JSON.stringify(novos));
-JSON.stringify({lidos: todos.length, mais_antigo: todos.map(o => o.d).filter(Boolean).sort()[0], novos: novos.length, ids: novos.map(o => o.id.slice(0, 8) + ' ' + (o.d || '').slice(5, 16) + ' ' + o.t.slice(0, 40))});
+JSON.stringify({lidos: todos.length, sem_hora: todos.filter(o => o.d && o.d.endsWith(' 00:00')).length, mais_antigo: todos.map(o => o.d).filter(Boolean).sort()[0], novos: novos.length, ids: novos.map(o => o.id.slice(0, 8) + ' ' + (o.d || '').slice(5, 16) + ' ' + o.t.slice(0, 40))});

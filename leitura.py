@@ -578,7 +578,8 @@ def enviar(arq: str, sem_telegram: bool = False, sem_push: bool = False) -> dict
     digest = json.loads(Path(arq).read_text(encoding="utf-8"))
     digest.setdefault("data", date.today().isoformat())
     digest.setdefault("edicao", "manhã" if datetime.now().hour < 13 else "noite")   # duas edições por dia, arquivos separados
-    nome = f"{digest['data']}-{'manha' if digest['edicao'].startswith('manh') else 'noite'}"
+    ed = digest["edicao"]
+    nome = f"{digest['data']}-{'manha' if ed.startswith('manh') else 'noite' if ed == 'noite' else re.sub(r'[^a-z0-9]+', '-', ed.lower())}"
     pngs, enviados, falhas = {}, 0, []
     cab = f"<b>Leitura da {digest['edicao']} · {digest['data'][8:]}/{digest['data'][5:7]}</b>\n{digest.get('cabecalho', '')}".strip()
     if not sem_telegram and not telegram.enviar(cab, bot=_bot()):
