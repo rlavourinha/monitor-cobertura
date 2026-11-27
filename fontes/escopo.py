@@ -46,7 +46,8 @@ SETORES_COB = {
 
 # Macro e estratégia do Brasil
 MACRO_BR = (r"Brazil(ian)? (Macro|Economics|Strategy|Equity Strategy)|Macroeconomic Research\s*-\s*Brazil|Brazil Macro|"
-            r"Equity Strategy|Brazil Strategy|Scenario Review|\bBRAZIL\s*[–-]|\bBRASIL\s*[–-]|"
+            r"Equity Strategy|Brazil Strategy|Scenario Review|Economic (Highlights|Insights)|\binflation\b|infla[çc][ãa]o|"
+            r"\bBRAZIL\s*[–-]|\bBRASIL\s*[–-]|"
             r"\bCopom\b|\bSelic\b|\bIPCA\b|\bIGP|\bCAGED\b|\bPNAD\b|IBC-?Br|fiscal|arcabou[çc]o|Tesouro|"
             r"current account|conta corrente|balan[çc]a comercial|c[âa]mbio|\bBRL\b|Ibovespa|\bIbov\b|"
             r"\bBCB\b|Banco Central|Central Bank|household debt|endividamento|elei[çc]")
